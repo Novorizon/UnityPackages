@@ -1,0 +1,17 @@
+[
+  {
+    "package": "Google.Protobuf/3.36.2",
+    "file": "Google.Protobuf.dll",
+    "sha256": "47f3d4534309a33fec7241e995151935628e54511142515a647d67d74710d67a"
+  },
+  {
+    "package": "BouncyCastle.Cryptography/2.6.2",
+    "file": "BouncyCastle.Cryptography.dll",
+    "sha256": "7419a1723e300f6b772bf8153138f92da1bc47fc7d7fe096bdfacdff88d6751f"
+  },
+  {
+    "package": "System.Runtime.CompilerServices.Unsafe/4.5.2",
+    "file": "System.Runtime.CompilerServices.Unsafe.dll",
+    "sha256": "1ad2dd7225d5162a0fd3a3b337a1949448520e3130a4bc8e010ec02f76097500"
+  }
+]

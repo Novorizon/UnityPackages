@@ -1,0 +1,10 @@
+{
+  "name": "Game.Framework.Resources.Demo",
+  "rootNamespace": "Game.Framework.Samples.Resources",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Resources.YooAsset"
+  ],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

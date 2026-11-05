@@ -1,0 +1,20 @@
+{
+  "name": "Game.Framework.Network",
+  "rootNamespace": "Game.Framework.Network",
+  "references": [
+    "Game.Framework.Core"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Google.Protobuf.dll",
+    "BouncyCastle.Cryptography.dll",
+    "System.Runtime.CompilerServices.Unsafe.dll"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

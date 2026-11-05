@@ -1,0 +1,33 @@
+{
+  "name": "com.novorizon.framework",
+  "version": "0.10.0-preview.1",
+  "displayName": "Novorizon Framework",
+  "description": "Managed core, Unity main-thread services, typed events and a modular TCP/Protobuf game client.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon",
+    "url": "https://github.com/Novorizon"
+  },
+  "samples": [
+    {
+      "displayName": "Framework Demo",
+      "description": "Offline interactive foundation demo; create a standalone scene from Tools / Novorizon / Demos.",
+      "path": "Samples~/Demo"
+    },
+    {
+      "displayName": "TCP Network",
+      "description": "Business login and typed messaging examples.",
+      "path": "Samples~/Network"
+    },
+    {
+      "displayName": "Typed Events",
+      "description": "Lifecycle-owned event subscriptions.",
+      "path": "Samples~/Events"
+    },
+    {
+      "displayName": "Timers and Pools",
+      "description": "Main-thread timers, prefab reuse and bounded managed object reuse.",
+      "path": "Samples~/Foundation"
+    }
+  ]
+}

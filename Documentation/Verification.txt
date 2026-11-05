@@ -1,0 +1,124 @@
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths: {"packages": 12, "ownedPackages": 10, "importedFilesChecked": 2642, "unchangedExecutableAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 937, "nativeUnityExecuted": false}
+  Determining projects to restore...
+  Restored /workspace/UnityPackages/tools/AllPackagesVerification/AllPackagesVerification.csproj (in 90 ms).
+  AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.31
+PASS automatic first install submits all unpublished dependencies together
+PASS matching installed versions skip add but still finish setup
+PASS persistent completion prevents installation on assembly reload
+PASS pending add survives lost handles without concurrent UPM calls
+PASS pending embed survives lost handles without concurrent UPM calls
+PASS compilation errors stop setup and retry waits for active requests
+PASS network failure stops auto retries and explicit retry recovers
+PASS embed failure stops configuration and retry recovers
+PASS configuration failure keeps installed libraries and can retry
+PASS compiled and playing editors do not start UPM operations
+PASS resolved version mismatch is reported instead of claiming success
+PASS incompatible embedded package is preserved
+PASS complete archive payload uses project-relative copied sources
+PASS corrupt payload aborts before UPM mutation
+PASS incomplete payload aborts before UPM mutation
+PASS interrupted or corrupt generated archive copy is repaired
+PASS local monorepo uses portable sibling package folders
+PASS source install falls back to the release tag
+PASS aggregate version change runs the new setup once
+PASS batch completion requires package, embed and settings evidence
+PASS invalid catalog and traversal archive names are rejected
+PASS 21 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
+  Determining projects to restore...
+  Restored /workspace/UnityPackages/tools/RTreeCorrectness/Correctness.csproj (in 89 ms).
+  Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.11
+PASS regression: recycled nodes and deletion reinsertion
+PASS regression: root bounds, empty tree and refill
+PASS regression: failed operations preserve mappings
+PASS regression: rectangle equality and hashing
+PASS regression: rectangle subclass deletion uses bounds
+PASS regression: invalid input is rejected
+PASS regression: three-dimensional geometry
+PASS regression: nearest ties and inclusive distance limits
+PASS regression: nearest rounded norms and inclusive sqrt limits
+PASS regression: finite extreme coordinates
+PASS regression: minimum subnormal nearest ordering
+PASS regression: item slots are recycled and references released
+PASS regression: complete drain and node reuse
+PASS regression: STR packing and rebuild preserve every item
+PASS regression: caller-owned query buffers and statistics
+PASS regression: reused queries allocate no managed memory
+PASS regression: concurrent queries use independent scratch
+PASS regression: queries and writes are synchronized
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 5.41s.
+Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
+  Determining projects to restore...
+  Restored /workspace/UnityPackages/tools/RTreeSpatialCorrectness/SpatialCorrectness.csproj (in 97 ms).
+  SpatialCorrectness -> /workspace/UnityPackages/tools/RTreeSpatialCorrectness/bin/Release/net8.0/SpatialCorrectness.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.16
+PASS geometry and boundary queries (0.08s)
+PASS randomized box indexes and RTree adapter (0.14s)
+PASS dynamic AABB handles, updates and pairs (0.06s)
+PASS dynamic AABB ordered, nested and moving objects (0.25s)
+PASS loose octree ownership, expansion and updates (0.02s)
+PASS subtree pruning and movement outside cached content bounds (0.01s)
+PASS scaled and cancelling frustum planes (0.00s)
+PASS static BVH refit/rebuild (0.02s)
+PASS triangle BVH exact ray queries (0.06s)
+PASS triangle precision regressions (0.01s)
+PASS two-level scene query integration (0.00s)
+PASS KD radius, k nearest, ties and rebuild (0.14s)
+PASS concurrent reads and writers (0.06s)
+PASS warmed reusable queries allocate zero bytes (0.30s)
+PASS public mutable interfaces and RTreeIndex adapter (0.09s)
+PASS: 94,160 assertions, 0 failed groups, 1.25s (full)
+PASS project structure, GUIDs, pinned package sources and archive integrity
+  Determining projects to restore...
+  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/Core/Core.csproj (in 104 ms).
+  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/FrameworkUnity/FrameworkUnity.csproj (in 120 ms).
+  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/Unity/Unity.csproj (in 1 ms).
+  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/GameStarter.Verification.csproj (in 3 ms).
+  Unity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Unity/bin/Release/net8.0/Unity.dll
+  Core -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  FrameworkUnity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/FrameworkUnity/bin/Release/net8.0/Game.Framework.Unity.dll
+  GameStarter.Verification -> /workspace/UnityPackages/Projects/GameStarter/Verification~/bin/Release/net8.0/GameStarter.Verification.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.70
+PASS empty startup
+PASS ordered async startup and reverse shutdown
+PASS partial initialization failure releases the failing module
+PASS shutdown during initialization prevents later startup
+PASS reentrant startup does not initialize twice
+PASS tick failure stops updates and cleans all modules
+PASS shutdown from update skips remaining updates
+PASS cleanup continues after a shutdown exception
+PASS duplicate and null modules rejected before side effects
+PASS normal updates do not allocate
+PASS entry uses actual Framework singleton and rejects duplicates
+PASS entry restarts when scene/domain reload is disabled
+PASS catalog resolves dependencies once and before consumers
+PASS catalog detects missing and circular dependencies
+PASS archive integrity and online fallback
+PASS installer resumes after request handles are lost on reload
+PASS installer retains installed packages after an add failure
+PASS installer verifies the resolved version
+PASS HybridCLR embed request completes before installing consumers
+PASS installer waits for compilation and play mode
+PASS installer configures only after all dependencies exist
+PASS 21 lifecycle, package planning and installer scenarios (Unity/UPM API models; not native Unity).

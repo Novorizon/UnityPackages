@@ -1,0 +1,14 @@
+{
+  "name": "Game.Framework.HotUpdate.Editor",
+  "rootNamespace": "Game.Framework.HotUpdate.Editor",
+  "references": [
+    "Game.Framework.HotUpdate",
+    "HybridCLR.Editor",
+    "HybridCLR.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

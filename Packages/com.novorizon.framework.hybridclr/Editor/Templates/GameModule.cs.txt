@@ -1,0 +1,18 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Game.Framework.HotUpdate;
+
+namespace {{NAMESPACE}}
+{
+    public sealed class {{CLASS}} : IGameModule
+    {
+        public Task InitializeAsync(IGameHost host, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            // Load project services and the first scene before acknowledging startup.
+            host.ReportReady("1.0.0");
+            return Task.CompletedTask;
+        }
+        public void Shutdown() { }
+    }
+}

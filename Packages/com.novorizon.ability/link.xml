@@ -1,0 +1,15 @@
+<linker>
+  <!-- The strict reader constructs the explicitly supported JSON DTO schema by reflection. -->
+  <assembly fullname="Game.Ability">
+    <type fullname="Game.Ability.Configuration.JsonAbilityDocument" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonAbility" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonModifier" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonProjectile" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonAction" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonLevelValue" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonCharge" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonSpecialValue" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonModifierProperty" preserve="all" />
+    <type fullname="Game.Ability.Configuration.JsonModifierLevelProperty" preserve="all" />
+  </assembly>
+</linker>

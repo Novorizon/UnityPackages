@@ -1,0 +1,11 @@
+{
+  "name": "Game.Framework.UI.Editor",
+  "rootNamespace": "UI.Editor",
+  "references": [
+    "Game.Framework.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

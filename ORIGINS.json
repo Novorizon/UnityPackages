@@ -1,0 +1,80 @@
+{
+  "packages": [
+    {
+      "name": "com.novorizon.framework",
+      "version": "0.10.0-preview.1",
+      "source": "https://github.com/Novorizon/Framework.git?path=/Packages/com.novorizon.framework#65affcd12ece943da81ae7152c4e4682cde71b99",
+      "importArchiveSha256": "af27015ed55636eefd65e46737a9b868ee5c966b655345f169f905fd37b257bd"
+    },
+    {
+      "name": "com.code-philosophy.hybridclr",
+      "version": "9.0.3",
+      "source": "https://github.com/focus-creative-games/hybridclr_unity.git#6cadd24d101f4cbd00cd80190106f6621132d24d",
+      "importArchiveSha256": "610b25889ce44bcdd07df4e176fcc49b3211203581504144ca4ea1d0cb763490"
+    },
+    {
+      "name": "com.novorizon.framework.hybridclr",
+      "version": "0.1.0-preview.2",
+      "source": "https://github.com/Novorizon/HybridCLR-Demo.git?path=/Packages/com.novorizon.framework.hybridclr#eb4c9b1e38f9319c4f70fe142e4e7adc5c7c3f1f",
+      "importArchiveSha256": "c450d16da7fd94ca403031d644c9f17e6f627964ac7116083301132a97a9bc5a"
+    },
+    {
+      "name": "com.novorizon.framework.ui",
+      "version": "0.6.0-preview.1",
+      "source": "https://github.com/Novorizon/Framework.git?path=/Framework/UI#65affcd12ece943da81ae7152c4e4682cde71b99",
+      "importArchiveSha256": "23a161fcd63d518cfb27a80f12bf1a74d2a9f877a66db86d6aaf9eb9ceec9210"
+    },
+    {
+      "name": "com.novorizon.ability",
+      "version": "0.2.2-preview.1",
+      "source": "https://github.com/Novorizon/Cube.git?path=/Assets/Scripts/Ability#d450dfc484c94fa59ccf73df9f081695df88f990",
+      "importArchiveSha256": "65d85b3924caa17e0d9fc80fc17dc01a8e72613f05efebf547d624cd9b716804"
+    },
+    {
+      "name": "com.novorizon.ability.editor.odin",
+      "version": "0.1.1-preview.1",
+      "source": "https://github.com/Novorizon/Cube.git?path=/Packages/com.novorizon.ability.editor.odin#d450dfc484c94fa59ccf73df9f081695df88f990",
+      "importArchiveSha256": "b3da33740af811877a3e7e4b05095155979107d2ca5375b45b1c140616cfc093"
+    },
+    {
+      "name": "com.novorizon.rtree",
+      "version": "1.0.0-preview.2",
+      "source": "https://github.com/Novorizon/RTree.git?path=/Packages/com.novorizon.rtree#21130e91329fcfea6e24ea05a9dcabab494e8e46",
+      "importArchiveSha256": "3393644382dbaf05215f7d4035c49623c4814c987d26b1918d5df6f9337a83b8"
+    },
+    {
+      "name": "com.guanjinbiao.gpuanimator",
+      "version": "3.2.0-preview.1",
+      "source": "https://github.com/Novorizon/GpuAnimator.git#b6a3d58c24397b51f7661918a0c50ea7ad845515",
+      "importArchiveSha256": "7622711b9ada0fb3046f97a0299ba35bbfc8d80b353a31e38752901145835c9f"
+    },
+    {
+      "name": "com.novorizon.ecsframework",
+      "version": "2.0.0-preview.2",
+      "source": "https://github.com/Novorizon/ECS-Framework.git#f5265cdb11af251ddbda085a8732ba780d94487b",
+      "importArchiveSha256": "3e8bd8ea30e09784e2b4ee61cbcaa57144c98af1601002c5b177f8db848292c5"
+    },
+    {
+      "name": "com.tuyoogame.yooasset",
+      "version": "2.3.18",
+      "source": "https://github.com/tuyoogame/YooAsset.git?path=/Assets/YooAsset#4b6a8ca4064d7a59ba129acec8fecf134e86236e",
+      "importArchiveSha256": "76fd5fd476e078706179352a7c6e72e84ded1829b20b697ae37e5c70d5997227"
+    },
+    {
+      "name": "com.novorizon.framework.yooasset",
+      "version": "0.10.0-preview.1",
+      "source": "https://github.com/Novorizon/Framework.git?path=/Packages/com.novorizon.framework.yooasset#65affcd12ece943da81ae7152c4e4682cde71b99",
+      "importArchiveSha256": "32f63edb6082c94da3ceb680577977ae759cbf585ba35253b71a94e191428200"
+    },
+    {
+      "name": "com.novorizon.framework.all",
+      "version": "0.1.0-preview.2",
+      "source": "https://github.com/Novorizon/Framework.git?path=/Packages/com.novorizon.framework.all#406e61e65340f59e95384bd1cc69e4d2f6f01187",
+      "importVersion": "0.1.0-preview.1"
+    }
+  ],
+  "starter": {
+    "source": "GameStarter",
+    "commit": "c63de5696656b09f9435722bd0a7b4e7c5bc61a3"
+  }
+}

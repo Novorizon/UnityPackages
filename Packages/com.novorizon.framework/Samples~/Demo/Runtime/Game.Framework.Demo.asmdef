@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Demo",
+  "rootNamespace": "Game.Framework.Samples.Demo",
+  "references": ["Game.Framework.Core", "Game.Framework.Unity"],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

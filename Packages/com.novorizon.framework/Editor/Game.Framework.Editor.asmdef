@@ -1,0 +1,11 @@
+{
+  "name": "Game.Framework.Editor",
+  "rootNamespace": "Game.Framework.Editor",
+  "references": [
+    "Game.Framework.Network.Unity"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

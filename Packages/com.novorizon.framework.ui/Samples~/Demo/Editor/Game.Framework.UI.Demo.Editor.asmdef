@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.UI.Demo.Editor",
+  "rootNamespace": "UI.Demo.Editor",
+  "references": [
+    "Game.Framework.UI.Demo"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

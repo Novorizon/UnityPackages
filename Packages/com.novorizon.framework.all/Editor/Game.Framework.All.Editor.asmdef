@@ -1,0 +1,10 @@
+{
+  "name": "Game.Framework.All.Editor",
+  "rootNamespace": "Game.Framework.All.Editor",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": []
+}

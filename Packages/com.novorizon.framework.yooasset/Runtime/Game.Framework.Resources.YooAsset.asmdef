@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.Resources.YooAsset",
+  "rootNamespace": "Game.Resource",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Unity",
+    "YooAsset"
+  ],
+  "allowUnsafeCode": false,
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

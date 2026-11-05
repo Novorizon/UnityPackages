@@ -1,0 +1,11 @@
+{
+  "name": "Game.Framework.Network.Samples.Editor",
+  "rootNamespace": "Game.Framework.Network.Samples.Editor",
+  "references": [
+    "Game.Framework.Network.Samples"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

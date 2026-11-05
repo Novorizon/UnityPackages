@@ -1,0 +1,14 @@
+{
+  "name": "Game.Ability.Editor.Odin",
+  "rootNamespace": "Game.Ability.Editor",
+  "references": ["Game.Ability"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

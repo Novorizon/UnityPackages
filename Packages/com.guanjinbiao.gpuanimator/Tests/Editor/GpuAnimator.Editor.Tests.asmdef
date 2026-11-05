@@ -1,0 +1,12 @@
+{
+    "name": "GpuAnimator.Editor.Tests",
+    "rootNamespace": "GpuAnimatorTests",
+    "references": ["GpuAnimator", "GpuAnimator.Editor"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "optionalUnityReferences": ["TestAssemblies"],
+    "noEngineReferences": false
+}

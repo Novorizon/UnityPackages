@@ -1,0 +1,43 @@
+# 编辑器验证与测试
+
+烘焙器会修改生成资源。先在目标 Unity 版本和项目中完成单角色验收，再推广到整批资源。Baker 的 **Validate all roles** 会完整采样并做输出预检，不保存生成资产；它不能代替实际导入、材质和目标设备的渲染检查。
+
+## 启用包测试
+
+1. 在项目中通过 Package Manager 安装与当前 Unity 版本匹配的 **Unity Test Framework**。
+2. 在项目的 `Packages/manifest.json` 顶层 `testables` 数组中加入本包，保留原有其他项目配置：
+
+```json
+"testables": [
+  "com.guanjinbiao.gpuanimator"
+]
+```
+
+3. 打开 **Window > General > Test Runner**，选择 **EditMode**，运行 `GpuAnimator.Editor.Tests` 下的测试。
+
+测试程序集仅用于 Editor，并以 `UNITY_INCLUDE_TESTS` 和 `TestAssemblies` 标记隔离；正常运行时不需要 NUnit 或测试框架。测试会生成自己的临时模型及唯一的 `Assets/__GpuAnimatorWriterTests_*` 目录，并在结束时清理自己创建的资产，不使用项目中的角色输出目录。
+
+## 测试覆盖
+
+- 帧计数、循环边界、非循环终点与短动画。
+- 定点数编码范围、纹理容量、矩阵分解及保守包围盒。
+- 独立 Clip 采样、缺失轨道、源模型保持不变和取消清理。
+- 实际四骨骼影响限制、缺失 UV 和非法输入。
+- 连续重烘焙的资源 GUID、导入尺寸与格式。
+- 在保存中途注入异常，检查原文件和 `.meta` 恢复及首次保存失败的清理。
+
+这些测试包含 Unity 原生对象、预览场景和 AssetDatabase 行为，必须在真实 Editor 中运行才算完成这部分验证。独立 C# 编译和数学回归不能证明这些原生行为已经通过。
+
+## 项目验收
+
+按[美术交付清单](art-guidelines.md#单角色验收流程)准备单个角色，验证后执行一次实际 Bake，逐个播放动作并检查末帧、回调时机、法线、镜头边缘剔除和材质。随后重烘焙，确认场景及包装 prefab 的引用仍有效。
+
+当前 Shader 使用 Built-in Render Pipeline 和 Shader Model 3.5。对目标设备检查纹理尺寸支持，并用 Frame Debugger/Profiler 验证 Instancing 与开销；Humanoid、重定向及 IK 需要项目内单独验收。
+
+保存器只对本次生成的 Mesh 和材质调用指定路径的 `ForceReserializeAssets`，避免保存项目中其他未提交的 dirty 资产。生成文件由烘焙器管理，自定义组件和结构应放在单独的包装 prefab 或 Variant 中。
+
+如磁盘或导入错误同时导致自动恢复失败，错误报告会保留备份路径；备份位于项目 `Library/GpuAnimatorBakeBackup/` 下。按其中 `manifest.json` 的路径对应关系恢复本次涉及的文件与 `.meta`，再重新导入和验证；恢复前保留这份备份。
+
+## 自动化执行
+
+在安装本包、Unity Test Framework 并配置 testables 的 Built-in 测试工程运行：`python Tools~/run-unity-tests.py --unity /path/to/Unity --project /path/to/project --output /path/to/new-results`。报告必须包含非零且全部通过的测试。新增 GpuAnimatorPlaybackTests 连接烘焙、保存、解码、注入、播放与清理；本轮源码环境没有执行这些原生步骤。

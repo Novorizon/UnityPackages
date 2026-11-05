@@ -1,0 +1,92 @@
+{
+  "packages": [
+    {
+      "name": "com.code-philosophy.hybridclr",
+      "version": "9.0.3",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.code-philosophy.hybridclr#v0.1.0-preview.2",
+      "archive": "com.code-philosophy.hybridclr-9.0.3.tgz",
+      "sha256": "a15fe4f513b07734d560ef1f732c2872dc0dbe57a275424dd24968b85937c2b6",
+      "embed": true
+    },
+    {
+      "name": "com.guanjinbiao.gpuanimator",
+      "version": "3.2.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.guanjinbiao.gpuanimator#v0.1.0-preview.2",
+      "archive": "com.guanjinbiao.gpuanimator-3.2.0-preview.1.tgz",
+      "sha256": "28ce49b92c0cfce125f251403cc2110dc1843ff56d738197059fde847b837108",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.ability",
+      "version": "0.2.2-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.2",
+      "archive": "com.novorizon.ability-0.2.2-preview.1.tgz",
+      "sha256": "a14daa7a5149b5b89a3eb540de6be10a88b110aff457917d75c4f611ce41dfe6",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.ability.editor.odin",
+      "version": "0.1.1-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability.editor.odin#v0.1.0-preview.2",
+      "archive": "com.novorizon.ability.editor.odin-0.1.1-preview.1.tgz",
+      "sha256": "94f1217b4111565575c882711219fbd24e7ae19edfbade5719f022c4e7dea4e8",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.ecsframework",
+      "version": "2.0.0-preview.2",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecsframework#v0.1.0-preview.2",
+      "archive": "com.novorizon.ecsframework-2.0.0-preview.2.tgz",
+      "sha256": "131899436a2fd2952df26bc6c2314be35275c2f898d912c54b16682eb27ff898",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.framework",
+      "version": "0.10.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.2",
+      "archive": "com.novorizon.framework-0.10.0-preview.1.tgz",
+      "sha256": "ea6de7cef618c59d653fefcdfe3f37d255ec4b4e405686bc9a15fd9809205cee",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.framework.hybridclr",
+      "version": "0.1.0-preview.2",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.2",
+      "archive": "com.novorizon.framework.hybridclr-0.1.0-preview.2.tgz",
+      "sha256": "87462d68f701e49cc15f289a7bb8addbc38a4c47b6362bb15f018f2d9ed0f1f7",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.framework.ui",
+      "version": "0.6.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.2",
+      "archive": "com.novorizon.framework.ui-0.6.0-preview.1.tgz",
+      "sha256": "0a58a5ecec3f10cc5b085ca20bb0ca68c86f2f928484a85cab3367e9ae4ff4d2",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.framework.yooasset",
+      "version": "0.10.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.2",
+      "archive": "com.novorizon.framework.yooasset-0.10.0-preview.1.tgz",
+      "sha256": "f1d1358760f0102a8abc3f811f0be1e042b6486b5f269b4157b3d42b2c29f07a",
+      "embed": false
+    },
+    {
+      "name": "com.novorizon.rtree",
+      "version": "1.0.0-preview.2",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.2",
+      "archive": "com.novorizon.rtree-1.0.0-preview.2.tgz",
+      "sha256": "1cfb4923bfa1de28f2f7b90d2beef3db61fcab02b5c66bdb3cc8b0a7b45ab7d9",
+      "embed": false
+    },
+    {
+      "name": "com.tuyoogame.yooasset",
+      "version": "2.3.18",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.tuyoogame.yooasset#v0.1.0-preview.2",
+      "archive": "com.tuyoogame.yooasset-2.3.18.tgz",
+      "sha256": "dfcc51876abb48d5337708fea85044a0d8ee86f3666cb55d0597a225e4a968cf",
+      "embed": false
+    }
+  ]
+}

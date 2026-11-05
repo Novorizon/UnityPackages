@@ -1,0 +1,18 @@
+{
+  "name": "com.novorizon.framework.yooasset",
+  "version": "0.10.0-preview.1",
+  "displayName": "Novorizon YooAsset Adapter",
+  "description": "Optional shared resource facade for YooAsset 2.3.18.",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.novorizon.framework": "0.10.0-preview.1",
+    "com.tuyoogame.yooasset": "2.3.18"
+  },
+  "samples": [
+    {
+      "displayName": "Resource Demo",
+      "description": "Explicit initialization and shared-cache asset loading using the project's own YooAsset 2.3.18 package configuration.",
+      "path": "Samples~/Demo"
+    }
+  ]
+}

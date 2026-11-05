@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.Resources.Demo.Editor",
+  "rootNamespace": "Game.Framework.Samples.Resources.Editor",
+  "references": [
+    "Game.Framework.Resources.Demo"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

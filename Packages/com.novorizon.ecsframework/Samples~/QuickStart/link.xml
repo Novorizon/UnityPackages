@@ -1,0 +1,9 @@
+<linker>
+  <!-- Conservative sample preservation; generic pool factories use new T() without scanning. -->
+  <assembly fullname="ECS.QuickStart" preserve="all" />
+  <assembly fullname="ECS">
+    <type fullname="ECS.Entity" preserve="nothing">
+      <method signature="System.Void .ctor()" />
+    </type>
+  </assembly>
+</linker>

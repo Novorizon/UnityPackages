@@ -1,0 +1,26 @@
+{
+  "packages": 12,
+  "ownedPackages": 10,
+  "importedFilesChecked": 2642,
+  "unchangedExecutableAndAssetFiles": true,
+  "updatedDocumentation": [
+    "Packages/com.guanjinbiao.gpuanimator/Documentation~/getting-started.md",
+    "Packages/com.guanjinbiao.gpuanimator/README.md",
+    "Packages/com.novorizon.ability/README.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/FRAMEWORK-INTEGRATION.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/QUICKSTART.zh-CN.md",
+    "Packages/com.novorizon.framework.yooasset/README.md",
+    "Packages/com.novorizon.framework/Documentation~/Package.md",
+    "Packages/com.novorizon.rtree/Documentation~/index.md",
+    "Packages/com.novorizon.rtree/README.md"
+  ],
+  "activeAssemblies": 23,
+  "activeGuids": 937,
+  "nativeUnityExecuted": false,
+  "aggregateModelScenarios": 21,
+  "starterModelScenarios": 21,
+  "rtreeRegressionGroups": 18,
+  "rtreeRandomizedScenarios": 168,
+  "spatialAssertions": 94160,
+  "release": "v0.1.0-preview.2"
+}

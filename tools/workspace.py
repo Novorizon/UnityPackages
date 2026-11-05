@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Maintain, validate and export the multi-package Unity repository."""
+import argparse
+import gzip
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import tarfile
+import tempfile
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[1]
+ALL = 'com.novorizon.framework.all'
+OFFICIAL = {'com.code-philosophy.hybridclr', 'com.tuyoogame.yooasset'}
+
+
+def read(path):
+    return json.loads(path.read_text())
+
+
+def write(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+
+def definitions():
+    result = {}
+    for path in sorted((ROOT / 'Packages').iterdir()):
+        if not path.is_dir():
+            continue
+        metadata = read(path / 'package.json')
+        assert metadata['name'] == path.name and path.name not in result
+        result[path.name] = metadata
+    return result
+
+
+def package_bytes(folder, extras=None):
+    files = {p.relative_to(folder).as_posix(): p.read_bytes() for p in folder.rglob('*') if p.is_file() and not any(v in {'bin', 'obj', '__pycache__'} for v in p.parts)}
+    files.update(extras or {})
+    result = io.BytesIO()
+    with gzip.GzipFile(filename='', mode='wb', fileobj=result, mtime=0) as gz, tarfile.open(fileobj=gz, mode='w') as tf:
+        for name, data in sorted(files.items()):
+            entry = tarfile.TarInfo('package/' + name)
+            entry.size = len(data)
+            entry.mode = 0o644
+            tf.addfile(entry, io.BytesIO(data))
+    return result.getvalue()
+
+
+def snapshots():
+    return {name: package_bytes(ROOT / 'Packages' / name) for name in definitions() if name != ALL}
+
+
+def sync():
+    config = read(ROOT / 'workspace.json')
+    packages = definitions()
+    archives = snapshots()
+    entries = []
+    for name, data in archives.items():
+        entries.append(dict(name=name, version=packages[name]['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', archive=f'{name}-{packages[name]["version"]}.tgz', sha256=hashlib.sha256(data).hexdigest(), embed=name == 'com.code-philosophy.hybridclr'))
+    write(ROOT / 'Packages' / ALL / 'Dependencies.json', dict(packages=entries))
+    project = ROOT / 'Projects/GameStarter'
+    old = {m['id']: m for m in read(project / 'Assets/Settings/OptionalModules.json')['modules']}
+    old['com.tuyoogame.yooasset'] = dict(id='com.tuyoogame.yooasset', title='YooAsset 官方运行时', hidden=True)
+    old['com.novorizon.framework.yooasset'] = dict(id='com.novorizon.framework.yooasset', title='YooAsset 适配', description='官方 YooAsset 2.3.18 与 Framework 共享资源适配。')
+    for spec in entries:
+        module = old[spec['name']]
+        module.update(version=spec['version'], source='file:../../../Packages/' + spec['name'], archive=spec['archive'], sha256=spec['sha256'], dependencies=[dep for dep in packages[spec['name']].get('dependencies', {}) if dep in packages])
+        if spec['embed']:
+            module['embed'] = True
+    write(project / 'Assets/Settings/OptionalModules.json', dict(modules=list(old.values())))
+    manifest = read(project / 'Packages/manifest.json')
+    manifest['dependencies']['com.novorizon.framework'] = 'file:../../../Packages/com.novorizon.framework'
+    write(project / 'Packages/manifest.json', manifest)
+    validation = dict(manifest['dependencies'])
+    for name in packages:
+        validation[name] = 'file:../../../Packages/' + name
+    validation['com.unity.test-framework'] = '1.1.33'
+    write(ROOT / 'Projects/PackageValidation/Packages/manifest.json', dict(dependencies=dict(sorted(validation.items()))))
+    print('Synchronized 11 dependency pins and both Unity project manifests.', flush=True)
+
+
+def validate():
+    config, packages = read(ROOT / 'workspace.json'), definitions()
+    assert len(packages) == 12
+    specs = read(ROOT / 'Packages' / ALL / 'Dependencies.json')['packages']
+    assert {p['name'] for p in specs} == set(packages) - {ALL}
+    archives = snapshots()
+    for spec in specs:
+        assert spec['version'] == packages[spec['name']]['version']
+        assert spec['git'] == f'{config["repository"]}?path=/Packages/{spec["name"]}#{config["release"]}'
+        assert spec['sha256'] == hashlib.sha256(archives[spec['name']]).hexdigest(), 'Run sync after changing package contents: ' + spec['name']
+    def visit(name, ancestors):
+        assert name not in ancestors, 'Circular package dependency: ' + name
+        for dependency, version in packages[name].get('dependencies', {}).items():
+            if dependency in packages:
+                assert packages[dependency]['version'] == version, (name, dependency, version)
+                visit(dependency, ancestors + [name])
+            else:
+                assert dependency.startswith('com.unity.'), (name, 'unresolved dependency', dependency)
+    for name in packages:
+        visit(name, [])
+    assert not any(name in packages['com.novorizon.framework'].get('dependencies', {}) for name in packages if name != 'com.novorizon.framework')
+    assert 'com.novorizon.ability' not in packages['com.novorizon.ecsframework'].get('dependencies', {})
+    assert 'com.novorizon.ecsframework' not in packages['com.novorizon.ability'].get('dependencies', {})
+    asmdefs, guids = {}, {}
+    for package in (ROOT / 'Packages').iterdir():
+        if not package.is_dir():
+            continue
+        for file in package.rglob('*'):
+            if not file.is_file() or any(part.endswith('~') for part in file.relative_to(package).parts):
+                continue
+            if file.suffix == '.asmdef':
+                definition = read(file)
+                assert definition['name'] not in asmdefs, ('Duplicate assembly', file, asmdefs.get(definition['name']))
+                asmdefs[definition['name']] = file
+            if file.suffix == '.meta':
+                match = re.search(r'^guid: ([a-fA-F0-9]{32})$', file.read_text(), re.M)
+                if match:
+                    assert match[1] not in guids, ('Duplicate active GUID', file, guids.get(match[1]))
+                    guids[match[1]] = file
+    baseline = read(ROOT / 'Documentation/ImportBaseline.json')
+    doc_changes = []
+    for relative, expected in baseline.items():
+        file = ROOT / relative
+        assert file.is_file(), ('Missing imported file', relative)
+        if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
+            assert file.suffix == '.md' and relative.split('/')[1] not in OFFICIAL, ('Executable code or upstream package changed', relative)
+            doc_changes.append(relative)
+    for project_name in ['GameStarter', 'PackageValidation']:
+        project = ROOT / 'Projects' / project_name
+        for name, source in read(project / 'Packages/manifest.json')['dependencies'].items():
+            if source.startswith('file:'):
+                local = (project / 'Packages' / source[5:]).resolve()
+                assert local == ROOT / 'Packages' / name
+                assert read(local / 'package.json')['name'] == name
+    report = dict(packages=len(packages), ownedPackages=len(packages) - len(OFFICIAL), importedFilesChecked=len(baseline), unchangedExecutableAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
+    print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
+    return report
+
+
+def verify(dotnet):
+    report = validate()
+    with tempfile.TemporaryDirectory(prefix='unity-packages-verify-') as temp:
+        env = os.environ.copy()
+        env.setdefault('DOTNET_CLI_HOME', str(Path(temp) / 'dotnet-home'))
+        env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
+        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+            project = ROOT / 'tools' / folder / (project_name + '.csproj')
+            subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+            subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
+        subprocess.run(['python3', str(ROOT / 'Projects/GameStarter/Tools~/verify.py'), '--dotnet', dotnet], cwd=ROOT, env=env, check=True)
+    write(ROOT / 'Documentation/Verification.json', report)
+
+
+def export(output):
+    validate()
+    output.mkdir(parents=True, exist_ok=True)
+    metadata = definitions()
+    payload = {}
+    for name, data in snapshots().items():
+        archive = f'{name}-{metadata[name]["version"]}.tgz'
+        (output / archive).write_bytes(data)
+        payload['Payload~/' + archive] = data
+    aggregate = f'{ALL}-{metadata[ALL]["version"]}.tgz'
+    (output / aggregate).write_bytes(package_bytes(ROOT / 'Packages' / ALL, payload))
+    sources = [p for p in ROOT.rglob('*') if p.is_file() and not any(part in {'.git', 'bin', 'obj', '__pycache__', 'Library', 'Temp', 'Logs', 'UserSettings', 'Artifacts'} or part in {'OptionalArchives~', 'NovorizonFrameworkAll~'} for part in p.relative_to(ROOT).parts)]
+    zip_path = output / 'UnityPackages-source.zip'
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as archive:
+        for file in sorted(sources):
+            entry = zipfile.ZipInfo('UnityPackages/' + file.relative_to(ROOT).as_posix(), (2026, 11, 5, 0, 0, 0))
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            entry.external_attr = 0o100644 << 16
+            archive.writestr(entry, file.read_bytes())
+    checksums = []
+    for file in sorted(output.iterdir()):
+        if file.suffix in {'.tgz', '.zip', '.bundle'}:
+            checksums.append(hashlib.sha256(file.read_bytes()).hexdigest() + '  ' + file.name)
+    (output / 'SHA256SUMS').write_text('\n'.join(checksums) + '\n')
+    print('Exported', zip_path, 'and', aggregate, flush=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest='command', required=True)
+    sub.add_parser('sync')
+    sub.add_parser('check')
+    v = sub.add_parser('verify')
+    v.add_argument('--dotnet', default='dotnet')
+    p = sub.add_parser('export')
+    p.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    if args.command == 'sync': sync()
+    elif args.command == 'check': validate()
+    elif args.command == 'verify': verify(args.dotnet)
+    else: export(args.output.resolve())
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,16 @@
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Ll]ogs/
+**/[Oo]bj/
+**/[Bb]uilds/
+**/UserSettings/
+**/bin/
+**/obj/
+**/__pycache__/
+.vs/
+.idea/
+.DS_Store
+Artifacts/
+**/OptionalArchives~/
+**/NovorizonFrameworkAll~/
+*.user

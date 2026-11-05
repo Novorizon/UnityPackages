@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.UI.Demo",
+  "rootNamespace": "UI.Demo",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Unity",
+    "Game.Framework.UI",
+    "Unity.ugui"
+  ],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}
