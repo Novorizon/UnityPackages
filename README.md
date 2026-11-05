@@ -2,7 +2,7 @@
 
 Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各库共用一个代码仓库，各自保留独立 UPM 包、程序集和依赖关系。
 
-当前已完成本地仓库整理。GitHub 远端 `Novorizon/UnityPackages` 尚未创建；本文的 Git 安装地址需在远端发布及版本标签建立后使用。本地开发与附带全部归档的聚合包可直接使用。
+统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，首次发行标签为 `v0.1.0-preview.2`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
 
 ## 包布局
 
@@ -37,7 +37,7 @@ Packages/com.novorizon.framework.all/package.json
 
 `Projects/PackageValidation` 是依赖全部 12 个包的 Unity 验收工程。它用于导入、编译和包内测试，不包含游戏玩法。官方 uGUI、Mathematics、Scriptable Build Pipeline 和 Test Framework 等依赖仍由 Unity 注册表提供。Odin Inspector 商业插件由项目自行提供。
 
-## Git 安装（远端发布后）
+## Git 安装
 
 每个包均有独立安装路径，例如：
 

@@ -21,4 +21,4 @@
 3. 从本地 package.json 和分发 tarball 安装聚合包，检查所有包版本、目录复制和跨重编译恢复；复制完整工作区到新路径后再次打开。
 4. 验证官方 HybridCLR Embedded 来源、Data~、原 importer meta、默认配置和热更入口；执行 IL2CPP Player 构建与补丁加载。
 5. 按各包原生文档验收 UI 输入和资源、Ability Odin 编辑器、ECS 生命周期、空间查询、GPU 烘焙/播放/回收与 YooAsset Bundle 加载。
-6. 远端发布后单独验证同仓库标签下的 Git 子目录安装；当前远端尚未创建。
+6. 在 Unity 中单独验证同仓库标签下的 Git 子目录安装；GitHub 提交、标签及源码一致性由发布流程单独核对。
