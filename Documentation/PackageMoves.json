@@ -9,7 +9,8 @@
     "Packages/com.novorizon.ecsframework/": "Packages/com.novorizon.ecs/",
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS/": "Packages/com.novorizon.ecs/Runtime/",
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS.meta": "Packages/com.novorizon.ecs/Runtime.meta",
-    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.guanjinbiao.gpuanimator/"
+    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.novorizon.gpuanimator/",
+    "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/"
   },
   "retiredFiles": [
     "Packages/com.novorizon.ability.editor.odin/package.json",
@@ -20,11 +21,11 @@
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
     "Packages/com.novorizon.ecs/package.json",
-    "Packages/com.guanjinbiao.gpuanimator/package.json"
+    "Packages/com.novorizon.gpuanimator/package.json"
   ],
-  "reason": "Ability editor belongs to the Ability UPM package; ECS package uses the concise ecs identifier.",
+  "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
-    "Packages/com.guanjinbiao.gpuanimator/Tools~/package.py"
+    "Packages/com.novorizon.gpuanimator/Tools~/package.py"
   ],
   "externalizedPackages": [
     "com.code-philosophy.hybridclr",

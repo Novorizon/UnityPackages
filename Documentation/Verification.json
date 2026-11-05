@@ -6,6 +6,8 @@
   "externalHistoricalFilesOmitted": 1818,
   "unchangedRuntimeAndAssetFiles": true,
   "updatedDocumentation": [
+    "Packages/com.guanjinbiao.gpuanimator/CHANGELOG.md",
+    "Packages/com.guanjinbiao.gpuanimator/Documentation~/editor-testing.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/getting-started.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/index.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/integration.md",
@@ -30,11 +32,13 @@
   "activeAssemblies": 19,
   "activeGuids": 344,
   "nativeUnityExecuted": false,
-  "release": "v0.1.0-preview.5",
+  "release": "v0.1.0-preview.6",
   "aggregateModelScenarios": 20,
   "abilityPublicDeclarations": 1083,
   "abilityEditorChecks": 91,
   "abilityWithoutOdinCompile": true,
   "thirdPartySourcesVendored": false,
-  "dependencyPayloadsBundled": false
+  "dependencyPayloadsBundled": false,
+  "ownedPackagePrefix": "com.novorizon.",
+  "sourceRegressionBaselineRelease": "v0.1.0-preview.5"
 }

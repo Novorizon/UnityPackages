@@ -42,7 +42,9 @@
       "name": "com.guanjinbiao.gpuanimator",
       "version": "3.2.0-preview.1",
       "source": "https://github.com/Novorizon/GpuAnimator.git#b6a3d58c24397b51f7661918a0c50ea7ad845515",
-      "importArchiveSha256": "7622711b9ada0fb3046f97a0299ba35bbfc8d80b353a31e38752901145835c9f"
+      "importArchiveSha256": "7622711b9ada0fb3046f97a0299ba35bbfc8d80b353a31e38752901145835c9f",
+      "currentPackage": "com.novorizon.gpuanimator",
+      "currentPath": "Packages/com.novorizon.gpuanimator"
     },
     {
       "name": "com.novorizon.ecsframework",

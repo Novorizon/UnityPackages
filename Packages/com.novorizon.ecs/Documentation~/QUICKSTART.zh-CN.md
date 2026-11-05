@@ -7,8 +7,8 @@
 在 Unity 的 **Window → Package Manager → + → Add package from git URL** 添加：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.5
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.5
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.6
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.6
 ```
 
 上面固定到包含本次改动的 PR 分支。合并后可切换到默认分支，发布项目建议固定到已验证的提交 SHA。已有本地检出时，也可选择 **Add package from disk**，打开仓库根目录的 `package.json`。

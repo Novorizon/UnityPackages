@@ -9,7 +9,7 @@
 
 ```json
 "testables": [
-  "com.guanjinbiao.gpuanimator"
+  "com.novorizon.gpuanimator"
 ]
 ```
 

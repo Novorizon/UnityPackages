@@ -34,6 +34,7 @@ def definitions():
             continue
         metadata = read(path / 'package.json')
         assert metadata['name'] == path.name and path.name not in result
+        assert path.name.startswith('com.novorizon.'), ('Invalid maintained package prefix', path.name)
         result[path.name] = metadata
     return result
 

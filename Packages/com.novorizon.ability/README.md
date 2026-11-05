@@ -27,7 +27,7 @@ IWorld 可返回粗候选；FindUnits 最终按有限坐标和精确三维球半
 通过一个 Git URL 安装运行时及编辑器：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.5
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.6
 ```
 
 也可从 Package Manager 选择本目录 package.json 或导出的单个 Ability tarball。`Game.Ability.asmdef` 编译运行时；`Editor/Game.Ability.Editor.Odin.asmdef` 仅编译编辑器。没有 Odin 时运行时正常可用，工作台显示安装提示；Odin 插件由项目提供。

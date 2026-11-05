@@ -31,7 +31,7 @@ internal static class Program
         Check("source install falls back to the release tag", () => InProject(c => { Drain(); True(Client.Adds.Single().All(s => s.StartsWith("https://github.com/") && s.Contains("#"))); }));
         Check("aggregate version change runs the new setup once", ReleaseChange);
         Check("batch completion requires package, embed and settings evidence", BatchEvidence);
-        Check("legacy editor and ECS packages are replaced atomically", LegacyPackages);
+        Check("legacy editor, ECS and GPU animator packages are replaced atomically", LegacyPackages);
         Check("migration failure retains the old packages", FailedMigration);
         Check("external packages always use upstream references", ExternalReferences);
         Check("invalid dependency identities are rejected", InvalidCatalog);
