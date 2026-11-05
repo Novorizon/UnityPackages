@@ -7,6 +7,7 @@ using Game.Framework.All.Editor;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using Setup = Game.Framework.HotUpdate.Editor.GameBuild;
 
 internal static class Program

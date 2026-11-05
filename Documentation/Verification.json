@@ -43,12 +43,13 @@
   "activeAssemblies": 19,
   "activeGuids": 344,
   "nativeUnityExecuted": false,
-  "release": "v0.1.0-preview.7",
+  "release": "v0.1.0-preview.8",
   "aggregateModelScenarios": 20,
   "abilityPublicDeclarations": 1083,
   "abilityEditorChecks": 91,
   "abilityWithoutOdinCompile": true,
   "thirdPartySourcesVendored": false,
   "dependencyPayloadsBundled": false,
-  "ownedPackagePrefix": "com.novorizon."
+  "ownedPackagePrefix": "com.novorizon.",
+  "packageInfoAmbiguityRegression": true
 }

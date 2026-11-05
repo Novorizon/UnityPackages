@@ -25,6 +25,10 @@ namespace UnityEngine
 }
 namespace UnityEditor
 {
+    // Unity also exposes this legacy type; keep it present to catch ambiguous PackageInfo references.
+    public sealed class PackageInfo
+    {
+    }
     [AttributeUsage(AttributeTargets.Class)] public sealed class InitializeOnLoadAttribute : Attribute { }
     [AttributeUsage(AttributeTargets.Method)] public sealed class MenuItem : Attribute { public MenuItem(string path) { } }
     public static class EditorApplication

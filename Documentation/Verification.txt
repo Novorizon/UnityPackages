@@ -216,3 +216,36 @@ Build succeeded.
     0 Error(s)
 
 Time Elapsed 00:00:20.45
+
+
+=== v0.1.0-preview.8 PackageInfo ambiguity regression ===
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:06.43
+PASS automatic first install submits all unpublished dependencies together
+PASS matching installed versions skip add but still finish setup
+PASS persistent completion prevents installation on assembly reload
+PASS pending add survives lost handles without concurrent UPM calls
+PASS pending embed survives lost handles without concurrent UPM calls
+PASS compilation errors stop setup and retry waits for active requests
+PASS network failure stops auto retries and explicit retry recovers
+PASS embed failure stops configuration and retry recovers
+PASS configuration failure keeps installed libraries and can retry
+PASS compiled and playing editors do not start UPM operations
+PASS resolved version mismatch is reported instead of claiming success
+PASS incompatible embedded package is preserved
+PASS local monorepo uses portable sibling package folders
+PASS source install falls back to the release tag
+PASS aggregate version change runs the new setup once
+PASS batch completion requires package, embed and settings evidence
+PASS legacy editor, ECS and GPU animator packages are replaced atomically
+PASS migration failure retains the old packages
+PASS external packages always use upstream references
+PASS invalid dependency identities are rejected
+PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
