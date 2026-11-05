@@ -10,13 +10,18 @@ for path in r.rglob('*.meta'):
 for path in [r/'Documentation~/package-validation.md']:
     meta=pathlib.Path(str(path)+'.meta')
     if a.write_metas and not meta.exists():meta.write_text('fileFormatVersion: 2\nguid: '+uuid.uuid5(uuid.NAMESPACE_URL,'Novorizon.GpuAnimator/'+path.relative_to(r).as_posix()).hex+'\nDefaultImporter:\n  externalObjects: {}\n  userData:\n  assetBundleName:\n  assetBundleVariant:\n')
+for path in r.rglob('*'):
+    if any(part.startswith('.') or part.endswith('~') or part in ('bin','obj','__pycache__') for part in path.relative_to(r).parts):
+        continue
+    if path.suffix != '.meta':
+        assert pathlib.Path(str(path)+'.meta').is_file(), ('Missing Unity asset metadata', path)
 assert json.loads((r/'GpuAnimator.asmdef').read_text())['references']==[]
 assert json.loads((r/'Editor/GpuAnimator.Editor.asmdef').read_text())['includePlatforms']==['Editor']
 assert b'#pragma target 3.5' in (r/'Shaders/GpuSkinningAnimation.shader').read_bytes()
 assert 'Game.Framework.Pooling' in (r/'Samples~/FrameworkPool/GpuAnimatorPool.cs').read_text()
 if a.output:
     a.output.parent.mkdir(parents=True,exist_ok=True)
-    selected=['Runtime','Runtime.meta','Editor','Editor.meta','Shaders','Shaders.meta','GpuAnimator.asmdef','GpuAnimator.asmdef.meta','Samples~','Tests','Documentation~','Tools~','package.json','package.json.meta','README.md','README.md.meta','LICENSE','LICENSE.meta','CHANGELOG.md','CHANGELOG.md.meta']
+    selected=['Runtime','Runtime.meta','Editor','Editor.meta','Shaders','Shaders.meta','GpuAnimator.asmdef','GpuAnimator.asmdef.meta','Samples~','Tests','Tests.meta','Documentation~','Tools~','package.json','package.json.meta','README.md','README.md.meta','LICENSE','LICENSE.meta','CHANGELOG.md','CHANGELOG.md.meta']
     with a.output.open('wb') as target,gzip.GzipFile(fileobj=target,mode='wb',filename='',mtime=0) as compressed,tarfile.open(fileobj=compressed,mode='w') as tar:
         for name in selected:
             base=r/name

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.0-preview.4 — 2026-11-05
+
+- 补齐 Tests 目录的 .meta，修复只读 UPM 包忽略该目录的警告。
+- 独立打包脚本纳入 Tests.meta，并检查可导入文件与目录的元数据完整性。
+
 ## 3.2.0-preview.3 — 2026-11-05
 
 - 包名和安装目录统一为 `com.novorizon.gpuanimator`；聚合安装器支持替换旧包。

@@ -249,3 +249,8 @@ PASS migration failure retains the old packages
 PASS external packages always use upstream references
 PASS invalid dependency identities are rejected
 PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
+
+
+=== v0.1.0-preview.9 package metadata verification ===
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 9, "ownedPackages": 9, "externalDependencyReferences": 2, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": ["Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"], "activeAssemblies": 19, "activeGuids": 345, "nativeUnityExecuted": false}
+PASS all Unity-importable assets and directories have metadata; GUID uniqueness; missing Tests.meta rejection; standalone archive includes Tests.meta.

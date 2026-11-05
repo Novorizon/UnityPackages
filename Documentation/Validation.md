@@ -4,7 +4,7 @@
 
 Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccessed 统一改名为 OnStart。PackageMoves.json 逐文件记录这四处符号改名；检查器反向替换后必须恢复导入基线的完整 SHA-256，确保没有混入其他运行时修改。
 
-工作区检查覆盖：9 个自有包及 2 个外部依赖引用的名称、版本、自有依赖闭包与环路、Framework 依赖方向、ECS/Ability 独立性、第三方上游来源和无 Payload 约束、同仓库版本标签、主动导入的程序集名称和 GUID 唯一性，以及包仓库不含 Unity 工程的结构约束。
+工作区检查覆盖：9 个自有包及 2 个外部依赖引用的名称、版本、自有依赖闭包与环路、Framework 依赖方向、ECS/Ability 独立性、第三方上游来源和无 Payload 约束、同仓库版本标签、可导入文件及目录的 .meta 完整性、主动导入的程序集名称和 GUID 唯一性，以及包仓库不含 Unity 工程的结构约束。
 
 迁入的可执行验证包括：
 

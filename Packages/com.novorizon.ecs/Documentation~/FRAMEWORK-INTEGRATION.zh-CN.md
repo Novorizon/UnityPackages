@@ -9,8 +9,8 @@ ECS 2.0.0-preview.2 面向 Unity 2022.3，依赖 Framework 0.10.0-preview.1 与 
 当前接入分支：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.8
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.8
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.9
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.9
 ```
 
 自己的 asmdef 引用 ECS、Game.Framework.Core、Game.Framework.Unity，直接使用数学类型时另引用 Unity.Mathematics。QuickStart 已包含所需程序集引用。

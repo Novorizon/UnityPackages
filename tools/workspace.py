@@ -112,7 +112,11 @@ def validate():
         if not package.is_dir():
             continue
         for file in package.rglob('*'):
-            if not file.is_file() or any(part.endswith('~') for part in file.relative_to(package).parts):
+            if any(part.startswith('.') or part.endswith('~') for part in file.relative_to(package).parts):
+                continue
+            if file.suffix != '.meta':
+                assert Path(str(file) + '.meta').is_file(), ('Missing Unity asset metadata', file)
+            if not file.is_file():
                 continue
             if file.suffix == '.asmdef':
                 definition = read(file)

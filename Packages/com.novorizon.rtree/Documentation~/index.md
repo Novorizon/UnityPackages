@@ -24,7 +24,7 @@ Runtime/
 通过 Package Manager → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.8
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.9
 ```
 
 也可使用发行包 tgz。仅安装所选 UPM 包，不将整个仓库拖入 Assets。项目 asmdef 引用 `RTree`。不依赖 ECS、技能、渲染管线或 Framework；本包没有需要重复实现的单例、通用定时器或对象池。

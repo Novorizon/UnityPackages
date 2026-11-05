@@ -41,9 +41,9 @@
     "Packages/com.novorizon.rtree/README.md"
   ],
   "activeAssemblies": 19,
-  "activeGuids": 344,
+  "activeGuids": 345,
   "nativeUnityExecuted": false,
-  "release": "v0.1.0-preview.8",
+  "release": "v0.1.0-preview.9",
   "aggregateModelScenarios": 20,
   "abilityPublicDeclarations": 1083,
   "abilityEditorChecks": 91,
@@ -51,5 +51,7 @@
   "thirdPartySourcesVendored": false,
   "dependencyPayloadsBundled": false,
   "ownedPackagePrefix": "com.novorizon.",
-  "packageInfoAmbiguityRegression": true
+  "packageInfoAmbiguityRegression": true,
+  "unityAssetMetadataComplete": true,
+  "standaloneGpuTestsMetaIncluded": true
 }
