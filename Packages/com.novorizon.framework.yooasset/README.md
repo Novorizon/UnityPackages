@@ -5,7 +5,7 @@
 在项目安装官方 YooAsset 2.3.18 后，再通过 Package Manager 添加：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.4
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.5
 ```
 
 已有项目可改用本地 `package.json` 或对应的 `.tgz`。不要将本包、另一份 Assets 源码和其他版本的 YooAsset 同时重复导入。

@@ -139,7 +139,6 @@ namespace Game.Framework.All.Editor
 
         private static void Install(PackageInfo[] installed)
         {
-            catalog.ValidatePayload(packageRoot);
             var missing = catalog.packages.Where(p => !installed.Any(i => i.name == p.name && i.version == p.version)).ToArray();
             var obsolete = installed.Where(i => (catalog.obsoletePackages ?? Array.Empty<string>()).Contains(i.name)).ToArray();
             if (missing.Length == 0 && obsolete.Length == 0) { Advance("Embed"); return; }

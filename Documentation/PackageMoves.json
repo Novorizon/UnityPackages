@@ -25,5 +25,9 @@
   "reason": "Ability editor belongs to the Ability UPM package; ECS package uses the concise ecs identifier.",
   "packagingToolChanges": [
     "Packages/com.guanjinbiao.gpuanimator/Tools~/package.py"
+  ],
+  "externalizedPackages": [
+    "com.code-philosophy.hybridclr",
+    "com.tuyoogame.yooasset"
   ]
 }

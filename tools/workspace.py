@@ -58,35 +58,47 @@ def snapshots():
 def sync():
     config = read(ROOT / 'workspace.json')
     packages = definitions()
-    archives = snapshots()
     entries = []
-    for name, data in archives.items():
-        entries.append(dict(name=name, version=packages[name]['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', archive=f'{name}-{packages[name]["version"]}.tgz', sha256=hashlib.sha256(data).hexdigest(), embed=name == 'com.code-philosophy.hybridclr', dependencies=[dep for dep in packages[name].get('dependencies', {}) if dep in packages]))
+    known = set(packages) | set(config['externalPackages'])
+    for name, metadata in packages.items():
+        if name == ALL: continue
+        entries.append(dict(name=name, version=metadata['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', external=False, embed=False, dependencies=[dep for dep in metadata.get('dependencies', {}) if dep in known]))
+    for name, metadata in config['externalPackages'].items():
+        entries.append(dict(name=name, external=True, **metadata))
     write(ROOT / 'Packages' / ALL / 'Dependencies.json', dict(packages=entries, obsoletePackages=list(config.get('packageReplacements', {}))))
-    print(f'Synchronized {len(entries)} package dependency pins.', flush=True)
+    print(f'Synchronized {len(entries)} dependency references without source payloads.', flush=True)
 
 
 def validate():
     config, packages = read(ROOT / 'workspace.json'), definitions()
-    assert len(packages) == 11
+    assert len(packages) == 9
+    assert not set(packages) & OFFICIAL
+    external = config['externalPackages']
     assert not set(config.get('packageReplacements', {})) & set(packages)
     editor = ROOT / 'Packages/com.novorizon.ability/Editor/Game.Ability.Editor.Odin.asmdef'
     assert read(editor)['includePlatforms'] == ['Editor']
     assert read(editor)['references'] == ['Game.Ability']
     assert read(ROOT / 'Packages/com.novorizon.ability/Game.Ability.asmdef')['references'] == []
     specs = read(ROOT / 'Packages' / ALL / 'Dependencies.json')['packages']
-    assert {p['name'] for p in specs} == set(packages) - {ALL}
-    archives = snapshots()
+    assert {p['name'] for p in specs} == (set(packages) - {ALL}) | set(external)
     for spec in specs:
-        assert spec['version'] == packages[spec['name']]['version']
-        assert spec['git'] == f'{config["repository"]}?path=/Packages/{spec["name"]}#{config["release"]}'
-        assert spec['sha256'] == hashlib.sha256(archives[spec['name']]).hexdigest(), 'Run sync after changing package contents: ' + spec['name']
+        assert 'archive' not in spec and 'sha256' not in spec
+        if spec['external']:
+            assert spec['version'] == external[spec['name']]['version']
+            assert spec['git'] == external[spec['name']]['git']
+            assert 'github.com/Novorizon/' not in spec['git']
+        else:
+            assert spec['version'] == packages[spec['name']]['version']
+            assert spec['git'] == f'{config["repository"]}?path=/Packages/{spec["name"]}#{config["release"]}'
+    assert not (ROOT / 'Packages' / ALL / 'Payload~').exists()
     def visit(name, ancestors):
         assert name not in ancestors, 'Circular package dependency: ' + name
         for dependency, version in packages[name].get('dependencies', {}).items():
             if dependency in packages:
                 assert packages[dependency]['version'] == version, (name, dependency, version)
                 visit(dependency, ancestors + [name])
+            elif dependency in external:
+                assert external[dependency]['version'] == version
             else:
                 assert dependency.startswith('com.unity.'), (name, 'unresolved dependency', dependency)
     for name in packages:
@@ -118,10 +130,16 @@ def validate():
             if relative == previous or relative.startswith(previous.rstrip('/') + '/'):
                 return current.rstrip('/') + relative[len(previous.rstrip('/')):]
         return relative
+    checked_files, external_files = 0, 0
     for relative, expected in baseline.items():
+        if relative.split('/')[1] in layout.get('externalizedPackages', []):
+            external_files += 1
+            assert not (ROOT / 'Packages' / relative.split('/')[1]).exists()
+            continue
         if relative in layout['retiredFiles']:
             assert not (ROOT / relative).exists()
             continue
+        checked_files += 1
         file = ROOT / relocated(relative)
         assert file.is_file(), ('Missing imported file', relative)
         if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
@@ -129,7 +147,7 @@ def validate():
             doc_changes.append(relative)
     assert not (ROOT / 'Projects').exists(), 'Unity projects belong in their own repository'
     assert not (ROOT / 'Assets').exists() and not (ROOT / 'ProjectSettings').exists()
-    report = dict(packages=len(packages), ownedPackages=len(packages) - len(OFFICIAL), importedFilesChecked=len(baseline), unchangedRuntimeAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
+    report = dict(packages=len(packages), ownedPackages=len(packages), externalDependencyReferences=len(external), importedFilesChecked=checked_files, externalHistoricalFilesOmitted=external_files, unchangedRuntimeAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
     print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
     return report
 
@@ -156,13 +174,11 @@ def export(output):
     validate()
     output.mkdir(parents=True, exist_ok=True)
     metadata = definitions()
-    payload = {}
     for name, data in snapshots().items():
         archive = f'{name}-{metadata[name]["version"]}.tgz'
         (output / archive).write_bytes(data)
-        payload['Payload~/' + archive] = data
     aggregate = f'{ALL}-{metadata[ALL]["version"]}.tgz'
-    (output / aggregate).write_bytes(package_bytes(ROOT / 'Packages' / ALL, payload))
+    (output / aggregate).write_bytes(package_bytes(ROOT / 'Packages' / ALL))
     sources = [p for p in ROOT.rglob('*') if p.is_file() and not any(part in {'.git', 'bin', 'obj', '__pycache__', 'Library', 'Temp', 'Logs', 'UserSettings', 'Artifacts'} or part in {'OptionalArchives~', 'NovorizonFrameworkAll~'} for part in p.relative_to(ROOT).parts)]
     zip_path = output / 'UnityPackages-source.zip'
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as archive:
@@ -188,6 +204,8 @@ def unity_project(output):
     deps['com.unity.test-framework'] = '1.1.33'
     for name in packages:
         deps[name] = f'{config["repository"]}?path=/Packages/{name}#{config["release"]}'
+    for name, metadata in config['externalPackages'].items():
+        deps[name] = metadata['git']
     (output / 'Assets').mkdir(parents=True, exist_ok=True)
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
     write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))

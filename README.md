@@ -2,7 +2,7 @@
 
 Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各库共用一个代码仓库，各自保留独立 UPM 包、程序集和依赖关系。
 
-统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.4`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
+统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.5`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
 
 ## 包布局
 
@@ -17,10 +17,8 @@ Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各�
 | `Packages/com.novorizon.rtree` | 六种树各自一个目录，共用一个包 |
 | `Packages/com.guanjinbiao.gpuanimator` | Built-in GPU 动画烘焙、注入、播放及回收 |
 | `Packages/com.novorizon.framework.all` | 自动聚合安装入口 |
-| `Packages/com.code-philosophy.hybridclr` | 未修改的官方 HybridCLR 9.0.3 |
-| `Packages/com.tuyoogame.yooasset` | 未修改的官方 YooAsset 2.3.18 |
 
-共 **9 个自有包、2 个官方依赖包**。UI 独立发布为包；Ability 运行时与编辑器在同一个包内。代码放在同一个仓库不代表运行时互相依赖。
+仓库共 **9 个自有包**。官方 HybridCLR、YooAsset 等第三方只通过依赖声明引用，由使用方的 Unity Package Manager 获取。UI 独立发布为包；Ability 运行时与编辑器在同一个包内。代码放在同一个仓库不代表运行时互相依赖。
 
 ## 使用
 
@@ -35,9 +33,9 @@ GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 依赖 Fram
 每个包均有独立安装路径，例如：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.4
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.4
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.4
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.5
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.5
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.5
 ```
 
 Unity 的 package.json 不支持 Git 传递依赖。需要全部库时使用聚合安装包；单独安装某个库时先安装它需要的自有基础包。聚合安装的所有 Git 来源使用同一个仓库、同一个版本标签；后续发行不应移动已发布标签。
@@ -49,7 +47,7 @@ Python 3.12+、.NET SDK 8+：
 ```sh
 python3 tools/workspace.py check
 python3 tools/workspace.py verify --dotnet /path/to/dotnet
-# 修改包内容或版本后，刷新归档校验与工程配置：
+# 修改包内容或版本后，刷新依赖安装目录：
 python3 tools/workspace.py sync
 python3 tools/workspace.py export --output /tmp/UnityPackages-release
 ```
@@ -62,7 +60,7 @@ python3 tools/workspace.py export --output /tmp/UnityPackages-release
 
 ## 从上一版升级
 
-Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`。`v0.1.0-preview.4` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧的独立 Editor/ECS 包。直接安装单个包的项目，应先移除旧的 `com.novorizon.ability.editor.odin` 与 `com.novorizon.ecsframework` 依赖，避免相同程序集被导入两次。已有嵌入副本需要由项目先移出再升级。
+Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`。`v0.1.0-preview.5` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧的独立 Editor/ECS 包。直接安装单个包的项目，应先移除旧的 `com.novorizon.ability.editor.odin` 与 `com.novorizon.ecsframework` 依赖，避免相同程序集被导入两次。已有嵌入副本需要由项目先移出再升级。
 
 ECS 源码直接位于包内 `Runtime/`；GpuAnimator 的 `Runtime/`、`Editor/`、`Shaders/` 位于包根目录，去掉旧工程名外壳。运行时源码和原脚本/资源 GUID 保留。
 
@@ -75,3 +73,9 @@ python3 tools/workspace.py unity-project --output /tmp/NovorizonPackageValidatio
 ```
 
 打开该目录进行原生导入与测试。当前环境没有 Unity Editor；生成器只生成验收用工程配置，不代表已经完成原生验收。
+
+## 第三方依赖
+
+例如 `com.novorizon.framework.yooasset/package.json` 声明 `"com.tuyoogame.yooasset": "2.3.18"`；HybridCLR 封装同样声明官方版本。仓库和发布的各包不包含这些上游包的源码或归档。
+
+UPM 对 Git 传递依赖有限制，Git 分发使用 `workspace.json` 中的上游来源，由聚合安装器或 GameStarter 把来源交给使用方工程的 Package Manager 一起解析。官方包下载至使用方工程的 UPM 管理区域，不进入本仓库。聚合包本身也不再打入其他库的 Payload。

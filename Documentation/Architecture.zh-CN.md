@@ -24,8 +24,6 @@ GameStarter 独立维护，默认通过 Git URL 安装 Framework，并通过模�
 
 ## 第三方
 
-官方 HybridCLR 和 YooAsset 以独立包保留原样源码、Samples、许可证及 meta，避免统一仓库仍必须从旧项目找依赖。更新第三方版本时独立核对源码与封装兼容性。Odin 商业插件不纳入仓库。
+官方 HybridCLR 和 YooAsset 只作为外部依赖声明，版本写在各自适配包的 package.json 中；Git 来源在 workspace.json 中登记。仓库不保存上游源码、Samples 或依赖归档，聚合包也不捆绑其他包。
 
-聚合安装器在源码工作区优先使用经过名称/版本检查的相邻包；从 tarball 安装时使用校验归档；从发布后的 Git URL 安装时使用同仓库、同标签的子目录来源。HybridCLR 使用 UPM Embed 及封装 Configure，首次 Player 构建再由封装处理原生运行时和 DLL/AOT 收集。
-
-ECS 使用 `com.novorizon.ecs` 包名，源码位于 Runtime；GpuAnimator 的 Runtime、Editor、Shaders 直接位于包根目录，不保留旧项目名外壳。
+安装时由 UPM 获取依赖。HybridCLR 9.0.3 官方原生安装器使用物理 Packages 路径，因此在使用方工程中仍调用 UPM Embed；这不生成仓库或发行包内的官方源码副本。待官方安装器支持缓存路径时可移除该兼容步骤。

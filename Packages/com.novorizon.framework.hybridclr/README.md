@@ -4,9 +4,11 @@
 
 ## 安装
 
-完整发行包中的 `NovorizonHotUpdateInstaller.unitypackage` 是推荐入口：导入后执行 **Tools / Novorizon / Install Hot Update**，安装器完成依赖安装并自动运行 Setup Project。安装器数据使用 `Packages/NovorizonHotUpdateArchives~` 保存相对 manifest 路径，可随项目迁移。官方源码完整嵌入 `Packages/com.code-philosophy.hybridclr`，符合该版本 Installer 使用物理 Packages 路径的要求。
+通过聚合安装包或 GameStarter 的模块窗口安装本封装。`package.json` 声明 Framework 与官方 HybridCLR 9.0.3 的版本依赖；官方包由 UPM 从上游获取，不随本仓库、封装包或聚合 tarball 分发。
 
-也可先安装匹配 Framework、嵌入官方 HybridCLR 9.0.3，再在 Package Manager 中从 tgz 安装本包。官方源码参考 `https://github.com/focus-creative-games/hybridclr_unity.git#v9.0.3`，嵌入包须包含完整 Data~、Plugins、Runtime 和 Editor。自行使用 Git 安装本包时，仍需在项目 manifest 显式提供这些依赖；package.json 的版本声明不是第三方 Git registry。
+直接配置使用方工程清单时，先提供官方 Git 来源 `https://github.com/focus-creative-games/hybridclr_unity.git#6cadd24d101f4cbd00cd80190106f6621132d24d` 及匹配 Framework。Unity 不支持 package.json 中的 Git 传递依赖，因此来源由使用方 manifest.json 或安装入口提供。
+
+9.0.3 官方原生安装器依赖物理 Packages 路径，安装入口在使用方工程通过 UPM Embed 完成兼容，再执行本包 Configure；源码不会纳入我们维护的包中。
 
 ## 三个入口
 

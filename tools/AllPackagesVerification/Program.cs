@@ -27,17 +27,14 @@ internal static class Program
         Check("compiled and playing editors do not start UPM operations", Paused);
         Check("resolved version mismatch is reported instead of claiming success", VersionMismatch);
         Check("incompatible embedded package is preserved", ExistingEmbedded);
-        Check("complete archive payload uses project-relative copied sources", PayloadSources);
-        Check("corrupt payload aborts before UPM mutation", CorruptPayload);
-        Check("incomplete payload aborts before UPM mutation", MissingPayload);
-        Check("interrupted or corrupt generated archive copy is repaired", RepairCopy);
         Check("local monorepo uses portable sibling package folders", LocalWorkspace);
         Check("source install falls back to the release tag", () => InProject(c => { Drain(); True(Client.Adds.Single().All(s => s.StartsWith("https://github.com/") && s.Contains("#"))); }));
         Check("aggregate version change runs the new setup once", ReleaseChange);
         Check("batch completion requires package, embed and settings evidence", BatchEvidence);
         Check("legacy editor and ECS packages are replaced atomically", LegacyPackages);
         Check("migration failure retains the old packages", FailedMigration);
-        Check("invalid catalog and traversal archive names are rejected", InvalidCatalog);
+        Check("external packages always use upstream references", ExternalReferences);
+        Check("invalid dependency identities are rejected", InvalidCatalog);
         Console.WriteLine($"PASS {passed} aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.");
     }
 
@@ -144,42 +141,9 @@ internal static class Program
         var existing = new PackageInfo { name = name, version = "9.0.0", source = PackageSource.Embedded }; Client.Installed[name] = existing;
         Drain(); Equal("Failed", Phase()); Equal(0, Client.Adds.Count); True(ReferenceEquals(existing, Client.Installed[name]));
     });
-    private static void CreatePayload(PackageCatalog catalog)
-    {
-        string payload = Path.Combine(PackageInfo.Owner.resolvedPath, "Payload~"); Directory.CreateDirectory(payload);
-        foreach (var package in catalog.packages)
-        {
-            string file = Path.Combine(payload, package.archive); File.WriteAllText(file, package.name);
-            package.sha256 = PackageDependency.Hash(file);
-            Client.Sources["file:NovorizonFrameworkAll~/" + PackageInfo.Owner.version + "/" + package.archive] = Client.Sources[package.git];
-        }
-        File.WriteAllText(Path.Combine(PackageInfo.Owner.resolvedPath, "Dependencies.json"), JsonUtility.ToJson(catalog));
-    }
-    private static void PayloadSources() => InProject(c =>
-    {
-        CreatePayload(c); Drain(); Equal("Complete", Phase());
-        foreach (string source in Client.Adds.Single()) { True(source.StartsWith("file:NovorizonFrameworkAll~/")); True(File.Exists(Path.Combine(Root, "Packages", source.Substring(5)))); True(!source.Contains("Cache")); }
-    });
-    private static void CorruptPayload() => InProject(c =>
-    {
-        CreatePayload(c); File.AppendAllText(Path.Combine(PackageInfo.Owner.resolvedPath, "Payload~", c.packages.Last().archive), "corrupt");
-        Drain(); Equal("Failed", Phase()); Equal(0, Client.Adds.Count);
-    });
-    private static void MissingPayload() => InProject(c =>
-    {
-        CreatePayload(c); File.Delete(Path.Combine(PackageInfo.Owner.resolvedPath, "Payload~", c.packages.Last().archive));
-        Drain(); Equal("Failed", Phase()); Equal(0, Client.Adds.Count);
-    });
-    private static void RepairCopy() => InProject(c =>
-    {
-        CreatePayload(c); var package = c.packages[0];
-        string path = Path.Combine(Root, "Packages/NovorizonFrameworkAll~/", PackageInfo.Owner.version, package.archive);
-        Directory.CreateDirectory(Path.GetDirectoryName(path)); File.WriteAllText(path, "partial"); File.WriteAllText(path + ".copying~", "interrupted");
-        Drain(); Equal("Complete", Phase()); Equal(package.sha256, PackageDependency.Hash(path)); True(!File.Exists(path + ".copying~"));
-    });
     private static void LocalWorkspace() => InProject(c =>
     {
-        foreach (var package in c.packages)
+        foreach (var package in c.packages.Where(p => !p.external))
         {
             string sibling = Path.Combine(Path.GetDirectoryName(PackageInfo.Owner.resolvedPath), package.name);
             Directory.CreateDirectory(sibling);
@@ -188,8 +152,8 @@ internal static class Program
             Client.Sources[source] = Client.Sources[package.git];
         }
         Drain(); Equal("Complete", Phase());
-        True(Client.Adds.Single().All(source => source.StartsWith("file:") && !source.Contains(":/")));
-        foreach (string source in Client.Adds.Single()) True(File.Exists(Path.Combine(Root, "Packages", source.Substring(5), "package.json")));
+        True(Client.Adds.Single().Count(source => source.StartsWith("https://github.com/")) == c.packages.Count(p => p.external));
+        foreach (string source in Client.Adds.Single().Where(s => s.StartsWith("file:"))) True(File.Exists(Path.Combine(Root, "Packages", source.Substring(5), "package.json")));
     });
     private static void ReleaseChange() => InProject(c =>
     {
@@ -215,10 +179,23 @@ internal static class Program
         Client.FailAdd = true; Drain(); Equal("Failed", Phase());
         True(c.obsoletePackages.All(name => Client.Installed.ContainsKey(name)));
     });
+    private static void ExternalReferences() => InProject(c =>
+    {
+        foreach (var package in c.packages.Where(p => p.external))
+        {
+            string sibling = Path.Combine(Path.GetDirectoryName(PackageInfo.Owner.resolvedPath), package.name);
+            Directory.CreateDirectory(sibling);
+            File.WriteAllText(Path.Combine(sibling, "package.json"), "{\"name\":\"" + package.name + "\",\"version\":\"" + package.version + "\"}");
+            Equal(package.git, package.PrepareSource(PackageInfo.Owner.resolvedPath, Root, "test"));
+        }
+        Drain(); Equal("Complete", Phase());
+        True(!Directory.Exists(Path.Combine(PackageInfo.Owner.resolvedPath, "Payload~")));
+    });
     private static void InvalidCatalog()
     {
         var c = new PackageCatalog { packages = Array.Empty<PackageDependency>() }; Throws<InvalidDataException>(c.Validate);
-        var bad = new PackageDependency { name = "a", version = "1.0.0", git = "https://github.com/a/b#commit", sha256 = "hash", archive = "../a.tgz" };
-        c.packages = new[] { bad }; Throws<InvalidDataException>(c.Validate);
+        c.packages = new[] { new PackageDependency { name = "a", version = "1.0.0" } }; Throws<InvalidDataException>(c.Validate);
+        var valid = new PackageDependency { name = "a", version = "1.0.0", git = "https://github.com/a/b#commit" };
+        c.packages = new[] { valid, valid }; Throws<InvalidDataException>(c.Validate);
     }
 }

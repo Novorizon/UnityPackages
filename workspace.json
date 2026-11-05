@@ -1,9 +1,23 @@
 {
   "repository": "https://github.com/Novorizon/UnityPackages.git",
-  "release": "v0.1.0-preview.4",
+  "release": "v0.1.0-preview.5",
   "unity": "2022.3.62f1",
   "packageReplacements": {
     "com.novorizon.ability.editor.odin": "com.novorizon.ability",
     "com.novorizon.ecsframework": "com.novorizon.ecs"
+  },
+  "externalPackages": {
+    "com.code-philosophy.hybridclr": {
+      "version": "9.0.3",
+      "git": "https://github.com/focus-creative-games/hybridclr_unity.git#6cadd24d101f4cbd00cd80190106f6621132d24d",
+      "embed": true,
+      "dependencies": []
+    },
+    "com.tuyoogame.yooasset": {
+      "version": "2.3.18",
+      "git": "https://github.com/tuyoogame/YooAsset.git?path=/Assets/YooAsset#4b6a8ca4064d7a59ba129acec8fecf134e86236e",
+      "embed": false,
+      "dependencies": []
+    }
   }
 }

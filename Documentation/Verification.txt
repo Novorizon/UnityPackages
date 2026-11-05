@@ -1,4 +1,4 @@
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 11, "ownedPackages": 9, "importedFilesChecked": 2642, "unchangedRuntimeAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 932, "nativeUnityExecuted": false}
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 9, "ownedPackages": 9, "externalDependencyReferences": 2, "importedFilesChecked": 2642, "unchangedRuntimeAndAssetFiles": true, "activeAssemblies": 19, "activeGuids": 344, "nativeUnityExecuted": false}
   Determining projects to restore...
   All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
@@ -7,7 +7,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:04.19
+Time Elapsed 00:00:02.03
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -20,18 +20,15 @@ PASS configuration failure keeps installed libraries and can retry
 PASS compiled and playing editors do not start UPM operations
 PASS resolved version mismatch is reported instead of claiming success
 PASS incompatible embedded package is preserved
-PASS complete archive payload uses project-relative copied sources
-PASS corrupt payload aborts before UPM mutation
-PASS incomplete payload aborts before UPM mutation
-PASS interrupted or corrupt generated archive copy is repaired
 PASS local monorepo uses portable sibling package folders
 PASS source install falls back to the release tag
 PASS aggregate version change runs the new setup once
 PASS batch completion requires package, embed and settings evidence
 PASS legacy editor and ECS packages are replaced atomically
 PASS migration failure retains the old packages
-PASS invalid catalog and traversal archive names are rejected
-PASS 23 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
+PASS external packages always use upstream references
+PASS invalid dependency identities are rejected
+PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
   Determining projects to restore...
   All projects are up-to-date for restore.
   Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
@@ -40,7 +37,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:05.42
+Time Elapsed 00:00:08.21
 PASS regression: recycled nodes and deletion reinsertion
 PASS regression: root bounds, empty tree and refill
 PASS regression: failed operations preserve mappings
@@ -59,7 +56,7 @@ PASS regression: caller-owned query buffers and statistics
 PASS regression: reused queries allocate no managed memory
 PASS regression: concurrent queries use independent scratch
 PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 8.08s.
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 11.05s.
 Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -69,11 +66,11 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:05.32
-PASS geometry and boundary queries (0.07s)
-PASS randomized box indexes and RTree adapter (0.13s)
-PASS dynamic AABB handles, updates and pairs (0.08s)
-PASS dynamic AABB ordered, nested and moving objects (0.28s)
+Time Elapsed 00:00:08.42
+PASS geometry and boundary queries (0.08s)
+PASS randomized box indexes and RTree adapter (0.19s)
+PASS dynamic AABB handles, updates and pairs (0.05s)
+PASS dynamic AABB ordered, nested and moving objects (0.24s)
 PASS loose octree ownership, expansion and updates (0.01s)
 PASS subtree pruning and movement outside cached content bounds (0.01s)
 PASS scaled and cancelling frustum planes (0.00s)
@@ -81,11 +78,11 @@ PASS static BVH refit/rebuild (0.02s)
 PASS triangle BVH exact ray queries (0.06s)
 PASS triangle precision regressions (0.00s)
 PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.15s)
-PASS concurrent reads and writers (0.05s)
-PASS warmed reusable queries allocate zero bytes (0.26s)
-PASS public mutable interfaces and RTreeIndex adapter (0.15s)
-PASS: 94,160 assertions, 0 failed groups, 1.28s (full)
+PASS KD radius, k nearest, ties and rebuild (0.14s)
+PASS concurrent reads and writers (0.06s)
+PASS warmed reusable queries allocate zero bytes (0.32s)
+PASS public mutable interfaces and RTreeIndex adapter (0.11s)
+PASS: 94,160 assertions, 0 failed groups, 1.32s (full)
   Determining projects to restore...
   All projects are up-to-date for restore.
   UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
@@ -96,7 +93,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:11.43
+Time Elapsed 00:00:20.41
 PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -108,7 +105,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:16.24
+Time Elapsed 00:00:15.74
 Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
 PASS codec: real JSON semantic round trip: crystal_maiden.json
 PASS codec: real JSON semantic round trip: lina.json
@@ -218,4 +215,4 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:10.86
+Time Elapsed 00:00:10.79

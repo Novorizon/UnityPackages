@@ -7,12 +7,6 @@
       "importArchiveSha256": "af27015ed55636eefd65e46737a9b868ee5c966b655345f169f905fd37b257bd"
     },
     {
-      "name": "com.code-philosophy.hybridclr",
-      "version": "9.0.3",
-      "source": "https://github.com/focus-creative-games/hybridclr_unity.git#6cadd24d101f4cbd00cd80190106f6621132d24d",
-      "importArchiveSha256": "610b25889ce44bcdd07df4e176fcc49b3211203581504144ca4ea1d0cb763490"
-    },
-    {
       "name": "com.novorizon.framework.hybridclr",
       "version": "0.1.0-preview.2",
       "source": "https://github.com/Novorizon/HybridCLR-Demo.git?path=/Packages/com.novorizon.framework.hybridclr#eb4c9b1e38f9319c4f70fe142e4e7adc5c7c3f1f",
@@ -59,12 +53,6 @@
       "currentPath": "Packages/com.novorizon.ecs"
     },
     {
-      "name": "com.tuyoogame.yooasset",
-      "version": "2.3.18",
-      "source": "https://github.com/tuyoogame/YooAsset.git?path=/Assets/YooAsset#4b6a8ca4064d7a59ba129acec8fecf134e86236e",
-      "importArchiveSha256": "76fd5fd476e078706179352a7c6e72e84ded1829b20b697ae37e5c70d5997227"
-    },
-    {
       "name": "com.novorizon.framework.yooasset",
       "version": "0.10.0-preview.1",
       "source": "https://github.com/Novorizon/Framework.git?path=/Packages/com.novorizon.framework.yooasset#65affcd12ece943da81ae7152c4e4682cde71b99",
@@ -80,5 +68,21 @@
   "verificationSources": {
     "ability": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Tools/AbilityVerification",
     "abilityFixtures": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Data/AbilityJsonSources"
-  }
+  },
+  "externalDependencies": [
+    {
+      "name": "com.code-philosophy.hybridclr",
+      "version": "9.0.3",
+      "source": "https://github.com/focus-creative-games/hybridclr_unity.git#6cadd24d101f4cbd00cd80190106f6621132d24d",
+      "importArchiveSha256": "610b25889ce44bcdd07df4e176fcc49b3211203581504144ca4ea1d0cb763490",
+      "delivery": "UPM dependency reference; no source copy in this repository"
+    },
+    {
+      "name": "com.tuyoogame.yooasset",
+      "version": "2.3.18",
+      "source": "https://github.com/tuyoogame/YooAsset.git?path=/Assets/YooAsset#4b6a8ca4064d7a59ba129acec8fecf134e86236e",
+      "importArchiveSha256": "76fd5fd476e078706179352a7c6e72e84ded1829b20b697ae37e5c70d5997227",
+      "delivery": "UPM dependency reference; no source copy in this repository"
+    }
+  ]
 }
