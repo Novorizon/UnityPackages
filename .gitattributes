@@ -1,0 +1,2 @@
+# Preserve imported source/asset bytes and reproducible archive checksums on every OS.
+* -text
