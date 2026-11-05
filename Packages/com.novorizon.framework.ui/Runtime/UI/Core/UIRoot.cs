@@ -134,7 +134,7 @@ namespace UI
             base.Awake();
         }
 
-        protected override void OnSingletonAccessed()
+        protected override void OnStart()
         {
             lifetimeOwner = this;
             Initialize();

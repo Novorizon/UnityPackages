@@ -2,7 +2,7 @@
 
 Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各库共用一个代码仓库，各自保留独立 UPM 包、程序集和依赖关系。
 
-统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.6`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
+统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.7`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
 
 ## 包布局
 
@@ -33,9 +33,9 @@ GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 依赖 Fram
 每个包均有独立安装路径，例如：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.6
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.6
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.6
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.7
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.7
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.7
 ```
 
 Unity 的 package.json 不支持 Git 传递依赖。需要全部库时使用聚合安装包；单独安装某个库时先安装它需要的自有基础包。聚合安装的所有 Git 来源使用同一个仓库、同一个版本标签；后续发行不应移动已发布标签。
@@ -60,7 +60,9 @@ python3 tools/workspace.py export --output /tmp/UnityPackages-release
 
 ## 从上一版升级
 
-Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.6` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
+Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.7` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
+
+Framework 的单例启动回调统一为 `OnStart`，项目中原来重写 `OnSingletonAccessed` 的类需要同步改名。配套 UI、ECS 和 HybridCLR 封装已同步；安装时使用同一发行标签。
 
 ECS 源码直接位于包内 `Runtime/`；GpuAnimator 的 `Runtime/`、`Editor/`、`Shaders/` 位于包根目录，去掉旧工程名外壳。运行时源码和原脚本/资源 GUID 保留。
 

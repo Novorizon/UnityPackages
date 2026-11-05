@@ -115,3 +115,9 @@ Instance 先找场景组件，找不到才创建；根 GameObject 跨场景保�
 ## 旧接口迁移
 
 Dispatcher/MessageDispatcher 使用共享 UnityThread，Messager 使用共享 EventManager。新代码使用 [Threading](Threading.md) 与 [Events](Events.md)，不新建重复队列。当前 Signal 位于 Game.Framework，注意与旧同名类型区分。
+
+## MonoSingleton 启动回调
+
+Framework 0.10.0-preview.2 起，派生类重写 `protected override void OnStart()` 编写启动逻辑。旧回调 `OnSingletonAccessed` 改名为 `OnStart`，项目中的重写也需要同步改名。UI、ECS 与 HybridCLR 封装已同步。
+
+此回调由 Framework 在单例 Awake 或访问 Instance 时触发；派生类应通过自己的初始化状态避免重复执行工作。它与 Unity 的 Start 生命周期方法分别由各自调用方触发。

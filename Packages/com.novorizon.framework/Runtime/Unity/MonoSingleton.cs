@@ -81,7 +81,7 @@ namespace Game.Framework
         {
             try
             {
-                value.OnSingletonAccessed();
+                value.OnStart();
                 if (value.retired || MonoSingletonLifecycle.IsQuitting) throw new ObjectDisposedException(typeof(T).FullName);
                 if (value.transform.parent == null) DontDestroyOnLoad(value.gameObject);
                 return value;
@@ -101,7 +101,7 @@ namespace Game.Framework
         }
 
         // Domain-specific initialization and cleanup remain in the component using this base.
-        protected virtual void OnSingletonAccessed() { }
+        protected virtual void OnStart() { }
         protected virtual void OnDuplicateInstance(T existing) { Destroy(gameObject); }
         protected static void ResetSingletonReference() { instance = null; }
         protected void RetireSingleton()

@@ -4,7 +4,13 @@
   "externalDependencyReferences": 2,
   "importedFilesChecked": 820,
   "externalHistoricalFilesOmitted": 1818,
-  "unchangedRuntimeAndAssetFiles": true,
+  "unchangedRuntimeAndAssetFiles": false,
+  "runtimeSymbolRenames": [
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs",
+    "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"
+  ],
   "updatedDocumentation": [
     "Packages/com.guanjinbiao.gpuanimator/CHANGELOG.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/editor-testing.md",
@@ -24,21 +30,25 @@
     "Packages/com.novorizon.ecsframework/Samples~/QuickStart/README.md",
     "Packages/com.novorizon.ecsframework/package.json",
     "Packages/com.novorizon.framework.hybridclr/README.md",
+    "Packages/com.novorizon.framework.hybridclr/package.json",
+    "Packages/com.novorizon.framework.ui/package.json",
     "Packages/com.novorizon.framework.yooasset/README.md",
+    "Packages/com.novorizon.framework.yooasset/package.json",
     "Packages/com.novorizon.framework/Documentation~/Package.md",
+    "Packages/com.novorizon.framework/Documentation~/Utilities.md",
+    "Packages/com.novorizon.framework/package.json",
     "Packages/com.novorizon.rtree/Documentation~/index.md",
     "Packages/com.novorizon.rtree/README.md"
   ],
   "activeAssemblies": 19,
   "activeGuids": 344,
   "nativeUnityExecuted": false,
-  "release": "v0.1.0-preview.6",
+  "release": "v0.1.0-preview.7",
   "aggregateModelScenarios": 20,
   "abilityPublicDeclarations": 1083,
   "abilityEditorChecks": 91,
   "abilityWithoutOdinCompile": true,
   "thirdPartySourcesVendored": false,
   "dependencyPayloadsBundled": false,
-  "ownedPackagePrefix": "com.novorizon.",
-  "sourceRegressionBaselineRelease": "v0.1.0-preview.5"
+  "ownedPackagePrefix": "com.novorizon."
 }

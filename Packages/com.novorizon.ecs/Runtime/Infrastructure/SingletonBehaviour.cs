@@ -44,7 +44,7 @@ namespace ECS
             base.Awake();
         }
 
-        protected override void OnSingletonAccessed()
+        protected override void OnStart()
         {
             lifetimeOwner = (T)this;
             EnsureInitialized();

@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework",
-  "version": "0.10.0-preview.1",
+  "version": "0.10.0-preview.2",
   "displayName": "Novorizon Framework",
   "description": "Managed core, Unity main-thread services, typed events and a modular TCP/Protobuf game client.",
   "unity": "2022.3",

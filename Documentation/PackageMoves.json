@@ -21,7 +21,12 @@
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
     "Packages/com.novorizon.ecs/package.json",
-    "Packages/com.novorizon.gpuanimator/package.json"
+    "Packages/com.novorizon.gpuanimator/package.json",
+    "Packages/com.novorizon.framework/package.json",
+    "Packages/com.novorizon.framework.ui/package.json",
+    "Packages/com.novorizon.framework.hybridclr/package.json",
+    "Packages/com.novorizon.framework.yooasset/package.json",
+    "Packages/com.novorizon.framework.all/package.json"
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
@@ -30,5 +35,19 @@
   "externalizedPackages": [
     "com.code-philosophy.hybridclr",
     "com.tuyoogame.yooasset"
-  ]
+  ],
+  "runtimeSymbolRenames": {
+    "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
+      "OnSingletonAccessed": "OnStart"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": {
+      "OnSingletonAccessed": "OnStart"
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": {
+      "OnSingletonAccessed": "OnStart"
+    },
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
+      "OnSingletonAccessed": "OnStart"
+    }
+  }
 }

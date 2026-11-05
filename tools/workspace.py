@@ -132,6 +132,7 @@ def validate():
                 return current.rstrip('/') + relative[len(previous.rstrip('/')):]
         return relative
     checked_files, external_files = 0, 0
+    runtime_renames = []
     for relative, expected in baseline.items():
         if relative.split('/')[1] in layout.get('externalizedPackages', []):
             external_files += 1
@@ -144,11 +145,20 @@ def validate():
         file = ROOT / relocated(relative)
         assert file.is_file(), ('Missing imported file', relative)
         if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
+            # Permit documented identifier renames only when reversing them restores the exact import hash.
+            symbols = layout.get('runtimeSymbolRenames', {}).get(file.relative_to(ROOT).as_posix())
+            if symbols:
+                original = file.read_bytes()
+                for previous, current in symbols.items():
+                    original = re.sub(rb'\b' + re.escape(current.encode()) + rb'\b', previous.encode(), original)
+                assert hashlib.sha256(original).hexdigest() == expected, ('Changes exceed recorded runtime symbol renames', relative)
+                runtime_renames.append(file.relative_to(ROOT).as_posix())
+                continue
             assert (file.suffix == '.md' and relative.split('/')[1] not in OFFICIAL) or file.relative_to(ROOT).as_posix() in layout['metadataChanges'] or file.relative_to(ROOT).as_posix() in layout.get('packagingToolChanges', []), ('Executable code or upstream package changed', relative)
             doc_changes.append(relative)
     assert not (ROOT / 'Projects').exists(), 'Unity projects belong in their own repository'
     assert not (ROOT / 'Assets').exists() and not (ROOT / 'ProjectSettings').exists()
-    report = dict(packages=len(packages), ownedPackages=len(packages), externalDependencyReferences=len(external), importedFilesChecked=checked_files, externalHistoricalFilesOmitted=external_files, unchangedRuntimeAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
+    report = dict(packages=len(packages), ownedPackages=len(packages), externalDependencyReferences=len(external), importedFilesChecked=checked_files, externalHistoricalFilesOmitted=external_files, unchangedRuntimeAndAssetFiles=not runtime_renames, runtimeSymbolRenames=runtime_renames, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
     print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
     return report
 

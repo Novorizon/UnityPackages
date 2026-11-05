@@ -42,7 +42,7 @@ namespace Game.Framework.HotUpdate
             catch (Exception exception) { FailStartup(exception); }
         }
 
-        protected override void OnSingletonAccessed()
+        protected override void OnStart()
         {
             if (lifetime != null) return;
             sessionOwner = this;

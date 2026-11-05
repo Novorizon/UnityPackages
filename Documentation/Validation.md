@@ -2,6 +2,8 @@
 
 导入使用前一轮校验后的 UPM 归档，共 11 个库包，加独立聚合安装包。这是首次导入时的历史基线。`ImportBaseline.json` 记录 2642 个导入文件的 SHA-256；检查要求保留全部可执行源码、程序集、资源和 meta，允许自有包 Markdown 调整及 PackageMoves.json 中明确记录的目录移动、包元数据变更和退役外壳元数据。官方 HybridCLR、YooAsset 的初次导入记录仅作为历史来源；当前源码已外部化，检查器要求这些包目录不再存在。
 
+Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccessed 统一改名为 OnStart。PackageMoves.json 逐文件记录这四处符号改名；检查器反向替换后必须恢复导入基线的完整 SHA-256，确保没有混入其他运行时修改。
+
 工作区检查覆盖：9 个自有包及 2 个外部依赖引用的名称、版本、自有依赖闭包与环路、Framework 依赖方向、ECS/Ability 独立性、第三方上游来源和无 Payload 约束、同仓库版本标签、主动导入的程序集名称和 GUID 唯一性，以及包仓库不含 Unity 工程的结构约束。
 
 迁入的可执行验证包括：
