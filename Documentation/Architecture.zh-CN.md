@@ -12,13 +12,15 @@
 
 全部库都面向 Unity。保留现有内部程序集划分，不增加一套 Core/Unity 产品层。
 
-## 工程
+## 独立工程
 
-`Projects/GameStarter` 提供空业务的 GameEntry、项目 StartupModule 生命周期和可选模块窗口，默认只依赖 Framework。它使用 Framework 单例，实际游戏业务由项目模块接入。
+包仓库不包含 Assets/Packages/ProjectSettings 形式的 Unity 工程。
 
-`Projects/PackageValidation` 的清单引用全部本地包，并包含 Unity Test Framework，供原生导入与回归验收。包源码只存放在根目录 Packages，不在工程 Assets 中复制另一份运行时代码。
+GameStarter 独立维护，默认通过 Git URL 安装 Framework，并通过模块窗口安装其他库。工程的运行与交付不依赖包仓库的本地目录结构。
 
-原 Cube 仅提取 Ability 运行时和编辑器。原游戏管理器、存档/账号流程和游戏场景不并入通用运行时。原仓库保留用于追溯；本轮没有删除、归档或合并其远端历史。
+原生包验收工程按需生成在包仓库外的临时目录。仓库中的工具和 API 模型用于开发验证，不是 Unity 工程。
+
+原 Cube 仅提取 Ability 的库源码。原游戏管理器、存档/账号流程和游戏场景不并入通用运行时。
 
 ## 第三方
 

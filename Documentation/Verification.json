@@ -2,11 +2,13 @@
   "packages": 11,
   "ownedPackages": 9,
   "importedFilesChecked": 2642,
+  "unchangedRuntimeAndAssetFiles": true,
   "updatedDocumentation": [
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/getting-started.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/index.md",
     "Packages/com.guanjinbiao.gpuanimator/Documentation~/integration.md",
     "Packages/com.guanjinbiao.gpuanimator/README.md",
+    "Packages/com.guanjinbiao.gpuanimator/Tools~/package.py",
     "Packages/com.guanjinbiao.gpuanimator/package.json",
     "Packages/com.novorizon.ability.editor.odin/README.md",
     "Packages/com.novorizon.ability/Documentation-public-api.md",
@@ -25,12 +27,6 @@
   "activeAssemblies": 23,
   "activeGuids": 932,
   "nativeUnityExecuted": false,
-  "unchangedRuntimeAndAssetFiles": true,
-  "release": "v0.1.0-preview.3",
-  "aggregateModelScenarios": 23,
-  "starterModelScenarios": 22,
-  "abilityPublicDeclarations": 1083,
-  "abilityEditorChecks": 91,
-  "abilityWithoutOdinCompile": true,
-  "gpuFlattenedExporter": true
+  "release": "v0.1.0-preview.4",
+  "packageOnlyRepository": true
 }

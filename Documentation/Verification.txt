@@ -1,4 +1,4 @@
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths: {"packages": 11, "ownedPackages": 9, "importedFilesChecked": 2642, "unchangedExecutableAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 932, "nativeUnityExecuted": false}
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 11, "ownedPackages": 9, "importedFilesChecked": 2642, "unchangedRuntimeAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 932, "nativeUnityExecuted": false}
   Determining projects to restore...
   All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
@@ -7,7 +7,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.38
+Time Elapsed 00:00:04.19
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -40,7 +40,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.36
+Time Elapsed 00:00:05.42
 PASS regression: recycled nodes and deletion reinsertion
 PASS regression: root bounds, empty tree and refill
 PASS regression: failed operations preserve mappings
@@ -59,7 +59,7 @@ PASS regression: caller-owned query buffers and statistics
 PASS regression: reused queries allocate no managed memory
 PASS regression: concurrent queries use independent scratch
 PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 5.59s.
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 8.08s.
 Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -69,23 +69,23 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.11
-PASS geometry and boundary queries (0.12s)
+Time Elapsed 00:00:05.32
+PASS geometry and boundary queries (0.07s)
 PASS randomized box indexes and RTree adapter (0.13s)
-PASS dynamic AABB handles, updates and pairs (0.06s)
-PASS dynamic AABB ordered, nested and moving objects (0.26s)
+PASS dynamic AABB handles, updates and pairs (0.08s)
+PASS dynamic AABB ordered, nested and moving objects (0.28s)
 PASS loose octree ownership, expansion and updates (0.01s)
 PASS subtree pruning and movement outside cached content bounds (0.01s)
 PASS scaled and cancelling frustum planes (0.00s)
-PASS static BVH refit/rebuild (0.01s)
-PASS triangle BVH exact ray queries (0.05s)
+PASS static BVH refit/rebuild (0.02s)
+PASS triangle BVH exact ray queries (0.06s)
 PASS triangle precision regressions (0.00s)
 PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.12s)
-PASS concurrent reads and writers (0.07s)
-PASS warmed reusable queries allocate zero bytes (0.27s)
-PASS public mutable interfaces and RTreeIndex adapter (0.06s)
-PASS: 94,160 assertions, 0 failed groups, 1.18s (full)
+PASS KD radius, k nearest, ties and rebuild (0.15s)
+PASS concurrent reads and writers (0.05s)
+PASS warmed reusable queries allocate zero bytes (0.26s)
+PASS public mutable interfaces and RTreeIndex adapter (0.15s)
+PASS: 94,160 assertions, 0 failed groups, 1.28s (full)
   Determining projects to restore...
   All projects are up-to-date for restore.
   UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
@@ -96,7 +96,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:01.76
+Time Elapsed 00:00:11.43
 PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -108,7 +108,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:03.16
+Time Elapsed 00:00:16.24
 Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
 PASS codec: real JSON semantic round trip: crystal_maiden.json
 PASS codec: real JSON semantic round trip: lina.json
@@ -218,40 +218,4 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:03.42
-PASS project structure, GUIDs, pinned package sources and archive integrity
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Unity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Unity/bin/Release/net8.0/Unity.dll
-  Core -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  FrameworkUnity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/FrameworkUnity/bin/Release/net8.0/Game.Framework.Unity.dll
-  GameStarter.Verification -> /workspace/UnityPackages/Projects/GameStarter/Verification~/bin/Release/net8.0/GameStarter.Verification.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:03.34
-PASS empty startup
-PASS ordered async startup and reverse shutdown
-PASS partial initialization failure releases the failing module
-PASS shutdown during initialization prevents later startup
-PASS reentrant startup does not initialize twice
-PASS tick failure stops updates and cleans all modules
-PASS shutdown from update skips remaining updates
-PASS cleanup continues after a shutdown exception
-PASS duplicate and null modules rejected before side effects
-PASS normal updates do not allocate
-PASS entry uses actual Framework singleton and rejects duplicates
-PASS entry restarts when scene/domain reload is disabled
-PASS catalog resolves dependencies once and before consumers
-PASS catalog detects missing and circular dependencies
-PASS archive integrity and online fallback
-PASS installer resumes after request handles are lost on reload
-PASS installer retains installed packages after an add failure
-PASS installer verifies the resolved version
-PASS HybridCLR embed request completes before installing consumers
-PASS installer waits for compilation and play mode
-PASS optional installer migrates an old package identifier
-PASS installer configures only after all dependencies exist
-PASS 22 lifecycle, package planning and installer scenarios (Unity/UPM API models; not native Unity).
+Time Elapsed 00:00:10.86

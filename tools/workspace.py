@@ -61,34 +61,9 @@ def sync():
     archives = snapshots()
     entries = []
     for name, data in archives.items():
-        entries.append(dict(name=name, version=packages[name]['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', archive=f'{name}-{packages[name]["version"]}.tgz', sha256=hashlib.sha256(data).hexdigest(), embed=name == 'com.code-philosophy.hybridclr'))
+        entries.append(dict(name=name, version=packages[name]['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', archive=f'{name}-{packages[name]["version"]}.tgz', sha256=hashlib.sha256(data).hexdigest(), embed=name == 'com.code-philosophy.hybridclr', dependencies=[dep for dep in packages[name].get('dependencies', {}) if dep in packages]))
     write(ROOT / 'Packages' / ALL / 'Dependencies.json', dict(packages=entries, obsoletePackages=list(config.get('packageReplacements', {}))))
-    project = ROOT / 'Projects/GameStarter'
-    old = {m['id']: m for m in read(project / 'Assets/Settings/OptionalModules.json')['modules']}
-    for previous, current in config.get('packageReplacements', {}).items():
-        legacy = old.pop(previous, None)
-        if current not in old and legacy:
-            old[current] = dict(legacy, id=current)
-    old['com.tuyoogame.yooasset'] = dict(id='com.tuyoogame.yooasset', title='YooAsset 官方运行时', hidden=True)
-    old['com.novorizon.framework.yooasset'] = dict(id='com.novorizon.framework.yooasset', title='YooAsset 适配', description='官方 YooAsset 2.3.18 与 Framework 共享资源适配。')
-    for spec in entries:
-        module = old.setdefault(spec['name'], dict(id=spec['name'], title=packages[spec['name']].get('displayName', spec['name'])))
-        module['replaces'] = [previous for previous, current in config.get('packageReplacements', {}).items() if current == spec['name']]
-        if spec['name'] == 'com.novorizon.ability': module.update(title='Ability（含编辑器）', description='技能运行时与编辑器为同一个包；Odin 插件由项目提供。')
-        module.update(version=spec['version'], source='file:../../../Packages/' + spec['name'], archive=spec['archive'], sha256=spec['sha256'], dependencies=[dep for dep in packages[spec['name']].get('dependencies', {}) if dep in packages])
-        if spec['embed']:
-            module['embed'] = True
-    write(project / 'Assets/Settings/OptionalModules.json', dict(modules=[old[entry['name']] for entry in entries]))
-    manifest = read(project / 'Packages/manifest.json')
-    for previous in config.get('packageReplacements', {}): manifest['dependencies'].pop(previous, None)
-    manifest['dependencies']['com.novorizon.framework'] = 'file:../../../Packages/com.novorizon.framework'
-    write(project / 'Packages/manifest.json', manifest)
-    validation = dict(manifest['dependencies'])
-    for name in packages:
-        validation[name] = 'file:../../../Packages/' + name
-    validation['com.unity.test-framework'] = '1.1.33'
-    write(ROOT / 'Projects/PackageValidation/Packages/manifest.json', dict(dependencies=dict(sorted(validation.items()))))
-    print(f'Synchronized {len(entries)} dependency pins and both Unity project manifests.', flush=True)
+    print(f'Synchronized {len(entries)} package dependency pins.', flush=True)
 
 
 def validate():
@@ -152,15 +127,10 @@ def validate():
         if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
             assert (file.suffix == '.md' and relative.split('/')[1] not in OFFICIAL) or file.relative_to(ROOT).as_posix() in layout['metadataChanges'] or file.relative_to(ROOT).as_posix() in layout.get('packagingToolChanges', []), ('Executable code or upstream package changed', relative)
             doc_changes.append(relative)
-    for project_name in ['GameStarter', 'PackageValidation']:
-        project = ROOT / 'Projects' / project_name
-        for name, source in read(project / 'Packages/manifest.json')['dependencies'].items():
-            if source.startswith('file:'):
-                local = (project / 'Packages' / source[5:]).resolve()
-                assert local == ROOT / 'Packages' / name
-                assert read(local / 'package.json')['name'] == name
+    assert not (ROOT / 'Projects').exists(), 'Unity projects belong in their own repository'
+    assert not (ROOT / 'Assets').exists() and not (ROOT / 'ProjectSettings').exists()
     report = dict(packages=len(packages), ownedPackages=len(packages) - len(OFFICIAL), importedFilesChecked=len(baseline), unchangedRuntimeAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
-    print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
+    print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
     return report
 
 
@@ -179,7 +149,6 @@ def verify(dotnet):
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project.stem + '.dll'))], cwd=ROOT, env=env, check=True)
         subprocess.run([dotnet, 'build', str(ROOT / 'tools/AbilityVerification/Editor/EditorUiCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo', '-p:OdinEnabled=false'], cwd=temp, env=env, check=True)
-        subprocess.run(['python3', str(ROOT / 'Projects/GameStarter/Tools~/verify.py'), '--dotnet', dotnet], cwd=ROOT, env=env, check=True)
     write(ROOT / 'Documentation/Verification.json', report)
 
 
@@ -210,6 +179,22 @@ def export(output):
     print('Exported', zip_path, 'and', aggregate, flush=True)
 
 
+def unity_project(output):
+    output = output.resolve()
+    if output == ROOT or ROOT in output.parents:
+        raise ValueError('Generate the Unity test project outside the package repository.')
+    config, packages = read(ROOT / 'workspace.json'), definitions()
+    deps = dict(packages[ALL].get('dependencies', {}))
+    deps['com.unity.test-framework'] = '1.1.33'
+    for name in packages:
+        deps[name] = f'{config["repository"]}?path=/Packages/{name}#{config["release"]}'
+    (output / 'Assets').mkdir(parents=True, exist_ok=True)
+    (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
+    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))
+    (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
+    print('Generated standalone Unity verification project:', output)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
@@ -217,12 +202,15 @@ def main():
     sub.add_parser('check')
     v = sub.add_parser('verify')
     v.add_argument('--dotnet', default='dotnet')
+    u = sub.add_parser('unity-project')
+    u.add_argument('--output', type=Path, required=True)
     p = sub.add_parser('export')
     p.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'sync': sync()
     elif args.command == 'check': validate()
     elif args.command == 'verify': verify(args.dotnet)
+    elif args.command == 'unity-project': unity_project(args.output)
     else: export(args.output.resolve())
 
 

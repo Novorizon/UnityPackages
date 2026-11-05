@@ -1,1 +1,0 @@
-{"name":"GameStarter.Runtime","rootNamespace":"Game","references":["Game.Framework.Core","Game.Framework.Unity"],"autoReferenced":true,"allowUnsafeCode":false}

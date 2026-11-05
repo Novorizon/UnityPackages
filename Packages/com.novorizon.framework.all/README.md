@@ -4,7 +4,7 @@
 
 ## 安装
 
-**分发版**：Package Manager → `+` → **Add package from tarball…**，选择 `com.novorizon.framework.all-0.1.0-preview.3.tgz`。等待 Console 出现：
+**分发版**：Package Manager → `+` → **Add package from tarball…**，选择 `com.novorizon.framework.all-0.1.0-preview.4.tgz`。等待 Console 出现：
 
 ```text
 [Novorizon All] 全部模块安装完成，HybridCLR 默认配置和热更入口已就绪。
@@ -13,7 +13,7 @@
 **Git 源码版**：Package Manager → **Add package from git URL…**：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.3
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.4
 ```
 
 源码版从 `Dependencies.json` 中固定的 Git 提交安装；附带 Payload~ 的 tarball 分发版直接使用经过 SHA-256 校验的归档，不需要 Git 下载这些库。uGUI、Mathematics、Scriptable Build Pipeline 等官方注册表依赖仍由 Unity 下载，分发版也需要正常访问 Unity 注册表。

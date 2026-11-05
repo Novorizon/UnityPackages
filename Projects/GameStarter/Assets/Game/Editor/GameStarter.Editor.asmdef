@@ -1,1 +1,0 @@
-{"name":"GameStarter.Editor","rootNamespace":"Game.Editor","references":["GameStarter.Runtime"],"includePlatforms":["Editor"],"autoReferenced":true,"allowUnsafeCode":false}

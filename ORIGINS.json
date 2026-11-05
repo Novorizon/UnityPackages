@@ -77,10 +77,6 @@
       "importVersion": "0.1.0-preview.1"
     }
   ],
-  "starter": {
-    "source": "GameStarter",
-    "commit": "c63de5696656b09f9435722bd0a7b4e7c5bc61a3"
-  },
   "verificationSources": {
     "ability": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Tools/AbilityVerification",
     "abilityFixtures": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Data/AbilityJsonSources"
