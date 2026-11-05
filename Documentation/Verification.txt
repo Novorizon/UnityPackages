@@ -1,4 +1,4 @@
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 9, "ownedPackages": 9, "externalDependencyReferences": 2, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": ["Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"], "activeAssemblies": 19, "activeGuids": 344, "nativeUnityExecuted": false}
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 9, "ownedPackages": 9, "externalDependencyReferences": 2, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": ["Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs"], "activeAssemblies": 19, "activeGuids": 347, "nativeUnityExecuted": false}
   Determining projects to restore...
   All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
@@ -7,7 +7,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:08.71
+Time Elapsed 00:00:01.10
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -31,13 +31,52 @@ PASS invalid dependency identities are rejected
 PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
   Determining projects to restore...
   All projects are up-to-date for restore.
+  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  Network -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Network/bin/Release/netstandard2.1/Game.Framework.Network.dll
+  Engine -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Engine/bin/Release/netstandard2.1/UnityEngine.CoreModule.dll
+  Unity -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Unity/bin/Release/netstandard2.1/Game.Framework.Unity.dll
+  Gpu -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Gpu/bin/Release/netstandard2.1/GpuAnimator.dll
+  FrameworkServicesVerification -> /workspace/UnityPackages/tools/FrameworkServicesVerification/bin/Release/net8.0/FrameworkServicesVerification.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.52
+PASS legacy lazy singletons remain compatible
+PASS configurable singleton supports private constructors and concurrent acquisition
+PASS TryGetInstance never creates and configured services cannot be replaced implicitly
+PASS reset releases outside the lock and blocks creation during cleanup
+PASS a stale release cannot clear a newer service
+PASS stop prevents resurrection until an explicit reset
+PASS failed, null and reentrant factories leave creation retryable
+PASS cleanup exceptions release the reset gate
+PASS NetworkManager uses the Framework configurable singleton
+PASS network stop and restart reuse the generic lifecycle
+PASS GPU player has no individual Unity Update callback
+PASS GPU auto registration and single manager tick
+PASS GPU disable, enable, clear and destruction remove registrations
+PASS GPU manual mode stays outside the automatic scheduler
+PASS GPU notifications include direct calls and completion callbacks
+PASS GPU callback mutations defer new registrations until next tick
+PASS GPU pause, speed and invalid time inputs
+PASS GPU completion callback can replay without a duplicate tick
+PASS GPU manager recreation discovers live automatic players
+PASS GPU clear rejects reentrant replay from stop notifications
+PASS GPU notification failures do not prevent completion callbacks
+PASS GPU manual players still publish global notifications
+PASS GPU reentrant animation switches preserve notification order
+PASS GPU steady scheduler updates allocate no managed memory
+PASS 24 singleton, actual network and GPU scheduling scenarios; Unity APIs are boundary models.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
   Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:14.09
+Time Elapsed 00:00:01.01
 PASS regression: recycled nodes and deletion reinsertion
 PASS regression: root bounds, empty tree and refill
 PASS regression: failed operations preserve mappings
@@ -56,7 +95,7 @@ PASS regression: caller-owned query buffers and statistics
 PASS regression: reused queries allocate no managed memory
 PASS regression: concurrent queries use independent scratch
 PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 15.48s.
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 5.51s.
 Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -66,23 +105,34 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:08.55
+Time Elapsed 00:00:01.00
 PASS geometry and boundary queries (0.09s)
-PASS randomized box indexes and RTree adapter (0.18s)
-PASS dynamic AABB handles, updates and pairs (0.07s)
-PASS dynamic AABB ordered, nested and moving objects (0.33s)
+PASS randomized box indexes and RTree adapter (0.13s)
+PASS dynamic AABB handles, updates and pairs (0.05s)
+PASS dynamic AABB ordered, nested and moving objects (0.30s)
 PASS loose octree ownership, expansion and updates (0.02s)
 PASS subtree pruning and movement outside cached content bounds (0.01s)
 PASS scaled and cancelling frustum planes (0.00s)
 PASS static BVH refit/rebuild (0.02s)
 PASS triangle BVH exact ray queries (0.07s)
-PASS triangle precision regressions (0.00s)
+PASS triangle precision regressions (0.01s)
 PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.24s)
-PASS concurrent reads and writers (0.08s)
-PASS warmed reusable queries allocate zero bytes (0.45s)
-PASS public mutable interfaces and RTreeIndex adapter (0.14s)
-PASS: 94,160 assertions, 0 failed groups, 1.72s (full)
+PASS KD radius, k nearest, ties and rebuild (0.16s)
+PASS concurrent reads and writers (0.17s)
+PASS warmed reusable queries allocate zero bytes (0.31s)
+PASS public mutable interfaces and RTreeIndex adapter (0.08s)
+PASS: 94,160 assertions, 0 failed groups, 1.43s (full)
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  Engine -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Engine/bin/Release/netstandard2.1/UnityEngine.CoreModule.dll
+  Unity -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Unity/bin/Release/netstandard2.1/Game.Framework.Unity.dll
+  UI -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI/bin/Release/netstandard2.1/Game.Framework.UI.dll
+  UI.Tests -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll
+Test run for /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 4 s - Game.Framework.UI.Tests.dll (net8.0)
   Determining projects to restore...
   All projects are up-to-date for restore.
   UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
@@ -93,7 +143,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:16.41
+Time Elapsed 00:00:01.42
 PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -105,7 +155,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:19.08
+Time Elapsed 00:00:01.40
 Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
 PASS codec: real JSON semantic round trip: crystal_maiden.json
 PASS codec: real JSON semantic round trip: lina.json
@@ -215,42 +265,42 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:20.45
+Time Elapsed 00:00:01.75
 
-
-=== v0.1.0-preview.8 PackageInfo ambiguity regression ===
+=== Final formatted services verification ===
+PASS legacy lazy singletons remain compatible
+PASS configurable singleton supports private constructors and concurrent acquisition
+PASS TryGetInstance never creates and configured services cannot be replaced implicitly
+PASS reset releases outside the lock and blocks creation during cleanup
+PASS a stale release cannot clear a newer service
+PASS stop prevents resurrection until an explicit reset
+PASS failed, null and reentrant factories leave creation retryable
+PASS cleanup exceptions release the reset gate
+PASS NetworkManager uses the Framework configurable singleton
+PASS network stop and restart reuse the generic lifecycle
+PASS GPU player has no individual Unity Update callback
+PASS GPU auto registration and single manager tick
+PASS GPU disable, enable, clear and destruction remove registrations
+PASS GPU manual mode stays outside the automatic scheduler
+PASS GPU notifications include direct calls and completion callbacks
+PASS GPU callback mutations defer new registrations until next tick
+PASS GPU pause, speed and invalid time inputs
+PASS GPU completion callback can replay without a duplicate tick
+PASS GPU manager recreation discovers live automatic players
+PASS GPU clear rejects reentrant replay from stop notifications
+PASS GPU notification failures do not prevent completion callbacks
+PASS GPU manual players still publish global notifications
+PASS GPU reentrant animation switches preserve notification order
+PASS GPU steady scheduler updates allocate no managed memory
+PASS 24 singleton, actual network and GPU scheduling scenarios; Unity APIs are boundary models.
   Determining projects to restore...
   All projects are up-to-date for restore.
-  AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
+  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  Engine -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Engine/bin/Release/netstandard2.1/UnityEngine.CoreModule.dll
+  Unity -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Unity/bin/Release/netstandard2.1/Game.Framework.Unity.dll
+  UI -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI/bin/Release/netstandard2.1/Game.Framework.UI.dll
+  UI.Tests -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll
+Test run for /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
 
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:06.43
-PASS automatic first install submits all unpublished dependencies together
-PASS matching installed versions skip add but still finish setup
-PASS persistent completion prevents installation on assembly reload
-PASS pending add survives lost handles without concurrent UPM calls
-PASS pending embed survives lost handles without concurrent UPM calls
-PASS compilation errors stop setup and retry waits for active requests
-PASS network failure stops auto retries and explicit retry recovers
-PASS embed failure stops configuration and retry recovers
-PASS configuration failure keeps installed libraries and can retry
-PASS compiled and playing editors do not start UPM operations
-PASS resolved version mismatch is reported instead of claiming success
-PASS incompatible embedded package is preserved
-PASS local monorepo uses portable sibling package folders
-PASS source install falls back to the release tag
-PASS aggregate version change runs the new setup once
-PASS batch completion requires package, embed and settings evidence
-PASS legacy editor, ECS and GPU animator packages are replaced atomically
-PASS migration failure retains the old packages
-PASS external packages always use upstream references
-PASS invalid dependency identities are rejected
-PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
-
-
-=== v0.1.0-preview.9 package metadata verification ===
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 9, "ownedPackages": 9, "externalDependencyReferences": 2, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": ["Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"], "activeAssemblies": 19, "activeGuids": 345, "nativeUnityExecuted": false}
-PASS all Unity-importable assets and directories have metadata; GUID uniqueness; missing Tests.meta rejection; standalone archive includes Tests.meta.
+Passed!  - Failed:     0, Passed:   174, Skipped:     0, Total:   174, Duration: 3 s - Game.Framework.UI.Tests.dll (net8.0)

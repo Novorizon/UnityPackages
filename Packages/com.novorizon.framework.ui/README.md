@@ -12,7 +12,7 @@
 
 Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其中仓库内路径区分大小写。已有项目若使用旧包名 `com.yourcompany.ui-framework-pro-skeleton`，应先移除旧 manifest 项再添加新包，避免同一组脚本被导入两次。运行时程序集为 `Game.Framework.UI`，业务命名空间继续使用 `UI`；自定义业务 asmdef 需显式引用该程序集及所用的 Game.Framework.Core / Game.Framework.Unity。此包独立发布，依赖匹配版本的 `com.novorizon.framework` 与 `com.unity.ugui`，复用单例和局部消息基础能力；不强制安装 YooAsset 或 TextMeshPro。可通过 `IUIAssetLoader` 接入项目自己的资源适配器。
 
-编辑器工具只编入 `Game.Framework.UI.Editor`，菜单位于 **Tools / Novorizon / UI**。安装包不会自动创建场景对象；需要时通过 `UIRoot.Instance` 或场景中的 `UIBootstrap` 初始化。
+编辑器工具只编入 `Game.Framework.UI.Editor`，菜单位于 **Tools / Novorizon / UI**。安装包不会自动创建场景对象；需要时通过 `UIManager.Instance` 或场景中的 `UIBootstrap` 初始化。
 
 在 Package Manager 的 Samples 中导入 **UI Demo**，点击 **Tools / Novorizon / Demos / Create UI Demo Scene** 后 Play。该演示在独立场景中运行时创建窗口模板、按钮与列表，使用内存 IUIAssetLoader，需先安装主框架，不需要手工绑定 Prefab 或安装资源库。操作与清理见 [UI Demo README](Samples~/Demo/README.md)。
 
@@ -20,10 +20,10 @@ Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其
 
 ## 分类与管理器（哪一类用哪些接口/入口）
 - **Page**：`UIPage : UIView` + `PageNavigator`
-  入口：`UIRoot.Instance.Pages.PushAsync/ReplaceAsync/Pop/ResetToAsync`
+  入口：`UIManager.Instance.Pages.PushAsync/ReplaceAsync/Pop/ResetToAsync`
   原因：需要“返回路径”历史 → **栈**
 - **Popup**：`UIPopup : UIView` + `PopupManager`
-  入口：`UIRoot.Instance.Popups.OpenAsync/CloseTop/Close`
+  入口：`UIManager.Instance.Popups.OpenAsync/CloseTop/Close`
   特性：`PopupOptions.Modal` 创建遮罩；返回键先关最上层
 - **Panel（侧边栏/非模态面板）**：`UIPanel : UIView` + `PanelManager`
   入口：`ShowAsync/Hide/ToggleAsync`（多数是开关状态，不进 page 栈）
@@ -36,7 +36,7 @@ Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其
   原因：短暂提示，不需要返回 → **队列**
 
 ## Back 优先级（标准建议）
-`UIRoot.Instance.HandleBack()` / `HandleBackAsync()`：
+`UIManager.Instance.HandleBack()` / `HandleBackAsync()`：
 1) 有活动或正在加载的阻塞 Overlay 时消耗返回操作，不关闭下层
 2) 请求关闭最上层 Popup；顶层拒绝关闭时也不穿透下层
 3) 请求隐藏任意 HideOnBack 的 Panel
@@ -47,9 +47,9 @@ Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其
 
 ## 快速使用
 ```csharp
-await UI.UIRoot.Instance.Pages.ResetToAsync("UI/Pages/MainMenuPage");
-await UI.UIRoot.Instance.Popups.OpenAsync("UI/Popups/SettingsPopup");
-UI.UIRoot.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
+await UI.UIManager.Instance.Pages.ResetToAsync("UI/Pages/MainMenuPage");
+await UI.UIManager.Instance.Popups.OpenAsync("UI/Popups/SettingsPopup");
+UI.UIManager.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
 ```
 
 
@@ -68,7 +68,7 @@ UI.UIRoot.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
 默认缓存最多 **每路径 2 个、总计 32 个**；超过上限时销毁本次归还实例。`UISettings.maxCachedInstances/maxCachedPerPath` 可配置容量，零表示禁用。`SetSettings` 立即更新限额，调小容量会释放已有缓存；活动视图仍由管理器持有。
 
 ```csharp
-var root = UI.UIRoot.Instance;
+var root = UI.UIManager.Instance;
 root.ClearCache();       // 功能结束时释放失活缓存
 root.Toasts.Clear();     // 清空提示队列并结束当前提示，取消尚未完成的打开
 root.ResetAll();         // 场景/功能切换：关闭所有 UI、清空消息订阅，重建空管理器
@@ -102,7 +102,7 @@ YooAsset **2.3.18 为可选依赖**。如需适配，应通过 `IUIAssetLoader` 
 0.4 默认使用 ScreenSpaceOverlay，避免依赖每个场景的主相机。需要相机 UI 时集中配置一次：
 
 ```csharp
-var root = UI.UIRoot.Instance;
+var root = UI.UIManager.Instance;
 root.SetCamera(uiCamera);              // 项目专用 UI Camera
 root.SetEventSystem(projectInput);    // 可选：项目已有的 EventSystem
 // 运行期切换相机/输入系统后，可显式刷新；场景加载/卸载会自动刷新。
@@ -126,3 +126,7 @@ root.RefreshPlatform();
 ## 验证范围
 
 仓库中的 [.NET 合同回归与复现说明](../../tests/Game.Framework.UI.Tests/README.md) 验证缓存数量、租约配对和异步生命周期；[同工作量前后对比](../../docs/ui-lifecycle-validation.md) 记录可复现的对象数量结果。合同桩不会随 UPM 包导入，且不能替代 Unity 编辑器、Profiler 或设备验证。
+
+## 0.7 迁移
+
+UI 总入口从 `UIRoot` 改名为 `UIManager`，调用 `UIManager.Instance.Initialize()`。原脚本 GUID 保留，并提供 Unity MovedFrom 标记；项目源码中的旧类型名需要更新。Canvas 和层级节点仍由该入口管理，没有增加额外转发层。

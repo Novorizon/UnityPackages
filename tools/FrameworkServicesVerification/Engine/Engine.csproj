@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>netstandard2.1</TargetFramework><AssemblyName>UnityEngine.CoreModule</AssemblyName><Nullable>enable</Nullable><NoWarn>CS0067</NoWarn></PropertyGroup><ItemGroup><ProjectReference Include="../Core/Core.csproj" /><Compile Include="UnityModel.cs" /><Compile Include="GpuModel.cs" /></ItemGroup></Project>

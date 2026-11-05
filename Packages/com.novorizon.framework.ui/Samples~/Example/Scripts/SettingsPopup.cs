@@ -6,8 +6,8 @@ namespace UI.Sample
 {
     public sealed class SettingsPopup : UIPopup
     {
-        [SerializeField] Button? closeButton = null;
-
+        [SerializeField]
+        Button? closeButton = null;
         public override bool CloseOnBlockerClick => true;
 
         protected override void OnCreate()
@@ -20,10 +20,10 @@ namespace UI.Sample
 
         void CloseSelf()
         {
-            UIHandle? top = UIRoot.Instance.Popups.Peek();
+            UIHandle? top = UIManager.Instance.Popups.Peek();
             if (top.HasValue && top.Value.View == this)
             {
-                UIRoot.Instance.Popups.Close(top.Value);
+                UIManager.Instance.Popups.Close(top.Value);
             }
         }
     }

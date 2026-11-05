@@ -9,7 +9,7 @@
 3. 打开生成的 `Assets/NovorizonDemos/UIDemo*.unity`，进入 Play。脚本会创建全部布局、模板与输入系统。
 4. Game 视图建议先选 16:9 或手机竖屏。面板中的全部按钮都可直接操作。
 
-也可在自己的**空场景**创建一个 GameObject 并挂 `UIDemoLauncher`。已有 UIRoot 或 EventSystem 时会拒绝启动并在 Console 说明原因；Demo 不会接管其他游戏的窗口或输入对象。不要把 launcher 挂到正式启动场景。
+也可在自己的**空场景**创建一个 GameObject 并挂 `UIDemoLauncher`。已有 UIManager 或 EventSystem 时会拒绝启动并在 Console 说明原因；Demo 不会接管其他游戏的窗口或输入对象。不要把 launcher 挂到正式启动场景。
 
 旧输入系统由 Demo 自建 StandaloneInputModule；仅启用新 Input System 的项目通过反射使用已安装的 InputSystemUIInputModule 与默认动作，不给 UI 包增加新依赖。若 Console 提示缺少对应输入模块，检查项目自己的 Input System 安装与 Player Settings。
 
@@ -43,6 +43,6 @@
 
 ## 清理与验证范围
 
-离开场景或销毁 launcher 会取消其任务、销毁其自己创建的 UIRoot 和输入对象，并退休加载器。模板容器独立持久化，直到最后的视图/迟到加载租约归还才销毁，避免在 `Destroy` 请求后提前卸载来源。应用退出后没有后续主线程帧的极端尾部时序，不能由此示例保证继续执行托管归还回调。
+离开场景或销毁 launcher 会取消其任务、销毁其自己创建的 UIManager 和输入对象，并退休加载器。模板容器独立持久化，直到最后的视图/迟到加载租约归还才销毁，避免在 `Destroy` 请求后提前卸载来源。应用退出后没有后续主线程帧的极端尾部时序，不能由此示例保证继续执行托管归还回调。
 
 该 Demo 用于功能学习；绑定文字和状态字符串会分配，不是零 GC 基准。源码的 .NET 合同编译与租约测试不能代替真实 Unity 的渲染、射线、输入、Prefab 克隆与 IL2CPP 验证。父文档记录本轮实际运行过的检查。

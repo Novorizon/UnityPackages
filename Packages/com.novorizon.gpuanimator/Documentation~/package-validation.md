@@ -1,6 +1,6 @@
 # 独立包验证
 
-版本 3.2.0-preview.1。本轮保留 Built-in Render Pipeline、Shader Model 3.5 和现有烘焙格式，不扩展 URP/HDRP。运行时不增加 Framework 强制依赖；可选 Framework Pool Sample 使用 Framework 0.10.0-preview.1 的真实 GameObjectPool，不另实现对象池或单例。
+版本 3.2.0-preview.1。本轮保留 Built-in Render Pipeline、Shader Model 3.5 和现有烘焙格式，不扩展 URP/HDRP。4.0 的统一调度器依赖 Framework 0.11；可选 Framework Pool Sample 使用 Framework 0.10.0-preview.1 的真实 GameObjectPool，不另实现对象池或单例。
 
 `dotnet run --project Verification~/GpuChecks.csproj -c Release` 运行 17 项源码检查：采样边界、纹理容量、编码、带符号统一缩放、非法矩阵、包围盒、烘焙元数据解码、共享注入、循环/单次播放、回调重入、非法 delta、清理和真实 Framework 池回收/释放。Engine、Framework、GpuAnimator 分别编译，外部消费者通过公开 API 使用它们。Unity 类型是明确的测试模型，未模拟烘焙采样、PNG、Shader 或 AssetDatabase。
 

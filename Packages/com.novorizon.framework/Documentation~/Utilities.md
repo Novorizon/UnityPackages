@@ -121,3 +121,9 @@ Dispatcher/MessageDispatcher 使用共享 UnityThread，Messager 使用共享 Ev
 Framework 0.10.0-preview.2 起，派生类重写 `protected override void OnStart()` 编写启动逻辑。旧回调 `OnSingletonAccessed` 改名为 `OnStart`，项目中的重写也需要同步改名。UI、ECS 与 HybridCLR 封装已同步。
 
 此回调由 Framework 在单例 Awake 或访问 Instance 时触发；派生类应通过自己的初始化状态避免重复执行工作。它与 Unity 的 Start 生命周期方法分别由各自调用方触发。
+
+## 可配置、可重置的服务单例
+
+`Singleton<T>` 保持原有 Lazy 无参创建行为。需要工厂配置和运行重置的服务可继承 `ConfigurableSingleton<T>`：派生类用 GetOrCreateInstance 提供默认工厂，用 ConfigureInstance 在首次取实例前配置服务，用 ResetInstance 显式清理并重置，用 ReleaseInstance 按实例身份清除引用。基类提供 IsCreated 和 TryGetInstance，查询不会创建对象。
+
+ResetInstance 在锁外清理旧实例，清理期间拒绝创建；stopping=true 阻止退出时重新创建，显式重置后可开始新的运行。网络参数、认证与连接仍由 NetworkManager 校验和处理，NetworkManager 已复用此基类。

@@ -1,6 +1,6 @@
 # UI 0.5 业务功能
 
-适用 Unity 2022.3，运行时依赖 Framework 和 uGUI，不依赖具体资源库。主入口为 `UI.UIRoot.Instance`；所有 UI 方法在 Unity 主线程调用。支持 Windows、Android、iPhone 的源码接口，实际设备、Canvas、输入和 IL2CPP 仍需项目验证。
+适用 Unity 2022.3，运行时依赖 Framework 和 uGUI，不依赖具体资源库。主入口为 `UI.UIManager.Instance`；所有 UI 方法在 Unity 主线程调用。支持 Windows、Android、iPhone 的源码接口，实际设备、Canvas、输入和 IL2CPP 仍需项目验证。
 
 希望先体验完整操作时，导入 [UI Demo](../Samples~/Demo/README.md) 并用菜单创建场景；下面的业务片段与 UI Categories 用于接入项目自己的 Prefab。
 
@@ -21,7 +21,7 @@ public interface IUIAssetLoader
 ```csharp
 void ConfigureUi(IUIAssetLoader gameLoader)
 {
-    UI.UIRoot.Instance.SetAssetLoader(gameLoader);
+    UI.UIManager.Instance.SetAssetLoader(gameLoader);
 }
 
 // 也可以直接连接项目的两个函数，不额外编写适配类。
@@ -29,7 +29,7 @@ void ConfigureUi(
     Func<string, Task<GameObject?>> acquirePrefab,
     Action<GameObject> releasePrefab)
 {
-    UI.UIRoot.Instance.SetAssetLoader(
+    UI.UIManager.Instance.SetAssetLoader(
         new UI.DelegateUIAssetLoader(acquirePrefab, releasePrefab));
 }
 ```
@@ -45,7 +45,7 @@ void ConfigureUi(
 ```csharp
 protected override void OnOpen(object? args)
 {
-    Track(UI.UIRoot.Instance.Bus.SubscribeScoped<CoinsChanged>(OnCoinsChanged));
+    Track(UI.UIManager.Instance.Bus.SubscribeScoped<CoinsChanged>(OnCoinsChanged));
     _ = RefreshAsync(OpenToken); // 捕获此次打开的令牌
 }
 
@@ -77,7 +77,7 @@ async Task RefreshAsync(CancellationToken token)
 
 ```csharp
 using var cancel = new CancellationTokenSource();
-var opening = UI.UIRoot.Instance.Pages.PushAsync(
+var opening = UI.UIManager.Instance.Pages.PushAsync(
     "UI/Pages/Inventory", cancellationToken: cancel.Token);
 // 离开该业务流程时 cancel.Cancel();
 var handle = await opening;
@@ -95,7 +95,7 @@ protected override void OnCreate() => CloseGuard = ConfirmCloseAsync;
 async Task<bool> ConfirmCloseAsync(UICloseReason reason, CancellationToken token)
 {
     if (!hasUnsavedChanges) return true;
-    var choice = await UI.UIRoot.Instance.Dialogs.ShowAsync<bool>(
+    var choice = await UI.UIManager.Instance.Dialogs.ShowAsync<bool>(
         "UI/Popups/ConfirmPopup", "Discard changes?", cancellationToken: token);
     return choice.HasValue && choice.Value;
 }
@@ -112,7 +112,7 @@ CloseReason 包括 Programmatic、Back、Blocker、Replaced、Reset、Disposed�
 具体 Prefab 组件继承 `UIResultPopup<bool>` 等闭合类型，按钮调用 `Complete(true)` 或 `Complete(false)`：
 
 ```csharp
-var result = await UI.UIRoot.Instance.Dialogs.ShowAsync<bool>(
+var result = await UI.UIManager.Instance.Dialogs.ShowAsync<bool>(
     "UI/Popups/ConfirmPopup", "Delete this item?", cancellationToken: token);
 if (result.HasValue && result.Value)
     DeleteItem();

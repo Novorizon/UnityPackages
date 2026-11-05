@@ -6,13 +6,13 @@ namespace UI.Sample
 {
     public sealed class SidePanel : UIPanel
     {
-        [SerializeField] Button? closeButton = null;
-
+        [SerializeField]
+        Button? closeButton = null;
         protected override void OnCreate()
         {
             if (closeButton != null)
             {
-                closeButton.onClick.AddListener(() => UIRoot.Instance.Panels.Hide("UI/Panels/SidePanel"));
+                closeButton.onClick.AddListener(() => UIManager.Instance.Panels.Hide("UI/Panels/SidePanel"));
             }
         }
     }

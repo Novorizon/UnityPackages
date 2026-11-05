@@ -1,6 +1,6 @@
 # 项目接入
 
-`main` 的播放器只依赖 Unity。项目中的 Framework、Addressables、AssetBundle 或自定义资源系统可以通过同一组公开 API 接入，不需要修改播放器，也不需要继承项目中的 Entity 或 Component 类型。
+4.0 的播放器使用 Framework 的单例承载统一的 GpuAnimatorManager。项目中的 Framework、Addressables、AssetBundle 或自定义资源系统可以通过同一组公开 API 接入，不需要修改播放器，也不需要继承项目中的 Entity 或 Component 类型。
 
 ## 资源所有权
 
@@ -116,7 +116,7 @@ player.SetPropertyBlock();
 
 ## 从 ecs 分支迁移
 
-原来的 Entity 由项目自己继续管理；在它所对应的 GameObject 上保留一个 `GpuAnimator` 组件即可。资源加载和缓存逻辑从旧的静态 `AddAnimationComponent` 入口移到资源层，初始化后改为调用实例的 `TryPlay`。旧的 ComponentSystem 更新则由组件自动 Update 或项目统一 Tick 替代，二者选择一种。
+原来的 Entity 由项目自己继续管理；在它所对应的 GameObject 上保留一个 `GpuAnimator` 组件即可。资源加载和缓存逻辑从旧的静态 `AddAnimationComponent` 入口移到资源层，初始化后改为调用实例的 `TryPlay`。旧的 ComponentSystem 更新则由 GpuAnimatorManager 自动调度或项目手动 Tick 替代，二者选择一种。
 
 回调类型从 `Action<Entity, object>` 改为 `Action<GpuAnimator, object>`；需要回到业务 Entity 时，可通过 userdata 或适配层持有的映射处理，不必让播放器反向依赖框架。
 

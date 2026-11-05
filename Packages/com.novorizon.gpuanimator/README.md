@@ -1,5 +1,21 @@
 # GpuAnimator
 
+4.0 起，最低 Unity 2022.3，依赖 Framework 0.11 的单例实现。`GpuAnimatorManager` 统一更新自动模式的播放器，播放器本身没有 Update。`AutomaticUpdate = false` 继续支持项目手动 Tick；启用/停用、播放结束和 Clear 会自动维护注册关系。烘焙数据格式和 Built-in Shader 保持原支持范围。
+
+```csharp
+var animations = GpuAnimatorManager.Instance;
+animations.Initialize();
+animations.AnimationChanged += (player, previous, current) =>
+{
+    Debug.Log($"{player.name}: {previous} -> {current}");
+};
+// 自动播放器使用此调度器；暂停或变速不影响手动模式的 Tick。
+animations.IsPaused = false;
+animations.PlaybackSpeed = 1f;
+```
+
+Manager 汇总 AnimationStarted、AnimationChanged、AnimationCompleted 和 AnimationStopped。播放器也提供这些事件；直接调用 TryPlay 同样会通知。重播同一 Clip 触发 Started，不触发 Changed；循环动画不触发 Completed。项目在退出时取消自己添加的事件订阅。
+
 3.2.0-preview.1 的[独立包验证与边界](Documentation~/package-validation.md)已补齐；可选 [Framework Pool Sample](Samples~/FrameworkPool/README.md)复用基础池，回收前清除播放状态。
 
 [中文使用文档](Documentation~/index.md) · [API](Documentation~/api.md) · [接入与对象池](Documentation~/integration.md) · [常见问题](Documentation~/troubleshooting.md)
@@ -10,11 +26,11 @@
 
 ## 快速开始
 
-`main` 是独立的 GameObject/MonoBehaviour 版本；原 PureMVCFramework ECS 版本保留在 [`ecs` 分支](https://github.com/Novorizon/GpuAnimator/tree/ecs)。当前示例面向 Unity 2020.2+ 的 **Built-in Render Pipeline**。
+`main` 是独立的 GameObject/MonoBehaviour 版本；原 PureMVCFramework ECS 版本保留在 [`ecs` 分支](https://github.com/Novorizon/GpuAnimator/tree/ecs)。当前示例面向 Unity 2022.3+ 的 **Built-in Render Pipeline**。
 
 3.0 使用完整的数据类型名 `AnimationData` 和 `AnimationClipData`；组件入口仍为 `GpuAnimator`。从 2.x 升级请替换源码中的旧类型名，`AnimationData.FromBytes` 可以读取旧元数据，见[命名迁移说明](Documentation~/integration.md#从-2x-迁移数据类型名称)。
 
-1. 在 Unity Package Manager 通过 Git URL 安装：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.9`。
+1. 先安装同一发行标签下的 `com.novorizon.framework`，再在 Unity Package Manager 通过 Git URL 安装：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.10`。
 2. 按[美术规范](Documentation~/art-guidelines.md)准备模型与动画，在 **GpuSkinning → Baker** 中先 Validate 再 Bake；产物与接入步骤见[入门指南](Documentation~/getting-started.md)。
 3. 资源由业务或 Framework 加载，播放器接收已配置的 Renderer 和解析后的数据：
 
@@ -54,8 +70,7 @@ if (player.Initialize(renderer, sharedData))
 
 ---
 
-`main` provides a standalone GameObject/MonoBehaviour player. It depends only on
-Unity and does not load assets or require an ECS framework. The previous
+`main` provides a standalone GameObject/MonoBehaviour player. It uses Framework for the shared scheduler singleton and does not load assets or require an ECS framework. The previous
 PureMVCFramework entity/component implementation is preserved on the
 [`ecs` branch](https://github.com/Novorizon/GpuAnimator/tree/ecs).
 
@@ -64,15 +79,15 @@ Existing ECS integrations can continue using the `ecs` branch.
 
 ## Installation
 
-Add this Git URL in Unity Package Manager:
+Install Framework from the same release tag first (or use Framework All), then add this Git URL in Unity Package Manager:
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.9
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.10
 ```
 
-The package targets Unity 2020.2 or later. The included shaders use the Built-in
+The package targets Unity 2022.3 or later. The included shaders use the Built-in
 Render Pipeline. Runtime and Editor code compile in separate assemblies; no
-external framework packages or assembly GUID references are required.
+extra singleton implementations or assembly GUID references are required.
 
 ## Caller-supplied resources
 
@@ -127,7 +142,7 @@ missing loop override uses the baked clip setting without changing shared data.
 starting phase. Select animations when business state changes rather than
 restarting them every frame.
 
-By default, the component advances with `Time.deltaTime` in `Update`. To drive
+By default, GpuAnimatorManager advances active players with Time.deltaTime from one shared Update. GpuAnimator has no individual Update callback. To drive
 many instances from an external update loop, select manual updates:
 
 ```csharp

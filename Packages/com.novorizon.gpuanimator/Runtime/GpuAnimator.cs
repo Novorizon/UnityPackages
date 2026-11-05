@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -8,9 +9,25 @@ using Random = UnityEngine.Random;
 /// </summary>
 public sealed class GpuAnimator : MonoBehaviour
 {
+    private enum NotificationKind
+    {
+        Changed,
+        Started,
+        Completed,
+        Stopped
+    }
+
+    private struct PlaybackNotification
+    {
+        internal NotificationKind Kind;
+        internal string Previous;
+        internal string Clip;
+    }
+
+    private readonly Queue<PlaybackNotification> notifications = new Queue<PlaybackNotification>(4);
+    private bool dispatching;
     private static readonly int FrameIndexId = Shader.PropertyToID("_FrameIndex");
     private static readonly int BlendFrameIndexId = Shader.PropertyToID("_BlendFrameIndex");
-
     private Renderer targetRenderer;
     private AnimationData animationData;
     private MaterialPropertyBlock propertyBlock;
@@ -23,22 +40,44 @@ public sealed class GpuAnimator : MonoBehaviour
     private double frameTimer;
     private Action<GpuAnimator, object> completionCallback;
     private object completionUserdata;
-
+    private bool clearing;
+    private bool destroying;
     public bool IsInitialized => targetRenderer != null && animationData != null;
     public bool IsPlaying => isPlaying && IsInitialized;
     public string CurrentClipName => currentClip != null ? currentClip.name : null;
     public int CurrentFrame => currentFrame;
-    public bool AutomaticUpdate { get; set; } = true;
 
+    private bool automaticUpdate = true;
+    public bool AutomaticUpdate
+    {
+        get => automaticUpdate;
+        set
+        {
+            automaticUpdate = value;
+            RefreshRegistration();
+        }
+    }
+
+    public event Action<GpuAnimator, string, string> AnimationChanged;
+    public event Action<GpuAnimator, string> AnimationStarted;
+    public event Action<GpuAnimator, string> AnimationCompleted;
+    public event Action<GpuAnimator, string> AnimationStopped;
     /// <summary>
     /// Attaches caller-owned playback data and a renderer whose mesh, materials, and
     /// animation texture are already configured. No animation starts automatically.
     /// </summary>
     public bool Initialize(Renderer targetRenderer, AnimationData animationData)
     {
+        if (clearing || destroying)
+        {
+            return false;
+        }
+
         Clear();
         if (targetRenderer == null || animationData == null || animationData.clips == null || animationData.totalFrame <= 0)
+        {
             return false;
+        }
 
         this.targetRenderer = targetRenderer;
         this.animationData = animationData;
@@ -62,7 +101,9 @@ public sealed class GpuAnimator : MonoBehaviour
     public void SetPropertyBlock()
     {
         if (targetRenderer != null && propertyBlock != null)
+        {
             targetRenderer.GetPropertyBlock(propertyBlock);
+        }
     }
 
     /// <summary>
@@ -80,20 +121,25 @@ public sealed class GpuAnimator : MonoBehaviour
     /// </summary>
     public bool TryPlay(string clipName, Action<GpuAnimator, object> callback = null, object userdata = null, bool randomizeStart = false, bool? loop = null)
     {
-        if (!IsInitialized || string.IsNullOrEmpty(clipName) || animationData.clips == null)
+        if (clearing || destroying || !IsInitialized || string.IsNullOrEmpty(clipName) || animationData.clips == null)
+        {
             return false;
+        }
 
         for (int i = 0; i < animationData.clips.Length; i++)
         {
             AnimationClipData clip = animationData.clips[i];
             if (clip == null || !string.Equals(clip.name, clipName, StringComparison.Ordinal))
+            {
                 continue;
+            }
 
-            if (clip.startFrame < 0 || clip.endFrame < clip.startFrame ||
-                clip.endFrame >= animationData.totalFrame || clip.frameRate <= 0 ||
-                float.IsNaN(clip.frameRate) || float.IsInfinity(clip.frameRate))
+            if (clip.startFrame < 0 || clip.endFrame < clip.startFrame || clip.endFrame >= animationData.totalFrame || clip.frameRate <= 0 || float.IsNaN(clip.frameRate) || float.IsInfinity(clip.frameRate))
+            {
                 return false;
+            }
 
+            string previous = CurrentClipName;
             int offset = randomizeStart ? Random.Range(0, (clip.endFrame - clip.startFrame) / 3) : 0;
             currentClip = clip;
             currentFrame = clip.startFrame + offset;
@@ -104,9 +150,15 @@ public sealed class GpuAnimator : MonoBehaviour
             completionCallback = callback;
             completionUserdata = userdata;
             isPlaying = true;
-
             SetPropertyBlock();
             ApplyFrame();
+            RefreshRegistration();
+            if (!string.Equals(previous, clip.name, StringComparison.Ordinal))
+            {
+                notifications.Enqueue(new PlaybackNotification { Kind = NotificationKind.Changed, Previous = previous, Clip = clip.name });
+            }
+
+            QueueNotification(NotificationKind.Started, clip.name);
             return true;
         }
 
@@ -120,18 +172,21 @@ public sealed class GpuAnimator : MonoBehaviour
     public void Tick(float deltaTime)
     {
         if (!IsPlaying || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
+        {
             return;
+        }
 
         frameTimer += deltaTime * frameRate;
         double framesToAdvance = Math.Floor(frameTimer);
         if (framesToAdvance < 1)
+        {
             return;
+        }
 
         frameTimer -= framesToAdvance;
         lastFrame = currentFrame;
         int frameCount = currentClip.Length();
         double nextFrame = currentFrame - currentClip.startFrame + framesToAdvance;
-
         if (loopPlayback)
         {
             currentFrame = currentClip.startFrame + (int)(nextFrame % frameCount);
@@ -153,8 +208,11 @@ public sealed class GpuAnimator : MonoBehaviour
             // Finish the old playback before user code can start or clear another clip.
             Action<GpuAnimator, object> callback = completionCallback;
             object userdata = completionUserdata;
+            string completedClip = CurrentClipName;
             completionCallback = null;
             completionUserdata = null;
+            RefreshRegistration();
+            QueueNotification(NotificationKind.Completed, completedClip);
             callback?.Invoke(this, userdata);
         }
     }
@@ -164,10 +222,17 @@ public sealed class GpuAnimator : MonoBehaviour
     /// </summary>
     public void Stop()
     {
+        bool wasPlaying = isPlaying;
+        string stoppedClip = CurrentClipName;
         isPlaying = false;
         frameTimer = 0;
         completionCallback = null;
         completionUserdata = null;
+        RefreshRegistration();
+        if (wasPlaying)
+        {
+            QueueNotification(NotificationKind.Stopped, stoppedClip);
+        }
     }
 
     /// <summary>
@@ -176,21 +241,136 @@ public sealed class GpuAnimator : MonoBehaviour
     /// </summary>
     public void Clear()
     {
-        Stop();
-        targetRenderer = null;
-        animationData = null;
-        propertyBlock = null;
-        currentClip = null;
-        currentFrame = -1;
-        lastFrame = -1;
-        frameRate = 0;
-        loopPlayback = false;
+        if (clearing)
+        {
+            return;
+        }
+
+        clearing = true;
+        try
+        {
+            Stop();
+            targetRenderer = null;
+            animationData = null;
+            propertyBlock = null;
+            currentClip = null;
+            currentFrame = -1;
+            lastFrame = -1;
+            frameRate = 0;
+            loopPlayback = false;
+        }
+        finally
+        {
+            clearing = false;
+        }
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (AutomaticUpdate)
-            Tick(Time.deltaTime);
+        RefreshRegistration();
+    }
+
+    private void OnDisable()
+    {
+        Unregister();
+    }
+
+    private void OnDestroy()
+    {
+        destroying = true;
+        Clear();
+    }
+
+    private void RefreshRegistration()
+    {
+        if (Application.isPlaying && automaticUpdate && IsPlaying && isActiveAndEnabled)
+        {
+            GpuAnimatorManager.Instance?.Register(this);
+        }
+        else
+        {
+            Unregister();
+        }
+    }
+
+    private void Unregister()
+    {
+        if (GpuAnimatorManager.TryGetInstance(out var manager))
+        {
+            manager.Unregister(this);
+        }
+    }
+
+    private void QueueNotification(NotificationKind kind, string clip)
+    {
+        notifications.Enqueue(new PlaybackNotification { Kind = kind, Clip = clip });
+        if (dispatching)
+        {
+            return;
+        }
+
+        dispatching = true;
+        try
+        {
+            // 回调中再次切换动画时追加通知，保持每次播放的通知顺序，不递归派发。
+            while (notifications.Count > 0)
+            {
+                PlaybackNotification notification = notifications.Dequeue();
+                if (notification.Kind == NotificationKind.Changed)
+                {
+                    try
+                    {
+                        AnimationChanged?.Invoke(this, notification.Previous, notification.Clip);
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogException(exception);
+                    }
+
+                    if (GpuAnimatorManager.TryGetInstance(out var manager))
+                    {
+                        manager.NotifyChanged(this, notification.Previous, notification.Clip);
+                    }
+                }
+                else
+                {
+                    var listeners = notification.Kind == NotificationKind.Started ? AnimationStarted : notification.Kind == NotificationKind.Completed ? AnimationCompleted : AnimationStopped;
+                    Notify(listeners, notification.Clip, notification.Kind);
+                }
+            }
+        }
+        finally
+        {
+            dispatching = false;
+        }
+    }
+
+    private void Notify(Action<GpuAnimator, string> listeners, string clip, NotificationKind kind)
+    {
+        try
+        {
+            listeners?.Invoke(this, clip);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+
+        if (GpuAnimatorManager.TryGetInstance(out var manager))
+        {
+            if (kind == NotificationKind.Started)
+            {
+                manager.NotifyStarted(this, clip);
+            }
+            else if (kind == NotificationKind.Completed)
+            {
+                manager.NotifyCompleted(this, clip);
+            }
+            else
+            {
+                manager.NotifyStopped(this, clip);
+            }
+        }
     }
 
     private void ApplyFrame()

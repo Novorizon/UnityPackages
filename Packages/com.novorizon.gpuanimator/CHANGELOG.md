@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.0-preview.1 — 2026-11-05
+
+- 使用 Framework 单例提供 GpuAnimatorManager，自动模式由一个 Update 集中推进，播放器删除单独 Update。
+- 增加播放器和管理器的开始、切换、完成、停止通知，以及集中暂停和速度控制。
+- 回调中注册、回收、重播按注册版本处理，本轮新增注册在下一次 Tick 生效；Clear 阻止清理期间重入播放。
+- 新增 Framework 依赖，最低 Unity 2022.3；手动 Tick、数据格式和 Built-in Shader 保留。
+
 ## 3.2.0-preview.4 — 2026-11-05
 
 - 补齐 Tests 目录的 .meta，修复只读 UPM 包忽略该目录的警告。

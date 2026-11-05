@@ -6,11 +6,14 @@ namespace UI.Sample
 {
     public sealed class MainMenuPage : UIPage
     {
-        [SerializeField] Button? openSettingsButton = null;
-        [SerializeField] Button? openSidePanelButton = null;
-        [SerializeField] Button? showToastButton = null;
-        [SerializeField] Button? showLoadingButton = null;
-
+        [SerializeField]
+        Button? openSettingsButton = null;
+        [SerializeField]
+        Button? openSidePanelButton = null;
+        [SerializeField]
+        Button? showToastButton = null;
+        [SerializeField]
+        Button? showLoadingButton = null;
         protected override void OnCreate()
         {
             if (openSettingsButton != null)
@@ -36,22 +39,22 @@ namespace UI.Sample
 
         void OnOpenSettingsClicked()
         {
-            _ = UIRoot.Instance.Popups.OpenAsync("UI/Popups/SettingsPopup");
+            _ = UIManager.Instance.Popups.OpenAsync("UI/Popups/SettingsPopup");
         }
 
         void OnToggleSidePanelClicked()
         {
-            _ = UIRoot.Instance.Panels.ToggleAsync("UI/Panels/SidePanel");
+            _ = UIManager.Instance.Panels.ToggleAsync("UI/Panels/SidePanel");
         }
 
         void OnShowToastClicked()
         {
-            UIRoot.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
+            UIManager.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
         }
 
         async void OnShowLoadingClicked()
         {
-            using var token = await UIRoot.Instance.Overlays.ShowBlockingAsync("UI/Overlays/LoadingOverlay");
+            using var token = await UIManager.Instance.Overlays.ShowBlockingAsync("UI/Overlays/LoadingOverlay");
             await System.Threading.Tasks.Task.Delay(1200);
         }
     }

@@ -137,6 +137,7 @@ def validate():
         return relative
     checked_files, external_files = 0, 0
     runtime_renames = []
+    approved_changes = []
     for relative, expected in baseline.items():
         if relative.split('/')[1] in layout.get('externalizedPackages', []):
             external_files += 1
@@ -149,6 +150,11 @@ def validate():
         file = ROOT / relocated(relative)
         assert file.is_file(), ('Missing imported file', relative)
         if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
+            change = layout.get('sourceChanges', {}).get(file.relative_to(ROOT).as_posix())
+            if change:
+                assert change['reason'] and hashlib.sha256(file.read_bytes()).hexdigest() == change['sha256'], ('Unrecorded source change', file)
+                approved_changes.append(file.relative_to(ROOT).as_posix())
+                continue
             # Permit documented identifier renames only when reversing them restores the exact import hash.
             symbols = layout.get('runtimeSymbolRenames', {}).get(file.relative_to(ROOT).as_posix())
             if symbols:
@@ -162,7 +168,7 @@ def validate():
             doc_changes.append(relative)
     assert not (ROOT / 'Projects').exists(), 'Unity projects belong in their own repository'
     assert not (ROOT / 'Assets').exists() and not (ROOT / 'ProjectSettings').exists()
-    report = dict(packages=len(packages), ownedPackages=len(packages), externalDependencyReferences=len(external), importedFilesChecked=checked_files, externalHistoricalFilesOmitted=external_files, unchangedRuntimeAndAssetFiles=not runtime_renames, runtimeSymbolRenames=runtime_renames, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
+    report = dict(packages=len(packages), ownedPackages=len(packages), externalDependencyReferences=len(external), importedFilesChecked=checked_files, externalHistoricalFilesOmitted=external_files, unchangedRuntimeAndAssetFiles=not runtime_renames and not approved_changes, runtimeSymbolRenames=runtime_renames, approvedSourceChanges=approved_changes, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
     print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
     return report
 
@@ -173,10 +179,11 @@ def verify(dotnet):
         env = os.environ.copy()
         env.setdefault('DOTNET_CLI_HOME', str(Path(temp) / 'dotnet-home'))
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
-        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
+        subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification/UI.Tests/UI.Tests.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:
             project = ROOT / 'tools/AbilityVerification' / (name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)

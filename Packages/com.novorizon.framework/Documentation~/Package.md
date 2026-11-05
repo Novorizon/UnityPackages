@@ -15,9 +15,9 @@
 Package Manager → + → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.9
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.9
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.9
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.10
 ```
 
 一次粘贴一个需要的地址。正式项目可把分支替换成审核过的提交，避免自动跟随变更。已有同名包用 Package Manager 更新，不把第二份源码粘进 Assets。
@@ -58,7 +58,7 @@ GameServer 的完整登录、进度和存档例子需要导入 TCP Network Sampl
 - GameObjectPool：每个功能/场景创建自己的池，结束时 Dispose。
 - ReferencePool<T>.Shared：Rent/Return 成对，归还后不继续使用该对象。
 - UnityThread：后台提交需要操作 Unity 的工作；无需每个模块另建主线程队列。
-- UI.UIRoot.Instance：管理页面与弹窗；窗口 Prefab 通过 IUIAssetLoader 获取和归还。
+- UI.UIManager.Instance：管理页面与弹窗；窗口 Prefab 通过 IUIAssetLoader 获取和归还。
 
 ## 程序集与导入检查
 

@@ -25,3 +25,5 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 6. 在 Unity 中单独验证同仓库标签下的 Git 子目录安装；GitHub 提交、标签及源码一致性由发布流程单独核对。
 
 新增 Ability 校验使用同一个包中的实际运行时和编辑器源码：1083 条公开 API 快照、91 项编辑器 Codec/Workspace/Sandbox 回归及缺少 Odin 时的 Editor 编译。数据样例仅用于 tools 下的测试夹具，不进入运行时包。
+
+本次通用服务验证编译实际 Framework Core/Network、UIManager 和 GPU 播放器/调度器源码。24 组单例/网络/动画调度场景覆盖重置、退出保护、手动模式、重入通知和回收；174 项 UI 回归使用 Unity API 模型。历史基线保持不变，本次运行时代码修改逐文件记录 sourceChanges 的原因和 SHA-256。

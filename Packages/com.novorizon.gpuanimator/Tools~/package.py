@@ -15,7 +15,7 @@ for path in r.rglob('*'):
         continue
     if path.suffix != '.meta':
         assert pathlib.Path(str(path)+'.meta').is_file(), ('Missing Unity asset metadata', path)
-assert json.loads((r/'GpuAnimator.asmdef').read_text())['references']==[]
+assert set(json.loads((r/'GpuAnimator.asmdef').read_text())['references']) == {'Game.Framework.Core', 'Game.Framework.Unity'}
 assert json.loads((r/'Editor/GpuAnimator.Editor.asmdef').read_text())['includePlatforms']==['Editor']
 assert b'#pragma target 3.5' in (r/'Shaders/GpuSkinningAnimation.shader').read_bytes()
 assert 'Game.Framework.Pooling' in (r/'Samples~/FrameworkPool/GpuAnimatorPool.cs').read_text()

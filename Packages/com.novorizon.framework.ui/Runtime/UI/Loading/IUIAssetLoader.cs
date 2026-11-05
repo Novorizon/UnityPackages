@@ -8,7 +8,7 @@ namespace UI
     /// <remarks>
     /// A shared prefab may be returned by several calls. Reference-count each successful acquisition;
     /// releasing one lease must not invalidate other views or consumers. Implementations retain ownership
-    /// of their loader; UIRoot only releases the individual leases it acquired.
+    /// of their loader; UIManager only releases the individual leases it acquired.
     /// </remarks>
     public interface IUIAssetLoader
     {

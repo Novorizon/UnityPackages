@@ -10,7 +10,9 @@
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS/": "Packages/com.novorizon.ecs/Runtime/",
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS.meta": "Packages/com.novorizon.ecs/Runtime.meta",
     "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.novorizon.gpuanimator/",
-    "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/"
+    "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs.meta": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs.meta"
   },
   "retiredFiles": [
     "Packages/com.novorizon.ability.editor.odin/package.json",
@@ -26,7 +28,8 @@
     "Packages/com.novorizon.framework.ui/package.json",
     "Packages/com.novorizon.framework.hybridclr/package.json",
     "Packages/com.novorizon.framework.yooasset/package.json",
-    "Packages/com.novorizon.framework.all/package.json"
+    "Packages/com.novorizon.framework.all/package.json",
+    "Packages/com.novorizon.gpuanimator/GpuAnimator.asmdef"
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
@@ -48,6 +51,64 @@
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
       "OnSingletonAccessed": "OnStart"
+    }
+  },
+  "sourceChanges": {
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs": {
+      "sha256": "8b509048451fcabc5822e07d2e9e3b9efced7f0069438a63f2223ffbaffe41f0",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs": {
+      "sha256": "e58a63cf05702c5e7b27b4506f5e5574ec3c4117063b05843630deaef5059120",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
+      "sha256": "46c3a474a91a6388685c73040d7d3ff3eb2b09043a994384fe36f2875df2e381",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
+      "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs": {
+      "sha256": "f0a9d4bd6c8d5bffa193704107ab4428866e1d79b8bc78f162e49620efbc4786",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs": {
+      "sha256": "827f0da6e67efc18aaaf7200a86d7f24c4de9459b6930a4e7fd3f31ba6f5215d",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
+      "sha256": "3ba03b35127688c1ced9d6c830175400603f3681ef912b15bea0a241248114d6",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs": {
+      "sha256": "15fa83afbf5182dd5a501090be9361cde522e763da3bc3be62b055bee8121da1",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs": {
+      "sha256": "f4b24af033a06765d733bce17df825fca063b4c6434f76f43a0bd2356afd7554",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs": {
+      "sha256": "976f76d0a49c5336df27b9d4c5cf2b727be769ee3bd554b1699c056749cf95e7",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs": {
+      "sha256": "a9c67def93f67a6b49694e02e8c136c3c1d1e6d9c27098b5908fed11e8bf9dc9",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
+      "sha256": "3802f2893865efecea430d18fbb806ff502013cef6801313f6b7040cd3ae0a64",
+      "reason": "Use Framework configurable singleton lifecycle for NetworkManager"
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs": {
+      "sha256": "09adee350a4b7dd622bc4523493db6d3fbd72cf500e5d93ba62d15bc5d089654",
+      "reason": "Use Framework configurable singleton lifecycle for NetworkManager"
+    },
+    "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
+      "sha256": "fe8905f05db7ebcb856ca14ecf8a2ac615fccd78d26d227715ad3e43f0504e67",
+      "reason": "Add central GPU scheduling and playback notifications"
     }
   }
 }

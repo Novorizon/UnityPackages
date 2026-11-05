@@ -16,7 +16,7 @@ public sealed class GpuAnimator : MonoBehaviour
 | `bool IsPlaying { get; }` | 正在播放且仍处于已初始化状态 |
 | `string CurrentClipName { get; }` | 当前/最近播放的 Clip 名称；尚未播放或 Clear 后为 `null` |
 | `int CurrentFrame { get; }` | 动画纹理中的全局帧索引；尚未播放或 Clear 后为 `-1` |
-| `bool AutomaticUpdate { get; set; }` | 默认 `true`；控制组件的 `Update` 是否调用 `Tick(Time.deltaTime)` |
+| `bool AutomaticUpdate { get; set; }` | 默认 `true`；控制是否注册到 GpuAnimatorManager，由调度器统一调用 Tick |
 
 `AutomaticUpdate` 是代码属性，不是序列化 Inspector 字段。它不会被 `Initialize`、`Stop` 或 `Clear` 重置，对象池复用时应显式设置。
 
