@@ -53,6 +53,7 @@ namespace UnityEditor.PackageManager
     {
         public static readonly Dictionary<string, PackageInfo> Sources = new Dictionary<string, PackageInfo>();
         public static readonly Dictionary<string, PackageInfo> Installed = new Dictionary<string, PackageInfo>();
+        public static readonly List<string[]> Removes = new List<string[]>();
         public static readonly List<string[]> Adds = new List<string[]>();
         public static readonly List<string> Embeds = new List<string>();
         public static bool FailAdd, FailEmbed, HoldAdd, HoldEmbed;
@@ -66,13 +67,17 @@ namespace UnityEditor.PackageManager
         }
         public static Requests.AddAndRemoveRequest AddAndRemove(string[] packagesToAdd = null, string[] packagesToRemove = null)
         {
-            EnsureIdle(); Adds.Add(packagesToAdd); var request = new Requests.AddAndRemoveRequest(); Active = request;
+            EnsureIdle(); Adds.Add(packagesToAdd); Removes.Add(packagesToRemove ?? Array.Empty<string>()); var request = new Requests.AddAndRemoveRequest(); Active = request;
             CompleteAdd = () =>
             {
                 request.IsCompleted = true;
                 request.Status = FailAdd ? StatusCode.Failure : StatusCode.Success;
                 request.Error = new Error { message = "Simulated network failure" };
-                if (!FailAdd) foreach (string source in packagesToAdd) { var package = Sources[source]; Installed[package.name] = package; }
+                if (!FailAdd)
+                {
+                    foreach (string name in packagesToRemove ?? Array.Empty<string>()) Installed.Remove(name);
+                    foreach (string source in packagesToAdd) { var package = Sources[source]; Installed[package.name] = package; }
+                }
             };
             if (!HoldAdd) CompleteAdd();
             return request;
@@ -96,7 +101,7 @@ namespace UnityEditor.PackageManager
         }
         public static void Reset()
         {
-            Sources.Clear(); Installed.Clear(); Adds.Clear(); Embeds.Clear(); Active = null;
+            Sources.Clear(); Installed.Clear(); Adds.Clear(); Removes.Clear(); Embeds.Clear(); Active = null;
             FailAdd = FailEmbed = HoldAdd = HoldEmbed = false; CompleteAdd = CompleteEmbed = null;
         }
     }

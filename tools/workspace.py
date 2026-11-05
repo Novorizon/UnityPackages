@@ -62,18 +62,25 @@ def sync():
     entries = []
     for name, data in archives.items():
         entries.append(dict(name=name, version=packages[name]['version'], git=f'{config["repository"]}?path=/Packages/{name}#{config["release"]}', archive=f'{name}-{packages[name]["version"]}.tgz', sha256=hashlib.sha256(data).hexdigest(), embed=name == 'com.code-philosophy.hybridclr'))
-    write(ROOT / 'Packages' / ALL / 'Dependencies.json', dict(packages=entries))
+    write(ROOT / 'Packages' / ALL / 'Dependencies.json', dict(packages=entries, obsoletePackages=list(config.get('packageReplacements', {}))))
     project = ROOT / 'Projects/GameStarter'
     old = {m['id']: m for m in read(project / 'Assets/Settings/OptionalModules.json')['modules']}
+    for previous, current in config.get('packageReplacements', {}).items():
+        legacy = old.pop(previous, None)
+        if current not in old and legacy:
+            old[current] = dict(legacy, id=current)
     old['com.tuyoogame.yooasset'] = dict(id='com.tuyoogame.yooasset', title='YooAsset 官方运行时', hidden=True)
     old['com.novorizon.framework.yooasset'] = dict(id='com.novorizon.framework.yooasset', title='YooAsset 适配', description='官方 YooAsset 2.3.18 与 Framework 共享资源适配。')
     for spec in entries:
-        module = old[spec['name']]
+        module = old.setdefault(spec['name'], dict(id=spec['name'], title=packages[spec['name']].get('displayName', spec['name'])))
+        module['replaces'] = [previous for previous, current in config.get('packageReplacements', {}).items() if current == spec['name']]
+        if spec['name'] == 'com.novorizon.ability': module.update(title='Ability（含编辑器）', description='技能运行时与编辑器为同一个包；Odin 插件由项目提供。')
         module.update(version=spec['version'], source='file:../../../Packages/' + spec['name'], archive=spec['archive'], sha256=spec['sha256'], dependencies=[dep for dep in packages[spec['name']].get('dependencies', {}) if dep in packages])
         if spec['embed']:
             module['embed'] = True
-    write(project / 'Assets/Settings/OptionalModules.json', dict(modules=list(old.values())))
+    write(project / 'Assets/Settings/OptionalModules.json', dict(modules=[old[entry['name']] for entry in entries]))
     manifest = read(project / 'Packages/manifest.json')
+    for previous in config.get('packageReplacements', {}): manifest['dependencies'].pop(previous, None)
     manifest['dependencies']['com.novorizon.framework'] = 'file:../../../Packages/com.novorizon.framework'
     write(project / 'Packages/manifest.json', manifest)
     validation = dict(manifest['dependencies'])
@@ -81,12 +88,17 @@ def sync():
         validation[name] = 'file:../../../Packages/' + name
     validation['com.unity.test-framework'] = '1.1.33'
     write(ROOT / 'Projects/PackageValidation/Packages/manifest.json', dict(dependencies=dict(sorted(validation.items()))))
-    print('Synchronized 11 dependency pins and both Unity project manifests.', flush=True)
+    print(f'Synchronized {len(entries)} dependency pins and both Unity project manifests.', flush=True)
 
 
 def validate():
     config, packages = read(ROOT / 'workspace.json'), definitions()
-    assert len(packages) == 12
+    assert len(packages) == 11
+    assert not set(config.get('packageReplacements', {})) & set(packages)
+    editor = ROOT / 'Packages/com.novorizon.ability/Editor/Game.Ability.Editor.Odin.asmdef'
+    assert read(editor)['includePlatforms'] == ['Editor']
+    assert read(editor)['references'] == ['Game.Ability']
+    assert read(ROOT / 'Packages/com.novorizon.ability/Game.Ability.asmdef')['references'] == []
     specs = read(ROOT / 'Packages' / ALL / 'Dependencies.json')['packages']
     assert {p['name'] for p in specs} == set(packages) - {ALL}
     archives = snapshots()
@@ -105,8 +117,8 @@ def validate():
     for name in packages:
         visit(name, [])
     assert not any(name in packages['com.novorizon.framework'].get('dependencies', {}) for name in packages if name != 'com.novorizon.framework')
-    assert 'com.novorizon.ability' not in packages['com.novorizon.ecsframework'].get('dependencies', {})
-    assert 'com.novorizon.ecsframework' not in packages['com.novorizon.ability'].get('dependencies', {})
+    assert 'com.novorizon.ability' not in packages['com.novorizon.ecs'].get('dependencies', {})
+    assert 'com.novorizon.ecs' not in packages['com.novorizon.ability'].get('dependencies', {})
     asmdefs, guids = {}, {}
     for package in (ROOT / 'Packages').iterdir():
         if not package.is_dir():
@@ -125,11 +137,20 @@ def validate():
                     guids[match[1]] = file
     baseline = read(ROOT / 'Documentation/ImportBaseline.json')
     doc_changes = []
+    layout = read(ROOT / 'Documentation/PackageMoves.json')
+    def relocated(relative):
+        for previous, current in sorted(layout['pathMoves'].items(), key=lambda item: len(item[0]), reverse=True):
+            if relative == previous or relative.startswith(previous.rstrip('/') + '/'):
+                return current.rstrip('/') + relative[len(previous.rstrip('/')):]
+        return relative
     for relative, expected in baseline.items():
-        file = ROOT / relative
+        if relative in layout['retiredFiles']:
+            assert not (ROOT / relative).exists()
+            continue
+        file = ROOT / relocated(relative)
         assert file.is_file(), ('Missing imported file', relative)
         if hashlib.sha256(file.read_bytes()).hexdigest() != expected:
-            assert file.suffix == '.md' and relative.split('/')[1] not in OFFICIAL, ('Executable code or upstream package changed', relative)
+            assert (file.suffix == '.md' and relative.split('/')[1] not in OFFICIAL) or file.relative_to(ROOT).as_posix() in layout['metadataChanges'] or file.relative_to(ROOT).as_posix() in layout.get('packagingToolChanges', []), ('Executable code or upstream package changed', relative)
             doc_changes.append(relative)
     for project_name in ['GameStarter', 'PackageValidation']:
         project = ROOT / 'Projects' / project_name
@@ -138,7 +159,7 @@ def validate():
                 local = (project / 'Packages' / source[5:]).resolve()
                 assert local == ROOT / 'Packages' / name
                 assert read(local / 'package.json')['name'] == name
-    report = dict(packages=len(packages), ownedPackages=len(packages) - len(OFFICIAL), importedFilesChecked=len(baseline), unchangedExecutableAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
+    report = dict(packages=len(packages), ownedPackages=len(packages) - len(OFFICIAL), importedFilesChecked=len(baseline), unchangedRuntimeAndAssetFiles=True, updatedDocumentation=doc_changes, activeAssemblies=len(asmdefs), activeGuids=len(guids), nativeUnityExecuted=False)
     print('PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths:', json.dumps({k: v for k, v in report.items() if k != 'updatedDocumentation'}), flush=True)
     return report
 
@@ -153,6 +174,11 @@ def verify(dotnet):
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
+        for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:
+            project = ROOT / 'tools/AbilityVerification' / (name + '.csproj')
+            subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+            subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project.stem + '.dll'))], cwd=ROOT, env=env, check=True)
+        subprocess.run([dotnet, 'build', str(ROOT / 'tools/AbilityVerification/Editor/EditorUiCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo', '-p:OdinEnabled=false'], cwd=temp, env=env, check=True)
         subprocess.run(['python3', str(ROOT / 'Projects/GameStarter/Tools~/verify.py'), '--dotnet', dotnet], cwd=ROOT, env=env, check=True)
     write(ROOT / 'Documentation/Verification.json', report)
 

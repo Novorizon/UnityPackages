@@ -16,7 +16,7 @@ namespace Game.Editor
         private const string MessageKey = "Novorizon.GameStarter.InstallMessage";
         internal const string CatalogPath = "Assets/Settings/OptionalModules.json";
         private static ListRequest listing;
-        private static AddRequest adding;
+        private static AddAndRemoveRequest adding;
         private static EmbedRequest embedding;
         private static InstallJob job;
         internal static bool Busy => job != null;
@@ -95,14 +95,16 @@ namespace Game.Editor
                 if (listing == null) { listing = Client.List(true, true); return; }
                 if (!listing.IsCompleted) return;
                 if (listing.Status == StatusCode.Failure) throw new InvalidOperationException(listing.Error.message);
-                var installed = listing.Result.FirstOrDefault(p => p.name == module.id);
+                var packages = listing.Result.ToArray();
+                var installed = packages.FirstOrDefault(p => p.name == module.id);
+                var obsolete = packages.Where(p => (module.replaces ?? Array.Empty<string>()).Contains(p.name)).Select(p => p.name).ToArray();
                 listing = null;
-                if (installed == null || installed.version != module.version)
+                if (installed == null || installed.version != module.version || obsolete.Length > 0)
                 {
                     if (job.awaitingAdd) throw new InvalidOperationException("Resolved version mismatch for " + module.id + "; expected " + module.version);
                     job.awaitingAdd = true;
                     Save("正在安装 " + module.title);
-                    adding = Client.Add(module.ResolveSource(Directory.GetCurrentDirectory()));
+                    adding = Client.AddAndRemove(new[] { module.ResolveSource(Directory.GetCurrentDirectory()) }, obsolete);
                     return;
                 }
                 if (module.embed && !Directory.Exists(Path.Combine("Packages", module.id)))

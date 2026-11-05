@@ -4,7 +4,7 @@
 
 ## 安装
 
-**分发版**：Package Manager → `+` → **Add package from tarball…**，选择 `com.novorizon.framework.all-0.1.0-preview.2.tgz`。等待 Console 出现：
+**分发版**：Package Manager → `+` → **Add package from tarball…**，选择 `com.novorizon.framework.all-0.1.0-preview.3.tgz`。等待 Console 出现：
 
 ```text
 [Novorizon All] 全部模块安装完成，HybridCLR 默认配置和热更入口已就绪。
@@ -13,7 +13,7 @@
 **Git 源码版**：Package Manager → **Add package from git URL…**：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.2
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.3
 ```
 
 源码版从 `Dependencies.json` 中固定的 Git 提交安装；附带 Payload~ 的 tarball 分发版直接使用经过 SHA-256 校验的归档，不需要 Git 下载这些库。uGUI、Mathematics、Scriptable Build Pipeline 等官方注册表依赖仍由 Unity 下载，分发版也需要正常访问 Unity 注册表。
@@ -25,11 +25,10 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 | Framework | 0.10.0-preview.1 |
 | UI | 0.6.0-preview.1 |
 | HybridCLR 封装 | 0.1.0-preview.2 |
-| Ability 运行时 | 0.2.2-preview.1 |
-| Ability Odin 编辑器 | 0.1.1-preview.1 |
+| Ability（运行时与编辑器） | 0.3.0-preview.1 |
 | RTree | 1.0.0-preview.2 |
-| GpuAnimator | 3.2.0-preview.1 |
-| ECS | 2.0.0-preview.2 |
+| GpuAnimator | 3.2.0-preview.2 |
+| ECS | 2.0.0-preview.3 |
 | YooAsset 适配 | 0.10.0-preview.1 |
 | 官方 HybridCLR | 9.0.3 |
 | 官方 YooAsset | 2.3.18 |
@@ -54,6 +53,8 @@ Unity 不支持在包的 `package.json` 中声明 Git 传递依赖；这些库�
 
 ## 验证
 
-本轮执行了 Editor 源码编译、21 组自动安装 API 模型验证、分发包身份/版本/哈希与依赖闭包检查。没有可用 Unity Editor，真实 UPM 解析、资源导入、脚本重编译、HybridCLR 配置及 IL2CPP 构建仍需原生验收。
+本轮执行了 Editor 源码编译、23 组自动安装 API 模型验证、分发包身份/版本/哈希与依赖闭包检查。没有可用 Unity Editor，真实 UPM 解析、资源导入、脚本重编译、HybridCLR 配置及 IL2CPP 构建仍需原生验收。
 
 源码验证、打包和真实 Unity 验收命令见 [维护说明](Documentation~/Development.md)。本聚合包随 UnityPackages 中的其他独立包一起维护；Framework 基础包仍保持单向依赖边界。
+
+本版安装会在同一次 Client.AddAndRemove 操作中移除旧独立 Ability Editor 和 ecsframework 包，保留原子更新语义。旧嵌入副本需先由项目移出。

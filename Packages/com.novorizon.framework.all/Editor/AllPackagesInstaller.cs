@@ -111,7 +111,7 @@ namespace Game.Framework.All.Editor
                 if ((state.phase == "Install" && state.addSubmitted && !verifyAfterAdd) || (state.phase == "Embed" && state.embedSubmitted))
                 {
                     var registered = PackageInfo.GetAllRegisteredPackages();
-                    if (state.phase == "Install" && catalog.packages.All(p => registered.Any(i => i.name == p.name && i.version == p.version))) Advance("Embed");
+                    if (state.phase == "Install" && catalog.packages.All(p => registered.Any(i => i.name == p.name && i.version == p.version)) && !registered.Any(i => (catalog.obsoletePackages ?? Array.Empty<string>()).Contains(i.name))) Advance("Embed");
                     else if (state.phase == "Embed" && catalog.packages.Where(p => p.embed).All(p => registered.Any(i => i.name == p.name && i.version == p.version && i.source == PackageSource.Embedded))) Advance("Configure");
                     else if (DateTime.UtcNow.Ticks > state.deadline) throw new TimeoutException("The previous UPM operation did not finish. Check Package Manager and retry installation.");
                     return;
@@ -141,7 +141,10 @@ namespace Game.Framework.All.Editor
         {
             catalog.ValidatePayload(packageRoot);
             var missing = catalog.packages.Where(p => !installed.Any(i => i.name == p.name && i.version == p.version)).ToArray();
-            if (missing.Length == 0) { Advance("Embed"); return; }
+            var obsolete = installed.Where(i => (catalog.obsoletePackages ?? Array.Empty<string>()).Contains(i.name)).ToArray();
+            if (missing.Length == 0 && obsolete.Length == 0) { Advance("Embed"); return; }
+            if (obsolete.Any(i => i.source == PackageSource.Embedded))
+                throw new InvalidOperationException("Legacy embedded package must be moved out before migration: " + string.Join(", ", obsolete.Where(i => i.source == PackageSource.Embedded).Select(i => i.name)));
             if (state.addSubmitted) throw new InvalidOperationException("UPM did not resolve the requested versions: " + string.Join(", ", missing.Select(p => p.name + "@" + p.version)));
             foreach (var package in missing)
                 if (installed.Any(i => i.name == package.name && i.source == PackageSource.Embedded))
@@ -152,7 +155,7 @@ namespace Game.Framework.All.Editor
             state.deadline = DateTime.UtcNow.AddMinutes(10).Ticks;
             Save();
             Debug.Log("[Novorizon All] 正在安装全部模块及其依赖，请等待 UPM 与脚本编译。");
-            adding = Client.AddAndRemove(sources);
+            adding = Client.AddAndRemove(sources, obsolete.Select(i => i.name).ToArray());
         }
 
         private static void Embed(PackageInfo[] installed)
@@ -224,7 +227,7 @@ namespace Game.Framework.All.Editor
         private static void VerifyBatch()
         {
             var installed = PackageInfo.GetAllRegisteredPackages();
-            bool all = catalog.packages.All(p => installed.Any(i => i.name == p.name && i.version == p.version));
+            bool all = catalog.packages.All(p => installed.Any(i => i.name == p.name && i.version == p.version)) && !installed.Any(i => (catalog.obsoletePackages ?? Array.Empty<string>()).Contains(i.name));
             bool embedded = installed.Any(p => p.name == "com.code-philosophy.hybridclr" && p.source == PackageSource.Embedded);
             bool configured = File.Exists(Path.Combine(projectRoot, "Assets/Resources/NovorizonHotUpdateSettings.json"));
             if (!all || !embedded || !configured) throw new InvalidOperationException("Batch verification failed: packages, HybridCLR embed or settings are missing.");

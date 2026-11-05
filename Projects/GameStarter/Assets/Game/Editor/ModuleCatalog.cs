@@ -49,6 +49,7 @@ namespace Game.Editor
         public string sha256;
         public string description;
         public string[] dependencies = Array.Empty<string>();
+        public string[] replaces = Array.Empty<string>();
         public bool hidden;
         public bool embed;
         public string setupType;

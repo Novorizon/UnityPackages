@@ -20,7 +20,7 @@ python3 tools/workspace.py export --output /tmp/UnityPackages-release
 
 ## 原生 Unity 验收（未执行）
 
-1. 在 Unity 2022.3 的干净 Built-in 工程分别测试 tarball 版与 Git 版：只添加聚合包一次，等待完成日志；检查 11 个锁定包均安装。
+1. 在 Unity 2022.3 的干净 Built-in 工程分别测试 tarball 版与 Git 版：只添加聚合包一次，等待完成日志；检查 10 个锁定包均安装。
 2. 核对 tarball 版生成的 `Packages/manifest.json` 使用项目相对归档地址，复制项目（包含归档目录）到其他位置后重新打开。
 3. 确认 HybridCLR 源是 Embedded、Data~ 和插件 meta 保留，默认 Resources 设置、热更 asmdef 与入口生成；已有项目设置不被覆盖。
 4. 在依赖安装、嵌入或配置期间触发重编译/重启 Editor，确认不会并发提交 UPM 操作、漏装或重复配置。

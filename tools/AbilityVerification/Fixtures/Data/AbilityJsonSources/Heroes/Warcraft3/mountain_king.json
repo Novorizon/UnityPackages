@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "namespace": "wc3",
+  "abilities": [
+    {
+      "id": "wc3.mountain_king.storm_bolt",
+      "name": "wc3.mountain_king.storm_bolt",
+      "displayName": "风暴之锤 / Storm Bolt",
+      "description": "参考 Warcraft III：追踪锤命中后造成魔法伤害并眩晕。本例眩晕统一3秒，未实现英雄/普通单位不同持续时间；弹速是示例调参。",
+      "maxLevel": 3,
+      "behavior": 8,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 60
+      },
+      "cooldown": {
+        "baseValue": 9
+      },
+      "manaCost": {
+        "baseValue": 75
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              100,
+              225,
+              350
+            ]
+          }
+        },
+        {
+          "name": "stun_duration",
+          "value": {
+            "values": [
+              3,
+              3,
+              3
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 5,
+          "target": 2,
+          "projectileName": "wc3.mountain_king.storm_hammer"
+        }
+      ],
+      "onProjectileHit": [
+        {
+          "actionType": 1,
+          "target": 2,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        },
+        {
+          "actionType": 3,
+          "target": 2,
+          "modifierName": "wc3.mountain_king.storm_stun",
+          "durationSpecialName": "stun_duration"
+        }
+      ],
+      "targetFlags": 32
+    },
+    {
+      "id": "wc3.mountain_king.thunder_clap",
+      "name": "wc3.mountain_king.thunder_clap",
+      "displayName": "雷霆一击 / Thunder Clap",
+      "description": "参考 Warcraft III：对自身周围敌人造成魔法伤害并降低移动及攻击速度。本例持续时间统一5秒；未区分飞行/地面、英雄/普通单位；攻速采用包的加成属性语义。",
+      "maxLevel": 3,
+      "behavior": 36,
+      "targetTeam": 2,
+      "targetType": 11,
+      "aoeRadius": {
+        "values": [
+          25,
+          30,
+          35
+        ]
+      },
+      "cooldown": {
+        "baseValue": 6
+      },
+      "manaCost": {
+        "baseValue": 90
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              60,
+              100,
+              140
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 1,
+          "target": 3,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        },
+        {
+          "actionType": 3,
+          "target": 3,
+          "modifierName": "wc3.mountain_king.clap_slow",
+          "duration": {
+            "baseValue": 5
+          }
+        }
+      ]
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "wc3.mountain_king.storm_stun",
+      "name": "wc3.mountain_king.storm_stun",
+      "isPrivate": true,
+      "displayName": "风暴之锤眩晕",
+      "isDebuff": true,
+      "isPurgable": false,
+      "duration": 3,
+      "states": 1
+    },
+    {
+      "id": "wc3.mountain_king.clap_slow",
+      "name": "wc3.mountain_king.clap_slow",
+      "isPrivate": true,
+      "displayName": "雷霆减速",
+      "isDebuff": true,
+      "duration": 5,
+      "levelProperties": [
+        {
+          "property": 1,
+          "value": {
+            "values": [
+              -50,
+              -50,
+              -50
+            ]
+          }
+        },
+        {
+          "property": 2,
+          "value": {
+            "values": [
+              -50,
+              -50,
+              -50
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "projectiles": [
+    {
+      "id": "wc3.mountain_king.storm_hammer",
+      "name": "wc3.mountain_king.storm_hammer",
+      "isPrivate": true,
+      "speed": 60,
+      "radius": 0.1,
+      "distance": 120,
+      "maxLifetime": 3,
+      "trackingTargetPolicy": 1,
+      "targetTeam": 2,
+      "targetType": 11
+    }
+  ]
+}

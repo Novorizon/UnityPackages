@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "namespace": "hero.dota2",
+  "abilities": [
+    {
+      "id": "hero.dota2.lina.dragon_slave",
+      "name": "hero.dota2.lina.dragon_slave",
+      "displayName": "Lina · Dragon Slave / 龙破斩",
+      "description": "经典机制参考：向指定方向发射穿透火焰，沿途敌方英雄及普通单位受魔法伤害。固定宽度，不模拟树木与视野。",
+      "maxLevel": 4,
+      "behavior": 16,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 1075
+      },
+      "castPoint": {
+        "baseValue": 0.45
+      },
+      "castBackswing": {
+        "baseValue": 0.2
+      },
+      "cooldown": {
+        "values": [
+          11,
+          10,
+          9,
+          8
+        ]
+      },
+      "manaCost": {
+        "values": [
+          100,
+          115,
+          130,
+          145
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              85,
+              160,
+              235,
+              310
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 6,
+          "target": 4,
+          "projectileName": "hero.dota2.lina.dragon_slave_wave"
+        }
+      ],
+      "onProjectileHit": [
+        {
+          "actionType": 1,
+          "target": 2,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        }
+      ]
+    },
+    {
+      "id": "hero.dota2.lina.laguna_blade",
+      "name": "hero.dota2.lina.laguna_blade",
+      "displayName": "Lina · Laguna Blade / 神灭斩",
+      "description": "经典魔法伤害版本参考：前摇结束后对单个敌方单位造成高额魔法伤害。没有施法后独立延时，不含天赋、命石或神杖升级。",
+      "maxLevel": 3,
+      "behavior": 8,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 600
+      },
+      "castPoint": {
+        "baseValue": 0.45
+      },
+      "cooldown": {
+        "values": [
+          70,
+          60,
+          50
+        ]
+      },
+      "manaCost": {
+        "values": [
+          150,
+          300,
+          450
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              450,
+              650,
+              850
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 1,
+          "target": 2,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        }
+      ],
+      "targetFlags": 32
+    }
+  ],
+  "modifiers": [],
+  "projectiles": [
+    {
+      "id": "hero.dota2.lina.dragon_slave_wave",
+      "name": "hero.dota2.lina.dragon_slave_wave",
+      "isPrivate": true,
+      "speed": 1200,
+      "radius": 125,
+      "distance": 1075,
+      "maxLifetime": 2,
+      "deleteOnHit": false,
+      "targetTeam": 2,
+      "targetType": 11
+    }
+  ]
+}

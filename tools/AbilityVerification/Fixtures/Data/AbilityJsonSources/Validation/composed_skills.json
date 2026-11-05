@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "namespace": "validation",
+  "abilities": [
+    {
+      "id": "validation.arc_bolt", "name": "validation.arc_bolt", "displayName": "Arc Bolt",
+      "maxLevel": 2, "behavior": 8, "targetTeam": 2, "castRange": { "baseValue": 100 },
+      "specialValues": [ { "name": "impact_damage", "value": { "values": [90, 120] } } ],
+      "actions": [ { "actionType": 5, "target": 2, "projectileName": "validation.tracking_bolt" } ],
+      "onProjectileHit": [ { "actionType": 1, "target": 2, "damageType": 3, "valueSpecialName": "impact_damage" } ]
+    },
+    {
+      "id": "validation.ice_bolt", "name": "validation.ice_bolt", "displayName": "Ice Bolt",
+      "behavior": 8, "targetTeam": 2, "castRange": { "baseValue": 100 },
+      "actions": [ { "actionType": 5, "target": 2, "projectileName": "validation.tracking_bolt" } ],
+      "onProjectileHit": [
+        { "actionType": 1, "target": 2, "damageType": 3, "value": { "baseValue": 40 } },
+        { "actionType": 3, "target": 2, "modifierName": "validation.frost_slow", "duration": { "baseValue": 1 } }
+      ]
+    },
+    {
+      "id": "validation.piercing_wave", "name": "validation.piercing_wave", "displayName": "Piercing Wave",
+      "behavior": 16, "targetTeam": 2, "castRange": { "baseValue": 30 },
+      "actions": [ { "actionType": 6, "target": 4, "projectileName": "validation.piercing_projectile" } ],
+      "onProjectileHit": [ { "actionType": 1, "target": 2, "damageType": 3, "value": { "baseValue": 35 } } ]
+    },
+    {
+      "id": "validation.frost_nova", "name": "validation.frost_nova", "displayName": "Frost Nova",
+      "behavior": 48, "targetTeam": 2, "castRange": { "baseValue": 30 },
+      "aoeRadius": { "baseValue": 3 }, "castPoint": { "baseValue": 0.25 },
+      "actions": [
+        { "actionType": 1, "target": 3, "damageType": 2, "value": { "baseValue": 60 } },
+        { "actionType": 3, "target": 3, "modifierName": "validation.frost_slow", "duration": { "baseValue": 2 } }
+      ]
+    },
+    {
+      "id": "validation.venom", "name": "validation.venom", "displayName": "Venom",
+      "maxLevel": 2, "behavior": 8, "targetTeam": 2, "castRange": { "baseValue": 30 },
+      "specialValues": [ { "name": "tick_damage", "value": { "values": [10, 15] } } ],
+      "actions": [ { "actionType": 3, "target": 2, "modifierName": "validation.poison", "duration": { "baseValue": 3 } } ]
+    },
+    {
+      "id": "validation.mend", "name": "validation.mend", "displayName": "Mend",
+      "behavior": 8, "targetTeam": 1, "targetFlags": 8, "castRange": { "baseValue": 30 },
+      "actions": [ { "actionType": 2, "target": 2, "value": { "baseValue": 30 } } ]
+    },
+    {
+      "id": "validation.spell_leech", "name": "validation.spell_leech", "displayName": "Spell Leech",
+      "behavior": 2, "intrinsicModifierName": "validation.leech_passive"
+    },
+    {
+      "id": "validation.retaliation", "name": "validation.retaliation", "displayName": "Retaliation",
+      "behavior": 2, "intrinsicModifierName": "validation.retaliation_passive"
+    },
+    {
+      "id": "validation.guardian_aura", "name": "validation.guardian_aura", "displayName": "Guardian Aura",
+      "behavior": 2, "intrinsicModifierName": "validation.aura_source"
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "validation.frost_slow", "name": "validation.frost_slow", "isPrivate": true,
+      "isDebuff": true, "duration": 2,
+      "properties": [ { "property": 1, "value": -30 } ]
+    },
+    {
+      "id": "validation.poison", "name": "validation.poison", "isPrivate": true,
+      "isDebuff": true, "duration": 3, "interval": 1,
+      "intervalActions": [ { "actionType": 1, "target": 5, "damageType": 3, "valueSpecialName": "tick_damage" } ]
+    },
+    {
+      "id": "validation.leech_passive", "name": "validation.leech_passive", "isPrivate": true,
+      "isHidden": true, "isPurgable": false, "duration": -1,
+      "triggerEventType": 6, "triggerExcludedDamageFlags": 16,
+      "triggerActions": [ { "actionType": 2, "target": 5, "valueSource": 1, "value": { "baseValue": 0.25 } } ]
+    },
+    {
+      "id": "validation.retaliation_passive", "name": "validation.retaliation_passive", "isPrivate": true,
+      "isHidden": true, "isPurgable": false, "duration": -1,
+      "triggerEventType": 7, "triggerExcludedDamageFlags": 16,
+      "triggerActions": [ { "actionType": 1, "target": 6, "valueSource": 1, "damageType": 3, "damageFlags": 17, "value": { "baseValue": 0.2 } } ]
+    },
+    {
+      "id": "validation.aura_source", "name": "validation.aura_source", "isPrivate": true,
+      "isHidden": true, "isPurgable": false, "duration": -1, "attributes": 8,
+      "auraModifierName": "validation.guardian_buff", "auraRadius": 4, "auraDuration": 0.5,
+      "auraThinkInterval": 0.25, "auraTargetTeam": 1, "auraTargetFlags": 8
+    },
+    {
+      "id": "validation.guardian_buff", "name": "validation.guardian_buff", "isPrivate": true,
+      "duration": 0.5, "maxStack": 20,
+      "properties": [ { "property": 6, "value": 4 }, { "property": 1, "value": 12 } ],
+      "sustainedEffectName": "validation.guardian_buff"
+    }
+  ],
+  "projectiles": [
+    {
+      "id": "validation.tracking_bolt", "name": "validation.tracking_bolt", "isPrivate": true,
+      "speed": 10, "radius": 0.05, "distance": 100, "maxLifetime": 20,
+      "trackingTargetPolicy": 1, "targetTeam": 2
+    },
+    {
+      "id": "validation.piercing_projectile", "name": "validation.piercing_projectile", "isPrivate": true,
+      "speed": 10, "radius": 0.25, "distance": 20, "maxLifetime": 3,
+      "deleteOnHit": false, "targetTeam": 2
+    }
+  ]
+}

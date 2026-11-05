@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "namespace": "wc3",
+  "abilities": [
+    {
+      "id": "wc3.paladin.devotion_aura",
+      "name": "wc3.paladin.devotion_aura",
+      "displayName": "专注光环 / Devotion Aura",
+      "description": "参考 Warcraft III：附近友军及自身获得[1.5,3,4.5]护甲。实际护甲减伤由本包战斗公式决定，不复刻 Warcraft III 的完整战斗系统。",
+      "maxLevel": 3,
+      "behavior": 2,
+      "targetTeam": 1,
+      "targetType": 11,
+      "intrinsicModifierName": "wc3.paladin.devotion_source"
+    },
+    {
+      "id": "wc3.paladin.divine_shield",
+      "name": "wc3.paladin.divine_shield",
+      "displayName": "神圣护盾 / Divine Shield",
+      "description": "参考 Warcraft III：自身获得限时不可驱散的无敌状态，持续[15,30,45]秒；本例未提供主动取消命令。",
+      "maxLevel": 3,
+      "behavior": 4,
+      "targetTeam": 1,
+      "targetType": 11,
+      "targetFlags": 8,
+      "cooldown": {
+        "values": [
+          35,
+          50,
+          65
+        ]
+      },
+      "manaCost": {
+        "baseValue": 25
+      },
+      "actions": [
+        {
+          "actionType": 3,
+          "target": 1,
+          "modifierName": "wc3.paladin.divine_shield_buff",
+          "duration": {
+            "values": [
+              15,
+              30,
+              45
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "wc3.paladin.devotion_source",
+      "name": "wc3.paladin.devotion_source",
+      "isPrivate": true,
+      "isHidden": true,
+      "isPurgable": false,
+      "duration": -1,
+      "attributes": 8,
+      "auraModifierName": "wc3.paladin.devotion_buff",
+      "auraRadius": 90,
+      "auraDuration": 0.5,
+      "auraThinkInterval": 0.25,
+      "auraTargetTeam": 1,
+      "auraTargetType": 11,
+      "auraTargetFlags": 8
+    },
+    {
+      "id": "wc3.paladin.devotion_buff",
+      "name": "wc3.paladin.devotion_buff",
+      "isPrivate": true,
+      "displayName": "专注光环加成",
+      "isPurgable": false,
+      "duration": 0.5,
+      "levelProperties": [
+        {
+          "property": 6,
+          "value": {
+            "values": [
+              1.5,
+              3,
+              4.5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wc3.paladin.divine_shield_buff",
+      "name": "wc3.paladin.divine_shield_buff",
+      "isPrivate": true,
+      "displayName": "神圣护盾",
+      "isPurgable": false,
+      "duration": 15,
+      "states": 64
+    }
+  ],
+  "projectiles": []
+}

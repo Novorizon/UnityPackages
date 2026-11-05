@@ -1,0 +1,29 @@
+{
+  "pathMoves": {
+    "Packages/com.novorizon.ability.editor.odin/LICENSE.md.meta": "Packages/com.novorizon.ability/Documentation~/Editor/LICENSE.md.meta",
+    "Packages/com.novorizon.ability.editor.odin/Editor": "Packages/com.novorizon.ability/Editor",
+    "Packages/com.novorizon.ability.editor.odin/README.md": "Packages/com.novorizon.ability/Documentation~/Editor/README.md",
+    "Packages/com.novorizon.ability.editor.odin/LICENSE.md": "Packages/com.novorizon.ability/Documentation~/Editor/LICENSE.md",
+    "Packages/com.novorizon.ability.editor.odin/README.md.meta": "Packages/com.novorizon.ability/Documentation~/Editor/README.md.meta",
+    "Packages/com.novorizon.ability.editor.odin/Editor.meta": "Packages/com.novorizon.ability/Editor.meta",
+    "Packages/com.novorizon.ecsframework/": "Packages/com.novorizon.ecs/",
+    "Packages/com.novorizon.ecsframework/ECS-Framework/ECS/": "Packages/com.novorizon.ecs/Runtime/",
+    "Packages/com.novorizon.ecsframework/ECS-Framework/ECS.meta": "Packages/com.novorizon.ecs/Runtime.meta",
+    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.guanjinbiao.gpuanimator/"
+  },
+  "retiredFiles": [
+    "Packages/com.novorizon.ability.editor.odin/package.json",
+    "Packages/com.novorizon.ability.editor.odin/package.json.meta",
+    "Packages/com.novorizon.ecsframework/ECS-Framework.meta",
+    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta"
+  ],
+  "metadataChanges": [
+    "Packages/com.novorizon.ability/package.json",
+    "Packages/com.novorizon.ecs/package.json",
+    "Packages/com.guanjinbiao.gpuanimator/package.json"
+  ],
+  "reason": "Ability editor belongs to the Ability UPM package; ECS package uses the concise ecs identifier.",
+  "packagingToolChanges": [
+    "Packages/com.guanjinbiao.gpuanimator/Tools~/package.py"
+  ]
+}

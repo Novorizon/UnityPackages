@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "namespace": "hero.dota2",
+  "abilities": [
+    {
+      "id": "hero.dota2.crystal_maiden.crystal_nova",
+      "name": "hero.dota2.crystal_maiden.crystal_nova",
+      "displayName": "Crystal Maiden · Crystal Nova / 冰霜新星",
+      "description": "点选范围魔法伤害，并降低敌方英雄及普通单位移速和攻速。伤害、减速和持续时间按等级变化。",
+      "maxLevel": 4,
+      "behavior": 48,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 700
+      },
+      "aoeRadius": {
+        "baseValue": 425
+      },
+      "castPoint": {
+        "baseValue": 0.3
+      },
+      "cooldown": {
+        "values": [
+          12,
+          11,
+          10,
+          9
+        ]
+      },
+      "manaCost": {
+        "values": [
+          115,
+          135,
+          155,
+          175
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              110,
+              160,
+              210,
+              260
+            ]
+          }
+        },
+        {
+          "name": "slow_duration",
+          "value": {
+            "values": [
+              3,
+              3.5,
+              4,
+              4.5
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 1,
+          "target": 3,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        },
+        {
+          "actionType": 3,
+          "target": 3,
+          "modifierName": "hero.dota2.crystal_maiden.nova_slow",
+          "durationSpecialName": "slow_duration"
+        }
+      ]
+    },
+    {
+      "id": "hero.dota2.crystal_maiden.frostbite",
+      "name": "hero.dota2.crystal_maiden.frostbite",
+      "displayName": "Crystal Maiden · Frostbite / 冰封禁制",
+      "description": "英雄目标版本参考：定身并缴械，立即一次及随后每0.5秒魔法跳伤。只接受英雄，未模拟原作非英雄额外持续时间。",
+      "maxLevel": 4,
+      "behavior": 8,
+      "targetTeam": 2,
+      "targetType": 1,
+      "castRange": {
+        "baseValue": 600
+      },
+      "castPoint": {
+        "baseValue": 0.3
+      },
+      "cooldown": {
+        "values": [
+          9,
+          8,
+          7,
+          6
+        ]
+      },
+      "manaCost": {
+        "values": [
+          125,
+          135,
+          145,
+          155
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "tick_damage",
+          "value": {
+            "values": [
+              25,
+              30,
+              35,
+              40
+            ]
+          }
+        },
+        {
+          "name": "root_duration",
+          "value": {
+            "values": [
+              1.5,
+              2,
+              2.5,
+              3
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 3,
+          "target": 2,
+          "modifierName": "hero.dota2.crystal_maiden.frostbite_debuff",
+          "durationSpecialName": "root_duration"
+        }
+      ],
+      "targetFlags": 32
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "hero.dota2.crystal_maiden.nova_slow",
+      "name": "hero.dota2.crystal_maiden.nova_slow",
+      "isPrivate": true,
+      "displayName": "冰霜新星减速",
+      "isDebuff": true,
+      "duration": 3,
+      "levelProperties": [
+        {
+          "property": 1,
+          "value": {
+            "values": [
+              -20,
+              -30,
+              -40,
+              -50
+            ]
+          }
+        },
+        {
+          "property": 2,
+          "value": {
+            "values": [
+              -30,
+              -40,
+              -50,
+              -60
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "hero.dota2.crystal_maiden.frostbite_debuff",
+      "name": "hero.dota2.crystal_maiden.frostbite_debuff",
+      "isPrivate": true,
+      "displayName": "冰封禁制",
+      "isDebuff": true,
+      "duration": 1.5,
+      "interval": 0.5,
+      "states": 24,
+      "onCreated": [
+        {
+          "actionType": 1,
+          "target": 5,
+          "damageType": 2,
+          "valueSpecialName": "tick_damage"
+        }
+      ],
+      "intervalActions": [
+        {
+          "actionType": 1,
+          "target": 5,
+          "damageType": 2,
+          "valueSpecialName": "tick_damage"
+        }
+      ]
+    }
+  ],
+  "projectiles": []
+}

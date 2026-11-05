@@ -40,6 +40,7 @@ internal static class Program
         Check("installer verifies the resolved version", InstallerVersion);
         Check("HybridCLR embed request completes before installing consumers", InstallerEmbed);
         Check("installer waits for compilation and play mode", InstallerWaits);
+        Check("optional installer migrates an old package identifier", InstallerMigration);
         Check("installer configures only after all dependencies exist", InstallerSetup);
         Console.WriteLine($"PASS {passed} lifecycle, package planning and installer scenarios (Unity/UPM API models; not native Unity).");
     }
@@ -264,6 +265,13 @@ internal static class Program
         EditorApplication.TickForTest(); Equal(0, Client.Added.Count); EditorApplication.isCompiling = false;
         EditorApplication.isPlayingOrWillChangePlaymode = true; EditorApplication.TickForTest(); Equal(0, Client.Added.Count);
         EditorApplication.isPlayingOrWillChangePlaymode = false; Drain(); Equal(1, Client.Added.Count);
+    });
+    private static void InstallerMigration() => InProject(() =>
+    {
+        var module = Spec("feature"); module.replaces = new[] { "old-feature" };
+        WriteCatalog(module); Client.Installed["old-feature"] = new PackageInfo { name = "old-feature", version = "old" };
+        ModuleInstaller.Install(new[] { "feature" }); Drain();
+        True(Client.Installed.ContainsKey("feature")); True(!Client.Installed.ContainsKey("old-feature"));
     });
     private static void InstallerSetup() => InProject(() =>
     {

@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "namespace": "hero.dota2",
+  "abilities": [
+    {
+      "id": "hero.dota2.lion.earth_spike",
+      "name": "hero.dota2.lion.earth_spike",
+      "displayName": "Lion · Earth Spike / 裂地尖刺",
+      "description": "点选直线地刺参考：穿透命中的敌方英雄及普通单位受魔法伤害与眩晕。固定宽度，不模拟抛空表现。",
+      "maxLevel": 4,
+      "behavior": 16,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 825
+      },
+      "castPoint": {
+        "baseValue": 0.3
+      },
+      "cooldown": {
+        "values": [
+          12,
+          11,
+          10,
+          9
+        ]
+      },
+      "manaCost": {
+        "values": [
+          90,
+          110,
+          130,
+          150
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              80,
+              140,
+              200,
+              260
+            ]
+          }
+        },
+        {
+          "name": "stun_duration",
+          "value": {
+            "values": [
+              1,
+              1.5,
+              2,
+              2.5
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 6,
+          "target": 4,
+          "projectileName": "hero.dota2.lion.earth_spike_wave"
+        }
+      ],
+      "onProjectileHit": [
+        {
+          "actionType": 1,
+          "target": 2,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        },
+        {
+          "actionType": 3,
+          "target": 2,
+          "modifierName": "hero.dota2.lion.earth_spike_stun",
+          "durationSpecialName": "stun_duration"
+        }
+      ]
+    },
+    {
+      "id": "hero.dota2.lion.hex",
+      "name": "hero.dota2.lion.hex",
+      "displayName": "Lion · Hex / 妖术",
+      "description": "单体控制参考：禁止攻击与施法并减速。百分比移速代替原作固定变形移速，保留单位碰撞，未包含模型变形和幻象处理。",
+      "maxLevel": 4,
+      "behavior": 8,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 500
+      },
+      "castPoint": {
+        "baseValue": 0
+      },
+      "cooldown": {
+        "values": [
+          24,
+          20,
+          16,
+          12
+        ]
+      },
+      "manaCost": {
+        "values": [
+          125,
+          150,
+          175,
+          200
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "hex_duration",
+          "value": {
+            "values": [
+              2,
+              2.5,
+              3,
+              3.5
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 3,
+          "target": 2,
+          "modifierName": "hero.dota2.lion.hex_debuff",
+          "durationSpecialName": "hex_duration"
+        }
+      ],
+      "targetFlags": 32
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "hero.dota2.lion.earth_spike_stun",
+      "name": "hero.dota2.lion.earth_spike_stun",
+      "isPrivate": true,
+      "displayName": "裂地尖刺眩晕",
+      "isDebuff": true,
+      "isPurgable": false,
+      "duration": 1,
+      "states": 1
+    },
+    {
+      "id": "hero.dota2.lion.hex_debuff",
+      "name": "hero.dota2.lion.hex_debuff",
+      "isPrivate": true,
+      "displayName": "妖术",
+      "isDebuff": true,
+      "isPurgable": false,
+      "duration": 2,
+      "states": 32,
+      "properties": [
+        {
+          "property": 1,
+          "value": -80
+        }
+      ]
+    }
+  ],
+  "projectiles": [
+    {
+      "id": "hero.dota2.lion.earth_spike_wave",
+      "name": "hero.dota2.lion.earth_spike_wave",
+      "isPrivate": true,
+      "speed": 1600,
+      "radius": 125,
+      "distance": 825,
+      "maxLifetime": 2,
+      "deleteOnHit": false,
+      "targetTeam": 2,
+      "targetType": 11
+    }
+  ]
+}

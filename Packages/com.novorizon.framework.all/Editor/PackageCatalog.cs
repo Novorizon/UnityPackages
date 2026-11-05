@@ -10,6 +10,7 @@ namespace Game.Framework.All.Editor
     internal sealed class PackageCatalog
     {
         public PackageDependency[] packages;
+        public string[] obsoletePackages = Array.Empty<string>();
         internal void Validate()
         {
             if (packages == null || packages.Length == 0) throw new InvalidDataException("Empty package catalog.");

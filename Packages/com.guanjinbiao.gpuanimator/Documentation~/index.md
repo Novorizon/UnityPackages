@@ -48,4 +48,4 @@ GpuAnimator 将骨骼动画离线写入纹理，在顶点 Shader 中执行蒙皮
 
 3.1 保持运行时公开 API 和数据字段不变，但新的非循环末帧采样与动画 bounds 仅在重新烘焙后生效。升级包不会自动修改已有角色资源；要应用这些修复，请成套重烘焙 Mesh、动画 PNG 和 `.bytes`。
 
-源码入口：[播放器](../GpuAnimator/Runtime/GpuAnimator.cs)、[元数据](../GpuAnimator/Runtime/AnimationData.cs)、[烘焙工具](../GpuAnimator/Editor/GpuSkinningTools.cs)。
+源码入口：[播放器](../Runtime/GpuAnimator.cs)、[元数据](../Runtime/AnimationData.cs)、[烘焙工具](../Editor/GpuSkinningTools.cs)。

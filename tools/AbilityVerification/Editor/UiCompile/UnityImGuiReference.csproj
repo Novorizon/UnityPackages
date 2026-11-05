@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>UnityEngine.IMGUIModule</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems><NuGetAudit>false</NuGetAudit></PropertyGroup><ItemGroup><ProjectReference Include="UnityCoreReference.csproj" /><Compile Include="UnityImGui.cs" /></ItemGroup></Project>

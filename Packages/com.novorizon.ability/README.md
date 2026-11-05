@@ -1,6 +1,6 @@
-# Ability Runtime
+# Ability
 
-当前整理版本 0.2.2-preview.1：保留 65794c7 的运行时行为和公开接口，增加[API 冻结约定](Documentation-public-api.md)。编辑器继续单独发布。
+当前版本 0.3.0-preview.1：保留 65794c7 的运行时行为和公开接口，增加[API 冻结约定](Documentation-public-api.md)。运行时和编辑器一起发布为一个 UPM 包。
 
 面向 Unity 2022.3 的独立 Dota 风格技能包。公开命名空间为 `Game.Ability`，程序集为 `Game.Ability`。
 
@@ -8,7 +8,7 @@
 
 业务依赖技能包的公开 API 是正常用法：可以持有 `AbilitySystem`、`Ability`、`Modifier`、`CastResult`，实现 `IUnit` 等接口，并注册自己的技能脚本。这里的解耦要求是**技能包不引用具体项目或业务实现**，而不是业务不能引用技能类型。
 
-包只依赖 Unity 基础模块和 .NET 标准库，没有 Npc、TowerManager、DataManager、资源单例、数据表生成器或第三方插件依赖。`Game.Ability.asmdef` 没有其他用户程序集引用。只复制这个目录即可编译；也提供 UPM `package.json`。
+运行时程序集只依赖 Unity 基础模块和 .NET 标准库，没有 Npc、TowerManager、DataManager、资源单例、数据表生成器或第三方插件依赖。`Game.Ability.asmdef` 没有其他用户程序集引用。只复制这个目录即可编译；也提供 UPM `package.json`。
 
 | 包负责 | 项目负责 |
 | --- | --- |
@@ -24,14 +24,15 @@ IWorld 可返回粗候选；FindUnits 最终按有限坐标和精确三维球半
 
 ## 导入
 
-独立 Runtime Git URL：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.2`。
+通过一个 Git URL 安装运行时及编辑器：
 
-可选 Editor Git URL：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability.editor.odin#v0.1.0-preview.2`。先安装 Runtime，再安装 Editor；现有 Cube 工程采用 Assets 运行时代码时不要重复安装 Runtime。
+```text
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.3
+```
 
-- 复制 `Assets/Scripts/Ability` 到新 Unity 项目，保留目录和 asmdef；或从 Package Manager 通过仓库 Git URL 的 `?path=Assets/Scripts/Ability` 安装。
-- 仓库提供 `Tools/AbilityVerification/build-package.py` 生成 UPM `.tgz`，可在 Package Manager 选择 Add package from tarball。
-- ZIP 交付解压后得到 `com.novorizon.ability` 目录。在 Package Manager 选择 Add package from disk，打开其中的 `package.json`；也可以将该目录放入项目的 `Packages` 目录。
-- 当前 Cube 已使用 Assets 目录方式，不要同时再安装同名 UPM 包，避免重复程序集。
+也可从 Package Manager 选择本目录 package.json 或导出的单个 Ability tarball。`Game.Ability.asmdef` 编译运行时；`Editor/Game.Ability.Editor.Odin.asmdef` 仅编译编辑器。没有 Odin 时运行时正常可用，工作台显示安装提示；Odin 插件由项目提供。
+
+从旧版本升级，先移除旧的独立 Editor 包；新版聚合安装器和 GameStarter 可选模块安装器会一并处理。编辑器使用见[编辑器指南](Documentation~/Editor/README.md)。
 
 ## 最小接入流程
 
@@ -102,7 +103,7 @@ AutoCast、独立层到期、投射物视野尚未实现，相关配置明确拒
 
 仓库 `Data/AbilityJsonSources/Validation` 提供多种真实JSON技能、跨来源引用和外部脚本样例。`Assets/Tests/EditMode/Ability` 测试从这些文件加载并检查实际结算。它们是业务和测试资料，不是包运行依赖。
 
-`Data/AbilityJsonSources/Heroes` 另提供 Dota 2 和 Warcraft III 的 7 位英雄、14 个参考技能，每英雄文件可独立发布。具体实现和原作差异写在该目录 README 与配置 description 中；它们不是完整英雄套装或特定补丁的复刻。验证工程还提供 `Docs/AbilityEditorOdinPlan.md`，首版编辑器已实现于 Packages/com.novorizon.ability.editor.odin，入口 Tools / Ability / Skill Studio；使用与验收见 Docs/AbilityEditorGuide.md，运行时不依赖 Odin。
+`Data/AbilityJsonSources/Heroes` 另提供 Dota 2 和 Warcraft III 的 7 位英雄、14 个参考技能，每英雄文件可独立发布。具体实现和原作差异写在该目录 README 与配置 description 中；它们不是完整英雄套装或特定补丁的复刻。验证工程还提供 `Docs/AbilityEditorOdinPlan.md`，编辑器位于同包的 Editor 目录，入口 Tools / Ability / Skill Studio；使用与验收见 Docs/AbilityEditorGuide.md，运行时不依赖 Odin。编辑器回归夹具位于仓库 tools/AbilityVerification/Fixtures，不属于运行时内容。
 
 `Tools/AbilityVerification/PackageSmoke/run.sh` 只把本目录复制到空临时项目，以另一个程序集自建全部接口和脚本，验证无需项目源码也可使用包。Core/Business 离线检查和性能基准在同一验证目录。
 

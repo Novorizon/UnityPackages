@@ -1,0 +1,1083 @@
+Game.Ability.Ability :: Game.Ability.CastResult IssueOrder(Game.Ability.CastOrder order)
+Game.Ability.Ability :: System.Single GetAoeRadius()
+Game.Ability.Ability :: System.Single GetCastRange()
+Game.Ability.Ability :: System.Single GetCooldown()
+Game.Ability.Ability :: System.Single GetManaCost()
+Game.Ability.Ability :: System.Single GetSpecialValue(System.String name)
+Game.Ability.Ability :: System.Void EndCooldown()
+Game.Ability.Ability :: System.Void Interrupt()
+Game.Ability.Ability :: System.Void RestoreFullCharges()
+Game.Ability.Ability :: System.Void SetActivated(System.Boolean activated)
+Game.Ability.Ability :: System.Void SetCharges(System.Int32 value)
+Game.Ability.Ability :: System.Void SetLevel(System.Int32 level)
+Game.Ability.Ability :: System.Void StartCooldown(System.Single cooldown = -1)
+Game.Ability.Ability :: property Game.Ability.AbilityDefinition Definition {get;}
+Game.Ability.Ability :: property Game.Ability.AbilityPhase Phase {get;}
+Game.Ability.Ability :: property Game.Ability.AbilityScript Script {get;}
+Game.Ability.Ability :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.Ability :: property Game.Ability.IResourceOwner ResourceOwner {get;}
+Game.Ability.Ability :: property Game.Ability.IUnit Owner {get;}
+Game.Ability.Ability :: property System.Boolean Activated {get;}
+Game.Ability.Ability :: property System.Boolean IsBusy {get;}
+Game.Ability.Ability :: property System.Boolean IsRemoved {get;}
+Game.Ability.Ability :: property System.Boolean ToggleEnabled {get;}
+Game.Ability.Ability :: property System.Int32 Charges {get;}
+Game.Ability.Ability :: property System.Int32 Level {get;}
+Game.Ability.Ability :: property System.Int64 CastId {get;}
+Game.Ability.Ability :: property System.Single ChargeRestoreRemaining {get;}
+Game.Ability.Ability :: property System.Single CooldownDuration {get;}
+Game.Ability.Ability :: property System.Single CooldownRemaining {get;}
+Game.Ability.AbilityBehavior :: field System.Int32 value__
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Aoe = 32
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior AutoCast = 1024
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Channelled = 64
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Directional = 4096
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Hidden = 1
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Immediate = 256
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior NoTarget = 4
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior None = 0
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior OptionalUnitTarget = 2048
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Passive = 2
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior PointTarget = 16
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior RootDisables = 512
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior Toggle = 128
+Game.Ability.AbilityBehavior :: field static Game.Ability.AbilityBehavior UnitTarget = 8
+Game.Ability.AbilityDefinition :: System.Single GetSpecialValue(System.String name, System.Int32 level)
+Game.Ability.AbilityDefinition :: ctor ()
+Game.Ability.AbilityDefinition :: field Game.Ability.AbilityBehavior Behavior
+Game.Ability.AbilityDefinition :: field Game.Ability.ChargeDefinition Charges
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue AoeRadius
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue CastBackswing
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue CastPoint
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue CastRange
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue ChannelTime
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue Cooldown
+Game.Ability.AbilityDefinition :: field Game.Ability.LevelValue ManaCost
+Game.Ability.AbilityDefinition :: field Game.Ability.TargetFlags TargetFlags
+Game.Ability.AbilityDefinition :: field Game.Ability.TargetTeam TargetTeam
+Game.Ability.AbilityDefinition :: field Game.Ability.UnitType TargetType
+Game.Ability.AbilityDefinition :: field System.Int32 MaxLevel
+Game.Ability.AbilityDefinition :: field System.String Description
+Game.Ability.AbilityDefinition :: field System.String DisplayName
+Game.Ability.AbilityDefinition :: field System.String Icon
+Game.Ability.AbilityDefinition :: field System.String IntrinsicModifierName
+Game.Ability.AbilityDefinition :: field System.String Name
+Game.Ability.AbilityDefinition :: field readonly System.Collections.Generic.Dictionary<System.String,Game.Ability.LevelValue> SpecialValues
+Game.Ability.AbilityDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> Actions
+Game.Ability.AbilityDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnProjectileHitActions
+Game.Ability.AbilityDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnToggleOffActions
+Game.Ability.AbilityDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnToggleOnActions
+Game.Ability.AbilityInstanceRuntimeSnapshot :: ctor ()
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field Game.Ability.AbilityPhase Phase
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.Boolean Activated
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.Boolean ToggleEnabled
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.Int32 Charges
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.Int32 Level
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.Single CooldownRemaining
+Game.Ability.AbilityInstanceRuntimeSnapshot :: field System.String Name
+Game.Ability.AbilityPhase :: field System.Int32 value__
+Game.Ability.AbilityPhase :: field static Game.Ability.AbilityPhase Backswing = 3
+Game.Ability.AbilityPhase :: field static Game.Ability.AbilityPhase Casting = 1
+Game.Ability.AbilityPhase :: field static Game.Ability.AbilityPhase Channeling = 2
+Game.Ability.AbilityPhase :: field static Game.Ability.AbilityPhase Idle = 0
+Game.Ability.AbilityRuntimeSnapshot :: ctor ()
+Game.Ability.AbilityRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.AbilityUnitRuntimeSnapshot> Units
+Game.Ability.AbilityRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.ModifierRuntimeSnapshot> Modifiers
+Game.Ability.AbilityRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.PresentationHandleInfo> PresentationHandles
+Game.Ability.AbilityRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.ProjectileRuntimeSnapshot> Projectiles
+Game.Ability.AbilityRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.ThinkerRuntimeSnapshot> Thinkers
+Game.Ability.AbilityScript :: property Game.Ability.Ability Ability {get;}
+Game.Ability.AbilityScript :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.AbilityScript :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.AbilityScript :: virtual Game.Ability.CastResult CastFilter(Game.Ability.CastContext context)
+Game.Ability.AbilityScript :: virtual System.Boolean OnAbilityPhaseStart(Game.Ability.CastContext context)
+Game.Ability.AbilityScript :: virtual System.Boolean OnProjectileHit(Game.Ability.Projectile projectile, Game.Ability.IUnit target, UnityEngine.Vector3 position)
+Game.Ability.AbilityScript :: virtual System.Single GetAoeRadius()
+Game.Ability.AbilityScript :: virtual System.Single GetCastBackswing()
+Game.Ability.AbilityScript :: virtual System.Single GetCastPoint()
+Game.Ability.AbilityScript :: virtual System.Single GetCastRange()
+Game.Ability.AbilityScript :: virtual System.Single GetChannelTime()
+Game.Ability.AbilityScript :: virtual System.Single GetCooldown()
+Game.Ability.AbilityScript :: virtual System.Single GetManaCost()
+Game.Ability.AbilityScript :: virtual System.String GetIntrinsicModifierName()
+Game.Ability.AbilityScript :: virtual System.Void OnAbilityPhaseInterrupted()
+Game.Ability.AbilityScript :: virtual System.Void OnChannelFinish(System.Boolean interrupted)
+Game.Ability.AbilityScript :: virtual System.Void OnChannelThink(System.Single deltaTime)
+Game.Ability.AbilityScript :: virtual System.Void OnCreated()
+Game.Ability.AbilityScript :: virtual System.Void OnRemoved()
+Game.Ability.AbilityScript :: virtual System.Void OnSpellStart(Game.Ability.CastContext context)
+Game.Ability.AbilityScript :: virtual System.Void OnToggle(System.Boolean enabled)
+Game.Ability.AbilityScript :: virtual System.Void OnUpgrade()
+Game.Ability.AbilitySystem :: Game.Ability.Ability AddAbility(Game.Ability.IUnit owner, System.String abilityName, System.Int32 level = 1, Game.Ability.IResourceOwner resourceOwner = null)
+Game.Ability.AbilitySystem :: Game.Ability.Ability FindAbility(Game.Ability.IUnit owner, System.String abilityName)
+Game.Ability.AbilitySystem :: Game.Ability.AbilityRuntimeSnapshot CreateRuntimeSnapshot()
+Game.Ability.AbilitySystem :: Game.Ability.AttackRecord BeginAttack(Game.Ability.DamageInfo damageInfo)
+Game.Ability.AbilitySystem :: Game.Ability.CastResult CastAbility(Game.Ability.IUnit caster, System.String abilityName)
+Game.Ability.AbilitySystem :: Game.Ability.CastResult CastAbilityOnPosition(Game.Ability.IUnit caster, System.String abilityName, UnityEngine.Vector3 position)
+Game.Ability.AbilitySystem :: Game.Ability.CastResult CastAbilityOnTarget(Game.Ability.IUnit caster, System.String abilityName, Game.Ability.IUnit target)
+Game.Ability.AbilitySystem :: Game.Ability.CastResult EvaluateOrder(Game.Ability.CastOrder source)
+Game.Ability.AbilitySystem :: Game.Ability.CastResult IssueOrder(Game.Ability.CastOrder order)
+Game.Ability.AbilitySystem :: Game.Ability.DamageResult ApplyAttackDamage(Game.Ability.DamageInfo damageInfo)
+Game.Ability.AbilitySystem :: Game.Ability.DamageResult ApplyDamage(Game.Ability.DamageInfo damageInfo)
+Game.Ability.AbilitySystem :: Game.Ability.DamageResult ResolveAttack(Game.Ability.AttackRecord attack)
+Game.Ability.AbilitySystem :: Game.Ability.HealResult HealWithResult(Game.Ability.HealInfo healInfo)
+Game.Ability.AbilitySystem :: Game.Ability.Modifier AddModifier(Game.Ability.IUnit caster, Game.Ability.IUnit parent, Game.Ability.Ability ability, System.String modifierName, Game.Ability.ModifierApplyOptions options = null)
+Game.Ability.AbilitySystem :: Game.Ability.Modifier AddModifier(Game.Ability.IUnit caster, Game.Ability.IUnit parent, System.String modifierName, System.Single duration = NaN)
+Game.Ability.AbilitySystem :: Game.Ability.Projectile CreateLinearProjectile(Game.Ability.Ability ability, Game.Ability.IUnit caster, UnityEngine.Vector3 origin, UnityEngine.Vector3 direction, Game.Ability.ProjectileDefinition definition)
+Game.Ability.AbilitySystem :: Game.Ability.Projectile CreateProjectile(Game.Ability.ProjectileRequest request)
+Game.Ability.AbilitySystem :: Game.Ability.Projectile CreateTrackingProjectile(Game.Ability.Ability ability, Game.Ability.IUnit caster, Game.Ability.IUnit target, Game.Ability.ProjectileDefinition definition)
+Game.Ability.AbilitySystem :: Game.Ability.Thinker CreateThinker(Game.Ability.ThinkerRequest request)
+Game.Ability.AbilitySystem :: System.Boolean CancelAttack(Game.Ability.AttackRecord attack)
+Game.Ability.AbilitySystem :: System.Boolean HasAbilityScript(System.String name)
+Game.Ability.AbilitySystem :: System.Boolean HasModifierScript(System.String name)
+Game.Ability.AbilitySystem :: System.Boolean HasState(Game.Ability.IUnit unit, Game.Ability.UnitState state)
+Game.Ability.AbilitySystem :: System.Boolean IsUnitRemoving(Game.Ability.IUnit unit)
+Game.Ability.AbilitySystem :: System.Boolean RegisterUnit(Game.Ability.IUnit unit)
+Game.Ability.AbilitySystem :: System.Boolean RemoveAbility(Game.Ability.IUnit owner, System.String abilityName)
+Game.Ability.AbilitySystem :: System.Boolean RemoveModifier(Game.Ability.Modifier modifier)
+Game.Ability.AbilitySystem :: System.Boolean RemoveProjectile(Game.Ability.Projectile projectile)
+Game.Ability.AbilitySystem :: System.Boolean RemoveThinker(Game.Ability.Thinker thinker)
+Game.Ability.AbilitySystem :: System.Boolean ReplaceDefinitions(System.Collections.Generic.IEnumerable<Game.Ability.AbilityDefinition> abilities, System.Collections.Generic.IEnumerable<Game.Ability.ModifierDefinition> modifierValues)
+Game.Ability.AbilitySystem :: System.Boolean TryGetAbilityDefinition(System.String abilityName, out Game.Ability.AbilityDefinition& definition)
+Game.Ability.AbilitySystem :: System.Boolean TryGetModifierDefinition(System.String modifierName, out Game.Ability.ModifierDefinition& definition)
+Game.Ability.AbilitySystem :: System.Collections.Generic.IReadOnlyList<Game.Ability.Ability> GetAbilities(Game.Ability.IUnit owner)
+Game.Ability.AbilitySystem :: System.Collections.Generic.IReadOnlyList<Game.Ability.CastOrder> GetQueuedOrders(Game.Ability.IUnit owner)
+Game.Ability.AbilitySystem :: System.Int32 Purge(Game.Ability.IUnit unit, System.Boolean removePositiveBuffs, System.Boolean removeDebuffs, System.Boolean onlyPurgable)
+Game.Ability.AbilitySystem :: System.Single GetModifierProperty(Game.Ability.IUnit unit, Game.Ability.ModifierProperty property, Game.Ability.ModifierPropertyContext context)
+Game.Ability.AbilitySystem :: System.Void ClearRuntime()
+Game.Ability.AbilitySystem :: System.Void FindUnits(UnityEngine.Vector3 center, System.Single radius, Game.Ability.TargetQuery query, System.Collections.Generic.IList<Game.Ability.IUnit> results)
+Game.Ability.AbilitySystem :: System.Void Heal(Game.Ability.HealInfo healInfo)
+Game.Ability.AbilitySystem :: System.Void Initialize(Game.Ability.IWorld world, Game.Ability.IPresentation presentation = null)
+Game.Ability.AbilitySystem :: System.Void NotifyAttackLanded(Game.Ability.IUnit attacker, Game.Ability.IUnit target)
+Game.Ability.AbilitySystem :: System.Void NotifyAttackStart(Game.Ability.IUnit attacker, Game.Ability.IUnit target)
+Game.Ability.AbilitySystem :: System.Void NotifyDeath(Game.Ability.IUnit victim, Game.Ability.IUnit killer = null, Game.Ability.Ability ability = null)
+Game.Ability.AbilitySystem :: System.Void NotifyRespawn(Game.Ability.IUnit unit)
+Game.Ability.AbilitySystem :: System.Void RegisterAbilityDefinition(Game.Ability.AbilityDefinition definition)
+Game.Ability.AbilitySystem :: System.Void RegisterAbilityScript(System.String abilityName, System.Func<Game.Ability.AbilityScript> factory)
+Game.Ability.AbilitySystem :: System.Void RegisterModifierDefinition(Game.Ability.ModifierDefinition definition)
+Game.Ability.AbilitySystem :: System.Void RegisterModifierScript(System.String modifierName, System.Func<Game.Ability.ModifierScript> factory)
+Game.Ability.AbilitySystem :: System.Void RemoveUnit(Game.Ability.IUnit unit)
+Game.Ability.AbilitySystem :: System.Void Stop(Game.Ability.IUnit owner, System.Boolean clearQueue = True)
+Game.Ability.AbilitySystem :: System.Void Update(System.Single deltaTime)
+Game.Ability.AbilitySystem :: ctor ()
+Game.Ability.AbilitySystem :: event System.Action<Game.Ability.RuntimeEvent> EventRaised
+Game.Ability.AbilitySystem :: field static System.Int32 MaximumQueuedOrdersPerUnit = 32
+Game.Ability.AbilitySystem :: property Game.Ability.IPresentation Presentation {get;}
+Game.Ability.AbilitySystem :: property Game.Ability.IWorld World {get;}
+Game.Ability.AbilitySystem :: property System.Boolean IsClearingRuntime {get;}
+Game.Ability.AbilitySystem :: property System.Boolean IsRuntimeAvailable {get;}
+Game.Ability.AbilitySystem :: property System.Collections.Generic.IReadOnlyList<Game.Ability.Modifier> Modifiers {get;}
+Game.Ability.AbilitySystem :: property System.Collections.Generic.IReadOnlyList<Game.Ability.Projectile> Projectiles {get;}
+Game.Ability.AbilitySystem :: property System.Collections.Generic.IReadOnlyList<Game.Ability.Thinker> Thinkers {get;}
+Game.Ability.AbilitySystem :: property System.Int32 MaxExecutionDepth {get;set;}
+Game.Ability.AbilitySystem :: property System.Int32 MaxExecutionOperations {get;set;}
+Game.Ability.AbilitySystem :: property System.Int32 MaxPeriodicCallbacksPerUpdate {get;set;}
+Game.Ability.AbilitySystem :: property System.Int64 RuntimeGeneration {get;}
+Game.Ability.AbilityUnitRuntimeSnapshot :: ctor ()
+Game.Ability.AbilityUnitRuntimeSnapshot :: field System.Boolean IsAlive
+Game.Ability.AbilityUnitRuntimeSnapshot :: field System.Int32 EntityId
+Game.Ability.AbilityUnitRuntimeSnapshot :: field System.Int32 TeamId
+Game.Ability.AbilityUnitRuntimeSnapshot :: field UnityEngine.Vector3 Position
+Game.Ability.AbilityUnitRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.AbilityInstanceRuntimeSnapshot> Abilities
+Game.Ability.ActionDefinition :: System.Single ResolveDuration(Game.Ability.Ability ability)
+Game.Ability.ActionDefinition :: System.Single ResolveDuration(Game.Ability.CastContext context)
+Game.Ability.ActionDefinition :: System.Single ResolveValue(Game.Ability.Ability ability)
+Game.Ability.ActionDefinition :: System.Single ResolveValue(Game.Ability.CastContext context)
+Game.Ability.ActionDefinition :: ctor ()
+Game.Ability.ActionDefinition :: field Game.Ability.ActionTarget Target
+Game.Ability.ActionDefinition :: field Game.Ability.ActionType ActionType
+Game.Ability.ActionDefinition :: field Game.Ability.ActionValueSource ValueSource
+Game.Ability.ActionDefinition :: field Game.Ability.DamageFlags DamageFlags
+Game.Ability.ActionDefinition :: field Game.Ability.DamageType DamageType
+Game.Ability.ActionDefinition :: field Game.Ability.LevelValue Duration
+Game.Ability.ActionDefinition :: field Game.Ability.LevelValue Value
+Game.Ability.ActionDefinition :: field Game.Ability.ProjectileDefinition Projectile
+Game.Ability.ActionDefinition :: field System.Boolean PurgeDebuffs
+Game.Ability.ActionDefinition :: field System.Boolean PurgeOnlyPurgable
+Game.Ability.ActionDefinition :: field System.Boolean PurgePositiveBuffs
+Game.Ability.ActionDefinition :: field System.String DurationSpecialName
+Game.Ability.ActionDefinition :: field System.String EffectName
+Game.Ability.ActionDefinition :: field System.String ModifierName
+Game.Ability.ActionDefinition :: field System.String ProjectileName
+Game.Ability.ActionDefinition :: field System.String SoundName
+Game.Ability.ActionDefinition :: field System.String ValueSpecialName
+Game.Ability.ActionRunner :: static Game.Ability.CastContext CreateSingleTargetContext(Game.Ability.AbilitySystem engine, Game.Ability.Ability ability, Game.Ability.IUnit caster, Game.Ability.IUnit target, UnityEngine.Vector3 position)
+Game.Ability.ActionRunner :: static System.Void Execute(Game.Ability.ActionDefinition action, Game.Ability.CastContext context)
+Game.Ability.ActionRunner :: static System.Void Execute(System.Collections.Generic.IReadOnlyList<Game.Ability.ActionDefinition> actions, Game.Ability.CastContext context)
+Game.Ability.ActionTarget :: field System.Int32 value__
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget Caster = 1
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget ContextTargets = 3
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget EventSource = 6
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget EventTarget = 7
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget None = 0
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget Parent = 5
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget Point = 4
+Game.Ability.ActionTarget :: field static Game.Ability.ActionTarget PrimaryTarget = 2
+Game.Ability.ActionType :: field System.Int32 value__
+Game.Ability.ActionType :: field static Game.Ability.ActionType AddModifier = 3
+Game.Ability.ActionType :: field static Game.Ability.ActionType CreateLinearProjectile = 6
+Game.Ability.ActionType :: field static Game.Ability.ActionType CreateTrackingProjectile = 5
+Game.Ability.ActionType :: field static Game.Ability.ActionType Damage = 1
+Game.Ability.ActionType :: field static Game.Ability.ActionType Heal = 2
+Game.Ability.ActionType :: field static Game.Ability.ActionType None = 0
+Game.Ability.ActionType :: field static Game.Ability.ActionType PlayEffect = 7
+Game.Ability.ActionType :: field static Game.Ability.ActionType PlaySound = 8
+Game.Ability.ActionType :: field static Game.Ability.ActionType Purge = 4
+Game.Ability.ActionValueSource :: field System.Int32 value__
+Game.Ability.ActionValueSource :: field static Game.Ability.ActionValueSource EventDamage = 1
+Game.Ability.ActionValueSource :: field static Game.Ability.ActionValueSource EventHealing = 2
+Game.Ability.ActionValueSource :: field static Game.Ability.ActionValueSource EventValue = 3
+Game.Ability.ActionValueSource :: field static Game.Ability.ActionValueSource LevelOrSpecial = 0
+Game.Ability.AttackRecord :: property Game.Ability.Ability Ability {get;}
+Game.Ability.AttackRecord :: property Game.Ability.DamageResult Result {get;}
+Game.Ability.AttackRecord :: property Game.Ability.IUnit Attacker {get;}
+Game.Ability.AttackRecord :: property Game.Ability.IUnit Victim {get;}
+Game.Ability.AttackRecord :: property System.Boolean IsCancelled {get;}
+Game.Ability.AttackRecord :: property System.Boolean IsPending {get;}
+Game.Ability.AttackRecord :: property System.Boolean IsResolved {get;}
+Game.Ability.AttackRecord :: property System.Int64 AttackId {get;}
+Game.Ability.CastContext :: ctor ()
+Game.Ability.CastContext :: field Game.Ability.Ability Ability
+Game.Ability.CastContext :: field Game.Ability.AbilitySystem Engine
+Game.Ability.CastContext :: field Game.Ability.IUnit Caster
+Game.Ability.CastContext :: field Game.Ability.IUnit Target
+Game.Ability.CastContext :: field Game.Ability.Modifier Modifier
+Game.Ability.CastContext :: field Game.Ability.ModifierEvent Event
+Game.Ability.CastContext :: field Game.Ability.Projectile Projectile
+Game.Ability.CastContext :: field System.Int32 Level
+Game.Ability.CastContext :: field System.Int64 CastId
+Game.Ability.CastContext :: field UnityEngine.Vector3 Direction
+Game.Ability.CastContext :: field UnityEngine.Vector3 TargetPosition
+Game.Ability.CastContext :: property System.Collections.Generic.IReadOnlyList<Game.Ability.IUnit> Targets {get;}
+Game.Ability.CastFailureReason :: field System.Int32 value__
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason AbilityHidden = 2
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason AbilityPassive = 3
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Casting = 17
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Channeling = 16
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason CommandRestricted = 19
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Cooldown = 10
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason CustomRejected = 18
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason DeadCaster = 6
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason InvalidTarget = 13
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason MissingAbility = 1
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason NoCharges = 11
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason NoVision = 15
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason None = 0
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason NotActivated = 5
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason NotEnoughMana = 12
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason NotTrained = 4
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason OutOfRange = 14
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason QueueFull = 21
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Rooted = 9
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason RuntimeUnavailable = 20
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Silenced = 8
+Game.Ability.CastFailureReason :: field static Game.Ability.CastFailureReason Stunned = 7
+Game.Ability.CastOrder :: ctor ()
+Game.Ability.CastOrder :: field Game.Ability.IUnit Caster
+Game.Ability.CastOrder :: field Game.Ability.IUnit Target
+Game.Ability.CastOrder :: field System.Boolean AllowHidden
+Game.Ability.CastOrder :: field System.Boolean HasTargetPosition
+Game.Ability.CastOrder :: field System.Boolean Queue
+Game.Ability.CastOrder :: field System.String AbilityName
+Game.Ability.CastOrder :: field UnityEngine.Vector3 Direction
+Game.Ability.CastOrder :: field UnityEngine.Vector3 TargetPosition
+Game.Ability.CastResult :: ctor ()
+Game.Ability.CastResult :: field Game.Ability.CastFailureReason FailureReason
+Game.Ability.CastResult :: field System.Boolean Queued
+Game.Ability.CastResult :: field System.Boolean Success
+Game.Ability.CastResult :: field System.Int64 CastId
+Game.Ability.CastResult :: field System.String Message
+Game.Ability.CastResult :: static Game.Ability.CastResult Fail(Game.Ability.CastFailureReason reason, System.String message = null)
+Game.Ability.CastResult :: static Game.Ability.CastResult Ok()
+Game.Ability.ChargeDefinition :: ctor ()
+Game.Ability.ChargeDefinition :: field System.Boolean StartFull
+Game.Ability.ChargeDefinition :: field System.Boolean UsesCooldown
+Game.Ability.ChargeDefinition :: field System.Int32 MaxCharges
+Game.Ability.ChargeDefinition :: field System.Single RestoreTime
+Game.Ability.Configuration.AbilityActionConfigRecord :: ctor ()
+Game.Ability.Configuration.AbilityActionConfigRecord :: field Game.Ability.ActionDefinition Definition
+Game.Ability.Configuration.AbilityActionConfigRecord :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 GroupId
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 Id
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 ModifierId
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 Order
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 ProjectileId
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 RawActionType
+Game.Ability.Configuration.AbilityActionConfigRecord :: field System.Int32 RawTargetType
+Game.Ability.Configuration.AbilityConfigCatalog :: ctor ()
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.HashSet<System.Int32> ResourceIds
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.HashSet<System.Int32> UsedAbilityIds
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.AbilityActionConfigRecord> Actions
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.AbilityConfigRecord> Abilities
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.AbilityModifierConfigRecord> Modifiers
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.AbilityProjectileConfigRecord> Projectiles
+Game.Ability.Configuration.AbilityConfigCatalog :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.TowerAbilityBindingRecord> TowerBindings
+Game.Ability.Configuration.AbilityConfigRecord :: ctor ()
+Game.Ability.Configuration.AbilityConfigRecord :: field Game.Ability.AbilityDefinition Definition
+Game.Ability.Configuration.AbilityConfigRecord :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Boolean Enabled
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 ActionGroupId
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 CostResourceId
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 Id
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 IntrinsicModifierId
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 RawBehavior
+Game.Ability.Configuration.AbilityConfigRecord :: field System.Int32 RawTargetTeam
+Game.Ability.Configuration.AbilityConfigSource :: ctor ()
+Game.Ability.Configuration.AbilityConfigSource :: field System.Int32 Row
+Game.Ability.Configuration.AbilityConfigSource :: field System.String Field
+Game.Ability.Configuration.AbilityConfigSource :: field System.String Path
+Game.Ability.Configuration.AbilityConfigSource :: field System.String Sheet
+Game.Ability.Configuration.AbilityConfigSource :: field System.String SourceType
+Game.Ability.Configuration.AbilityConfigSource :: virtual System.String ToString()
+Game.Ability.Configuration.AbilityConfigurationValidator :: static Game.Ability.Configuration.AbilityValidationReport Validate(Game.Ability.Configuration.AbilityConfigCatalog catalog, Game.Ability.Configuration.AbilityValidationOptions options = null)
+Game.Ability.Configuration.AbilityDefinitionBundle :: ctor ()
+Game.Ability.Configuration.AbilityDefinitionBundle :: field readonly Game.Ability.Configuration.AbilityValidationReport Validation
+Game.Ability.Configuration.AbilityDefinitionBundle :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.AbilityDefinitionRegistration> Abilities
+Game.Ability.Configuration.AbilityDefinitionBundle :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.ModifierDefinitionRegistration> Modifiers
+Game.Ability.Configuration.AbilityDefinitionBundle :: field readonly System.Collections.Generic.List<Game.Ability.Configuration.ProjectileDefinitionRegistration> Projectiles
+Game.Ability.Configuration.AbilityDefinitionOrigin :: Game.Ability.Configuration.AbilityConfigSource ToConfigSource()
+Game.Ability.Configuration.AbilityDefinitionOrigin :: ctor ()
+Game.Ability.Configuration.AbilityDefinitionOrigin :: field Game.Ability.Configuration.AbilityDefinitionSourceType SourceType
+Game.Ability.Configuration.AbilityDefinitionOrigin :: field System.String Namespace
+Game.Ability.Configuration.AbilityDefinitionOrigin :: field System.String ProviderName
+Game.Ability.Configuration.AbilityDefinitionOrigin :: field System.String SourcePath
+Game.Ability.Configuration.AbilityDefinitionOrigin :: field System.String StableId
+Game.Ability.Configuration.AbilityDefinitionOrigin :: virtual System.String ToString()
+Game.Ability.Configuration.AbilityDefinitionRegistration :: ctor ()
+Game.Ability.Configuration.AbilityDefinitionRegistration :: field Game.Ability.AbilityDefinition Definition
+Game.Ability.Configuration.AbilityDefinitionRegistration :: field Game.Ability.Configuration.AbilityDefinitionOrigin Origin
+Game.Ability.Configuration.AbilityDefinitionRegistration :: field System.Boolean RequiresCustomScript
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Boolean ApplyTo(Game.Ability.AbilitySystem engine)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Boolean TryGetAbilityNameByStableId(System.String stableId, out System.String& name)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Boolean TryGetAbilityOrigin(System.String name, out Game.Ability.Configuration.AbilityDefinitionOrigin& origin)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Boolean TryResolveAbilityName(System.String key, out System.String& name)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Boolean TryResolveModifierName(System.String key, out System.String& name)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Void LoadProvider(Game.Ability.Configuration.IAbilityDefinitionProvider provider)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: System.Void LoadProviders(System.Collections.Generic.IEnumerable<Game.Ability.Configuration.IAbilityDefinitionProvider> providers)
+Game.Ability.Configuration.AbilityDefinitionRegistry :: ctor ()
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property Game.Ability.Configuration.AbilityValidationReport LastApplyValidation {get;}
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property Game.Ability.Configuration.AbilityValidationReport Validation {get;}
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property System.Boolean IsValid {get;}
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property System.Collections.Generic.IReadOnlyDictionary<System.String,Game.Ability.Configuration.AbilityDefinitionRegistration> Abilities {get;}
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property System.Collections.Generic.IReadOnlyDictionary<System.String,Game.Ability.Configuration.ModifierDefinitionRegistration> Modifiers {get;}
+Game.Ability.Configuration.AbilityDefinitionRegistry :: property System.Collections.Generic.IReadOnlyDictionary<System.String,Game.Ability.Configuration.ProjectileDefinitionRegistration> Projectiles {get;}
+Game.Ability.Configuration.AbilityDefinitionSourceType :: field System.Int32 value__
+Game.Ability.Configuration.AbilityDefinitionSourceType :: field static Game.Ability.Configuration.AbilityDefinitionSourceType Code = 3
+Game.Ability.Configuration.AbilityDefinitionSourceType :: field static Game.Ability.Configuration.AbilityDefinitionSourceType Excel = 1
+Game.Ability.Configuration.AbilityDefinitionSourceType :: field static Game.Ability.Configuration.AbilityDefinitionSourceType Json = 2
+Game.Ability.Configuration.AbilityDefinitionSourceType :: field static Game.Ability.Configuration.AbilityDefinitionSourceType Unknown = 0
+Game.Ability.Configuration.AbilityJsonSchemaValidator :: static System.Boolean TryDeserialize<T>(System.String json, out T& document, out System.String& error)
+Game.Ability.Configuration.AbilityJsonSchemaValidator :: static System.Boolean TryValidate(System.String json, System.Type documentType, out System.String& error)
+Game.Ability.Configuration.AbilityModifierConfigRecord :: ctor ()
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field Game.Ability.ModifierDefinition Definition
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 Id
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 OnCreatedActionGroupId
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 OnDestroyActionGroupId
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 PeriodicActionGroupId
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 RawPropertyType
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 RawState
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 RawTriggerEventType
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.Int32 TriggerActionGroupId
+Game.Ability.Configuration.AbilityModifierConfigRecord :: field System.String EffectName
+Game.Ability.Configuration.AbilityProjectileConfigRecord :: ctor ()
+Game.Ability.Configuration.AbilityProjectileConfigRecord :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.AbilityProjectileConfigRecord :: field Game.Ability.ProjectileDefinition Definition
+Game.Ability.Configuration.AbilityProjectileConfigRecord :: field System.Int32 Id
+Game.Ability.Configuration.AbilityValidationIssue :: ctor ()
+Game.Ability.Configuration.AbilityValidationIssue :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.AbilityValidationIssue :: field Game.Ability.Configuration.AbilityValidationSeverity Severity
+Game.Ability.Configuration.AbilityValidationIssue :: field System.String Code
+Game.Ability.Configuration.AbilityValidationIssue :: field System.String Message
+Game.Ability.Configuration.AbilityValidationIssue :: field System.String ReferenceChain
+Game.Ability.Configuration.AbilityValidationOptions :: ctor ()
+Game.Ability.Configuration.AbilityValidationOptions :: field System.Func<System.String,System.Boolean> AssetExists
+Game.Ability.Configuration.AbilityValidationReport :: System.Void Add(Game.Ability.Configuration.AbilityValidationSeverity severity, System.String code, System.String message, Game.Ability.Configuration.AbilityConfigSource source = null, System.String referenceChain = null)
+Game.Ability.Configuration.AbilityValidationReport :: System.Void Merge(Game.Ability.Configuration.AbilityValidationReport other)
+Game.Ability.Configuration.AbilityValidationReport :: ctor ()
+Game.Ability.Configuration.AbilityValidationReport :: property System.Boolean IsValid {get;}
+Game.Ability.Configuration.AbilityValidationReport :: property System.Collections.Generic.IReadOnlyList<Game.Ability.Configuration.AbilityValidationIssue> Issues {get;}
+Game.Ability.Configuration.AbilityValidationReport :: property System.Int32 ErrorCount {get;}
+Game.Ability.Configuration.AbilityValidationReport :: property System.Int32 InfoCount {get;}
+Game.Ability.Configuration.AbilityValidationReport :: property System.Int32 WarningCount {get;}
+Game.Ability.Configuration.AbilityValidationSeverity :: field System.Int32 value__
+Game.Ability.Configuration.AbilityValidationSeverity :: field static Game.Ability.Configuration.AbilityValidationSeverity Error = 2
+Game.Ability.Configuration.AbilityValidationSeverity :: field static Game.Ability.Configuration.AbilityValidationSeverity Info = 0
+Game.Ability.Configuration.AbilityValidationSeverity :: field static Game.Ability.Configuration.AbilityValidationSeverity Warning = 1
+Game.Ability.Configuration.IAbilityDefinitionProvider :: abstract Game.Ability.Configuration.AbilityDefinitionBundle Load()
+Game.Ability.Configuration.IAbilityDefinitionProvider :: property Game.Ability.Configuration.AbilityDefinitionSourceType SourceType {get;}
+Game.Ability.Configuration.IAbilityDefinitionProvider :: property System.String ProviderName {get;}
+Game.Ability.Configuration.JsonAbility :: ctor ()
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonAction[] actions
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonAction[] onProjectileHit
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonAction[] onToggleOff
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonAction[] onToggleOn
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonCharge charges
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue aoeRadius
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue castBackswing
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue castPoint
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue castRange
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue channelTime
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue cooldown
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonLevelValue manaCost
+Game.Ability.Configuration.JsonAbility :: field Game.Ability.Configuration.JsonSpecialValue[] specialValues
+Game.Ability.Configuration.JsonAbility :: field System.Boolean requiresCustomScript
+Game.Ability.Configuration.JsonAbility :: field System.Int32 behavior
+Game.Ability.Configuration.JsonAbility :: field System.Int32 maxLevel
+Game.Ability.Configuration.JsonAbility :: field System.Int32 targetFlags
+Game.Ability.Configuration.JsonAbility :: field System.Int32 targetTeam
+Game.Ability.Configuration.JsonAbility :: field System.Int32 targetType
+Game.Ability.Configuration.JsonAbility :: field System.String description
+Game.Ability.Configuration.JsonAbility :: field System.String displayName
+Game.Ability.Configuration.JsonAbility :: field System.String icon
+Game.Ability.Configuration.JsonAbility :: field System.String id
+Game.Ability.Configuration.JsonAbility :: field System.String intrinsicModifierName
+Game.Ability.Configuration.JsonAbility :: field System.String name
+Game.Ability.Configuration.JsonAbilityDefinitionProvider :: ctor (System.String json, System.String sourcePath, System.String providerName = null)
+Game.Ability.Configuration.JsonAbilityDefinitionProvider :: property Game.Ability.Configuration.AbilityDefinitionSourceType SourceType {get;}
+Game.Ability.Configuration.JsonAbilityDefinitionProvider :: property System.String ProviderName {get;}
+Game.Ability.Configuration.JsonAbilityDefinitionProvider :: virtual Game.Ability.Configuration.AbilityDefinitionBundle Load()
+Game.Ability.Configuration.JsonAbilityDocument :: ctor ()
+Game.Ability.Configuration.JsonAbilityDocument :: field Game.Ability.Configuration.JsonAbility[] abilities
+Game.Ability.Configuration.JsonAbilityDocument :: field Game.Ability.Configuration.JsonModifier[] modifiers
+Game.Ability.Configuration.JsonAbilityDocument :: field Game.Ability.Configuration.JsonProjectile[] projectiles
+Game.Ability.Configuration.JsonAbilityDocument :: field System.Int32 schemaVersion
+Game.Ability.Configuration.JsonAbilityDocument :: field System.String namespace
+Game.Ability.Configuration.JsonAction :: ctor ()
+Game.Ability.Configuration.JsonAction :: field Game.Ability.Configuration.JsonLevelValue duration
+Game.Ability.Configuration.JsonAction :: field Game.Ability.Configuration.JsonLevelValue value
+Game.Ability.Configuration.JsonAction :: field System.Boolean purgeDebuffs
+Game.Ability.Configuration.JsonAction :: field System.Boolean purgeOnlyPurgable
+Game.Ability.Configuration.JsonAction :: field System.Boolean purgePositiveBuffs
+Game.Ability.Configuration.JsonAction :: field System.Int32 actionType
+Game.Ability.Configuration.JsonAction :: field System.Int32 damageFlags
+Game.Ability.Configuration.JsonAction :: field System.Int32 damageType
+Game.Ability.Configuration.JsonAction :: field System.Int32 target
+Game.Ability.Configuration.JsonAction :: field System.Int32 valueSource
+Game.Ability.Configuration.JsonAction :: field System.String durationSpecialName
+Game.Ability.Configuration.JsonAction :: field System.String effectName
+Game.Ability.Configuration.JsonAction :: field System.String modifierName
+Game.Ability.Configuration.JsonAction :: field System.String projectileName
+Game.Ability.Configuration.JsonAction :: field System.String soundName
+Game.Ability.Configuration.JsonAction :: field System.String valueSpecialName
+Game.Ability.Configuration.JsonCharge :: ctor ()
+Game.Ability.Configuration.JsonCharge :: field System.Boolean startFull
+Game.Ability.Configuration.JsonCharge :: field System.Boolean usesCooldown
+Game.Ability.Configuration.JsonCharge :: field System.Int32 maxCharges
+Game.Ability.Configuration.JsonCharge :: field System.Single restoreTime
+Game.Ability.Configuration.JsonLevelValue :: ctor ()
+Game.Ability.Configuration.JsonLevelValue :: field System.Single baseValue
+Game.Ability.Configuration.JsonLevelValue :: field System.Single[] values
+Game.Ability.Configuration.JsonModifier :: ctor ()
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonAction[] intervalActions
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonAction[] onCreated
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonAction[] onDestroy
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonAction[] onRefresh
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonAction[] triggerActions
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonModifierLevelProperty[] levelProperties
+Game.Ability.Configuration.JsonModifier :: field Game.Ability.Configuration.JsonModifierProperty[] properties
+Game.Ability.Configuration.JsonModifier :: field System.Boolean auraIncrementsStacks
+Game.Ability.Configuration.JsonModifier :: field System.Boolean isDebuff
+Game.Ability.Configuration.JsonModifier :: field System.Boolean isHidden
+Game.Ability.Configuration.JsonModifier :: field System.Boolean isPrivate
+Game.Ability.Configuration.JsonModifier :: field System.Boolean isPurgable
+Game.Ability.Configuration.JsonModifier :: field System.Boolean removeOnDeath
+Game.Ability.Configuration.JsonModifier :: field System.Boolean requiresCustomScript
+Game.Ability.Configuration.JsonModifier :: field System.Int32 attributes
+Game.Ability.Configuration.JsonModifier :: field System.Int32 auraTargetFlags
+Game.Ability.Configuration.JsonModifier :: field System.Int32 auraTargetTeam
+Game.Ability.Configuration.JsonModifier :: field System.Int32 auraTargetType
+Game.Ability.Configuration.JsonModifier :: field System.Int32 maxStack
+Game.Ability.Configuration.JsonModifier :: field System.Int32 states
+Game.Ability.Configuration.JsonModifier :: field System.Int32 triggerEventScope
+Game.Ability.Configuration.JsonModifier :: field System.Int32 triggerEventType
+Game.Ability.Configuration.JsonModifier :: field System.Int32 triggerExcludedDamageFlags
+Game.Ability.Configuration.JsonModifier :: field System.Single auraDuration
+Game.Ability.Configuration.JsonModifier :: field System.Single auraRadius
+Game.Ability.Configuration.JsonModifier :: field System.Single auraThinkInterval
+Game.Ability.Configuration.JsonModifier :: field System.Single duration
+Game.Ability.Configuration.JsonModifier :: field System.Single interval
+Game.Ability.Configuration.JsonModifier :: field System.String auraModifierName
+Game.Ability.Configuration.JsonModifier :: field System.String displayName
+Game.Ability.Configuration.JsonModifier :: field System.String id
+Game.Ability.Configuration.JsonModifier :: field System.String name
+Game.Ability.Configuration.JsonModifier :: field System.String sustainedEffectName
+Game.Ability.Configuration.JsonModifierLevelProperty :: ctor ()
+Game.Ability.Configuration.JsonModifierLevelProperty :: field Game.Ability.Configuration.JsonLevelValue value
+Game.Ability.Configuration.JsonModifierLevelProperty :: field System.Int32 property
+Game.Ability.Configuration.JsonModifierProperty :: ctor ()
+Game.Ability.Configuration.JsonModifierProperty :: field System.Int32 property
+Game.Ability.Configuration.JsonModifierProperty :: field System.Single value
+Game.Ability.Configuration.JsonProjectile :: ctor ()
+Game.Ability.Configuration.JsonProjectile :: field System.Boolean deleteOnHit
+Game.Ability.Configuration.JsonProjectile :: field System.Boolean isPrivate
+Game.Ability.Configuration.JsonProjectile :: field System.Boolean providesVision
+Game.Ability.Configuration.JsonProjectile :: field System.Int32 targetFlags
+Game.Ability.Configuration.JsonProjectile :: field System.Int32 targetTeam
+Game.Ability.Configuration.JsonProjectile :: field System.Int32 targetType
+Game.Ability.Configuration.JsonProjectile :: field System.Int32 trackingTargetPolicy
+Game.Ability.Configuration.JsonProjectile :: field System.Single distance
+Game.Ability.Configuration.JsonProjectile :: field System.Single maxLifetime
+Game.Ability.Configuration.JsonProjectile :: field System.Single radius
+Game.Ability.Configuration.JsonProjectile :: field System.Single speed
+Game.Ability.Configuration.JsonProjectile :: field System.Single visionRadius
+Game.Ability.Configuration.JsonProjectile :: field System.String effectName
+Game.Ability.Configuration.JsonProjectile :: field System.String id
+Game.Ability.Configuration.JsonProjectile :: field System.String name
+Game.Ability.Configuration.JsonProjectile :: field System.String soundName
+Game.Ability.Configuration.JsonSpecialValue :: ctor ()
+Game.Ability.Configuration.JsonSpecialValue :: field Game.Ability.Configuration.JsonLevelValue value
+Game.Ability.Configuration.JsonSpecialValue :: field System.String name
+Game.Ability.Configuration.ModifierDefinitionRegistration :: ctor ()
+Game.Ability.Configuration.ModifierDefinitionRegistration :: field Game.Ability.Configuration.AbilityDefinitionOrigin Origin
+Game.Ability.Configuration.ModifierDefinitionRegistration :: field Game.Ability.ModifierDefinition Definition
+Game.Ability.Configuration.ModifierDefinitionRegistration :: field System.Boolean IsPrivate
+Game.Ability.Configuration.ModifierDefinitionRegistration :: field System.Boolean RequiresCustomScript
+Game.Ability.Configuration.ProjectileDefinitionRegistration :: ctor ()
+Game.Ability.Configuration.ProjectileDefinitionRegistration :: field Game.Ability.Configuration.AbilityDefinitionOrigin Origin
+Game.Ability.Configuration.ProjectileDefinitionRegistration :: field Game.Ability.ProjectileDefinition Definition
+Game.Ability.Configuration.ProjectileDefinitionRegistration :: field System.Boolean IsPrivate
+Game.Ability.Configuration.TowerAbilityBindingRecord :: ctor ()
+Game.Ability.Configuration.TowerAbilityBindingRecord :: field Game.Ability.Configuration.AbilityConfigSource Source
+Game.Ability.Configuration.TowerAbilityBindingRecord :: field System.Int32 AbilityId
+Game.Ability.Configuration.TowerAbilityBindingRecord :: field System.Int32 Level
+Game.Ability.Configuration.TowerAbilityBindingRecord :: field System.Int32 TowerId
+Game.Ability.Configuration.TowerAbilityBindingRecord :: field System.Single AttackInterval
+Game.Ability.ConfiguredAbilityScript :: ctor ()
+Game.Ability.ConfiguredAbilityScript :: virtual System.Boolean OnProjectileHit(Game.Ability.Projectile projectile, Game.Ability.IUnit target, UnityEngine.Vector3 position)
+Game.Ability.ConfiguredAbilityScript :: virtual System.Void OnSpellStart(Game.Ability.CastContext context)
+Game.Ability.ConfiguredModifierScript :: ctor ()
+Game.Ability.ConfiguredModifierScript :: virtual System.Void OnCreated(Game.Ability.ModifierApplyOptions options)
+Game.Ability.ConfiguredModifierScript :: virtual System.Void OnDestroy()
+Game.Ability.ConfiguredModifierScript :: virtual System.Void OnEvent(Game.Ability.ModifierEvent modifierEvent)
+Game.Ability.ConfiguredModifierScript :: virtual System.Void OnIntervalThink()
+Game.Ability.ConfiguredModifierScript :: virtual System.Void OnRefresh(Game.Ability.ModifierApplyOptions options)
+Game.Ability.DamageApplicationResult :: ctor (System.Single appliedAmount, System.Boolean killed = False)
+Game.Ability.DamageApplicationResult :: property System.Boolean Killed {get;}
+Game.Ability.DamageApplicationResult :: property System.Single AppliedAmount {get;}
+Game.Ability.DamageCategory :: field System.Int32 value__
+Game.Ability.DamageCategory :: field static Game.Ability.DamageCategory Attack = 1
+Game.Ability.DamageCategory :: field static Game.Ability.DamageCategory HpLoss = 2
+Game.Ability.DamageCategory :: field static Game.Ability.DamageCategory Spell = 0
+Game.Ability.DamageFlags :: field System.Int32 value__
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags HpLoss = 2
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags IgnoreBlock = 8
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags IgnoreInvulnerable = 64
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags NoDamageMultiplier = 32
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags NoSpellAmplification = 1
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags NonLethal = 4
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags None = 0
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags PiercesSpellImmunity = 128
+Game.Ability.DamageFlags :: field static Game.Ability.DamageFlags Reflected = 16
+Game.Ability.DamageInfo :: ctor ()
+Game.Ability.DamageInfo :: field Game.Ability.Ability Ability
+Game.Ability.DamageInfo :: field Game.Ability.AbilitySystem Engine
+Game.Ability.DamageInfo :: field Game.Ability.DamageCategory Category
+Game.Ability.DamageInfo :: field Game.Ability.DamageFlags Flags
+Game.Ability.DamageInfo :: field Game.Ability.DamageType DamageType
+Game.Ability.DamageInfo :: field Game.Ability.IUnit Attacker
+Game.Ability.DamageInfo :: field Game.Ability.IUnit Victim
+Game.Ability.DamageInfo :: field System.Int64 AttackId
+Game.Ability.DamageInfo :: field System.Single Amount
+Game.Ability.DamageResult :: ctor ()
+Game.Ability.DamageResult :: field Game.Ability.Ability Ability
+Game.Ability.DamageResult :: field Game.Ability.DamageCategory Category
+Game.Ability.DamageResult :: field Game.Ability.DamageFlags Flags
+Game.Ability.DamageResult :: field Game.Ability.DamageType DamageType
+Game.Ability.DamageResult :: field Game.Ability.IUnit Attacker
+Game.Ability.DamageResult :: field Game.Ability.IUnit Victim
+Game.Ability.DamageResult :: field System.Boolean Blocked
+Game.Ability.DamageResult :: field System.Boolean Killed
+Game.Ability.DamageResult :: field System.Int64 AttackId
+Game.Ability.DamageResult :: field System.Single AppliedAmount
+Game.Ability.DamageResult :: field System.Single FinalAmount
+Game.Ability.DamageResult :: field System.Single OriginalAmount
+Game.Ability.DamageResult :: field System.String BlockReason
+Game.Ability.DamageType :: field System.Int32 value__
+Game.Ability.DamageType :: field static Game.Ability.DamageType Magical = 2
+Game.Ability.DamageType :: field static Game.Ability.DamageType None = 0
+Game.Ability.DamageType :: field static Game.Ability.DamageType Physical = 1
+Game.Ability.DamageType :: field static Game.Ability.DamageType Pure = 3
+Game.Ability.DefaultAbilityScript :: ctor ()
+Game.Ability.DefaultModifierScript :: ctor ()
+Game.Ability.DefaultThinkerScript :: ctor ()
+Game.Ability.HealApplicationResult :: ctor (System.Single appliedAmount)
+Game.Ability.HealApplicationResult :: property System.Single AppliedAmount {get;}
+Game.Ability.HealInfo :: ctor ()
+Game.Ability.HealInfo :: field Game.Ability.Ability Ability
+Game.Ability.HealInfo :: field Game.Ability.IUnit Source
+Game.Ability.HealInfo :: field Game.Ability.IUnit Target
+Game.Ability.HealInfo :: field System.Single Amount
+Game.Ability.HealResult :: property Game.Ability.Ability Ability {get;}
+Game.Ability.HealResult :: property Game.Ability.IUnit Source {get;}
+Game.Ability.HealResult :: property Game.Ability.IUnit Target {get;}
+Game.Ability.HealResult :: property System.Boolean Applied {get;}
+Game.Ability.HealResult :: property System.Single AppliedAmount {get;}
+Game.Ability.HealResult :: property System.Single RequestedAmount {get;}
+Game.Ability.HealResult :: property System.String FailureReason {get;}
+Game.Ability.ICombatUnit :: abstract Game.Ability.DamageApplicationResult ApplyFinalDamage(Game.Ability.DamageResult result)
+Game.Ability.ICombatUnit :: abstract Game.Ability.HealApplicationResult ApplyFinalHeal(Game.Ability.HealInfo info)
+Game.Ability.ICombatUnit :: property System.Single BaseArmor {get;}
+Game.Ability.ICombatUnit :: property System.Single BaseMagicResistancePercent {get;}
+Game.Ability.ICombatUnit :: property System.Single BasePhysicalDamageBlock {get;}
+Game.Ability.ICombatUnit :: property System.Single CurrentHealth {get;}
+Game.Ability.ICombatUnit :: property System.Single MaxHealth {get;}
+Game.Ability.IPresentation :: abstract Game.Ability.IPresentationHandle PlayPersistentEffect(System.String effectName, Game.Ability.IUnit target)
+Game.Ability.IPresentation :: abstract System.Void PlayEffect(System.String effectName, Game.Ability.IUnit target)
+Game.Ability.IPresentation :: abstract System.Void PlayEffect(System.String effectName, UnityEngine.Vector3 position)
+Game.Ability.IPresentation :: abstract System.Void PlaySound(System.String soundName, UnityEngine.Vector3 position)
+Game.Ability.IPresentationHandle :: abstract System.Void Stop()
+Game.Ability.IPresentationHandle :: property System.Boolean IsActive {get;}
+Game.Ability.IPresentationHandle :: property System.Int32 TargetEntityId {get;}
+Game.Ability.IPresentationHandle :: property System.String EffectName {get;}
+Game.Ability.IProjectilePresentation :: abstract Game.Ability.IProjectilePresentationHandle PlayProjectileEffect(System.String effectName, Game.Ability.Projectile projectile)
+Game.Ability.IProjectilePresentationHandle :: abstract System.Void SetPosition(UnityEngine.Vector3 position)
+Game.Ability.IProjectilePresentationHandle :: abstract System.Void Stop()
+Game.Ability.IProjectilePresentationHandle :: property System.Boolean IsActive {get;}
+Game.Ability.IResourceOwner :: abstract System.Boolean HasMana(System.Single amount)
+Game.Ability.IResourceOwner :: abstract System.Boolean SpendMana(System.Single amount)
+Game.Ability.IResourceOwner :: property System.Single Mana {get;}
+Game.Ability.ITrackedPresentation :: abstract System.Void GetActivePresentationHandles(System.Collections.Generic.IList<Game.Ability.PresentationHandleInfo> results)
+Game.Ability.IUnit :: abstract System.Boolean IsVisibleToTeam(System.Int32 teamId)
+Game.Ability.IUnit :: abstract System.Void ApplyDamage(Game.Ability.DamageResult result)
+Game.Ability.IUnit :: abstract System.Void Heal(Game.Ability.HealInfo info)
+Game.Ability.IUnit :: property Game.Ability.UnitType UnitType {get;}
+Game.Ability.IUnit :: property System.Boolean IsAlive {get;}
+Game.Ability.IUnit :: property System.Boolean IsInvulnerable {get;}
+Game.Ability.IUnit :: property System.Boolean IsMagicImmune {get;}
+Game.Ability.IUnit :: property System.Int32 EntityId {get;}
+Game.Ability.IUnit :: property System.Int32 TeamId {get;}
+Game.Ability.IUnit :: property UnityEngine.Vector3 Position {get;}
+Game.Ability.IWorld :: abstract System.Boolean HasLineOfSight(Game.Ability.IUnit viewer, UnityEngine.Vector3 position)
+Game.Ability.IWorld :: abstract System.Void FindUnits(UnityEngine.Vector3 center, System.Single radius, Game.Ability.TargetQuery query, System.Collections.Generic.IList<Game.Ability.IUnit> results)
+Game.Ability.IWorld :: property System.Single Time {get;}
+Game.Ability.LevelValue :: System.Single GetValue(System.Int32 level)
+Game.Ability.LevelValue :: ctor ()
+Game.Ability.LevelValue :: field System.Single BaseValue
+Game.Ability.LevelValue :: field readonly System.Collections.Generic.List<System.Single> ValuesByLevel
+Game.Ability.LevelValue :: static Game.Ability.LevelValue Constant(System.Single value)
+Game.Ability.Modifier :: System.Void IncrementStack(System.Int32 count = 1)
+Game.Ability.Modifier :: System.Void Refresh(Game.Ability.ModifierApplyOptions options)
+Game.Ability.Modifier :: System.Void SetStackCount(System.Int32 value)
+Game.Ability.Modifier :: property Game.Ability.Ability Ability {get;}
+Game.Ability.Modifier :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.Modifier :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.Modifier :: property Game.Ability.IUnit Parent {get;}
+Game.Ability.Modifier :: property Game.Ability.Modifier SourceAura {get;}
+Game.Ability.Modifier :: property Game.Ability.ModifierDefinition Definition {get;}
+Game.Ability.Modifier :: property Game.Ability.ModifierScript Script {get;}
+Game.Ability.Modifier :: property System.Boolean IsAuraApplied {get;}
+Game.Ability.Modifier :: property System.Boolean IsDestroyed {get;}
+Game.Ability.Modifier :: property System.Int32 Level {get;}
+Game.Ability.Modifier :: property System.Int32 StackCount {get;}
+Game.Ability.Modifier :: property System.Single Duration {get;}
+Game.Ability.Modifier :: property System.Single ElapsedTime {get;}
+Game.Ability.Modifier :: property System.Single RemainingTime {get;}
+Game.Ability.Modifier :: property System.String Name {get;}
+Game.Ability.ModifierApplyOptions :: ctor ()
+Game.Ability.ModifierApplyOptions :: field Game.Ability.Modifier SourceModifier
+Game.Ability.ModifierApplyOptions :: field System.Boolean IncrementStacksOnRefresh
+Game.Ability.ModifierApplyOptions :: field System.Boolean IsAura
+Game.Ability.ModifierApplyOptions :: field System.Int32 Level
+Game.Ability.ModifierApplyOptions :: field System.Int32 StackCount
+Game.Ability.ModifierApplyOptions :: field System.Single Duration
+Game.Ability.ModifierApplyOptions :: field readonly System.Collections.Generic.Dictionary<System.String,System.Object> Objects
+Game.Ability.ModifierApplyOptions :: field readonly System.Collections.Generic.Dictionary<System.String,System.Single> Numbers
+Game.Ability.ModifierAttribute :: field System.Int32 value__
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute Aura = 8
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute IgnoreInvulnerable = 4
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute Multiple = 2
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute NoDurationRefresh = 16
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute None = 0
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute Permanent = 1
+Game.Ability.ModifierAttribute :: field static Game.Ability.ModifierAttribute StackIndependent = 32
+Game.Ability.ModifierDefinition :: System.Single GetPropertyValue(Game.Ability.ModifierProperty property, System.Int32 level)
+Game.Ability.ModifierDefinition :: ctor ()
+Game.Ability.ModifierDefinition :: field Game.Ability.DamageFlags TriggerExcludedDamageFlags
+Game.Ability.ModifierDefinition :: field Game.Ability.ModifierAttribute Attributes
+Game.Ability.ModifierDefinition :: field Game.Ability.ModifierEventScope TriggerEventScope
+Game.Ability.ModifierDefinition :: field Game.Ability.ModifierEventType TriggerEventType
+Game.Ability.ModifierDefinition :: field Game.Ability.TargetFlags AuraTargetFlags
+Game.Ability.ModifierDefinition :: field Game.Ability.TargetTeam AuraTargetTeam
+Game.Ability.ModifierDefinition :: field Game.Ability.UnitState States
+Game.Ability.ModifierDefinition :: field Game.Ability.UnitType AuraTargetType
+Game.Ability.ModifierDefinition :: field System.Boolean AuraIncrementsStacks
+Game.Ability.ModifierDefinition :: field System.Boolean IsDebuff
+Game.Ability.ModifierDefinition :: field System.Boolean IsHidden
+Game.Ability.ModifierDefinition :: field System.Boolean IsPurgable
+Game.Ability.ModifierDefinition :: field System.Boolean RemoveOnDeath
+Game.Ability.ModifierDefinition :: field System.Int32 MaxStack
+Game.Ability.ModifierDefinition :: field System.Single AuraDuration
+Game.Ability.ModifierDefinition :: field System.Single AuraRadius
+Game.Ability.ModifierDefinition :: field System.Single AuraThinkInterval
+Game.Ability.ModifierDefinition :: field System.Single Duration
+Game.Ability.ModifierDefinition :: field System.Single Interval
+Game.Ability.ModifierDefinition :: field System.String AuraModifierName
+Game.Ability.ModifierDefinition :: field System.String DisplayName
+Game.Ability.ModifierDefinition :: field System.String Name
+Game.Ability.ModifierDefinition :: field System.String SustainedEffectName
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.Dictionary<Game.Ability.ModifierProperty,Game.Ability.LevelValue> LevelProperties
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.Dictionary<Game.Ability.ModifierProperty,System.Single> Properties
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> IntervalActions
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnCreatedActions
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnDestroyActions
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> OnRefreshActions
+Game.Ability.ModifierDefinition :: field readonly System.Collections.Generic.List<Game.Ability.ActionDefinition> TriggerActions
+Game.Ability.ModifierEvent :: ctor ()
+Game.Ability.ModifierEvent :: field Game.Ability.Ability Ability
+Game.Ability.ModifierEvent :: field Game.Ability.AbilitySystem Engine
+Game.Ability.ModifierEvent :: field Game.Ability.CastOrder Order
+Game.Ability.ModifierEvent :: field Game.Ability.DamageInfo DamageInfo
+Game.Ability.ModifierEvent :: field Game.Ability.DamageResult DamageResult
+Game.Ability.ModifierEvent :: field Game.Ability.HealInfo HealInfo
+Game.Ability.ModifierEvent :: field Game.Ability.IUnit Source
+Game.Ability.ModifierEvent :: field Game.Ability.IUnit Target
+Game.Ability.ModifierEvent :: field Game.Ability.Modifier Modifier
+Game.Ability.ModifierEvent :: field Game.Ability.ModifierEventType EventType
+Game.Ability.ModifierEvent :: field Game.Ability.Projectile Projectile
+Game.Ability.ModifierEvent :: field System.Int64 AttackId
+Game.Ability.ModifierEvent :: field System.Int64 CastId
+Game.Ability.ModifierEvent :: field System.Single Value
+Game.Ability.ModifierEvent :: field UnityEngine.Vector3 Position
+Game.Ability.ModifierEventScope :: field System.Int32 value__
+Game.Ability.ModifierEventScope :: field static Game.Ability.ModifierEventScope Global = 1
+Game.Ability.ModifierEventScope :: field static Game.Ability.ModifierEventScope Related = 0
+Game.Ability.ModifierEventType :: field System.Int32 value__
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType AbilityExecuted = 2
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType AbilityFullyCast = 3
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType AttackLanded = 10
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType AttackStart = 9
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType ChannelFinished = 4
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType DamageCalculated = 5
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType DamageDealt = 6
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType DamageTaken = 7
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType Death = 11
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType Healed = 8
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType ModifierAdded = 13
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType ModifierRemoved = 14
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType None = 0
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType OrderIssued = 1
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType ProjectileHit = 12
+Game.Ability.ModifierEventType :: field static Game.Ability.ModifierEventType Respawn = 15
+Game.Ability.ModifierProperty :: field System.Int32 value__
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty ArmorBonus = 6
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty AttackSpeedBonus = 2
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty CastRangeBonus = 9
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty CooldownReductionPercent = 8
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty DamageIncomingPercent = 4
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty DamageOutgoingPercent = 3
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty HealthRegen = 7
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty MoveSpeedBonusPercent = 1
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty None = 0
+Game.Ability.ModifierProperty :: field static Game.Ability.ModifierProperty SpellAmplifyPercent = 5
+Game.Ability.ModifierPropertyContext :: ctor ()
+Game.Ability.ModifierPropertyContext :: field Game.Ability.Ability Ability
+Game.Ability.ModifierPropertyContext :: field Game.Ability.AbilitySystem Engine
+Game.Ability.ModifierPropertyContext :: field Game.Ability.DamageInfo DamageInfo
+Game.Ability.ModifierPropertyContext :: field Game.Ability.DamageResult DamageResult
+Game.Ability.ModifierPropertyContext :: field Game.Ability.IUnit Unit
+Game.Ability.ModifierPropertyRuntimeSnapshot :: ctor ()
+Game.Ability.ModifierPropertyRuntimeSnapshot :: field Game.Ability.ModifierProperty Property
+Game.Ability.ModifierPropertyRuntimeSnapshot :: field System.Single Value
+Game.Ability.ModifierRuntimeSnapshot :: ctor ()
+Game.Ability.ModifierRuntimeSnapshot :: field Game.Ability.UnitState States
+Game.Ability.ModifierRuntimeSnapshot :: field System.Int32 CasterEntityId
+Game.Ability.ModifierRuntimeSnapshot :: field System.Int32 ParentEntityId
+Game.Ability.ModifierRuntimeSnapshot :: field System.Int32 Stacks
+Game.Ability.ModifierRuntimeSnapshot :: field System.Single Duration
+Game.Ability.ModifierRuntimeSnapshot :: field System.Single RemainingTime
+Game.Ability.ModifierRuntimeSnapshot :: field System.String AbilityName
+Game.Ability.ModifierRuntimeSnapshot :: field System.String Name
+Game.Ability.ModifierRuntimeSnapshot :: field readonly System.Collections.Generic.List<Game.Ability.ModifierPropertyRuntimeSnapshot> Properties
+Game.Ability.ModifierScript :: property Game.Ability.Ability Ability {get;}
+Game.Ability.ModifierScript :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.ModifierScript :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.ModifierScript :: property Game.Ability.IUnit Parent {get;}
+Game.Ability.ModifierScript :: property Game.Ability.Modifier Modifier {get;}
+Game.Ability.ModifierScript :: property System.Int32 Level {get;}
+Game.Ability.ModifierScript :: virtual System.Boolean CheckState(Game.Ability.UnitState state)
+Game.Ability.ModifierScript :: virtual System.Boolean IsDebuff()
+Game.Ability.ModifierScript :: virtual System.Boolean IsHidden()
+Game.Ability.ModifierScript :: virtual System.Boolean IsPurgable()
+Game.Ability.ModifierScript :: virtual System.Single GetProperty(Game.Ability.ModifierProperty property, Game.Ability.ModifierPropertyContext context)
+Game.Ability.ModifierScript :: virtual System.Void OnCreated(Game.Ability.ModifierApplyOptions options)
+Game.Ability.ModifierScript :: virtual System.Void OnDestroy()
+Game.Ability.ModifierScript :: virtual System.Void OnEvent(Game.Ability.ModifierEvent modifierEvent)
+Game.Ability.ModifierScript :: virtual System.Void OnIntervalThink()
+Game.Ability.ModifierScript :: virtual System.Void OnRefresh(Game.Ability.ModifierApplyOptions options)
+Game.Ability.PresentationHandleInfo :: ctor ()
+Game.Ability.PresentationHandleInfo :: field System.Boolean IsActive
+Game.Ability.PresentationHandleInfo :: field System.Int32 TargetEntityId
+Game.Ability.PresentationHandleInfo :: field System.String EffectName
+Game.Ability.Projectile :: property Game.Ability.Ability Ability {get;}
+Game.Ability.Projectile :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.Projectile :: property Game.Ability.IUnit Source {get;}
+Game.Ability.Projectile :: property Game.Ability.IUnit Target {get;}
+Game.Ability.Projectile :: property Game.Ability.ProjectileDefinition Definition {get;}
+Game.Ability.Projectile :: property System.Boolean Destroyed {get;}
+Game.Ability.Projectile :: property System.Boolean Tracking {get;}
+Game.Ability.Projectile :: property UnityEngine.Vector3 Direction {get;}
+Game.Ability.Projectile :: property UnityEngine.Vector3 Position {get;}
+Game.Ability.ProjectileDefinition :: ctor ()
+Game.Ability.ProjectileDefinition :: field Game.Ability.TargetFlags TargetFlags
+Game.Ability.ProjectileDefinition :: field Game.Ability.TargetTeam TargetTeam
+Game.Ability.ProjectileDefinition :: field Game.Ability.TrackingTargetPolicy TrackingTargetPolicy
+Game.Ability.ProjectileDefinition :: field Game.Ability.UnitType TargetType
+Game.Ability.ProjectileDefinition :: field System.Boolean DeleteOnHit
+Game.Ability.ProjectileDefinition :: field System.Boolean ProvidesVision
+Game.Ability.ProjectileDefinition :: field System.Single Distance
+Game.Ability.ProjectileDefinition :: field System.Single MaxLifetime
+Game.Ability.ProjectileDefinition :: field System.Single Radius
+Game.Ability.ProjectileDefinition :: field System.Single Speed
+Game.Ability.ProjectileDefinition :: field System.Single VisionRadius
+Game.Ability.ProjectileDefinition :: field System.String EffectName
+Game.Ability.ProjectileDefinition :: field System.String Name
+Game.Ability.ProjectileDefinition :: field System.String SoundName
+Game.Ability.ProjectileRequest :: ctor ()
+Game.Ability.ProjectileRequest :: field Game.Ability.Ability Ability
+Game.Ability.ProjectileRequest :: field Game.Ability.IUnit Caster
+Game.Ability.ProjectileRequest :: field Game.Ability.IUnit Source
+Game.Ability.ProjectileRequest :: field Game.Ability.IUnit Target
+Game.Ability.ProjectileRequest :: field Game.Ability.ProjectileDefinition Definition
+Game.Ability.ProjectileRequest :: field System.Boolean Tracking
+Game.Ability.ProjectileRequest :: field UnityEngine.Vector3 Direction
+Game.Ability.ProjectileRequest :: field UnityEngine.Vector3 Origin
+Game.Ability.ProjectileRuntimeSnapshot :: ctor ()
+Game.Ability.ProjectileRuntimeSnapshot :: field System.Boolean Destroyed
+Game.Ability.ProjectileRuntimeSnapshot :: field System.Boolean Tracking
+Game.Ability.ProjectileRuntimeSnapshot :: field System.Int32 CasterEntityId
+Game.Ability.ProjectileRuntimeSnapshot :: field System.Int32 TargetEntityId
+Game.Ability.ProjectileRuntimeSnapshot :: field System.String AbilityName
+Game.Ability.ProjectileRuntimeSnapshot :: field System.String Name
+Game.Ability.ProjectileRuntimeSnapshot :: field UnityEngine.Vector3 Position
+Game.Ability.RuntimeEvent :: ctor ()
+Game.Ability.RuntimeEvent :: field Game.Ability.Ability Ability
+Game.Ability.RuntimeEvent :: field Game.Ability.CastFailureReason FailureReason
+Game.Ability.RuntimeEvent :: field Game.Ability.IUnit Caster
+Game.Ability.RuntimeEvent :: field Game.Ability.IUnit Target
+Game.Ability.RuntimeEvent :: field Game.Ability.Modifier Modifier
+Game.Ability.RuntimeEvent :: field Game.Ability.Projectile Projectile
+Game.Ability.RuntimeEvent :: field Game.Ability.RuntimeEventType EventType
+Game.Ability.RuntimeEvent :: field Game.Ability.Thinker Thinker
+Game.Ability.RuntimeEvent :: field System.Int64 AttackId
+Game.Ability.RuntimeEvent :: field System.Int64 CastId
+Game.Ability.RuntimeEvent :: field System.Single Value
+Game.Ability.RuntimeEvent :: field System.String Message
+Game.Ability.RuntimeEvent :: field UnityEngine.Vector3 Position
+Game.Ability.RuntimeEventType :: field System.Int32 value__
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType AbilityAdded = 1
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType AbilityFullyCast = 6
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType AbilityRemoved = 2
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CastCompleted = 23
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CastFailed = 4
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CastInterrupted = 22
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CastStarted = 3
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ChannelFinished = 8
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ChannelStarted = 7
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ChargeChanged = 12
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CooldownFinished = 11
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType CooldownStarted = 10
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType DamageApplied = 15
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ExecutionAborted = 24
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType HealApplied = 16
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ModifierAdded = 13
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ModifierRemoved = 14
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ProjectileCreated = 17
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ProjectileDestroyed = 19
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ProjectileHit = 18
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType SpellStarted = 5
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ThinkerCreated = 20
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ThinkerDestroyed = 21
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType ToggleChanged = 9
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType UnitDied = 25
+Game.Ability.RuntimeEventType :: field static Game.Ability.RuntimeEventType UnitRespawned = 26
+Game.Ability.TargetFlags :: field System.Int32 value__
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags Dead = 1
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags ExcludeSelf = 16
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags IgnoreLineOfSight = 64
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags IncludeSelf = 8
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags Invulnerable = 4
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags MagicImmuneEnemies = 2
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags None = 0
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags Untargetable = 128
+Game.Ability.TargetFlags :: field static Game.Ability.TargetFlags VisibleOnly = 32
+Game.Ability.TargetQuery :: System.Boolean IsValid(Game.Ability.IUnit target)
+Game.Ability.TargetQuery :: ctor ()
+Game.Ability.TargetQuery :: field Game.Ability.AbilitySystem Engine
+Game.Ability.TargetQuery :: field Game.Ability.IUnit Caster
+Game.Ability.TargetQuery :: field Game.Ability.TargetFlags Flags
+Game.Ability.TargetQuery :: field Game.Ability.TargetTeam Team
+Game.Ability.TargetQuery :: field Game.Ability.UnitType Types
+Game.Ability.TargetTeam :: field System.Int32 value__
+Game.Ability.TargetTeam :: field static Game.Ability.TargetTeam Both = 3
+Game.Ability.TargetTeam :: field static Game.Ability.TargetTeam Enemy = 2
+Game.Ability.TargetTeam :: field static Game.Ability.TargetTeam Friendly = 1
+Game.Ability.TargetTeam :: field static Game.Ability.TargetTeam None = 0
+Game.Ability.Targeting :: static Game.Ability.TargetQuery CreateQuery(Game.Ability.Ability ability)
+Game.Ability.Targeting :: static System.Boolean BuildCastContext(Game.Ability.AbilitySystem engine, Game.Ability.Ability ability, Game.Ability.CastOrder order, out Game.Ability.CastContext& context, out Game.Ability.CastResult& result)
+Game.Ability.Thinker :: property Game.Ability.Ability Ability {get;}
+Game.Ability.Thinker :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.Thinker :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.Thinker :: property Game.Ability.ThinkerScript Script {get;}
+Game.Ability.Thinker :: property System.Boolean IsDestroyed {get;}
+Game.Ability.Thinker :: property System.Single Duration {get;}
+Game.Ability.Thinker :: property System.Single Interval {get;}
+Game.Ability.Thinker :: property System.Single Radius {get;}
+Game.Ability.Thinker :: property UnityEngine.Vector3 Position {get;}
+Game.Ability.ThinkerRequest :: ctor ()
+Game.Ability.ThinkerRequest :: field Game.Ability.Ability Ability
+Game.Ability.ThinkerRequest :: field Game.Ability.IUnit Caster
+Game.Ability.ThinkerRequest :: field Game.Ability.ThinkerScript Script
+Game.Ability.ThinkerRequest :: field System.Single Duration
+Game.Ability.ThinkerRequest :: field System.Single Interval
+Game.Ability.ThinkerRequest :: field System.Single Radius
+Game.Ability.ThinkerRequest :: field System.String Name
+Game.Ability.ThinkerRequest :: field UnityEngine.Vector3 Position
+Game.Ability.ThinkerRuntimeSnapshot :: ctor ()
+Game.Ability.ThinkerRuntimeSnapshot :: field System.Boolean Destroyed
+Game.Ability.ThinkerRuntimeSnapshot :: field System.Int32 CasterEntityId
+Game.Ability.ThinkerRuntimeSnapshot :: field System.Single Duration
+Game.Ability.ThinkerRuntimeSnapshot :: field System.Single Interval
+Game.Ability.ThinkerRuntimeSnapshot :: field System.Single Radius
+Game.Ability.ThinkerRuntimeSnapshot :: field System.String AbilityName
+Game.Ability.ThinkerRuntimeSnapshot :: field UnityEngine.Vector3 Position
+Game.Ability.ThinkerScript :: property Game.Ability.Ability Ability {get;}
+Game.Ability.ThinkerScript :: property Game.Ability.AbilitySystem Engine {get;}
+Game.Ability.ThinkerScript :: property Game.Ability.IUnit Caster {get;}
+Game.Ability.ThinkerScript :: property Game.Ability.Thinker Thinker {get;}
+Game.Ability.ThinkerScript :: virtual System.Void OnCreated()
+Game.Ability.ThinkerScript :: virtual System.Void OnDestroy()
+Game.Ability.ThinkerScript :: virtual System.Void OnIntervalThink()
+Game.Ability.ThinkerScript :: virtual System.Void OnThink(System.Single deltaTime)
+Game.Ability.TrackingTargetPolicy :: field System.Int32 value__
+Game.Ability.TrackingTargetPolicy :: field static Game.Ability.TrackingTargetPolicy KeepTracking = 0
+Game.Ability.TrackingTargetPolicy :: field static Game.Ability.TrackingTargetPolicy RevalidateTarget = 1
+Game.Ability.UnitState :: field System.Int32 value__
+Game.Ability.UnitState :: field static Game.Ability.UnitState CommandRestricted = 512
+Game.Ability.UnitState :: field static Game.Ability.UnitState Disarmed = 16
+Game.Ability.UnitState :: field static Game.Ability.UnitState Hexed = 32
+Game.Ability.UnitState :: field static Game.Ability.UnitState Invulnerable = 64
+Game.Ability.UnitState :: field static Game.Ability.UnitState MagicImmune = 128
+Game.Ability.UnitState :: field static Game.Ability.UnitState Muted = 4
+Game.Ability.UnitState :: field static Game.Ability.UnitState NoUnitCollision = 1024
+Game.Ability.UnitState :: field static Game.Ability.UnitState None = 0
+Game.Ability.UnitState :: field static Game.Ability.UnitState OutOfGame = 256
+Game.Ability.UnitState :: field static Game.Ability.UnitState Rooted = 8
+Game.Ability.UnitState :: field static Game.Ability.UnitState Silenced = 2
+Game.Ability.UnitState :: field static Game.Ability.UnitState Stunned = 1
+Game.Ability.UnitState :: field static Game.Ability.UnitState Untargetable = 2048
+Game.Ability.UnitType :: field System.Int32 value__
+Game.Ability.UnitType :: field static Game.Ability.UnitType All = 63
+Game.Ability.UnitType :: field static Game.Ability.UnitType Basic = 2
+Game.Ability.UnitType :: field static Game.Ability.UnitType Building = 4
+Game.Ability.UnitType :: field static Game.Ability.UnitType Creep = 8
+Game.Ability.UnitType :: field static Game.Ability.UnitType Hero = 1
+Game.Ability.UnitType :: field static Game.Ability.UnitType None = 0
+Game.Ability.UnitType :: field static Game.Ability.UnitType Other = 32
+Game.Ability.UnitType :: field static Game.Ability.UnitType Ward = 16
+type Game.Ability.Ability : System.Object []
+type Game.Ability.AbilityBehavior : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.AbilityDefinition : System.Object []
+type Game.Ability.AbilityInstanceRuntimeSnapshot : System.Object []
+type Game.Ability.AbilityPhase : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.AbilityRuntimeSnapshot : System.Object []
+type Game.Ability.AbilityScript : System.Object []
+type Game.Ability.AbilitySystem : System.Object []
+type Game.Ability.AbilityUnitRuntimeSnapshot : System.Object []
+type Game.Ability.ActionDefinition : System.Object []
+type Game.Ability.ActionRunner : System.Object []
+type Game.Ability.ActionTarget : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ActionType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ActionValueSource : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.AttackRecord : System.Object []
+type Game.Ability.CastContext : System.Object []
+type Game.Ability.CastFailureReason : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.CastOrder : System.Object []
+type Game.Ability.CastResult : System.Object []
+type Game.Ability.ChargeDefinition : System.Object []
+type Game.Ability.Configuration.AbilityActionConfigRecord : System.Object []
+type Game.Ability.Configuration.AbilityConfigCatalog : System.Object []
+type Game.Ability.Configuration.AbilityConfigRecord : System.Object []
+type Game.Ability.Configuration.AbilityConfigSource : System.Object []
+type Game.Ability.Configuration.AbilityConfigurationValidator : System.Object []
+type Game.Ability.Configuration.AbilityDefinitionBundle : System.Object []
+type Game.Ability.Configuration.AbilityDefinitionOrigin : System.Object []
+type Game.Ability.Configuration.AbilityDefinitionRegistration : System.Object []
+type Game.Ability.Configuration.AbilityDefinitionRegistry : System.Object []
+type Game.Ability.Configuration.AbilityDefinitionSourceType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.Configuration.AbilityJsonSchemaValidator : System.Object []
+type Game.Ability.Configuration.AbilityModifierConfigRecord : System.Object []
+type Game.Ability.Configuration.AbilityProjectileConfigRecord : System.Object []
+type Game.Ability.Configuration.AbilityValidationIssue : System.Object []
+type Game.Ability.Configuration.AbilityValidationOptions : System.Object []
+type Game.Ability.Configuration.AbilityValidationReport : System.Object []
+type Game.Ability.Configuration.AbilityValidationSeverity : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.Configuration.IAbilityDefinitionProvider :  []
+type Game.Ability.Configuration.JsonAbility : System.Object []
+type Game.Ability.Configuration.JsonAbilityDefinitionProvider : System.Object [Game.Ability.Configuration.IAbilityDefinitionProvider]
+type Game.Ability.Configuration.JsonAbilityDocument : System.Object []
+type Game.Ability.Configuration.JsonAction : System.Object []
+type Game.Ability.Configuration.JsonCharge : System.Object []
+type Game.Ability.Configuration.JsonLevelValue : System.Object []
+type Game.Ability.Configuration.JsonModifier : System.Object []
+type Game.Ability.Configuration.JsonModifierLevelProperty : System.Object []
+type Game.Ability.Configuration.JsonModifierProperty : System.Object []
+type Game.Ability.Configuration.JsonProjectile : System.Object []
+type Game.Ability.Configuration.JsonSpecialValue : System.Object []
+type Game.Ability.Configuration.ModifierDefinitionRegistration : System.Object []
+type Game.Ability.Configuration.ProjectileDefinitionRegistration : System.Object []
+type Game.Ability.Configuration.TowerAbilityBindingRecord : System.Object []
+type Game.Ability.ConfiguredAbilityScript : Game.Ability.AbilityScript []
+type Game.Ability.ConfiguredModifierScript : Game.Ability.ModifierScript []
+type Game.Ability.DamageApplicationResult : System.Object []
+type Game.Ability.DamageCategory : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.DamageFlags : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.DamageInfo : System.Object []
+type Game.Ability.DamageResult : System.Object []
+type Game.Ability.DamageType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.DefaultAbilityScript : Game.Ability.AbilityScript []
+type Game.Ability.DefaultModifierScript : Game.Ability.ModifierScript []
+type Game.Ability.DefaultThinkerScript : Game.Ability.ThinkerScript []
+type Game.Ability.HealApplicationResult : System.Object []
+type Game.Ability.HealInfo : System.Object []
+type Game.Ability.HealResult : System.Object []
+type Game.Ability.ICombatUnit :  [Game.Ability.IUnit]
+type Game.Ability.IPresentation :  []
+type Game.Ability.IPresentationHandle :  []
+type Game.Ability.IProjectilePresentation :  []
+type Game.Ability.IProjectilePresentationHandle :  []
+type Game.Ability.IResourceOwner :  []
+type Game.Ability.ITrackedPresentation :  []
+type Game.Ability.IUnit :  []
+type Game.Ability.IWorld :  []
+type Game.Ability.LevelValue : System.Object []
+type Game.Ability.Modifier : System.Object []
+type Game.Ability.ModifierApplyOptions : System.Object []
+type Game.Ability.ModifierAttribute : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ModifierDefinition : System.Object []
+type Game.Ability.ModifierEvent : System.Object []
+type Game.Ability.ModifierEventScope : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ModifierEventType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ModifierProperty : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.ModifierPropertyContext : System.Object []
+type Game.Ability.ModifierPropertyRuntimeSnapshot : System.Object []
+type Game.Ability.ModifierRuntimeSnapshot : System.Object []
+type Game.Ability.ModifierScript : System.Object []
+type Game.Ability.PresentationHandleInfo : System.Object []
+type Game.Ability.Projectile : System.Object []
+type Game.Ability.ProjectileDefinition : System.Object []
+type Game.Ability.ProjectileRequest : System.Object []
+type Game.Ability.ProjectileRuntimeSnapshot : System.Object []
+type Game.Ability.RuntimeEvent : System.Object []
+type Game.Ability.RuntimeEventType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.TargetFlags : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.TargetQuery : System.Object []
+type Game.Ability.TargetTeam : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.Targeting : System.Object []
+type Game.Ability.Thinker : System.Object []
+type Game.Ability.ThinkerRequest : System.Object []
+type Game.Ability.ThinkerRuntimeSnapshot : System.Object []
+type Game.Ability.ThinkerScript : System.Object []
+type Game.Ability.TrackingTargetPolicy : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.UnitState : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]
+type Game.Ability.UnitType : System.Enum [System.IComparable,System.IConvertible,System.IFormattable,System.ISpanFormattable]

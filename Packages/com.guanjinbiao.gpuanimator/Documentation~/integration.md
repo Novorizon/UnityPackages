@@ -106,7 +106,7 @@ player.SetPropertyBlock();
 | `GpuSkinningAnimData` | `AnimationData` |
 | `GpuSkinningAnimClip` | `AnimationClipData` |
 
-替换字段、参数和泛型中的类型引用，解码入口改为 `AnimationData.FromBytes(loadedMetadata.bytes)`。播放器仍是 `GpuAnimator`，资源注入、播放和 Tick 接口的行为保持一致；新数据类型文件为 `GpuAnimator/Runtime/AnimationData.cs`。
+替换字段、参数和泛型中的类型引用，解码入口改为 `AnimationData.FromBytes(loadedMetadata.bytes)`。播放器仍是 `GpuAnimator`，资源注入、播放和 Tick 接口的行为保持一致；新数据类型文件为 `Runtime/AnimationData.cs`。
 
 `FromBytes` 的兼容 Binder 能读取旧 `.bytes` 的根对象、Clip 及 Clip 数组类型，原序列化字段名仍保留。仅为本次命名迁移不需要重新烘焙现有修复版动画 PNG。新类型名是源码 API 变更，因此包版本升级为 3.0.0；调用方应同步更新类型引用。
 

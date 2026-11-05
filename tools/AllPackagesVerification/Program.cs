@@ -35,6 +35,8 @@ internal static class Program
         Check("source install falls back to the release tag", () => InProject(c => { Drain(); True(Client.Adds.Single().All(s => s.StartsWith("https://github.com/") && s.Contains("#"))); }));
         Check("aggregate version change runs the new setup once", ReleaseChange);
         Check("batch completion requires package, embed and settings evidence", BatchEvidence);
+        Check("legacy editor and ECS packages are replaced atomically", LegacyPackages);
+        Check("migration failure retains the old packages", FailedMigration);
         Check("invalid catalog and traversal archive names are rejected", InvalidCatalog);
         Console.WriteLine($"PASS {passed} aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.");
     }
@@ -70,7 +72,7 @@ internal static class Program
         var catalog = JsonUtility.FromJson<PackageCatalog>(File.ReadAllText("Packages/com.novorizon.framework.all/Dependencies.json"));
         File.WriteAllText(Path.Combine(packageRoot, "Dependencies.json"), JsonUtility.ToJson(catalog));
         Application.dataPath = Path.Combine(temp, "Assets");
-        PackageInfo.Owner = new PackageInfo { name = AllPackagesInstaller.PackageName, version = "0.1.0-preview.2", resolvedPath = packageRoot };
+        PackageInfo.Owner = new PackageInfo { name = AllPackagesInstaller.PackageName, version = "0.1.0-preview.3", resolvedPath = packageRoot };
         Client.Reset(); Debug.Errors.Clear(); EditorApplication.ExitCode = null;
         Setup.Calls = 0; Setup.Fail = false;
         Reload();
@@ -191,7 +193,7 @@ internal static class Program
     });
     private static void ReleaseChange() => InProject(c =>
     {
-        Drain(); PackageInfo.Owner.version = "0.1.0-preview.3"; Reload(); Until(() => Setup.Calls == 2);
+        Drain(); PackageInfo.Owner.version = "0.1.0-preview.4"; Reload(); Until(() => Setup.Calls == 2);
         Equal(1, Client.Adds.Count); Equal("Complete", Phase());
     });
     private static void BatchEvidence() => InProject(c =>
@@ -199,6 +201,19 @@ internal static class Program
         AllPackagesInstaller.InstallBatch(); Drain(); EditorApplication.TickForTest(); Equal(0, EditorApplication.ExitCode);
         string report = Path.Combine(Root, "Library/NovorizonFrameworkAll/verification.json"); True(File.Exists(report));
         string json = File.ReadAllText(report); True(json.Contains("\"hybridClrEmbedded\":true") && json.Contains("\"hotUpdateSettingsCreated\":true"));
+    });
+    private static void LegacyPackages() => InProject(c =>
+    {
+        foreach (string name in c.obsoletePackages) Client.Installed[name] = new PackageInfo { name = name, version = "old" };
+        Drain(); Equal("Complete", Phase());
+        True(c.obsoletePackages.All(name => !Client.Installed.ContainsKey(name)));
+        True(Client.Removes.Single().OrderBy(n => n).SequenceEqual(c.obsoletePackages.OrderBy(n => n)));
+    });
+    private static void FailedMigration() => InProject(c =>
+    {
+        foreach (string name in c.obsoletePackages) Client.Installed[name] = new PackageInfo { name = name, version = "old" };
+        Client.FailAdd = true; Drain(); Equal("Failed", Phase());
+        True(c.obsoletePackages.All(name => Client.Installed.ContainsKey(name)));
     });
     private static void InvalidCatalog()
     {

@@ -14,7 +14,7 @@
 
 3.0 使用完整的数据类型名 `AnimationData` 和 `AnimationClipData`；组件入口仍为 `GpuAnimator`。从 2.x 升级请替换源码中的旧类型名，`AnimationData.FromBytes` 可以读取旧元数据，见[命名迁移说明](Documentation~/integration.md#从-2x-迁移数据类型名称)。
 
-1. 在 Unity Package Manager 通过 Git URL 安装：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.guanjinbiao.gpuanimator#v0.1.0-preview.2`。
+1. 在 Unity Package Manager 通过 Git URL 安装：`https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.guanjinbiao.gpuanimator#v0.1.0-preview.3`。
 2. 按[美术规范](Documentation~/art-guidelines.md)准备模型与动画，在 **GpuSkinning → Baker** 中先 Validate 再 Bake；产物与接入步骤见[入门指南](Documentation~/getting-started.md)。
 3. 资源由业务或 Framework 加载，播放器接收已配置的 Renderer 和解析后的数据：
 
@@ -67,7 +67,7 @@ Existing ECS integrations can continue using the `ecs` branch.
 Add this Git URL in Unity Package Manager:
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.guanjinbiao.gpuanimator#v0.1.0-preview.2
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.guanjinbiao.gpuanimator#v0.1.0-preview.3
 ```
 
 The package targets Unity 2020.2 or later. The included shaders use the Built-in

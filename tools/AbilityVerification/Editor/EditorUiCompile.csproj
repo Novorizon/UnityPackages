@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NuGetAudit>false</NuGetAudit>
+    <OdinEnabled Condition="'$(OdinEnabled)' == ''">true</OdinEnabled>
+    <DefineConstants>UNITY_EDITOR</DefineConstants>
+    <DefineConstants Condition="'$(OdinEnabled)' == 'true'">$(DefineConstants);ODIN_INSPECTOR</DefineConstants>
+    <OdinReferencePath Condition="'$(OdinReferencePath)' == ''">$(ODIN_REFERENCE_PATH)</OdinReferencePath>
+    <NoWarn>CS0649;CS0067</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="UiCompile/AbilityRuntimeReference.csproj" />
+    <ProjectReference Include="UiCompile/UnityEditorReference.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.ability/Editor/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OdinEnabled)' == 'true'">
+    <Reference Include="Sirenix.OdinInspector.Editor"><HintPath>$(OdinReferencePath)/Sirenix.OdinInspector.Editor.dll</HintPath></Reference>
+    <Reference Include="Sirenix.OdinInspector.Attributes"><HintPath>$(OdinReferencePath)/Sirenix.OdinInspector.Attributes.dll</HintPath></Reference>
+    <Reference Include="Sirenix.Serialization"><HintPath>$(OdinReferencePath)/Sirenix.Serialization.dll</HintPath></Reference>
+    <Reference Include="Sirenix.Serialization.Config"><HintPath>$(OdinReferencePath)/Sirenix.Serialization.Config.dll</HintPath></Reference>
+    <Reference Include="Sirenix.Utilities"><HintPath>$(OdinReferencePath)/Sirenix.Utilities.dll</HintPath></Reference>
+    <Reference Include="Sirenix.Utilities.Editor"><HintPath>$(OdinReferencePath)/Sirenix.Utilities.Editor.dll</HintPath></Reference>
+  </ItemGroup>
+  <Target Name="RequireOdinReference" BeforeTargets="ResolveReferences" Condition="'$(OdinEnabled)' == 'true'">
+    <Error Condition="!Exists('$(OdinReferencePath)/Sirenix.OdinInspector.Editor.dll')" Text="Supply -p:OdinReferencePath to locally installed Odin reference DLLs; these proprietary files are not distributed with the verification tools." />
+  </Target>
+</Project>

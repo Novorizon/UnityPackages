@@ -1,0 +1,19 @@
+{
+  "name": "com.novorizon.ecs",
+  "displayName": "ECS",
+  "description": "Entity-component systems for Unity using Novorizon Framework foundation services.",
+  "version": "2.0.0-preview.3",
+  "unity": "2022.3",
+  "license": "MIT",
+  "dependencies": {
+    "com.novorizon.framework": "0.10.0-preview.1",
+    "com.unity.mathematics": "1.2.6"
+  },
+  "samples": [
+    {
+      "displayName": "QuickStart",
+      "description": "移动、暂停、恢复与重启示例；默认 World 自动更新。",
+      "path": "Samples~/QuickStart"
+    }
+  ]
+}

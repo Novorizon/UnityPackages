@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "namespace": "validation.mixed",
+  "modifiers": [
+    { "id": "validation.mixed.public_disarm", "name": "validation.mixed.public_disarm", "duration": 0.75, "isDebuff": true, "states": 16 }
+  ],
+  "abilities": [
+    {
+      "id": "validation.mixed.excel_root", "name": "validation.mixed.excel_root", "displayName": "Shared Root",
+      "behavior": 8, "targetTeam": 2, "castRange": { "baseValue": 20 },
+      "actions": [ { "actionType": 3, "target": 2, "modifierName": "modifier_shared_root", "duration": { "baseValue": 1.5 } } ]
+    },
+    {
+      "id": "validation.mixed.code_guard", "name": "validation.mixed.code_guard", "displayName": "Shared Guard",
+      "behavior": 8, "targetTeam": 1, "targetFlags": 8, "castRange": { "baseValue": 20 },
+      "actions": [ { "actionType": 3, "target": 2, "modifierName": "modifier_shared_guard", "duration": { "baseValue": 2 } } ]
+    }
+  ]
+}

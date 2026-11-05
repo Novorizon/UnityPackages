@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "namespace": "sample_chain",
+  "projectiles": [
+    {
+      "id": "sample.chain.projectile.bolt",
+      "name": "sample_chain.private_bolt",
+      "isPrivate": true,
+      "speed": 12.0,
+      "radius": 0.25,
+      "distance": 12.0,
+      "deleteOnHit": true,
+      "targetTeam": 2,
+      "targetType": 63,
+      "effectName": "Assets/Arts/Effects/BowHitEffect.prefab"
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "sample.chain.modifier.mark",
+      "name": "sample_chain.private_mark",
+      "displayName": "Conductive Mark",
+      "isPrivate": true,
+      "isDebuff": true,
+      "isPurgable": true,
+      "removeOnDeath": true,
+      "duration": 4.0,
+      "maxStack": 1,
+      "properties": [
+        { "property": 4, "value": 15.0 }
+      ],
+      "onCreated": [
+        {
+          "actionType": 7,
+          "target": 2,
+          "effectName": "Assets/Arts/Effects/IceHitEffect.prefab"
+        }
+      ]
+    }
+  ],
+  "abilities": [
+    {
+      "id": "sample.chain.ability.reaction",
+      "name": "sample_chain.chain_reaction",
+      "displayName": "Chain Reaction",
+      "description": "JSON provider sample with level values, charges, nested actions, a private modifier, and a local projectile.",
+      "maxLevel": 3,
+      "behavior": 8,
+      "targetTeam": 2,
+      "targetType": 63,
+      "castRange": { "baseValue": 6.0, "values": [6.0, 7.0, 8.0] },
+      "castPoint": { "baseValue": 0.2 },
+      "cooldown": { "baseValue": 8.0, "values": [8.0, 7.0, 6.0] },
+      "manaCost": { "baseValue": 30.0 },
+      "charges": {
+        "maxCharges": 2,
+        "restoreTime": 12.0,
+        "startFull": true,
+        "usesCooldown": false
+      },
+      "specialValues": [
+        {
+          "name": "impact_damage",
+          "value": { "baseValue": 80.0, "values": [80.0, 120.0, 160.0] }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 5,
+          "target": 2,
+          "projectileName": "sample_chain.private_bolt"
+        },
+        {
+          "actionType": 1,
+          "target": 2,
+          "valueSpecialName": "impact_damage",
+          "damageType": 2
+        },
+        {
+          "actionType": 3,
+          "target": 2,
+          "modifierName": "sample_chain.private_mark",
+          "duration": { "baseValue": 4.0 }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "namespace": "validation.external",
+  "abilities": [
+    {
+      "id": "validation.external.chain_lightning", "name": "validation.external.chain_lightning",
+      "displayName": "Chain Lightning", "requiresCustomScript": true,
+      "behavior": 8, "targetTeam": 2, "castRange": { "baseValue": 20 },
+      "specialValues": [
+        { "name": "damage", "value": { "baseValue": 70 } },
+        { "name": "bounce_multiplier", "value": { "baseValue": 0.5 } },
+        { "name": "bounce_radius", "value": { "baseValue": 4 } },
+        { "name": "maximum_hits", "value": { "baseValue": 3 } }
+      ]
+    }
+  ]
+}

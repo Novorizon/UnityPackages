@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "namespace": "wc3",
+  "abilities": [
+    {
+      "id": "wc3.tauren_chieftain.shockwave",
+      "name": "wc3.tauren_chieftain.shockwave",
+      "displayName": "震荡波 / Shockwave",
+      "description": "参考 Warcraft III：发射穿透直线冲击波，对路径上的敌人各造成一次魔法伤害。本例未实现地面标签及原作约12个单位的伤害上限；波宽和速度为示例调参。",
+      "maxLevel": 3,
+      "behavior": 16,
+      "targetTeam": 2,
+      "targetType": 11,
+      "castRange": {
+        "baseValue": 70
+      },
+      "cooldown": {
+        "baseValue": 8
+      },
+      "manaCost": {
+        "baseValue": 100
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              75,
+              130,
+              200
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 6,
+          "target": 4,
+          "projectileName": "wc3.tauren_chieftain.shockwave_projectile"
+        }
+      ],
+      "onProjectileHit": [
+        {
+          "actionType": 1,
+          "target": 2,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        }
+      ]
+    },
+    {
+      "id": "wc3.tauren_chieftain.war_stomp",
+      "name": "wc3.tauren_chieftain.war_stomp",
+      "displayName": "战争践踏 / War Stomp",
+      "description": "参考 Warcraft III：伤害并眩晕周围敌人。本例使用普通单位持续时间[3,4,5]秒，对英雄也相同；未区分地面/飞行单位。",
+      "maxLevel": 3,
+      "behavior": 36,
+      "targetTeam": 2,
+      "targetType": 11,
+      "aoeRadius": {
+        "values": [
+          25,
+          30,
+          35
+        ]
+      },
+      "cooldown": {
+        "baseValue": 6
+      },
+      "manaCost": {
+        "baseValue": 90
+      },
+      "specialValues": [
+        {
+          "name": "damage",
+          "value": {
+            "values": [
+              25,
+              50,
+              75
+            ]
+          }
+        },
+        {
+          "name": "stun_duration",
+          "value": {
+            "values": [
+              3,
+              4,
+              5
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 1,
+          "target": 3,
+          "damageType": 2,
+          "valueSpecialName": "damage"
+        },
+        {
+          "actionType": 3,
+          "target": 3,
+          "modifierName": "wc3.tauren_chieftain.stomp_stun",
+          "durationSpecialName": "stun_duration"
+        }
+      ]
+    },
+    {
+      "id": "wc3.tauren_chieftain.endurance_aura",
+      "name": "wc3.tauren_chieftain.endurance_aura",
+      "displayName": "耐久光环 / Endurance Aura",
+      "description": "参考 Warcraft III：附近友方单位及自身获得随技能等级成长的移动速度和攻击速度加成。攻速使用包的AttackSpeedBonus加成语义；范围单位是示例坐标。",
+      "maxLevel": 3,
+      "behavior": 2,
+      "targetTeam": 1,
+      "targetType": 11,
+      "intrinsicModifierName": "wc3.tauren_chieftain.endurance_source"
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "wc3.tauren_chieftain.stomp_stun",
+      "name": "wc3.tauren_chieftain.stomp_stun",
+      "isPrivate": true,
+      "displayName": "战争践踏眩晕",
+      "isDebuff": true,
+      "isPurgable": false,
+      "duration": 3,
+      "states": 1
+    },
+    {
+      "id": "wc3.tauren_chieftain.endurance_source",
+      "name": "wc3.tauren_chieftain.endurance_source",
+      "isPrivate": true,
+      "isHidden": true,
+      "isPurgable": false,
+      "duration": -1,
+      "attributes": 8,
+      "auraModifierName": "wc3.tauren_chieftain.endurance_buff",
+      "auraRadius": 90,
+      "auraDuration": 0.5,
+      "auraThinkInterval": 0.25,
+      "auraTargetTeam": 1,
+      "auraTargetType": 11,
+      "auraTargetFlags": 8
+    },
+    {
+      "id": "wc3.tauren_chieftain.endurance_buff",
+      "name": "wc3.tauren_chieftain.endurance_buff",
+      "isPrivate": true,
+      "displayName": "耐久光环加成",
+      "isPurgable": false,
+      "duration": 0.5,
+      "levelProperties": [
+        {
+          "property": 1,
+          "value": {
+            "values": [
+              10,
+              20,
+              30
+            ]
+          }
+        },
+        {
+          "property": 2,
+          "value": {
+            "values": [
+              5,
+              10,
+              15
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "projectiles": [
+    {
+      "id": "wc3.tauren_chieftain.shockwave_projectile",
+      "name": "wc3.tauren_chieftain.shockwave_projectile",
+      "isPrivate": true,
+      "speed": 70,
+      "radius": 1.5,
+      "distance": 70,
+      "maxLifetime": 2,
+      "deleteOnHit": false,
+      "targetTeam": 2,
+      "targetType": 11
+    }
+  ]
+}

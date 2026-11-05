@@ -1,13 +1,13 @@
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths: {"packages": 12, "ownedPackages": 10, "importedFilesChecked": 2642, "unchangedExecutableAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 937, "nativeUnityExecuted": false}
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and portable project paths: {"packages": 11, "ownedPackages": 9, "importedFilesChecked": 2642, "unchangedExecutableAndAssetFiles": true, "activeAssemblies": 23, "activeGuids": 932, "nativeUnityExecuted": false}
   Determining projects to restore...
-  Restored /workspace/UnityPackages/tools/AllPackagesVerification/AllPackagesVerification.csproj (in 90 ms).
+  All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:04.31
+Time Elapsed 00:00:01.38
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -28,17 +28,19 @@ PASS local monorepo uses portable sibling package folders
 PASS source install falls back to the release tag
 PASS aggregate version change runs the new setup once
 PASS batch completion requires package, embed and settings evidence
+PASS legacy editor and ECS packages are replaced atomically
+PASS migration failure retains the old packages
 PASS invalid catalog and traversal archive names are rejected
-PASS 21 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
+PASS 23 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
   Determining projects to restore...
-  Restored /workspace/UnityPackages/tools/RTreeCorrectness/Correctness.csproj (in 89 ms).
+  All projects are up-to-date for restore.
   Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:04.11
+Time Elapsed 00:00:01.36
 PASS regression: recycled nodes and deletion reinsertion
 PASS regression: root bounds, empty tree and refill
 PASS regression: failed operations preserve mappings
@@ -57,39 +59,169 @@ PASS regression: caller-owned query buffers and statistics
 PASS regression: reused queries allocate no managed memory
 PASS regression: concurrent queries use independent scratch
 PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 5.41s.
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 5.59s.
 Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
   Determining projects to restore...
-  Restored /workspace/UnityPackages/tools/RTreeSpatialCorrectness/SpatialCorrectness.csproj (in 97 ms).
+  All projects are up-to-date for restore.
   SpatialCorrectness -> /workspace/UnityPackages/tools/RTreeSpatialCorrectness/bin/Release/net8.0/SpatialCorrectness.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:05.16
-PASS geometry and boundary queries (0.08s)
-PASS randomized box indexes and RTree adapter (0.14s)
+Time Elapsed 00:00:01.11
+PASS geometry and boundary queries (0.12s)
+PASS randomized box indexes and RTree adapter (0.13s)
 PASS dynamic AABB handles, updates and pairs (0.06s)
-PASS dynamic AABB ordered, nested and moving objects (0.25s)
-PASS loose octree ownership, expansion and updates (0.02s)
+PASS dynamic AABB ordered, nested and moving objects (0.26s)
+PASS loose octree ownership, expansion and updates (0.01s)
 PASS subtree pruning and movement outside cached content bounds (0.01s)
 PASS scaled and cancelling frustum planes (0.00s)
-PASS static BVH refit/rebuild (0.02s)
-PASS triangle BVH exact ray queries (0.06s)
-PASS triangle precision regressions (0.01s)
+PASS static BVH refit/rebuild (0.01s)
+PASS triangle BVH exact ray queries (0.05s)
+PASS triangle precision regressions (0.00s)
 PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.14s)
-PASS concurrent reads and writers (0.06s)
-PASS warmed reusable queries allocate zero bytes (0.30s)
-PASS public mutable interfaces and RTreeIndex adapter (0.09s)
-PASS: 94,160 assertions, 0 failed groups, 1.25s (full)
+PASS KD radius, k nearest, ties and rebuild (0.12s)
+PASS concurrent reads and writers (0.07s)
+PASS warmed reusable queries allocate zero bytes (0.27s)
+PASS public mutable interfaces and RTreeIndex adapter (0.06s)
+PASS: 94,160 assertions, 0 failed groups, 1.18s (full)
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
+  AbilityRuntimeReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/Game.Ability.dll
+  ApiContract -> /workspace/UnityPackages/tools/AbilityVerification/ApiContract/bin/Release/net8.0/ApiContract.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.76
+PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  CoreSources -> /workspace/UnityPackages/tools/AbilityVerification/Core/bin/Release/net8.0/CoreSources.dll
+  EditorCoreSources -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorCoreSources.dll
+  EditorTests -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorTests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.16
+Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
+PASS codec: real JSON semantic round trip: crystal_maiden.json
+PASS codec: real JSON semantic round trip: lina.json
+PASS codec: real JSON semantic round trip: lion.json
+PASS codec: real JSON semantic round trip: sven.json
+PASS codec: real JSON semantic round trip: mountain_king.json
+PASS codec: real JSON semantic round trip: paladin.json
+PASS codec: real JSON semantic round trip: tauren_chieftain.json
+PASS codec: real JSON semantic round trip: composed_skills.json
+PASS codec: real JSON semantic round trip: external_chain_lightning.json
+PASS codec: real JSON semantic round trip: mixed_sources.json
+PASS codec: all public DTO fields survive export
+PASS codec: null duration inherits; empty duration remains explicit zero
+PASS codec: defaults, false overrides and empty arrays survive
+PASS codec: strings preserve Unicode, escaped controls and surrogate units
+PASS codec: writer is deterministic and keeps action/level order
+PASS codec: float output is independent of current culture
+PASS codec: nonfinite floats cannot be exported
+PASS codec: unknown, duplicate, malformed and future schema input is rejected
+PASS codec: domain-invalid drafts remain editable
+PASS codec: cloning detaches arrays and nested values
+PASS codec: SHA-256 fingerprints exact UTF-8 content
+PASS codec: null and unsupported exports fail explicitly
+Editor codec: 22 passed, 0 failed.
+PASS preflight: ten thousand references are bounded without recursive traversal
+PASS preflight: modifier reference edge is counted: created
+PASS preflight: modifier reference edge is counted: refresh
+PASS preflight: modifier reference edge is counted: destroy
+PASS preflight: modifier reference edge is counted: interval
+PASS preflight: modifier reference edge is counted: trigger
+PASS preflight: modifier reference edge is counted: aura
+PASS preflight: ability start is counted: intrinsic
+PASS preflight: ability start is counted: actions
+PASS preflight: ability start is counted: projectile
+PASS preflight: ability start is counted: toggleOn
+PASS preflight: ability start is counted: toggleOff
+PASS preflight: a thousand independent definitions are not a path limit violation
+PASS preflight: cross-file references preserve diagnostic source
+PASS preflight: small event cycles remain allowed by preflight and production
+PASS preflight: immediate cycle legality remains with production validator
+PASS preflight: large cycles receive a complexity guard, not a cycle prohibition
+PASS preflight: branching DAG uses a path bound rather than exponential enumeration
+PASS preflight: random DAG path bounds match an independent reference
+PASS preflight: SCC weights are counted once along their condensation path
+PASS preflight: explicit code-provider bundles are checked before registry validation
+PASS preflight: missing references and duplicate-name validity are not reimplemented
+PASS preflight: real hero and composition files stay below the authoring limit
+PASS preflight: preflight does not mutate authoring DTOs
+PASS preflight: authoring budget is configurable and cannot be disabled with int.MaxValue
+Editor reference preflight: 25 passed, 0 failed.
+PASS EditorSandbox real hero Nova uses level damage, targets and resources
+PASS EditorSandbox real hero tracking bolt damages and stuns only its primary target
+PASS EditorSandbox real hero frostbite runs immediate and final boundary damage
+PASS EditorSandbox real hero aura includes caster and follows selected level
+PASS EditorSandbox real hero piercing wave runs configured hit behavior
+PASS EditorSandbox friendly heal reports actual health change
+PASS EditorSandbox event recursion passes static graph but is stopped by operation budget
+PASS EditorSandbox event recursion is stopped by depth budget
+PASS EditorSandbox the same acyclic JSON can exceed its operation budget only at larger target counts
+PASS EditorSandbox a short window does not pretend to have completed a pending cast
+PASS EditorSandbox immediate modifier creation cycle is rejected before running
+PASS EditorSandbox very long reference chains are rejected iteratively before runtime graph validation
+PASS EditorSandbox custom script declarations never discover or execute project factories
+PASS EditorSandbox missing ability and malformed definitions remain isolated
+PASS EditorSandbox simulation input limits reject unbounded or nonfinite work
+PASS EditorSandbox repeat runs use fresh engines and do not retain runtime references
+Editor sandbox: 16 passed, 0 failed.
+PASS workspace: loads and sorts only JSON documents
+PASS workspace: new draft writes only on explicit save
+PASS workspace: existing document save replaces safely and clears dirty
+PASS workspace: unknown schema field remains read-only and unchanged
+PASS workspace: unsupported schema cannot be converted through SetDraft
+PASS workspace: invalid UTF8 is retained as a read error
+PASS workspace: external file change blocks overwrite and keeps draft
+PASS workspace: byte baseline detects BOM-only changes
+PASS workspace: recovery baseline exposes original BOM bytes and save transitions
+PASS workspace: new recovery baseline distinguishes never-saved files
+PASS workspace: deleted source blocks unexpected resurrection
+PASS workspace: new target created externally is not overwritten
+PASS workspace: semantic validation failure leaves original file intact
+PASS workspace: nonfinite authoring values become diagnostics without crashing
+PASS workspace: read-only file blocks atomic replacement
+PASS workspace: dirty reload is refused
+PASS workspace: Undo snapshots restore clean state without writing
+PASS workspace: path traversal and duplicate creation are rejected
+PASS workspace: existing cross-file reference validates and saves
+PASS workspace: save cannot depend on an unsaved sibling
+PASS workspace: unrelated invalid draft does not corrupt saved view
+PASS workspace: external read-only provider resolves explicit references
+PASS workspace: custom script declaration is a warning without factory execution
+PASS workspace: I/O failure preserves draft and blocking file
+PASS workspace: save revalidates external dependency changes against disk
+PASS workspace: all delivered hero files form a real editable workspace
+PASS workspace: oversized modifier reference chain cannot overwrite a valid file
+PASS workspace: external providers participate in preflight without a second Load
+Workspace checks: 28 passed, 0 failed.
+Editor source verification: 4 suites, 0 failed.
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
+  AbilityRuntimeReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/Game.Ability.dll
+  UnityImGuiReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.IMGUIModule.dll
+  UnityEditorReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEditor.dll
+  EditorUiCompile -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorUiCompile.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.42
 PASS project structure, GUIDs, pinned package sources and archive integrity
   Determining projects to restore...
-  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/Core/Core.csproj (in 104 ms).
-  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/FrameworkUnity/FrameworkUnity.csproj (in 120 ms).
-  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/Unity/Unity.csproj (in 1 ms).
-  Restored /workspace/UnityPackages/Projects/GameStarter/Verification~/GameStarter.Verification.csproj (in 3 ms).
+  All projects are up-to-date for restore.
   Unity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Unity/bin/Release/net8.0/Unity.dll
   Core -> /workspace/UnityPackages/Projects/GameStarter/Verification~/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
   FrameworkUnity -> /workspace/UnityPackages/Projects/GameStarter/Verification~/FrameworkUnity/bin/Release/net8.0/Game.Framework.Unity.dll
@@ -99,7 +231,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:09.70
+Time Elapsed 00:00:03.34
 PASS empty startup
 PASS ordered async startup and reverse shutdown
 PASS partial initialization failure releases the failing module
@@ -120,5 +252,6 @@ PASS installer retains installed packages after an add failure
 PASS installer verifies the resolved version
 PASS HybridCLR embed request completes before installing consumers
 PASS installer waits for compilation and play mode
+PASS optional installer migrates an old package identifier
 PASS installer configures only after all dependencies exist
-PASS 21 lifecycle, package planning and installer scenarios (Unity/UPM API models; not native Unity).
+PASS 22 lifecycle, package planning and installer scenarios (Unity/UPM API models; not native Unity).

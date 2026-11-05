@@ -64,13 +64,15 @@ namespace UnityEditor.PackageManager
         public static bool HoldEmbed;
         public static Requests.ListRequest List(bool offlineMode, bool includeIndirectDependencies) => new Requests.ListRequest
         { IsCompleted = true, Status = StatusCode.Success, Result = Installed.Values.ToArray() };
-        public static Requests.AddRequest Add(string source)
+        public static Requests.AddAndRemoveRequest AddAndRemove(string[] packagesToAdd = null, string[] packagesToRemove = null)
         {
+            string source = packagesToAdd.Single();
             Added.Add(source);
-            if (FailNext) { FailNext = false; return new Requests.AddRequest { IsCompleted = true, Status = StatusCode.Failure, Error = new Error { message = "Simulated network failure" } }; }
+            if (FailNext) { FailNext = false; return new Requests.AddAndRemoveRequest { IsCompleted = true, Status = StatusCode.Failure, Error = new Error { message = "Simulated network failure" } }; }
             var p = Sources[source];
+            foreach (string name in packagesToRemove ?? Array.Empty<string>()) Installed.Remove(name);
             Installed[p.name] = p;
-            return new Requests.AddRequest { IsCompleted = true, Status = StatusCode.Success };
+            return new Requests.AddAndRemoveRequest { IsCompleted = true, Status = StatusCode.Success };
         }
         public static Requests.EmbedRequest Embed(string packageName)
         {
@@ -93,6 +95,6 @@ namespace UnityEditor.PackageManager.Requests
 {
     public class Request { public bool IsCompleted; public UnityEditor.PackageManager.StatusCode Status; public UnityEditor.PackageManager.Error Error; }
     public sealed class ListRequest : Request { public UnityEditor.PackageManager.PackageInfo[] Result; }
-    public sealed class AddRequest : Request { }
+    public sealed class AddAndRemoveRequest : Request { }
     public sealed class EmbedRequest : Request { }
 }

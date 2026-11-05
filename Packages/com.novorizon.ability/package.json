@@ -1,8 +1,8 @@
 {
   "name": "com.novorizon.ability",
-  "version": "0.2.2-preview.1",
-  "displayName": "Ability Runtime",
-  "description": "Project-independent Dota-style abilities, modifiers, projectiles and data-driven definitions for Unity.",
+  "version": "0.3.0-preview.1",
+  "displayName": "Ability",
+  "description": "Dota-style ability runtime and Editor tools for Unity; Odin Inspector enables the skill studio interface.",
   "unity": "2022.3",
   "keywords": [
     "ability",

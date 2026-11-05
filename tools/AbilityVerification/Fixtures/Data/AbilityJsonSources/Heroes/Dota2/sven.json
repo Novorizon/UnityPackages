@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "namespace": "hero.dota2",
+  "abilities": [
+    {
+      "id": "hero.dota2.sven.warcry",
+      "name": "hero.dota2.sven.warcry",
+      "displayName": "Sven · Warcry / 战吼",
+      "description": "范围友军强化参考：为范围内自己与友军英雄/普通单位提供护甲和移速。按施放时目标快照添加限时buff，不是跟随光环。",
+      "maxLevel": 4,
+      "behavior": 36,
+      "targetTeam": 1,
+      "targetType": 11,
+      "targetFlags": 8,
+      "aoeRadius": {
+        "baseValue": 700
+      },
+      "castPoint": {
+        "baseValue": 0
+      },
+      "cooldown": {
+        "values": [
+          35,
+          30,
+          25,
+          20
+        ]
+      },
+      "manaCost": {
+        "values": [
+          40,
+          40,
+          40,
+          40
+        ]
+      },
+      "specialValues": [
+        {
+          "name": "buff_duration",
+          "value": {
+            "values": [
+              6,
+              6,
+              6,
+              6
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "actionType": 3,
+          "target": 3,
+          "modifierName": "hero.dota2.sven.warcry_buff",
+          "durationSpecialName": "buff_duration"
+        }
+      ]
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "hero.dota2.sven.warcry_buff",
+      "name": "hero.dota2.sven.warcry_buff",
+      "isPrivate": true,
+      "displayName": "战吼",
+      "duration": 6,
+      "levelProperties": [
+        {
+          "property": 6,
+          "value": {
+            "values": [
+              5,
+              8,
+              11,
+              14
+            ]
+          }
+        },
+        {
+          "property": 1,
+          "value": {
+            "values": [
+              8,
+              12,
+              16,
+              20
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "projectiles": []
+}

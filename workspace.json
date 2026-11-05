@@ -1,5 +1,9 @@
 {
   "repository": "https://github.com/Novorizon/UnityPackages.git",
-  "release": "v0.1.0-preview.2",
-  "unity": "2022.3.62f1"
+  "release": "v0.1.0-preview.3",
+  "unity": "2022.3.62f1",
+  "packageReplacements": {
+    "com.novorizon.ability.editor.odin": "com.novorizon.ability",
+    "com.novorizon.ecsframework": "com.novorizon.ecs"
+  }
 }

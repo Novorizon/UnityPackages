@@ -34,7 +34,9 @@
       "name": "com.novorizon.ability.editor.odin",
       "version": "0.1.1-preview.1",
       "source": "https://github.com/Novorizon/Cube.git?path=/Packages/com.novorizon.ability.editor.odin#d450dfc484c94fa59ccf73df9f081695df88f990",
-      "importArchiveSha256": "b3da33740af811877a3e7e4b05095155979107d2ca5375b45b1c140616cfc093"
+      "importArchiveSha256": "b3da33740af811877a3e7e4b05095155979107d2ca5375b45b1c140616cfc093",
+      "currentPackage": "com.novorizon.ability",
+      "currentPath": "Packages/com.novorizon.ability/Editor"
     },
     {
       "name": "com.novorizon.rtree",
@@ -52,7 +54,9 @@
       "name": "com.novorizon.ecsframework",
       "version": "2.0.0-preview.2",
       "source": "https://github.com/Novorizon/ECS-Framework.git#f5265cdb11af251ddbda085a8732ba780d94487b",
-      "importArchiveSha256": "3e8bd8ea30e09784e2b4ee61cbcaa57144c98af1601002c5b177f8db848292c5"
+      "importArchiveSha256": "3e8bd8ea30e09784e2b4ee61cbcaa57144c98af1601002c5b177f8db848292c5",
+      "currentPackage": "com.novorizon.ecs",
+      "currentPath": "Packages/com.novorizon.ecs"
     },
     {
       "name": "com.tuyoogame.yooasset",
@@ -76,5 +80,9 @@
   "starter": {
     "source": "GameStarter",
     "commit": "c63de5696656b09f9435722bd0a7b4e7c5bc61a3"
+  },
+  "verificationSources": {
+    "ability": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Tools/AbilityVerification",
+    "abilityFixtures": "https://github.com/Novorizon/Cube/tree/d450dfc484c94fa59ccf73df9f081695df88f990/Data/AbilityJsonSources"
   }
 }
