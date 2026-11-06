@@ -124,7 +124,7 @@ root.RefreshPlatform();
 
 ## 验证范围
 
-UI 的 .NET 生命周期回归位于仓库 tools/FrameworkServicesVerification/UI.Tests。它使用 Unity API 模型，不能替代 Editor、Profiler 或设备验证；运行入口见仓库[验证说明](../../Documentation/Validation.md)。
+UI 的 .NET 生命周期回归位于仓库 tools/FrameworkServicesVerification/UI.Tests。它使用 Unity API 模型，不能替代 Editor、Profiler 或设备验证；运行入口见仓库[验证说明](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Validation.md)。
 
 ## 重复打开与退出等待
 

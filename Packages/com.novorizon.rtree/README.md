@@ -11,4 +11,4 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtre
 - [安装、查询与生命周期](Documentation~/index.md)
 - [Spatial Queries 示例](Samples~/SpatialQueries/README.md)
 
-保留 LGPL-2.1-or-later 许可证与版权材料。随机/差分回归通过不等于 Unity 或设备验收，原生流程见仓库[验证范围](../../Documentation/Validation.md)。
+保留 LGPL-2.1-or-later 许可证与版权材料。随机/差分回归通过不等于 Unity 或设备验收，原生流程见仓库[验证范围](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Validation.md)。

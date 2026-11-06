@@ -33,4 +33,4 @@ DestroyInstance 会先逻辑退役，再请求 Unity Destroy。TryGetInstance �
 
 ## 验证
 
-在 GameStarter 导入 QuickStart 后进行实际 Unity 编译和 Play，步骤见仓库 [Demo 索引](../../../Documentation/Samples.zh-CN.md)。源仓库的旧 Tests~ 工具不在本 UPM 包内，不要求相邻 Framework 工作副本。
+在 GameStarter 导入 QuickStart 后进行实际 Unity 编译和 Play，步骤见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Samples.zh-CN.md)。源仓库的旧 Tests~ 工具不在本 UPM 包内，不要求相邻 Framework 工作副本。

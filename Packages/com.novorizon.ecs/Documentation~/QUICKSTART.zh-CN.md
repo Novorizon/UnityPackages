@@ -55,4 +55,4 @@ system.EntityId = entityId;
 
 ## 验证范围
 
-Import 后编译示例，在真实 Unity Play 中检查移动、暂停、重启和退出；未导入的 Samples~ 不参与编译。完整流程见仓库 [Demo 索引](../../../Documentation/Samples.zh-CN.md)。
+Import 后编译示例，在真实 Unity Play 中检查移动、暂停、重启和退出；未导入的 Samples~ 不参与编译。完整流程见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Samples.zh-CN.md)。

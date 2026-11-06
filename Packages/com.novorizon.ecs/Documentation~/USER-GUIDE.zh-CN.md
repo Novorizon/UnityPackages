@@ -234,4 +234,4 @@ EntityManager.Instance.AddComponentData(entity, typeof(GamePosition));
 
 ## 验证
 
-导入 QuickStart 后使用实际 Unity 编译、Play 和生命周期检查。当前仓库工具与验证边界见 [统一验证说明](../../../Documentation/Validation.md)。
+导入 QuickStart 后使用实际 Unity 编译、Play 和生命周期检查。当前仓库工具与验证边界见 [统一验证说明](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Validation.md)。
