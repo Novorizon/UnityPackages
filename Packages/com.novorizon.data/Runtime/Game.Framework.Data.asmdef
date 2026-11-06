@@ -1,6 +1,6 @@
 {
-  "name": "Game.Framework.Config",
-  "rootNamespace": "Game.Framework.Config",
+  "name": "Game.Framework.Data",
+  "rootNamespace": "Game.Framework.Data",
   "references": [
     "Game.Framework.Core",
     "Luban.Runtime"

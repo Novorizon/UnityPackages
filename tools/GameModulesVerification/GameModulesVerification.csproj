@@ -5,7 +5,7 @@
     <ProjectReference Include="Engine/Engine.csproj" />
     <ProjectReference Include="Unity/Unity.csproj" />
     <ProjectReference Include="Audio/Audio.csproj" />
-    <ProjectReference Include="Config/Config.csproj" />
+    <ProjectReference Include="Data/Data.csproj" />
     <ProjectReference Include="YooAsset/YooAsset.csproj" />
     <ProjectReference Include="Resources/Resources.csproj" />
     <ProjectReference Include="Input/Input.csproj" />

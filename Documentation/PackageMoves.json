@@ -16,7 +16,14 @@
     "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs.meta": "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs.meta",
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
-    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt.meta": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt.meta"
+    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt.meta": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt.meta",
+    "Packages/com.novorizon.config/": "Packages/com.novorizon.data/",
+    "Packages/com.novorizon.config/Runtime/ConfigManager.Luban.cs": "Packages/com.novorizon.data/Runtime/DataManager.cs",
+    "Packages/com.novorizon.config/Runtime/ConfigManager.Luban.cs.meta": "Packages/com.novorizon.data/Runtime/DataManager.cs.meta",
+    "Packages/com.novorizon.config/Runtime/Game.Framework.Config.asmdef": "Packages/com.novorizon.data/Runtime/Game.Framework.Data.asmdef",
+    "Packages/com.novorizon.config/Runtime/Game.Framework.Config.asmdef.meta": "Packages/com.novorizon.data/Runtime/Game.Framework.Data.asmdef.meta",
+    "Packages/com.novorizon.config/Editor/Game.Framework.Config.Editor.asmdef": "Packages/com.novorizon.data/Editor/Game.Framework.Data.Editor.asmdef",
+    "Packages/com.novorizon.config/Editor/Game.Framework.Config.Editor.asmdef.meta": "Packages/com.novorizon.data/Editor/Game.Framework.Data.Editor.asmdef.meta"
   },
   "retiredFiles": [
     "Packages/com.novorizon.ability.editor.odin/package.json",
@@ -24,7 +31,14 @@
     "Packages/com.novorizon.ecsframework/ECS-Framework.meta",
     "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta",
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs",
-    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs.meta"
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs.meta",
+    "Packages/com.novorizon.config/Runtime/ConfigManager.cs",
+    "Packages/com.novorizon.config/Runtime/ConfigManager.cs.meta",
+    "Packages/com.novorizon.config/Runtime/ConfigTable.cs",
+    "Packages/com.novorizon.config/Runtime/ConfigTable.cs.meta",
+    "Packages/com.novorizon.framework/Runtime/Core/Data/DataManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/Data/DataManager.cs.meta",
+    "Packages/com.novorizon.framework/Runtime/Core/Data.meta"
   ],
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
@@ -159,10 +173,6 @@
       "sha256": "ddac7999efb41b415f5f04758d0338dde5d67b7801e164008323e3ea1710f891",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
-    "Packages/com.novorizon.config/Runtime/ConfigManager.cs": {
-      "sha256": "64290bcbb4352769e266cd07cdc127a74398c252f5419fb353d5f30a6de7f331",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
-    },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
       "sha256": "41972b6ae93d7cf23abad1cfcb307e935ff266cfe9d5602398e289e62c1fde9b",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
@@ -258,6 +268,22 @@
     "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs": {
       "sha256": "c7eaaa7cf629d8cfbd86f435ed1cadf1cd9973d391b017fa23c2c56deec1208a",
       "reason": "Pass optional game-owned startup context into the hot entry while preserving the existing IGameHost/IGameModule contract methods and legacy initialization overload."
+    },
+    "Packages/com.novorizon.data/Editor/LubanExporter.cs": {
+      "sha256": "bbc75004921692a02f261f01ee52843c1df592db8fd9527d53bcf6ee556087a1",
+      "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
+    },
+    "Packages/com.novorizon.data/Editor/LubanGeneratorSettings.cs": {
+      "sha256": "1aa472ecdfcb232a9038d5a038b1bbf4c0c89b68de91041c5c9e2dce2aca3deb",
+      "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
+    },
+    "Packages/com.novorizon.data/Editor/LubanGeneratorMenu.cs": {
+      "sha256": "e4eb5ebcc6d74eade64e7ec628c1ddf27b6095a4dd1c344ce95a166724b769c8",
+      "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
+    },
+    "Packages/com.novorizon.data/Runtime/DataManager.cs": {
+      "sha256": "60ee8f10f939e32b2d7b2a69ff110d2b48584fffb00748ac90ec4dbb65007e09",
+      "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
     }
   }
 }

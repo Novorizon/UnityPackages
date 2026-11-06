@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><AssemblyName>Game.Framework.Config</AssemblyName></PropertyGroup>
+  <PropertyGroup><AssemblyName>Game.Framework.Data</AssemblyName></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/Core.csproj" />
     <ProjectReference Include="../Engine/Engine.csproj" />
     <ProjectReference Include="../LubanRuntime/LubanRuntime.csproj" />
-    <Compile Include="../../../Packages/com.novorizon.config/Runtime/*.cs" />
+    <Compile Include="../../../Packages/com.novorizon.data/Runtime/*.cs" />
   </ItemGroup>
 </Project>

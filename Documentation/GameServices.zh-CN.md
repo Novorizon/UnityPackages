@@ -1,23 +1,21 @@
 # 游戏基础服务
 
-Framework 内提供场景、运行时数据与本地存储；音频为 com.novorizon.audio，配置为 com.novorizon.config。各自复用 Framework 单例，不依赖 ECS/Ability，不包含玩家、背包或关卡业务。输入为 com.novorizon.input；framework.all 的目录包含三个服务包、官方 Luban 运行时，以及 Unity Audio/Input System 模块。
+Framework 内提供场景与本地存储；音频为 com.novorizon.audio，Luban 数据表为 com.novorizon.data。各自复用 Framework 单例，不依赖 ECS/Ability，不包含玩家、背包或关卡业务。输入为 com.novorizon.input；framework.all 的目录包含三个服务包、官方 Luban 运行时，以及 Unity Audio/Input System 模块。
 
 ## 初始化
 
-GameStarter 的 GameEntry 按资源、数据/存储、输入、场景、音频、配置、UI/GPU/ECS 的顺序准备服务，然后启动 StartupModule。GameSession 保持原来的模块生命周期。
+GameStarter 默认由 GameEntry 准备资源并加载热更，HotGame 按存储、输入、场景、音频、数据表加载器、UI/GPU/ECS 的顺序准备普通服务，再启动可选 StartupModule 和业务。关闭热更时由 GameEntry 的同名函数执行这套初始化；GameSession 只协调可选模块的生命周期。
 
 ```csharp
 using Game.Framework.Audio;
-using Game.Framework.Config;
 using Game.Framework.Data;
 using Game.Framework.Storage;
 using GameSceneManager = Game.Framework.Scenes.SceneManager;
 
-_ = DataManager.Instance;
 LocalStorageManager.Instance.Initialize();
 GameSceneManager.Instance.Initialize();
 AudioManager.Instance.Initialize();
-ConfigManager.Instance.Initialize();
+DataManager.Instance.Initialize();
 ```
 
 ## 场景
@@ -33,23 +31,19 @@ await GameSceneManager.Instance.UnloadAsync(world);
 
 管理器只卸载自己加载的场景。Dispose 停止新请求与通知并释放加载器持有的句柄，不自动卸载当前场景。原生加载不能强制中断，退出期间已开始的操作仍可能完成。
 
-## 运行时数据
+## Luban 数据表
 
-DataManager 按声明类型注册普通对象。Register/Get/TryGet/Remove/Clear 不做反射扫描或自动业务初始化。
+DataManager 位于独立 com.novorizon.data 包中，只负责 Luban 生成的表。无需注册；加载时传入生成的 Tables 构造方式：
 
 ```csharp
-DataManager.Instance.Register(new RuntimeData());
-var data = DataManager.Instance.Get<RuntimeData>();
-DataManager.Instance.Clear();
+var tables = await DataManager.Instance.LoadAsync(reader => new cfg.Tables(reader));
+var row = tables.TbExample[1];
+var current = DataManager.Instance.Get<cfg.Tables>();
 ```
 
-RuntimeData 由项目定义。默认拥有注册对象，Remove/Clear/Dispose 会调用其 IDisposable；传入 owned:false 时由调用方释放。逆注册顺序清理，一个对象失败仍继续清理其他对象，最后抛出 AggregateException。注销或重新开局时何时 Clear 由项目流程决定，不等同于游戏退出。
+生成的 Tables 负责具体表和引用解析。DataManager 负责异步读取与完整快照替换；加载失败保留上一次成功结果。GameStarter 默认从 Resources 加载；开启 YooAsset 后，清单和表文件共用一个字节加载器，每次读取使用独立 AcquireAsync<TextAsset> 租约并及时释放。生成和程序集引用详见 [Data 包说明](../Packages/com.novorizon.data/README.md)。
 
-## 配置
-
-配置是只读表，运行时数据是游戏运行中会改变的状态。ConfigManager.LoadJsonAsync 使用 {"items":[...]} 格式并校验键；SetTable 可直接接入配置生成工具。详见配置包 README。
-
-GameStarter 默认从 Resources 加载；开启 YooAsset 后通过独立 AcquireAsync<TextAsset> 租约读取 .text/.bytes，读取后释放当前租约。Luban 生成与整表加载见配置包 README。
+玩家属性、背包等动态数据由业务层维护，不登记到 DataManager。其他 JSON 文件也由业务按具体结构读取、反序列化；框架不再提供通用 JSON 表包装。版本化 JSON 存档仍由 LocalStorageManager 提供。
 
 ## 本地存储
 

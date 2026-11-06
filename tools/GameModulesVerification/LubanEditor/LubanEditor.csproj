@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><AssemblyName>Game.Framework.Config.Editor</AssemblyName></PropertyGroup>
+  <PropertyGroup><AssemblyName>Game.Framework.Data.Editor</AssemblyName></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Engine/Engine.csproj" />
-    <Compile Include="../../../Packages/com.novorizon.config/Editor/*.cs" />
+    <Compile Include="../../../Packages/com.novorizon.data/Editor/*.cs" />
     <Compile Include="EditorModel.cs" />
   </ItemGroup>
 </Project>

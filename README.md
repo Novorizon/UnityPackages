@@ -2,13 +2,13 @@
 
 Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各库共用一个代码仓库，各自保留独立 UPM 包、程序集和依赖关系。
 
-统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.21`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
+统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.22`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
 
 ## 包布局
 
 | 目录 | 职责 |
 | --- | --- |
-| `Packages/com.novorizon.framework` | 单例、线程调度、事件、定时器、池、网络、场景、运行时数据、本地存储 |
+| `Packages/com.novorizon.framework` | 单例、线程调度、事件、定时器、池、网络、场景、本地存储 |
 | `Packages/com.novorizon.framework.ui` | 独立 UI 包 |
 | `Packages/com.novorizon.framework.yooasset` | Framework 的 YooAsset 适配 |
 | `Packages/com.novorizon.framework.hybridclr` | HybridCLR 默认配置、构建、补丁与启动封装 |
@@ -18,7 +18,7 @@ Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各�
 | `Packages/com.novorizon.gpuanimator` | Built-in GPU 动画烘焙、注入、播放及回收 |
 | `Packages/com.novorizon.input` | Unity Input System、Map/设备过滤、屏蔽与重绑定 |
 | `Packages/com.novorizon.audio` | 音源池、音乐交叉渐变、AudioMixer 路由 |
-| `Packages/com.novorizon.config` | JSON 配置、Luban Excel 生成与二进制加载 |
+| `Packages/com.novorizon.data` | Luban Excel 生成、二进制表加载与查询 |
 | `Packages/com.novorizon.framework.all` | 自动聚合安装入口 |
 
 仓库共 **12 个自有包**，包名统一使用 `com.novorizon` 前缀。官方 HybridCLR、YooAsset、Luban 等第三方只通过依赖声明引用，由使用方的 Unity Package Manager 获取。UI 独立发布为包；Ability 运行时与编辑器在同一个包内。代码放在同一个仓库不代表运行时互相依赖。
@@ -36,9 +36,9 @@ GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 引用 fram
 每个包均有独立安装路径，例如：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.21
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.21
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.21
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.22
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.22
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.22
 ```
 
 Unity 的 package.json 不支持 Git 传递依赖。需要全部库时使用聚合安装包；单独安装某个库时先安装它需要的自有基础包。聚合安装的所有 Git 来源使用同一个仓库、同一个版本标签；后续发行不应移动已发布标签。
@@ -63,7 +63,7 @@ python3 tools/workspace.py export --output /tmp/UnityPackages-release
 
 ## 从上一版升级
 
-Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.21` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
+Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.22` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
 
 Framework 的单例启动回调统一为 `OnStart`，项目中原来重写 `OnSingletonAccessed` 的类需要同步改名。配套 UI、ECS 和 HybridCLR 封装已同步；安装时使用同一发行标签。
 
@@ -85,18 +85,20 @@ python3 tools/workspace.py unity-project --output /tmp/NovorizonPackageValidatio
 
 UPM 对 Git 传递依赖有限制，Git 分发使用 `workspace.json` 中的上游来源，由聚合安装器或 GameStarter 把来源交给使用方工程的 Package Manager 一起解析。官方包下载至使用方工程的 UPM 管理区域，不进入本仓库。聚合包本身也不再打入其他库的 Payload。
 
-## v0.1.0-preview.21 升级
+## v0.1.0-preview.22 升级
 
-- Framework 0.17 的三种单例基类自动登记到 SingletonLifecycle，由唯一的 SubsystemRegistration 入口统一重置。普通子类无需实现 Reset，也无需声明 Unity 启动特性。
-- 退出调用已有 Dispose/OnExit；清理不创建未使用的单例。登记表跨多次 Play 保留，组件的退出钩子同次运行只执行一次。
-- GameEntry 先关闭项目模块和全局服务，ECS 自己维持 World -> Entity -> Pool 的顺序。静态声明由内置生成器恢复；模块只协调实例和资源的清理，Framework 不依赖这些独立包。
-- 固定 Git 标签不会追踪新版本。独立工程更新 manifest 中的标签，或运行 GameStarter 的 sync-packages.py --ref v0.1.0-preview.21，再让 Unity 解析依赖；不要移动旧发行标签。
-- 此次修改包含 AOT 生命周期 API 变化，使用 HybridCLR 的项目需要重新 Build New Player，不能作为旧主包的纯热更补丁。
+- com.novorizon.config 改名为 com.novorizon.data，运行时程序集改为 Game.Framework.Data；聚合安装器在同次 UPM 操作中替换旧包。
+- Luban 统一由 DataManager.LoadAsync/Get/TryGet 加载及查询，加载时直接传入生成的 Tables 构造方式，无需注册。清单和表文件共用一个字节加载器。
+- 删除旧 ConfigManager、通用 JSON 表 API，以及 Framework Core 中的动态对象 DataManager。动态数据和其他 JSON 由业务维护，LocalStorageManager 的存档 API 保留。
+- GameStarter 的 GameEntry/HotGame 已同步初始化与退出清理。固定 Git 标签不会自动升级；更新 manifest 标签，或运行 GameStarter 的 sync-packages.py --ref v0.1.0-preview.22。
+- 本次包含 AOT API 删除及程序集依赖变化，HybridCLR 项目需要重新 Build New Player，不能只导出热更 DLL。
 
-场景、音频、数据、配置和本地存储的使用与边界见 [基础服务说明](Documentation/GameServices.zh-CN.md)。
+场景、音频、Luban 数据表和本地存储的使用与边界见 [基础服务说明](Documentation/GameServices.zh-CN.md)。
 
 UI 重复打开、资源租约与作用域、网络逐调用取消及 GameEntry 启停见 [生命周期与所有权](Documentation/LifecycleAndOwnership.zh-CN.md)。
 
 OnStart/OnExit 的配对生命周期、Release 和 GameStarter 的直接初始化/退出示例见 [生命周期说明](Documentation/LifecycleAndOwnership.zh-CN.md)。GameStarter 已移除 ManagerLifetime 及入口层的 Manager 借用/失败回滚登记。
 
 Framework 已内置编辑器静态重置生成器：单例子类有静态状态时加 partial，关闭 Domain Reload 后进入 Play 自动恢复声明值；Player 不生成额外重置代码。详细规则见 [静态重置](Packages/com.novorizon.framework/Documentation~/StaticReset.md)。
+
+Luban 统一迁入 `com.novorizon.data` 的 DataManager，加载时直接传入生成的 Tables 构造方式，无需注册。旧 ConfigManager、通用 JSON 表 API 和 Core 动态对象容器已删除；详见 [Data 包升级说明](Packages/com.novorizon.data/README.md#升级)。

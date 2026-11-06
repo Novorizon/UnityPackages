@@ -1,0 +1,15 @@
+{
+  "name": "com.novorizon.data",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Data",
+  "description": "Official Luban Excel generation, binary table loading and transactional snapshots without registration.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.1",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.code-philosophy.luban": "1.2.0"
+  }
+}

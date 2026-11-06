@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><AssemblyName>Game.Config.Generated</AssemblyName></PropertyGroup>
+  <PropertyGroup><AssemblyName>Game.Data.Generated</AssemblyName></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../LubanRuntime/LubanRuntime.csproj" />
     <Compile Include="$(LubanFixtureRoot)/code/**/*.cs" />

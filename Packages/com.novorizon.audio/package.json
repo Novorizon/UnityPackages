@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.audio",
-  "version": "0.2.0-preview.5",
+  "version": "0.2.0-preview.6",
   "displayName": "Novorizon Audio",
   "description": "Pooled audio voices, unified fade updates, music crossfades and AudioMixer routing.",
   "unity": "2022.3",
@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.17.0-preview.1",
+    "com.novorizon.framework": "0.18.0-preview.1",
     "com.unity.modules.audio": "1.0.0"
   }
 }

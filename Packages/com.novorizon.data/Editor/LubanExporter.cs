@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Framework.Config.Editor
+namespace Game.Framework.Data.Editor
 {
     /// <summary>只向项目 Library 缓存工具。生成到临时目录，全部成功后替换专用输出目录。</summary>
     public static class LubanExporter
@@ -58,7 +58,7 @@ namespace Game.Framework.Config.Editor
             }
         }
 
-        public static async Task GenerateAsync(string projectRoot, string configFile, string target, string codeOutput, string dataOutput, string locationPrefix, string dotnet, string lubanDll, string assemblyName = "Game.Config.Generated")
+        public static async Task GenerateAsync(string projectRoot, string configFile, string target, string codeOutput, string dataOutput, string locationPrefix, string dotnet, string lubanDll, string assemblyName = "Game.Data.Generated")
         {
             projectRoot = Path.GetFullPath(projectRoot);
             string code = OutputPath(projectRoot, codeOutput), data = OutputPath(projectRoot, dataOutput);

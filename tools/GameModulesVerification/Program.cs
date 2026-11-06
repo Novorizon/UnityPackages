@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Game.Framework;
 using Game.Framework.Audio;
-using Game.Framework.Config;
 using Game.Framework.Data;
 using Game.Framework.Storage;
 using Game.Resource;
@@ -27,10 +26,10 @@ internal static partial class Program
     {
         Run("parameterless initialization dispatches through singleton bases to actual services", () =>
         {
-            using var config = new ConfigManager();
-            ConfigurableSingleton<ConfigManager> commonConfig = config;
-            commonConfig.Initialize();
-            True(config.Initialized);
+            using var data = new DataManager();
+            ConfigurableSingleton<DataManager> commonData = data;
+            commonData.Initialize();
+            True(data.Initialized);
             using var scenes = new Scenes();
             ConfigurableSingleton<Scenes> commonScenes = scenes;
             commonScenes.Initialize();
@@ -40,61 +39,6 @@ internal static partial class Program
         {
             Throws<InvalidOperationException>(() => ResourceManager.Instance.Initialize());
             True(!ResourceManager.Instance.Initialized);
-        });
-        Run("data registration uses exact declared types and rejects duplicates", () =>
-        {
-            using var data = new DataManager();
-            var row = new Row
-            {
-                id = 1
-            };
-            data.Register(row);
-            Same(row, data.Get<Row>());
-            True(!data.TryGet<object>(out _));
-            Throws<InvalidOperationException>(() => data.Register(new Row()));
-            Throws<InvalidOperationException>(() => data.Register<object>(row));
-        });
-        Run("data cleanup reverses ownership order and continues after failures", () =>
-        {
-            var calls = new List<int>();
-            var data = new DataManager();
-            data.Register<IDisposable>(new Owned(() => calls.Add(1)));
-            data.Register(new Owned(() =>
-            {
-                calls.Add(2);
-                throw new InvalidOperationException();
-            }));
-            data.Register(new Row(), false);
-            Throws<AggregateException>(data.Clear);
-            Equal("2,1", string.Join(",", calls));
-            Equal(0, data.Count);
-            data.Register(new Row());
-            data.Dispose();
-            Throws<ObjectDisposedException>(() => data.Get<Row>());
-        });
-        Run("unowned data survives removal and cleanup cannot repopulate the manager", () =>
-        {
-            using var data = new DataManager();
-            int released = 0;
-            data.Register(new Owned(() => released++), false);
-            True(data.Remove<Owned>());
-            Equal(0, released);
-            data.Register(new Owned(() => Throws<InvalidOperationException>(() => data.Register(new Row()))));
-            data.Clear();
-            Equal(0, data.Count);
-        });
-        Run("data singleton reset releases owned data and cannot resurrect while stopping", () =>
-        {
-            int released = 0;
-            DataManager.Instance.Register(new Owned(() => released++));
-            DataManager.Reset(true);
-            Equal(1, released);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = DataManager.Instance;
-            });
-            DataManager.Reset();
-            Equal(0, DataManager.Instance.Count);
         });
         Run("storage writes real files, retains a backup and recovers a missing main file", () =>
         {
@@ -159,74 +103,6 @@ internal static partial class Program
             Throws<InvalidDataException>(() => storage.Manager.LoadJson<Row>("future.json", 2, (_, json) => json));
             Throws<InvalidOperationException>(() => storage.Manager.Initialize(storage.Root + "other"));
             storage.Manager.Initialize(storage.Root);
-        });
-        Run("config table lookup, immutable index and failed reload retain the old table", () =>
-        {
-            using var config = new ConfigManager();
-            config.LoadJson<int, Row>("{\"items\":[{\"id\":7}]}", row => row.id);
-            var table = config.GetTable<int, Row>();
-            Equal(7, config.Get<int, Row>(7).id);
-            Throws<ArgumentException>(() => config.LoadJson<int, Row>("{\"items\":[{\"id\":1},{\"id\":1}]}", row => row.id));
-            Throws<ArgumentException>(() => config.LoadJson<int, Row>("{\"items\":[null]}", row => row.id));
-            Throws<ArgumentException>(() => config.LoadJson<int, Row>("{}", row => row.id));
-            Same(table, config.GetTable<int, Row>());
-            True(!config.TryGet<int, Row>(8, out _));
-        });
-        Run("config supports typed tables from other generators and string keys", () =>
-        {
-            using var config = new ConfigManager();
-            config.SetTable(new[] { new Row { id = 9, name = "test" } }, row => row.name);
-            Equal(9, config.Get<string, Row>("test").id);
-            Throws<ArgumentException>(() => config.SetTable(new[] { new Row() }, row => row.name));
-        });
-        Run("new config requests supersede older completions", () =>
-        {
-            using var config = new ConfigManager();
-            var first = Gate<string>();
-            var second = Gate<string>();
-            config.Initialize((location, token) => location == "old" ? first.Task : second.Task);
-            var old = config.LoadJsonAsync<int, Row>("old", row => row.id);
-            var current = config.LoadJsonAsync<int, Row>("new", row => row.id);
-            second.SetResult("{\"items\":[{\"id\":2}]}");
-            Complete(current);
-            first.SetResult("{\"items\":[{\"id\":1}]}");
-            Fails<OperationCanceledException>(old);
-            Equal(2, config.Get<int, Row>(2).id);
-        });
-        Run("cancelled config loads cannot publish even if the source ignores cancellation", () =>
-        {
-            using var config = new ConfigManager();
-            using var cancellation = new CancellationTokenSource();
-            var gate = Gate<string>();
-            config.Initialize((_, token) => gate.Task);
-            var loading = config.LoadJsonAsync<int, Row>("test", row => row.id, cancellation.Token);
-            cancellation.Cancel();
-            Fails<OperationCanceledException>(loading);
-            gate.SetResult("{\"items\":[{\"id\":1}]}");
-            context.Drain();
-            Equal(0, config.Count);
-        });
-        Run("clearing config invalidates outstanding loads without affecting other types", () =>
-        {
-            using var config = new ConfigManager();
-            var gate = Gate<string>();
-            config.Initialize((_, token) => gate.Task);
-            var loading = config.LoadJsonAsync<int, Row>("test", row => row.id);
-            config.Clear();
-            gate.SetResult("{\"items\":[{\"id\":1}]}");
-            Fails<OperationCanceledException>(loading);
-            Equal(0, config.Count);
-        });
-        Run("default config loader uses Resources and missing assets fail clearly", () =>
-        {
-            using var config = new ConfigManager();
-            config.Initialize();
-            Resources.CompleteSynchronouslyForTest = true;
-            Resources.RegisterAssetForTest("Config/test", new TextAsset { text = "{\"items\":[{\"id\":3}]}" });
-            Complete(config.LoadJsonAsync<int, Row>("Config/test", row => row.id));
-            Equal(3, config.Get<int, Row>(3).id);
-            Fails<InvalidOperationException>(config.LoadJsonAsync<int, Row>("missing", row => row.id));
-            Equal(3, config.Get<int, Row>(3).id);
         });
         Run("build scene loading, activation and external unload keep ownership synchronized", () =>
         {
@@ -723,13 +599,6 @@ internal static partial class Program
     {
         public int id;
         public string name;
-    }
-
-    private sealed class Owned : IDisposable
-    {
-        private readonly Action release;
-        internal Owned(Action release) => this.release = release;
-        public void Dispose() => release();
     }
 
     private sealed class StorageFixture : IDisposable

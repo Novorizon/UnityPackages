@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Game.Framework.Audio;
-using Game.Framework.Config;
-using Game.Framework.Config.Editor;
+using Game.Framework.Data;
+using Game.Framework.Data.Editor;
 using Game.Framework.Input;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -301,70 +301,148 @@ internal static partial class Program
         });
         Run("real Luban Excel generated C# reads the official binary runtime", () =>
         {
-            using var config = LubanConfig();
-            var tables = Complete(config.LoadLubanAsync(loader => new cfg.Tables(loader)));
+            using var config = LubanData();
+            var tables = Complete(config.LoadAsync(loader => new cfg.Tables(loader)));
             Equal("示例配置", tables.TbExample[1].Name);
             Equal("Second entry", tables.TbExample[2].Name);
-            Same(tables, config.GetLuban<cfg.Tables>());
+            Same(tables, config.Get<cfg.Tables>());
             Equal(1, config.Count);
         });
         Run("Luban corrupt data and failed reload retain the previous complete snapshot", () =>
         {
-            using var config = new ConfigManager();
+            using var config = new DataManager();
             bool fail = false;
-            config.Initialize((_, __) => Task.FromResult(Manifest()), (_, __) => Task.FromResult(fail ? Array.Empty<byte>() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
-            var previous = Complete(config.LoadLubanAsync(loader => new cfg.Tables(loader)));
+            config.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : fail ? Array.Empty<byte>() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
+            var previous = Complete(config.LoadAsync(loader => new cfg.Tables(loader)));
             fail = true;
-            Throws<Exception>(() => Complete(config.LoadLubanAsync(loader => new cfg.Tables(loader))));
-            Same(previous, config.GetLuban<cfg.Tables>());
+            Throws<Exception>(() => Complete(config.LoadAsync(loader => new cfg.Tables(loader))));
+            Same(previous, config.Get<cfg.Tables>());
         });
         Run("Luban rejects invalid manifests and missing table mappings before publishing", () =>
         {
-            using var config = new ConfigManager();
+            using var config = new DataManager();
             string manifest = "{}";
             int binaryCalls = 0;
-            config.Initialize((_, __) => Task.FromResult(manifest), (_, __) =>
+            config.Initialize((location, token) =>
             {
+                if (IsManifest(location))
+                {
+                    return Task.FromResult(System.Text.Encoding.UTF8.GetBytes(manifest));
+                }
+
                 binaryCalls++;
                 return Task.FromResult(Array.Empty<byte>());
             });
-            Fails<ArgumentException>(config.LoadLubanAsync(loader => new cfg.Tables(loader)));
+            Fails<ArgumentException>(config.LoadAsync(loader => new cfg.Tables(loader)));
             Equal(0, binaryCalls);
             manifest = "{\"version\":1,\"format\":\"bin\",\"files\":[{\"name\":\"x\",\"location\":\"a\"},{\"name\":\"x\",\"location\":\"b\"}]}";
-            Fails<ArgumentException>(config.LoadLubanAsync(loader => new cfg.Tables(loader)));
+            Fails<ArgumentException>(config.LoadAsync(loader => new cfg.Tables(loader)));
             Equal(0, binaryCalls);
             manifest = "{\"version\":1,\"format\":\"bin\",\"files\":[]}";
-            Fails<System.Collections.Generic.KeyNotFoundException>(config.LoadLubanAsync(loader => new cfg.Tables(loader)));
+            Fails<System.Collections.Generic.KeyNotFoundException>(config.LoadAsync(loader => new cfg.Tables(loader)));
             Equal(0, config.Count);
         });
         Run("Luban concurrent loads, clear and cancellation cannot publish stale snapshots", () =>
         {
-            using var config = new ConfigManager();
+            using var config = new DataManager();
             var pendingBytes = Gate<byte[]>();
-            config.Initialize((_, __) => Task.FromResult(Manifest()), (_, __) => pendingBytes.Task);
-            var stale = config.LoadLubanAsync(loader => new cfg.Tables(loader));
-            var latest = config.LoadLubanAsync(loader => new cfg.Tables(loader));
+            config.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pendingBytes.Task);
+            var stale = config.LoadAsync(loader => new cfg.Tables(loader));
+            var latest = config.LoadAsync(loader => new cfg.Tables(loader));
             pendingBytes.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
             Fails<OperationCanceledException>(stale);
             var tables = Complete(latest);
-            Same(tables, config.GetLuban<cfg.Tables>());
+            Same(tables, config.Get<cfg.Tables>());
             pendingBytes = Gate<byte[]>();
-            stale = config.LoadLubanAsync(loader => new cfg.Tables(loader));
+            stale = config.LoadAsync(loader => new cfg.Tables(loader));
             config.Clear();
             pendingBytes.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
             Fails<OperationCanceledException>(stale);
             using var canceled = new CancellationTokenSource();
             pendingBytes = Gate<byte[]>();
-            stale = config.LoadLubanAsync(loader => new cfg.Tables(loader), token: canceled.Token);
+            stale = config.LoadAsync(loader => new cfg.Tables(loader), token: canceled.Token);
             canceled.Cancel();
             Fails<OperationCanceledException>(stale);
             pendingBytes.SetResult(Array.Empty<byte>());
             Equal(0, config.Count);
         });
+        Run("Luban load constructs the supplied Tables directly without registration", () =>
+        {
+            using var data = LubanData();
+            int constructions = 0;
+            True(!data.TryGet<cfg.Tables>(out _));
+            Throws<System.Collections.Generic.KeyNotFoundException>(() => data.Get<cfg.Tables>());
+            var first = Complete(data.LoadAsync(reader =>
+            {
+                constructions++;
+                return new cfg.Tables(reader);
+            }));
+            Equal(1, constructions);
+            data.Clear();
+            Equal(0, data.Count);
+            var next = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
+            True(!ReferenceEquals(first, next));
+            Same(next, data.Get<cfg.Tables>());
+        });
+        Run("Luban default loader reads both manifest and table bytes from Resources", () =>
+        {
+            using var data = new DataManager();
+            data.Initialize();
+            Resources.CompleteSynchronouslyForTest = true;
+            Resources.RegisterAssetForTest("Config/Luban/manifest", new TextAsset { bytes = ManifestBytes() });
+            Resources.RegisterAssetForTest("Config/Luban/tbexample", new TextAsset { bytes = File.ReadAllBytes(Fixture("data/tbexample.bytes")) });
+            var loaded = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
+            Equal("示例配置", loaded.TbExample[1].Name);
+            Fails<InvalidOperationException>(data.LoadAsync(reader => new cfg.Tables(reader), "missing"));
+            Same(loaded, data.Get<cfg.Tables>());
+        });
+        Run("Luban Dispose cancels a blocked loader and late bytes cannot publish", () =>
+        {
+            var data = new DataManager();
+            var pending = Gate<byte[]>();
+            data.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pending.Task);
+            var loading = data.LoadAsync(reader => new cfg.Tables(reader));
+            data.Dispose();
+            Fails<OperationCanceledException>(loading);
+            pending.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
+            context.Drain();
+            Throws<ObjectDisposedException>(() => data.Get<cfg.Tables>());
+        });
+        Run("Luban rejects missing factories, bad locations and use before initialization", () =>
+        {
+            using var data = new DataManager();
+            Fails<InvalidOperationException>(data.LoadAsync(reader => new cfg.Tables(reader)));
+            data.Initialize((location, token) => Task.FromResult(ManifestBytes()));
+            Fails<ArgumentNullException>(data.LoadAsync<cfg.Tables>(null));
+            Fails<ArgumentException>(data.LoadAsync(reader => new cfg.Tables(reader), " "));
+        });
+        Run("Luban null factories and failed construction retain the prior snapshot", () =>
+        {
+            using var data = LubanData();
+            var previous = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
+            Fails<InvalidOperationException>(data.LoadAsync<cfg.Tables>(_ => null));
+            Same(previous, data.Get<cfg.Tables>());
+            Fails<InvalidOperationException>(data.LoadAsync<cfg.Tables>(_ => throw new InvalidOperationException("factory")));
+            Same(previous, data.Get<cfg.Tables>());
+        });
+        Run("Luban singleton disposal releases its reference and stopped services cannot resurrect", () =>
+        {
+            var previous = DataManager.Instance;
+            previous.Initialize();
+            DataManager.Reset(true);
+            True(!DataManager.IsCreated);
+            Throws<InvalidOperationException>(() =>
+            {
+                _ = DataManager.Instance;
+            });
+            DataManager.Reset();
+            True(!ReferenceEquals(previous, DataManager.Instance));
+            Equal(0, DataManager.Instance.Count);
+        });
         Run("Luban exporter invokes real CLI in paths with spaces and retains last good outputs on failure", () =>
         {
             string root = Path.Combine(Path.GetTempPath(), "Luban project " + Guid.NewGuid().ToString("N"));
-            string template = Path.GetFullPath("Packages/com.novorizon.config/Templates~/LubanProject");
+            string template = Path.GetFullPath("Packages/com.novorizon.data/Templates~/LubanProject");
             string source = Path.Combine(root, "Config/Luban");
             try
             {
@@ -410,11 +488,13 @@ internal static partial class Program
 
     private static void Near(float expected, float actual) => True(Math.Abs(expected - actual) < .0001f);
     private static string Fixture(string relative) => Path.Combine(Environment.GetEnvironmentVariable("LubanFixtureRoot"), relative);
+    private static bool IsManifest(string location) => location.EndsWith("manifest", StringComparison.Ordinal);
+    private static byte[] ManifestBytes() => System.Text.Encoding.UTF8.GetBytes(Manifest());
     private static string Manifest() => "{\"version\":1,\"format\":\"bin\",\"files\":[{\"name\":\"tbexample\",\"location\":\"Config/Luban/tbexample\"}]}";
-    private static ConfigManager LubanConfig()
+    private static DataManager LubanData()
     {
-        var config = new ConfigManager();
-        config.Initialize((_, __) => Task.FromResult(Manifest()), (_, __) => Task.FromResult(File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
+        var config = new DataManager();
+        config.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
         return config;
     }
 
