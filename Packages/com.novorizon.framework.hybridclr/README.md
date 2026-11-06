@@ -104,3 +104,6 @@ GameStarter 的场景中只需要 GameEntry。它依次准备基础 Manager、�
 默认类型是 Game.HotUpdate.HotGame，程序集仍为 Game.HotUpdate；IGameModule 契约保持不变。升级现有项目时，移除旧的 GameBootstrap/HotGameBootstrap 场景组件和 NovorizonHotUpdateSettings.json，在自己的入口显式调用 InitializeAsync，并将配置移到 C#。Setup Project 不覆盖项目已有的自定义入口源码。此次 AOT 启动流程与入口类型变化需要重新构建 HybridCLR 主包。
 
 Editor 程序集直接引用 Game.Framework.Core，以访问 HotUpdateManager 继承的 ConfigurableSingleton API。编辑器启动检查用 TryGetInstance 读取已有实例，不负责创建或启动热更；GameEntry 使用 Instance.InitializeAsync 显式启动。验证器按 Unity asmdef 将 Runtime 与 Editor 分开编译，并关闭传递项目引用。
+
+
+项目可以使用 InitializeAsync(settings, startupContext, token) 传入自己的启动参数。热更端通过可选 IGameContextHost.StartupContext 取得对象；IGameHost 和 IGameModule 原有方法保持不变，原有模块仍可使用旧重载。参数不被封装序列化，不进入发布清单。GameStarter 使用独立 Game.Startup AOT 程序集定义具体参数类型，热更端可以读取但不反向等待 GameEntry 就绪。新增 AOT 接口和项目契约程序集需要重建 Player 基线。

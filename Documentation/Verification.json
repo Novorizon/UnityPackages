@@ -15,6 +15,7 @@
     "Packages/com.novorizon.ecs/Runtime/World/WorldManager.cs",
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs",
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs",

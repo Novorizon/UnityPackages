@@ -33,6 +33,12 @@ namespace Game.Framework.HotUpdate
         /// <summary>由 GameEntry 显式调用；加载程序集后进入 HotGame.InitializeAsync，不自动创建 GameObject。</summary>
         public Task InitializeAsync(UpdateSettings settings = null, CancellationToken token = default)
         {
+            return InitializeAsync(settings, null, token);
+        }
+
+        /// <summary>将项目自己的启动参数传给热更入口；封装不解释或序列化该对象。</summary>
+        public Task InitializeAsync(UpdateSettings settings, object startupContext, CancellationToken token = default)
+        {
             if (disposed)
             {
                 throw new ObjectDisposedException(nameof(HotUpdateManager));
@@ -48,11 +54,11 @@ namespace Game.Framework.HotUpdate
             token.ThrowIfCancellationRequested();
             lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
             Status = "Starting";
-            startupTask = StartAsync(settings, lifetime);
+            startupTask = StartAsync(settings, startupContext, lifetime);
             return startupTask;
         }
 
-        private async Task StartAsync(UpdateSettings settings, CancellationTokenSource session)
+        private async Task StartAsync(UpdateSettings settings, object startupContext, CancellationTokenSource session)
         {
             CancellationToken stopToken = session.Token;
             PreparedRelease release = null;
@@ -129,7 +135,7 @@ namespace Game.Framework.HotUpdate
                 hotGame = (IGameModule)Activator.CreateInstance(entry);
                 using (var startup = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
                 {
-                    Task initialize = hotGame.InitializeAsync(new SessionHost(this, session), startup.Token);
+                    Task initialize = hotGame.InitializeAsync(new SessionHost(this, session, startupContext), startup.Token);
                     try
                     {
                         Task deadline = Task.Delay(TimeSpan.FromSeconds(settings.startupTimeoutSeconds), startup.Token);
@@ -225,14 +231,16 @@ namespace Game.Framework.HotUpdate
             Debug.Log("[Startup] " + message);
         }
 
-        private sealed class SessionHost : IGameHost
+        private sealed class SessionHost : IGameContextHost
         {
             private readonly HotUpdateManager owner;
             private readonly CancellationTokenSource session;
-            internal SessionHost(HotUpdateManager owner, CancellationTokenSource session)
+            public object StartupContext { get; }
+            internal SessionHost(HotUpdateManager owner, CancellationTokenSource session, object startupContext)
             {
                 this.owner = owner;
                 this.session = session;
+                StartupContext = startupContext;
             }
 
             public void Log(string message)
