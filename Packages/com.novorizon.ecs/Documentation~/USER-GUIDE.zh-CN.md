@@ -9,8 +9,7 @@
 | 层 | 当前依赖与用途 |
 | --- | --- |
 | ECS | UnityEngine；Unity.Mathematics；自有 `ReferencePool`、`SingletonBehaviour<T>`（Framework 单例的 ECS 生命周期适配）、`IInitializeable`、`IRecycleable` |
-| 基础包声明 | Framework 0.10.0-preview.1、Mathematics 1.2.6；Unity 最低声明为 2022.3 |
-| 可选旧 MVC | `Integrations~/LegacyMVC` 单独保存旧 MVC/PureMVC 与其 UI、Addressables 等依赖，基础 ECS 不安装它 |
+| 基础包声明 | 同一发行标签的 Framework、Mathematics 1.2.6；Unity 最低声明为 2022.3 |
 | 可选功能 | `ENABLE_JOBS` 的 Transform 同步需要项目自行提供兼容的 Jobs、Collections、Burst；Odin 代码受 `ODIN_INSPECTOR` 保护 |
 
 通过 UPM 安装仓库根目录 `package.json`。业务 asmdef 引用 `ECS`、`Game.Framework.Core`、`Game.Framework.Unity`；代码直接使用 Mathematics 类型时再引用 `Unity.Mathematics`。QuickStart 的 asmdef 显式引用 ECS 和上述 Framework 程序集。旧项目如果同时使用 MVC，应显式写 `ECS.IInitializeable`、`ECS.ReferencePool` 等，避免与旧同名类型混淆；原来只实现 MVC 生命周期接口的组件需要改为 ECS 接口。
@@ -233,18 +232,6 @@ EntityManager.Instance.AddComponentData(entity, typeof(GamePosition));
 
 手动 `world.OnUpdate(delta)` 用于没有 Unity 自动驱动的独立测试环境。仓库测试的边界桩不会触发 Unity Update，所以能显式更新默认 World；不要原样复制到正在运行 Unity 的入口里。
 
-## 运行回归
+## 验证
 
-在仓库根目录执行（需安装 .NET 8 SDK）：
-
-```sh
-./Tests~/verify.sh
-```
-
-脚本会逐项构建并运行核心、系统存储、外部消费、示例与单例检查；任一失败返回非零退出码，日志写入 `Tests~/verification-logs`。可通过 `ECS_DOTNET_COMMAND` 指定 dotnet 可执行文件。
-
-CoreHarness 直接编译当前 ECS 实现及 ECS 自有对象池；ExternalConsumer 从独立调用方程序集检查公开 API 与类型身份，还核对并运行本页完整示例，验证多个入口和局部清理；DemoSmoke 使用同一份示例代码检查移动、暂停/继续、重建与清理。测试目录的运行脚本、README 和结果文件记录实际通过项，性能方法见[优化说明](OPTIMIZATION.zh-CN.md)。
-
-这些检查使用 Unity 边界模型，不用 MVC/PureMVC 同名桩掩盖 ECS 依赖。可控加载队列覆盖旧代际、乱序请求和对象替换模型，不代表真实 Addressables 集成通过；Transform、Burst、Jobs、Mono/IL2CPP、Unity 生命周期、场景和真实原生对象需要目标 Unity 工程运行验证。当前环境未提供 Unity Editor，不能据此声称全部 Unity 路径实测通过。
-
-进一步了解[帧事务与结构变更](WORLD-TRANSACTIONS.zh-CN.md)、[存储演进规划](STORAGE-ROADMAP.zh-CN.md)和[易用性检查](USABILITY.zh-CN.md)。
+导入 QuickStart 后使用实际 Unity 编译、Play 和生命周期检查。当前仓库工具与验证边界见 [统一验证说明](../../../Documentation/Validation.md)。

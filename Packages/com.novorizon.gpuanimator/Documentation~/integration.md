@@ -99,25 +99,9 @@ player.SetPropertyBlock();
 
 播放器下一次应用帧时会保留缓存中的其他属性，并覆盖 `_FrameIndex` 和 `_BlendFrameIndex`。请把这两个属性交给播放器管理。若其他系统之后再次改写 Renderer 的块，也需要再次刷新；反复覆盖同一个 Renderer 的多套播放器没有独立的动画状态输出。
 
-## 从 2.x 迁移数据类型名称
-
-| 旧源码类型 | 新源码类型 |
-| --- | --- |
-| `GpuSkinningAnimData` | `AnimationData` |
-| `GpuSkinningAnimClip` | `AnimationClipData` |
-
-替换字段、参数和泛型中的类型引用，解码入口改为 `AnimationData.FromBytes(loadedMetadata.bytes)`。播放器仍是 `GpuAnimator`，资源注入、播放和 Tick 接口的行为保持一致；新数据类型文件为 `Runtime/AnimationData.cs`。
-
-`FromBytes` 的兼容 Binder 能读取旧 `.bytes` 的根对象、Clip 及 Clip 数组类型，原序列化字段名仍保留。仅为本次命名迁移不需要重新烘焙现有修复版动画 PNG。新类型名是源码 API 变更，因此包版本升级为 3.0.0；调用方应同步更新类型引用。
-
-已通过 Package Manager 导入到 `Assets/Samples/` 的旧示例是项目内的副本，不会随包升级自动改写。请更新其中的旧类型引用，或移除旧版示例目录后重新导入当前 Samples。
-
-兼容读取通过 `AnimationData.FromBytes` 提供；自行直接调用未配置 Binder 的 BinaryFormatter 不会获得这项映射。新烘焙元数据使用新类型名，因此旧 `ecs` 分支应继续使用对应版本生成的元数据，不能直接读取 3.x 新生成的 `.bytes`。
 
 ## 从 ecs 分支迁移
 
 原来的 Entity 由项目自己继续管理；在它所对应的 GameObject 上保留一个 `GpuAnimator` 组件即可。资源加载和缓存逻辑从旧的静态 `AddAnimationComponent` 入口移到资源层，初始化后改为调用实例的 `TryPlay`。旧的 ComponentSystem 更新则由 GpuAnimatorManager 自动调度或项目手动 Tick 替代，二者选择一种。
 
 回调类型从 `Action<Entity, object>` 改为 `Action<GpuAnimator, object>`；需要回到业务 Entity 时，可通过 userdata 或适配层持有的映射处理，不必让播放器反向依赖框架。
-
-现有 ECS 项目若暂不迁移，可继续使用 [`ecs` 分支](https://github.com/Novorizon/GpuAnimator/tree/ecs)。它保留旧框架结构，不能和 `main` 的组件代码同时安装。

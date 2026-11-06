@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework",
-  "version": "0.18.0-preview.1",
+  "version": "0.18.0-preview.2",
   "displayName": "Novorizon Framework",
   "description": "Unity game foundation: shared services, events, timers, pools, scenes, local storage and networking.",
   "unity": "2022.3",
@@ -13,21 +13,6 @@
       "displayName": "Framework Demo",
       "description": "Offline interactive foundation demo; create a standalone scene from Tools / Novorizon / Demos.",
       "path": "Samples~/Demo"
-    },
-    {
-      "displayName": "TCP Network",
-      "description": "Business login and typed messaging examples.",
-      "path": "Samples~/Network"
-    },
-    {
-      "displayName": "Typed Events",
-      "description": "Lifecycle-owned event subscriptions.",
-      "path": "Samples~/Events"
-    },
-    {
-      "displayName": "Timers and Pools",
-      "description": "Main-thread timers, prefab reuse and bounded managed object reuse.",
-      "path": "Samples~/Foundation"
     }
   ],
   "dependencies": {

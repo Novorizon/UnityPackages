@@ -2,7 +2,7 @@
 
 适用 Unity 2022.3，运行时依赖 Framework 和 uGUI，不依赖具体资源库。主入口为 `UI.UIManager.Instance`；所有 UI 方法在 Unity 主线程调用。支持 Windows、Android、iPhone 的源码接口，实际设备、Canvas、输入和 IL2CPP 仍需项目验证。
 
-希望先体验完整操作时，导入 [UI Demo](../Samples~/Demo/README.md) 并用菜单创建场景；下面的业务片段与 UI Categories 用于接入项目自己的 Prefab。
+希望先体验完整操作时，导入 [UI Demo](../Samples~/Demo/README.md) 并用菜单创建场景；下面的代码说明如何接入项目自己的 Prefab。
 
 ## 资源加载接口
 

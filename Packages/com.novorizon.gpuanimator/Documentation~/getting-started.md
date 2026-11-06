@@ -5,7 +5,7 @@
 先安装同一发行标签的 Framework，或使用 Framework All。使用 Unity 2022.3 或更高版本，在 **Window > Package Manager** 中选择 **+ > Add package from git URL**，输入：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.24
 ```
 
 项目应使用 Built-in Render Pipeline。包内 Shader 使用 `#pragma target 3.5`，目标图形 API 和 GPU 需支持相应的整数运算和实例化能力。包内运行时和 Editor 代码已有独立程序集；`main` 不需要 PureMVCFramework。若调用代码自身使用 asmdef，请为它添加对 `GpuAnimator` 程序集的引用。

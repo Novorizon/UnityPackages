@@ -8,7 +8,7 @@ Unity 2022.3 / .NET Standard 2.1 基础库与 TCP / Protobuf 游戏客户端，�
 2. 菜单 **Tools / Novorizon / Demos / Create Core Demo Scene**。
 3. 保存当前场景修改后进入新 Demo 场景，Play，在仪表盘操作事件、计时器、池、线程和异步示例。
 
-不需要服务器或外部 Prefab。网络另 Import **TCP Network**，默认不会自动连接；UI 是独立可选包。
+不需要服务器或外部 Prefab。网络协议与认证由项目提供；UI 是独立包。
 
 ## 文档
 
@@ -21,7 +21,6 @@ Unity 2022.3 / .NET Standard 2.1 基础库与 TCP / Protobuf 游戏客户端，�
 - [Task、日志与单例](Documentation~/Utilities.md)
 - [网络、认证与 Protobuf](Documentation~/Network.md)
 - [基础 Demo 操作](Samples~/Demo/README.md)
-- [网络 Demo 操作](Samples~/Network/README.md)
 
 ## 包边界
 

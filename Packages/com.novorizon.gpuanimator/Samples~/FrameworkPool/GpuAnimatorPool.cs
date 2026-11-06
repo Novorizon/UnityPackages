@@ -21,26 +21,55 @@ namespace GpuAnimatorSamples
 
         public GpuAnimator Spawn(string clipName, Vector3 position, Quaternion rotation, Transform parent = null)
         {
-            if (pool == null) throw new ObjectDisposedException(nameof(GpuAnimatorPool));
+            if (pool == null)
+            {
+                throw new ObjectDisposedException(nameof(GpuAnimatorPool));
+            }
+
             GameObject instance = pool.Spawn(position, rotation, parent);
             GpuAnimator player = null;
             try
             {
                 Renderer renderer = instance.GetComponentInChildren<Renderer>(true);
-                if (renderer == null) throw new ArgumentException("The loaded prefab needs its baked Renderer.");
+                if (renderer == null)
+                {
+                    throw new ArgumentException("The loaded prefab needs its baked Renderer.");
+                }
+
                 player = renderer.GetComponent<GpuAnimator>() ?? renderer.gameObject.AddComponent<GpuAnimator>();
-                if (!player.Initialize(renderer, data) || !player.TryPlay(clipName)) throw new ArgumentException("The baked data or requested clip is invalid.");
+                if (!player.Initialize(renderer, data) || !player.TryPlay(clipName))
+                {
+                    throw new ArgumentException("The baked data or requested clip is invalid.");
+                }
+
                 player.AutomaticUpdate = true;
                 active.Add(player, instance);
                 return player;
             }
-            catch { if (player != null) player.Clear(); pool.Despawn(instance); throw; }
+            catch
+            {
+                if (player != null)
+                {
+                    player.Clear();
+                }
+
+                pool.Despawn(instance);
+                throw;
+            }
         }
 
         public void Recycle(GpuAnimator player)
         {
-            if (pool == null) throw new ObjectDisposedException(nameof(GpuAnimatorPool));
-            if (player == null || !active.TryGetValue(player, out GameObject instance)) throw new InvalidOperationException("Recycle one active player through its owning pool.");
+            if (pool == null)
+            {
+                throw new ObjectDisposedException(nameof(GpuAnimatorPool));
+            }
+
+            if (player == null || !active.TryGetValue(player, out GameObject instance))
+            {
+                throw new InvalidOperationException("Recycle one active player through its owning pool.");
+            }
+
             active.Remove(player);
             player.Clear();
             pool.Despawn(instance);
@@ -48,10 +77,24 @@ namespace GpuAnimatorSamples
 
         public void Dispose()
         {
-            if (pool == null) return;
-            foreach (GpuAnimator player in active.Keys) if (player != null) player.Clear();
-            active.Clear(); data = null;
-            var previous = pool; pool = null; previous.Dispose();
+            if (pool == null)
+            {
+                return;
+            }
+
+            foreach (GpuAnimator player in active.Keys)
+            {
+                if (player != null)
+                {
+                    player.Clear();
+                }
+            }
+
+            active.Clear();
+            data = null;
+            var previous = pool;
+            pool = null;
+            previous.Dispose();
         }
     }
 }

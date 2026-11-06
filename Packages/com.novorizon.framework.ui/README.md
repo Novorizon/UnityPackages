@@ -16,7 +16,6 @@ Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其
 
 在 Package Manager 的 Samples 中导入 **UI Demo**，点击 **Tools / Novorizon / Demos / Create UI Demo Scene** 后 Play。该演示在独立场景中运行时创建窗口模板、按钮与列表，使用内存 IUIAssetLoader，需先安装主框架，不需要手工绑定 Prefab 或安装资源库。操作与清理见 [UI Demo README](Samples~/Demo/README.md)。
 
-**UI Categories** 保留为最小业务脚本，需要自己制作并绑定 Prefab，不与完整 Demo 混用。两组样例源码均位于 `Samples~`，安装包时不参与项目编译，Import 后由独立程序集编译。SimpleToast 使用 uGUI Text，可按项目需求替换。Windows、Android、iPhone 的触摸、返回键与渲染效果需在目标设备上验证。
 
 ## 分类与管理器（哪一类用哪些接口/入口）
 - **Page**：`UIPage : UIView` + `PageNavigator`
@@ -99,7 +98,7 @@ YooAsset **2.3.18 为可选依赖**。如需适配，应通过 `IUIAssetLoader` 
 
 ## 输入、相机与层级
 
-0.4 默认使用 ScreenSpaceOverlay，避免依赖每个场景的主相机。需要相机 UI 时集中配置一次：
+默认使用 ScreenSpaceOverlay，避免依赖每个场景的主相机。需要相机 UI 时集中配置一次：
 
 ```csharp
 var root = UI.UIManager.Instance;
@@ -125,11 +124,7 @@ root.RefreshPlatform();
 
 ## 验证范围
 
-仓库中的 [.NET 合同回归与复现说明](../../tests/Game.Framework.UI.Tests/README.md) 验证缓存数量、租约配对和异步生命周期；[同工作量前后对比](../../docs/ui-lifecycle-validation.md) 记录可复现的对象数量结果。合同桩不会随 UPM 包导入，且不能替代 Unity 编辑器、Profiler 或设备验证。
-
-## 0.7 迁移
-
-UI 总入口从 `UIRoot` 改名为 `UIManager`，调用 `UIManager.Instance.Initialize()`。原脚本 GUID 保留，并提供 Unity MovedFrom 标记；项目源码中的旧类型名需要更新。Canvas 和层级节点仍由该入口管理，没有增加额外转发层。
+UI 的 .NET 生命周期回归位于仓库 tools/FrameworkServicesVerification/UI.Tests。它使用 Unity API 模型，不能替代 Editor、Profiler 或设备验证；运行入口见仓库[验证说明](../../Documentation/Validation.md)。
 
 ## 重复打开与退出等待
 

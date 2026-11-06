@@ -31,7 +31,7 @@
 
 ## 终端验证范围
 
-仓库中的 `Tests~/DemoSmoke` 直接编译这些源文件到独立的消费程序集，引用另一程序集中的真实 ECS 核心，验证公共 API 可见性、移动数值、多实例隔离、暂停恢复、池复用重置、资源清理以及 Unity 入口不重复 tick。
+该示例需要 Import 到 Assets 后通过真实 Unity 编译和 Play。移动、暂停、恢复、重启和资源清理的预期见上文；云端可以使用 GameStarter 的 ImportSamples/CompileScripts 入口统一导入和编译。
 
 Unity 外围使用最小模型桩；测试通过不表示已经在 Unity Editor/Player 运行了画面，也不验证渲染、原生对象销毁、Mono/IL2CPP 或实际帧顺序。`link.xml` 为示例提供代码裁剪保留配置，仍需在目标平台验证 IL2CPP 构建；配置驱动的动态类型还需显式 Register 工厂，并根据项目裁剪配置保留。
 

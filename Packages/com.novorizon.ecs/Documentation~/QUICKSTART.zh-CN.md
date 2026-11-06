@@ -7,11 +7,11 @@
 在 Unity 的 **Window → Package Manager → + → Add package from git URL** 添加：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.24
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.24
 ```
 
-上面固定到包含本次改动的 PR 分支。合并后可切换到默认分支，发布项目建议固定到已验证的提交 SHA。已有本地检出时，也可选择 **Add package from disk**，打开仓库根目录的 `package.json`。
+上面使用固定发行标签。本地开发可 Add package from disk，选择 Packages/com.novorizon.ecs/package.json；同时声明 Framework 和 Mathematics 来源。
 
 ## 2. 运行可视化 demo
 
@@ -55,4 +55,4 @@ system.EntityId = entityId;
 
 ## 验证范围
 
-仓库的独立 .NET 测试直接编译 ECS 源码及真实对象池，验证组件匹配、结构变更、生命周期、类型身份和可控异步模型。DemoSmoke 还编译同一套示例业务与 Unity 入口代码。它们使用 Unity 边界桩；当前未在 Unity Editor、Mono/IL2CPP Player 或真实 Addressables/Jobs 环境运行。测试命令见[使用手册](USER-GUIDE.zh-CN.md#运行回归)。
+Import 后编译示例，在真实 Unity Play 中检查移动、暂停、重启和退出；未导入的 Samples~ 不参与编译。完整流程见仓库 [Demo 索引](../../../Documentation/Samples.zh-CN.md)。

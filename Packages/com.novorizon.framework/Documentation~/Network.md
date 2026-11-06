@@ -74,25 +74,8 @@ TCP v2 使用 28 字节 little-endian 头，包含魔数、版本、消息号、
 
 页面关闭时取消自己的等待并释放订阅。应用主动断开使用 await network.DisconnectAsync()；整体停机可 await network.DisposeAsync()。Dispose 后旧引用不能重用；退出期间不能重建单例。不要用 Wait/Result 阻塞 Unity 主线程。
 
-## 可选 GameServer 接入示例
+## 验证
 
-Package Manager Samples 中的 TCP Network 包含 GameServerClient、LoginCredentials、GameServerResultCode、GameServerAuthentication、生成消息与示例界面。只有 Import 这个 Sample 后才参与项目编译。
+连接状态、取消、超时、重连和释放由统一仓库 tools/FrameworkServicesVerification/Network.Tests 回归。协议消息、认证、玩家数据和存档 API 放在业务工程，不随 Framework 发布。
 
-```csharp
-using Game.Framework.Network.Samples;
-
-var game = GameServerClient.Instance;
-game.Initialize();
-await game.ConnectAsync(deviceId, accountJwt, ct);
-var progress = await game.GetProgressAsync(ct);
-```
-
-这个示例需要与仓库集成测试相匹配的 GameServer；它不属于通用 NetworkManager API。详情见 [Sample 指南](../Samples~/Network/README.md)。项目自己的协议也应放在项目或其独立业务包中，不再向 Framework 添加业务 partial 文件。
-
-## 验证与迁移
-
-- [安装与依赖](Package.md)
-- [GameServer Sample](../Samples~/Network/README.md)
-- [基础边界迁移](https://github.com/Novorizon/Framework/blob/codex/framework-unity-foundation/docs/framework-foundation-migration.md)
-
-.NET 合同测试与 localhost 联调不能替代 Unity Editor、IL2CPP 和目标设备验证。
+实际 Unity 编译与平台网络行为见仓库[验证范围](../../../Documentation/Validation.md)。

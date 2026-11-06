@@ -40,7 +40,7 @@ UI 包的 UIView.Track 可接收 EventManager 返回的订阅，OpenToken 可传
 
 导入主包的离线 [Core Demo](../Samples~/Demo/README.md) 后，菜单 `Tools / Novorizon / Demos / Create Core Demo Scene` 创建场景，Play 后可操作事件、定时器、周期产出、对象池、线程、任务、日志和单例。示例不要求网络或外部 Prefab。
 
-Package Manager Samples 中的 Typed Events 展示小型本地事件组件，Timers and Pools 展示定时归还与池，TCP Network 展示显式登录和收发。网络操作仍须配置并主动连接。
+Package Manager 的 Framework Demo 集中演示事件、定时器、池、线程、异步等待与单例。网络协议、认证和连接时机由业务提供。
 
 示例中的枚举、业务对象和金币规则由游戏定义。先运行离线基础示例，再配置网络账号与服务器。
 

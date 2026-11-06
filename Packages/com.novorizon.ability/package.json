@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.ability",
-  "version": "0.3.0-preview.1",
+  "version": "0.3.0-preview.2",
   "displayName": "Ability",
   "description": "Dota-style ability runtime and Editor tools for Unity; Odin Inspector enables the skill studio interface.",
   "unity": "2022.3",

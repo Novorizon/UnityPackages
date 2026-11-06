@@ -2,11 +2,10 @@
 
 ## 菜单未出现或编译报错
 
-先确认安装的是 `main`，并且项目没有同时导入旧版本或 `ecs` 分支。`main` 的运行时不引用 PureMVCFramework；若仍报相关类型缺失，检查项目内是否残留旧源码。使用 asmdef 的业务程序集需要引用 `GpuAnimator`，Editor 工具由独立的 `GpuAnimator.Editor` 程序集编译。
+先确认所有自有包使用同一发行标签，且没有重复导入旧程序集。`main` 的运行时不引用 PureMVCFramework；若仍报相关类型缺失，检查项目内是否残留旧源码。使用 asmdef 的业务程序集需要引用 `GpuAnimator`，Editor 工具由独立的 `GpuAnimator.Editor` 程序集编译。
 
-包声明的最低 Unity 版本是 2020.2。附带 Shader 使用 Built-in Render Pipeline 和 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP/HDRP 出现粉色材质时，需要移植对应 Shader，不能只更换播放脚本解决。
+包声明的最低 Unity 版本是 2022.3。附带 Shader 使用 Built-in Render Pipeline 和 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP/HDRP 出现粉色材质时，需要移植对应 Shader，不能只更换播放脚本解决。
 
-从 2.x 升级到 3.x 后若提示旧数据类型不存在，请将业务代码以及已导入 `Assets/Samples/` 中的 `GpuSkinningAnimData` / `GpuSkinningAnimClip` 替换为 `AnimationData` / `AnimationClipData`。旧示例副本不会随包更新自动覆盖，详见[命名迁移说明](integration.md#从-2x-迁移数据类型名称)。
 
 ## 烘焙数量为零或没有输出
 

@@ -1,6 +1,6 @@
 # API 参考
 
-本文对应 `main` 分支的 3.x 组件 API。类型没有命名空间，位于 `GpuAnimator` 程序集。
+本文对应当前 4.x 组件与调度器 API。类型没有命名空间，位于 `GpuAnimator` 程序集。
 
 ## GpuAnimator
 

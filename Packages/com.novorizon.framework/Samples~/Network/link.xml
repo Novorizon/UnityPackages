@@ -1,5 +1,0 @@
-<linker>
-  <assembly fullname="Game.Framework.Network.Samples" ignoreIfMissing="1">
-    <type fullname="Game.Framework.Network.Samples.Messages.*" preserve="all" />
-  </assembly>
-</linker>

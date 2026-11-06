@@ -9,6 +9,7 @@ namespace UI.Demo
     {
         Text? message;
         public override bool CloseOnBlockerClick => true;
+
         protected override void OnCreate()
         {
             RectTransform card = UIDemoWidgets.CenterCard(transform, "ConfirmCard", 660, 320);
@@ -19,11 +20,16 @@ namespace UI.Demo
             Button no = UIDemoWidgets.Button("No", card, "No", No);
             UIDemoWidgets.Top((RectTransform)no.transform, 220, 64, 12, 24, .5f, 1);
         }
+
         protected override void OnOpen(object? args)
         {
             var question = args as UIDemoQuestion ?? throw new ArgumentException("A demo question is required.", nameof(args));
-            if (message != null) message.text = question.Message;
+            if (message != null)
+            {
+                message.text = question.Message;
+            }
         }
+
         void Yes() => Complete(true);
         void No() => Complete(false);
     }

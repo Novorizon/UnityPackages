@@ -44,8 +44,8 @@
 
 ## 验证边界
 
-Tools/AbilityVerification/Editor 提供 codec／工作区／沙盒源码检查。UI 源码额外引用仓库实际 Odin DLL，并对照 Unity 2022.3 API 做兼容编译；Unity 类型使用验证替身。Odin 二进制只作为本机验证引用，不随源码或归档分发。
+tools/AbilityVerification/Editor 提供 codec／工作区／沙盒源码检查。编辑器接口使用模型检查；Odin 由使用方安装，不随包分发。
 
-尚未在真实 Unity 中运行窗口、验证实际视觉、鼠标键盘交互、Undo/域重载、资源与原生文件替换行为。导入后应先在测试数据副本上运行这些验收，再用于正式配置。完整步骤见交付工程中的 Docs/AbilityEditorGuide.md。
+尚未在真实 Unity 中运行窗口、验证实际视觉、鼠标键盘交互、Undo/域重载、资源与原生文件替换行为。导入后应先在测试数据副本上运行这些验收，再用于正式配置。实际编辑器验收应在安装 Odin 的 Unity 工程中进行。
 
 ## 配套运行时

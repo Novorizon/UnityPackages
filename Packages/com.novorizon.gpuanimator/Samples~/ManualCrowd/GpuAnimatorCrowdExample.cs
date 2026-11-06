@@ -6,23 +6,29 @@ namespace GpuAnimatorSamples
 {
     public sealed class GpuAnimatorCrowdExample : MonoBehaviour
     {
-        [SerializeField] private GameObject bakedPrefab;
-        [SerializeField] private TextAsset animationDataAsset;
-        [SerializeField] private string clipName;
-        [SerializeField, Range(1, 1000)] private int count = 100;
-        [SerializeField, Min(1)] private int columns = 10;
-        [SerializeField, Min(0.01f)] private float spacing = 2.0f;
-
+        [SerializeField]
+        private GameObject bakedPrefab;
+        [SerializeField]
+        private TextAsset animationDataAsset;
+        [SerializeField]
+        private string clipName;
+        [SerializeField, Range(1, 1000)]
+        private int count = 100;
+        [SerializeField, Min(1)]
+        private int columns = 10;
+        [SerializeField, Min(0.01f)]
+        private float spacing = 2.0f;
         private readonly List<GameObject> spawnedObjects = new List<GameObject>();
         private readonly List<GpuAnimator> players = new List<GpuAnimator>();
         private TextAsset decodedAsset;
         private AnimationData decodedData;
-
         [ContextMenu("Spawn Crowd")]
         public void SpawnCrowd()
         {
             if (!RequirePlayMode())
+            {
                 return;
+            }
 
             ClearOwnedInstances();
             if (bakedPrefab == null || animationDataAsset == null || string.IsNullOrEmpty(clipName))
@@ -30,8 +36,8 @@ namespace GpuAnimatorSamples
                 Debug.LogError("请指定烘焙 prefab、配套动画 .bytes 和真实的动画名称。", this);
                 return;
             }
-            if (count < 1 || count > 1000 || columns < 1 || spacing <= 0 ||
-                float.IsNaN(spacing) || float.IsInfinity(spacing))
+
+            if (count < 1 || count > 1000 || columns < 1 || spacing <= 0 || float.IsNaN(spacing) || float.IsInfinity(spacing))
             {
                 Debug.LogError("Count 必须为 1..1000，Columns 至少为 1，Spacing 必须为有限正数。", this);
                 return;
@@ -61,19 +67,24 @@ namespace GpuAnimatorSamples
                     spawnedObjects.Add(instance);
                     instance.name = bakedPrefab.name + " " + i;
                     instance.transform.localPosition = new Vector3((i % columns) * spacing, 0, (i / columns) * spacing);
-
                     Renderer renderer = instance.GetComponent<Renderer>();
                     if (renderer == null)
+                    {
                         throw new InvalidOperationException("烘焙 prefab 的根节点必须有 Renderer。");
+                    }
 
                     GpuAnimator player = instance.GetComponent<GpuAnimator>();
                     if (player == null)
+                    {
                         player = instance.AddComponent<GpuAnimator>();
+                    }
+
                     players.Add(player);
                     player.AutomaticUpdate = false;
-                    if (!player.Initialize(renderer, decodedData) ||
-                        !player.TryPlay(clipName, randomizeStart: true, loop: true))
+                    if (!player.Initialize(renderer, decodedData) || !player.TryPlay(clipName, randomizeStart: true, loop: true))
+                    {
                         throw new InvalidOperationException("播放器初始化或动画选择失败，请检查配套数据和动画名称。");
+                    }
                 }
             }
             catch (Exception exception)
@@ -87,7 +98,9 @@ namespace GpuAnimatorSamples
         public void ClearCrowd()
         {
             if (RequirePlayMode())
+            {
                 ClearOwnedInstances();
+            }
         }
 
         private void Update()
@@ -96,14 +109,18 @@ namespace GpuAnimatorSamples
             for (int i = 0; i < players.Count; i++)
             {
                 if (players[i] != null)
+                {
                     players[i].Tick(deltaTime);
+                }
             }
         }
 
         private bool RequirePlayMode()
         {
             if (Application.isPlaying)
+            {
                 return true;
+            }
 
             Debug.LogWarning("此示例的控制菜单仅在 Play Mode 中执行。", this);
             return false;
@@ -114,22 +131,31 @@ namespace GpuAnimatorSamples
             for (int i = 0; i < players.Count; i++)
             {
                 if (players[i] != null)
+                {
                     players[i].Clear();
+                }
             }
-            players.Clear();
 
+            players.Clear();
             for (int i = 0; i < spawnedObjects.Count; i++)
             {
                 GameObject instance = spawnedObjects[i];
                 if (instance == null)
+                {
                     continue;
+                }
 
                 instance.SetActive(false);
                 if (Application.isPlaying)
+                {
                     Destroy(instance);
+                }
                 else
+                {
                     DestroyImmediate(instance);
+                }
             }
+
             spawnedObjects.Clear();
         }
 

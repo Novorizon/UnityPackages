@@ -1,9 +1,0 @@
-{
-  "name": "Game.Framework.Network.Samples",
-  "rootNamespace": "Game.Framework.Network.Samples",
-  "references": [
-    "Game.Framework.Network",
-    "Game.Framework.Network.Unity"
-  ],
-  "autoReferenced": true
-}
