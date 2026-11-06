@@ -209,10 +209,11 @@ def verify(dotnet):
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
         from interaction_dependencies import prepare
         prepare(ROOT, dotnet, env)
-        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        for folder, project_name in [('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
+        subprocess.run([dotnet, 'build', str(ROOT / 'tools/HotUpdateVerification/PlayerCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         for suite in ['UI.Tests', 'Network.Tests']:
             subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification' / suite / (suite + '.csproj')), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:

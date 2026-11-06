@@ -29,19 +29,25 @@ namespace Game.Framework.HotUpdate.Editor
         private static BuildTarget Target => EditorUserBuildSettings.activeBuildTarget;
         private static string[] HotAssemblies => DiscoverAssemblies();
         private static string[] Scenes => EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+        // 自定义配置可由项目的 Editor 初始化代码绑定；运行时传入同一份 C# 配置。
+        public static Func<UpdateSettings> SettingsFactory { get; set; } = () => new UpdateSettings();
+
+        internal static UpdateSettings Settings
+        {
+            get
+            {
+                var settings = SettingsFactory?.Invoke() ?? throw new InvalidOperationException("Hot update settings factory returned null.");
+                settings.Validate();
+                return settings;
+            }
+        }
+
+        internal static bool IsConfigured => HybridCLRSettings.instance.enable && HybridCLRSettings.instance.outputLinkFile == "NovorizonHotUpdateGenerated/link.xml" && Directory.Exists(Settings.hotUpdateRoot) && Directory.GetFiles(Settings.hotUpdateRoot, "*.asmdef", SearchOption.AllDirectories).Length != 0;
 
         [MenuItem("Tools/Novorizon/Hot Update/1. Setup Project")]
         public static void Configure()
         {
-            const string settingsPath = "Assets/Resources/NovorizonHotUpdateSettings.json";
-            if (!File.Exists(settingsPath))
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(settingsPath));
-                File.WriteAllText(settingsPath, JsonUtility.ToJson(new UpdateSettings(), true));
-            }
-
-            var settings = JsonUtility.FromJson<UpdateSettings>(File.ReadAllText(settingsPath));
-            settings.Validate();
+            var settings = Settings;
             Directory.CreateDirectory(settings.hotUpdateRoot);
             bool hasDefinition = Directory.GetFiles(settings.hotUpdateRoot, "*.asmdef", SearchOption.AllDirectories).Length != 0;
             if (!hasDefinition)
@@ -70,7 +76,7 @@ namespace Game.Framework.HotUpdate.Editor
 
         private static string[] DiscoverAssemblies()
         {
-            var settings = UpdateSettings.Load();
+            var settings = Settings;
             var player = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.Player);
             string prefix = Path.GetFullPath(settings.hotUpdateRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             var selected = player.Where(a =>
@@ -104,7 +110,7 @@ namespace Game.Framework.HotUpdate.Editor
             hybrid.hotUpdateAssemblyDefinitions = Array.Empty<UnityEditorInternal.AssemblyDefinitionAsset>();
             hybrid.preserveHotUpdateAssemblies = Array.Empty<string>();
             HybridCLRSettings.Save();
-            var settings = UpdateSettings.Load();
+            var settings = Settings;
             var assembly = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(a => a.GetName().Name == settings.entryAssembly);
             var entry = assembly?.GetType(settings.entryType, false);
             ReleasePolicy.Require(entry != null && typeof(IGameModule).IsAssignableFrom(entry) && !entry.IsAbstract && entry.IsPublic && entry.GetConstructor(Type.EmptyTypes) != null, "Entry must be a public IGameModule with a public parameterless constructor: " + settings.entryType);
@@ -159,7 +165,7 @@ namespace Game.Framework.HotUpdate.Editor
             string aot = SettingsUtil.GetAssembliesPostIl2CppStripDir(Target);
             string hot = SettingsUtil.GetHotUpdateDllsOutputDirByTarget(Target);
             HotAssemblyCompilation.ValidateOutput(hot, HotAssemblies);
-            var settings = UpdateSettings.Load();
+            var settings = Settings;
             string id = Guid.NewGuid().ToString("N");
             // Never overwrite an existing baseline. Runtime reads only this explicitly selected baseline.
             string archive = Path.Combine(Root, "Artifacts", "Baselines", Platform(), id);
@@ -325,7 +331,7 @@ namespace Game.Framework.HotUpdate.Editor
             ReleasePolicy.Require(PlayerSettings.GetScriptingBackend(group) == ScriptingImplementation.IL2CPP && !EditorUserBuildSettings.development && Scenes.Length > 0, "Configure project and use a release IL2CPP target.");
             ReleasePolicy.Require(Target != BuildTarget.Android || PlayerSettings.Android.targetArchitectures == AndroidArchitecture.ARM64, "This baseline requires Android ARM64 only. Use Build New Player to configure it.");
             ReleasePolicy.Require(SettingsUtil.HotUpdateAssemblyNamesExcludePreserved.SequenceEqual(HotAssemblies), "Unexpected HybridCLR assembly configuration.");
-            UpdateSettings.Load().Validate();
+            _ = Settings;
         }
 
         private static void RequireNativeSupport()
@@ -340,7 +346,7 @@ namespace Game.Framework.HotUpdate.Editor
         {
             var baseline = JsonUtility.FromJson<ReleaseManifest>(ReleasePolicy.ReadBoundedText(Path.Combine(BuiltinPath, "builtin.json")));
             ReleasePolicy.Validate(baseline);
-            var settings = UpdateSettings.Load();
+            var settings = Settings;
             ReleasePolicy.Require(baseline.platform == Platform() && baseline.appId == settings.appId && baseline.channel == settings.channel, "Prepared baseline does not match build target/configuration.");
             var info = JsonUtility.FromJson<BuildInfo>(File.ReadAllText(Path.Combine(Archive(baseline), "build-info.json")));
             ReleasePolicy.Require(info.unity == Application.unityVersion && info.hybridclr == new InstallerController().PackageVersion && info.entryAssembly == settings.entryAssembly && info.entryType == settings.entryType && info.assemblies != null && info.assemblies.SequenceEqual(HotAssemblies) && info.aotInputs == AotInputsFingerprint(), "Unity, HybridCLR, AOT inputs, entry or assembly topology changed; create a new player baseline.");
@@ -353,8 +359,8 @@ namespace Game.Framework.HotUpdate.Editor
             var player = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.Player);
             var sources = player.Where(a => !hot.Contains(a.name)).SelectMany(a => a.sourceFiles);
             var references = player.SelectMany(a => a.compiledAssemblyReferences);
-            var files = sources.Concat(references).Concat(new[] { "Packages/manifest.json", "ProjectSettings/ProjectSettings.asset" }).Concat(new[] { "Assets/Resources/NovorizonHotUpdateSettings.json" }).Concat(Directory.GetFiles("Assets", "*.xml", SearchOption.AllDirectories)).Where(File.Exists).Distinct().Select(path => new { Name = path.Replace('\\', '/').Replace(Root.Replace('\\', '/') + "/", ""), Hash = ReleasePolicy.Sha256File(path) }).OrderBy(f => f.Name, StringComparer.Ordinal);
-            return ReleasePolicy.Sha256(Encoding.UTF8.GetBytes(string.Join("\n", files.Select(f => f.Name + ":" + f.Hash))));
+            var files = sources.Concat(references).Concat(new[] { "Packages/manifest.json", "ProjectSettings/ProjectSettings.asset" }).Concat(Directory.GetFiles("Assets", "*.xml", SearchOption.AllDirectories)).Where(File.Exists).Distinct().Select(path => new { Name = path.Replace('\\', '/').Replace(Root.Replace('\\', '/') + "/", ""), Hash = ReleasePolicy.Sha256File(path) }).OrderBy(f => f.Name, StringComparer.Ordinal);
+            return ReleasePolicy.Sha256(Encoding.UTF8.GetBytes(JsonUtility.ToJson(Settings) + "\n" + string.Join("\n", files.Select(f => f.Name + ":" + f.Hash))));
         }
 
         private static string Archive(ReleaseManifest baseline) => Path.Combine(Root, "Artifacts", "Baselines", baseline.platform, baseline.baselineId);
@@ -376,7 +382,7 @@ namespace Game.Framework.HotUpdate.Editor
         public static void ValidateProject()
         {
             Configure();
-            ReleasePolicy.Require(AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == UpdateSettings.Load().entryAssembly), "Missing editor hot assembly.");
+            ReleasePolicy.Require(AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == Settings.entryAssembly), "Missing editor hot assembly.");
             Debug.Log("PROJECT_VALIDATION_OK");
         }
 
@@ -399,7 +405,6 @@ namespace Game.Framework.HotUpdate.Editor
             ReleasePolicy.Require(Scenes.Length > 0, "Add a startup scene to Build Settings.");
             EditorSceneManager.OpenScene(Scenes[0]);
             EditorApplication.isPlaying = true;
-        // HotGameBootstrap quits batch mode after either STARTUP_OK or a startup failure.
         }
 
         [Serializable]
@@ -439,8 +444,9 @@ namespace Game.Framework.HotUpdate.Editor
 
         private static void Poll()
         {
-            bool ready = EditorApplication.isPlaying && HotGameBootstrap.Status.StartsWith("Ready", StringComparison.Ordinal);
-            bool failed = HotGameBootstrap.Failed;
+            bool active = HotUpdateManager.TryGetInstance(out var hotUpdate);
+            bool ready = EditorApplication.isPlaying && active && hotUpdate.IsReady;
+            bool failed = active && hotUpdate.Failed;
             bool expired = DateTime.UtcNow.Ticks > long.Parse(SessionState.GetString(Deadline, "0"));
             if (!ready && !failed && !expired)
             {
@@ -472,7 +478,7 @@ namespace Game.Framework.HotUpdate.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            if (!Resources.Load<TextAsset>(UpdateSettings.ResourceName))
+            if (!GameBuild.IsConfigured)
             {
                 return;
             }
@@ -483,7 +489,7 @@ namespace Game.Framework.HotUpdate.Editor
                 return;
             }
 
-            var settings = UpdateSettings.Load();
+            var settings = GameBuild.Settings;
             ReleasePolicy.Require(!report.summary.options.HasFlag(BuildOptions.Development), "Use the release build workflow.");
             GameBuild.RequireConfigured();
             ReleasePolicy.Require(settings.channel != "production" || settings.appId != "com.example.hybridclrgame", "Production channel needs a real application ID.");
@@ -502,7 +508,7 @@ namespace Game.Framework.HotUpdate.Editor
 
         public void OnPostprocessBuild(BuildReport report)
         {
-            if (!Resources.Load<TextAsset>(UpdateSettings.ResourceName))
+            if (!GameBuild.IsConfigured)
             {
                 return;
             }

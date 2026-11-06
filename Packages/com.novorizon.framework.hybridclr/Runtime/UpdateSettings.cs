@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Game.Framework.HotUpdate;
 using UnityEngine;
 
 namespace Game.Framework.HotUpdate
@@ -8,13 +7,11 @@ namespace Game.Framework.HotUpdate
     [Serializable]
     public sealed class UpdateSettings
     {
-        public const string ResourceName = "NovorizonHotUpdateSettings";
-        public bool autoStart = true;
         public string hotUpdateRoot = "Assets/HotUpdate";
         public string entryAssembly = "Game.HotUpdate";
         public string entryType = "Game.HotUpdate.HotGame";
         public bool enableRemote;
-        public string appId = "com.example.hybridclrgame";
+        public string appId = Application.identifier;
         public string channel = "development";
         public string remoteBaseUrl = "";
         public int requestTimeoutSeconds = 20;
@@ -41,19 +38,6 @@ namespace Game.Framework.HotUpdate
             {
                 ReleasePolicy.Require(key != null && !string.IsNullOrWhiteSpace(key.keyId) && ids.Add(key.keyId) && Convert.FromBase64String(key.modulus).Length >= 384 && Convert.FromBase64String(key.exponent).Length > 0, "Invalid/duplicate public key.");
             }
-        }
-
-        public static UpdateSettings Load()
-        {
-            var asset = Resources.Load<TextAsset>(ResourceName);
-            if (!asset)
-            {
-                throw new InvalidOperationException("Run Tools/Novorizon/Hot Update/Setup Project first.");
-            }
-
-            var value = JsonUtility.FromJson<UpdateSettings>(asset.text);
-            value.Validate();
-            return value;
         }
     }
 }

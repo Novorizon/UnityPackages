@@ -3,78 +3,55 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Game.Framework.HotUpdate;
 using HybridCLR;
 using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
-    public sealed class HotGameBootstrap : MonoSingleton<HotGameBootstrap>, IGameHost
+    public sealed class HotUpdateManager : ConfigurableSingleton<HotUpdateManager>, IDisposable
     {
-        private static HotGameBootstrap sessionOwner;
         private CancellationTokenSource lifetime;
+        private Task startupTask;
         private IGameModule hotGame;
         private bool hotGameStopped;
         private bool ready;
         private bool initializationReturned;
         private bool startupClosed;
+        private bool disposed;
         private string hotGameVersion;
-        public static string Status { get; private set; } = "Starting";
-        public static bool Failed { get; private set; }
+        public static HotUpdateManager Instance => GetOrCreateInstance(() => new HotUpdateManager());
+        public string Status { get; private set; } = "Not started";
+        public bool IsReady { get; private set; }
+        public bool Failed { get; private set; }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics()
+        /// <summary>由 GameEntry 在基础服务就绪后显式调用；不会自动启动或创建 GameObject。</summary>
+        public Task InitializeAsync(UpdateSettings settings = null, CancellationToken token = default)
         {
-            if (sessionOwner != null)
+            if (disposed)
             {
-                sessionOwner.CloseSession();
+                throw new ObjectDisposedException(nameof(HotUpdateManager));
             }
 
-            sessionOwner = null;
-            ResetSingletonReference();
+            if (startupTask != null)
+            {
+                return startupTask;
+            }
+
+            settings = settings ?? new UpdateSettings();
+            settings.Validate();
+            token.ThrowIfCancellationRequested();
+            lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
             Status = "Starting";
-            Failed = false;
+            startupTask = StartAsync(settings, lifetime);
+            return startupTask;
         }
 
-        // Unity 识别此特性，在首个场景加载后调用 AutoCreate，无需 GameEntry 手动调用。
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void AutoCreate()
-        {
-            try
-            {
-                if (Resources.Load<TextAsset>(UpdateSettings.ResourceName) && UpdateSettings.Load().autoStart)
-                {
-                    // 单例基类在场景中查找宿主；不存在时创建 GameObject 并添加本组件。
-                    _ = Instance;
-                }
-            }
-            catch (Exception exception)
-            {
-                FailStartup(exception);
-            }
-        }
-
-        protected override void OnStart()
-        {
-            if (lifetime != null)
-            {
-                return;
-            }
-
-            sessionOwner = this;
-            ready = initializationReturned = startupClosed = hotGameStopped = false;
-            hotGame = null;
-            lifetime = new CancellationTokenSource();
-            _ = StartAsync(lifetime);
-        }
-
-        private async Task StartAsync(CancellationTokenSource session)
+        private async Task StartAsync(UpdateSettings settings, CancellationTokenSource session)
         {
             CancellationToken stopToken = session.Token;
             PreparedRelease release = null;
             try
             {
-                var settings = UpdateSettings.Load();
                 await Task.Yield();
                 stopToken.ThrowIfCancellationRequested();
 #if UNITY_EDITOR
@@ -147,16 +124,22 @@ namespace Game.Framework.HotUpdate
                 using (var startup = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
                 {
                     Task initialize = hotGame.InitializeAsync(new SessionHost(this, session), startup.Token);
-                    Task deadline = Task.Delay(TimeSpan.FromSeconds(settings.startupTimeoutSeconds), startup.Token);
-                    if (await Task.WhenAny(initialize, deadline) != initialize)
+                    try
                     {
-                        startup.Cancel();
-                        stopToken.ThrowIfCancellationRequested();
-                        throw new TimeoutException("Game initialization exceeded its time budget.");
-                    }
+                        Task deadline = Task.Delay(TimeSpan.FromSeconds(settings.startupTimeoutSeconds), startup.Token);
+                        if (await Task.WhenAny(initialize, deadline) != initialize)
+                        {
+                            _ = ObserveInitializationAsync(initialize);
+                            stopToken.ThrowIfCancellationRequested();
+                            throw new TimeoutException("Game initialization exceeded its time budget.");
+                        }
 
-                    await initialize;
-                    startup.Cancel();
+                        await initialize;
+                    }
+                    finally
+                    {
+                        Cancel(startup);
+                    }
                 }
 
                 stopToken.ThrowIfCancellationRequested();
@@ -172,29 +155,23 @@ namespace Game.Framework.HotUpdate
                     release.Cache.MarkHealthy(release.Id, release.Manifest.version > release.AcceptedVersion);
                 }
 
-                release?.Cache?.Dispose();
                 startupClosed = true;
+                IsReady = true;
                 Status = "Ready / " + hotGameVersion;
                 Log("STARTUP_OK " + hotGameVersion);
-                if (Application.isBatchMode && !Application.isEditor)
-                {
-                    Application.Quit(0);
-                }
             }
             catch (OperationCanceledException) when (stopToken.IsCancellationRequested)
             {
-                release?.Cache?.Dispose();
-                if (ReferenceEquals(lifetime, session))
-                {
-                    startupClosed = true;
-                }
+                startupClosed = true;
+                StopHotGame();
+                Status = "Stopped";
+                throw;
             }
             catch (Exception exception)
             {
                 if (!ReferenceEquals(lifetime, session))
                 {
-                    release?.Cache?.Dispose();
-                    return;
+                    throw;
                 }
 
                 startupClosed = true;
@@ -211,21 +188,29 @@ namespace Game.Framework.HotUpdate
                     }
                 }
 
+                Failed = true;
+                Status = "Startup failed. Please restart the game.";
+                // DLL 无法在进程内卸载；失败交给调用方，下一次进程启动再选择版本。
+                throw;
+            }
+            finally
+            {
                 release?.Cache?.Dispose();
-                startupClosed = true;
-                FailStartup(exception);
-            // The next process can safely choose another release; this process cannot unload its code.
             }
         }
 
-        private static void FailStartup(Exception exception)
+        private static async Task ObserveInitializationAsync(Task initialize)
         {
-            Failed = true;
-            Status = "Startup failed. Please restart the game.";
-            Debug.LogException(exception);
-            if (Application.isBatchMode && !Application.isEditor)
+            try
             {
-                Application.Quit(1);
+                await initialize;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
             }
         }
 
@@ -236,9 +221,9 @@ namespace Game.Framework.HotUpdate
 
         private sealed class SessionHost : IGameHost
         {
-            private readonly HotGameBootstrap owner;
+            private readonly HotUpdateManager owner;
             private readonly CancellationTokenSource session;
-            internal SessionHost(HotGameBootstrap owner, CancellationTokenSource session)
+            internal SessionHost(HotUpdateManager owner, CancellationTokenSource session)
             {
                 this.owner = owner;
                 this.session = session;
@@ -263,7 +248,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
-        public void ReportReady(string version)
+        private void ReportReady(string version)
         {
             if (ready || initializationReturned || startupClosed || lifetime == null || lifetime.IsCancellationRequested || string.IsNullOrWhiteSpace(version))
             {
@@ -274,22 +259,41 @@ namespace Game.Framework.HotUpdate
             hotGameVersion = version;
         }
 
-        protected override void OnExit()
+        /// <summary>取消加载并清理热更入口；重复调用安全，不卸载已经加载的 DLL。</summary>
+        public void Dispose()
         {
-            CloseSession();
-            if (ReferenceEquals(sessionOwner, this))
+            if (disposed)
             {
-                sessionOwner = null;
+                return;
+            }
+
+            disposed = true;
+            startupClosed = true;
+            IsReady = false;
+            Status = "Stopped";
+            try
+            {
+                Cancel(lifetime);
+                StopHotGame();
+            }
+            finally
+            {
+                lifetime?.Dispose();
+                lifetime = null;
+                ReleaseInstance(this);
             }
         }
 
-        private void CloseSession()
+        private static void Cancel(CancellationTokenSource source)
         {
-            startupClosed = true;
-            lifetime?.Cancel();
-            StopHotGame();
-            lifetime?.Dispose();
-            lifetime = null;
+            try
+            {
+                source?.Cancel();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
         }
 
         private void StopHotGame()

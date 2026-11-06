@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0649</NoWarn>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FrameworkServicesVerification/Core/Core.csproj" />
+    <Compile Include="../../Packages/com.novorizon.framework.hybridclr/Runtime/**/*.cs" />
+    <Compile Include="$(HybridCLRPackageRoot)/Runtime/*.cs" />
+    <Compile Include="UnityApiModel.cs" />
+  </ItemGroup>
+</Project>

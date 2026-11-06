@@ -13,8 +13,8 @@
     "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs.meta": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs.meta",
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs",
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs.meta": "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs.meta",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs.meta": "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs.meta",
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt.meta": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt.meta"
   },
@@ -33,7 +33,8 @@
     "Packages/com.novorizon.framework.hybridclr/package.json",
     "Packages/com.novorizon.framework.yooasset/package.json",
     "Packages/com.novorizon.framework.all/package.json",
-    "Packages/com.novorizon.gpuanimator/GpuAnimator.asmdef"
+    "Packages/com.novorizon.gpuanimator/GpuAnimator.asmdef",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Game.Framework.HotUpdate.asmdef"
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
@@ -51,9 +52,6 @@
       "OnSingletonAccessed": "OnStart"
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
-      "OnSingletonAccessed": "OnStart"
-    },
-    "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs": {
       "OnSingletonAccessed": "OnStart"
     }
   },
@@ -182,21 +180,25 @@
       "sha256": "798e86e5e0f0eba2e1ad33d16322bb8a87152e85a95afc8ae43e0f25df4184f6",
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
-    "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs": {
-      "sha256": "f6cc460cb67b063a40aafa54c12070eb3ee6479e8615680fc9cf886cb19a4080",
-      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
-    },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
-      "sha256": "f8e3f55e5e0f2211d6cdda7f5cb9e1d7f906b48a29d4b856ea53326830c6f6fa",
-      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+      "sha256": "bd91d201f101a314bf2e1bbcd76207d91e4ee3fe2f784a8e8ecf9e6183f1c7ba",
+      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
-      "sha256": "ae9a77335dbf9997f6d097257a35f7b98ee0263786841309ad3a36d98d27a631",
-      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+      "sha256": "eaa0feda83048df07d34dc103b93ac911a3ea139ee14a4e6274d9cbeeb0f3564",
+      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
       "sha256": "2d204826300da891044e2cc04d9b920e6fd9f01bd4fff4452d8ea44f9f800115",
-      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
+      "sha256": "8bd48f43a62b60772b64f01aa66628d53054b3216406a9a6aa900ae3df4de445",
+      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
+    },
+    "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
+      "sha256": "c9324a7346451b82516bf00087cf54d7a5057cc7b2722aa2f388b9feedbcb437",
+      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     }
   }
 }

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Shared.props" />
+  <PropertyGroup>
+    <DefineConstants>UNITY_STANDALONE_WIN</DefineConstants>
+  </PropertyGroup>
+</Project>
