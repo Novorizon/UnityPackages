@@ -1,8 +1,8 @@
 {
   "name": "com.novorizon.audio",
-  "version": "0.1.0-preview.2",
+  "version": "0.2.0-preview.1",
   "displayName": "Novorizon Audio",
-  "description": "Pooled 2D/3D audio playback with stable handles, volume groups and lifecycle cleanup.",
+  "description": "Pooled audio voices, unified fade updates, music crossfades and AudioMixer routing.",
   "unity": "2022.3",
   "author": {
     "name": "Novorizon"

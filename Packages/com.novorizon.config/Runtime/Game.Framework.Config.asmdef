@@ -1,7 +1,10 @@
 {
   "name": "Game.Framework.Config",
   "rootNamespace": "Game.Framework.Config",
-  "references": ["Game.Framework.Core"],
+  "references": [
+    "Game.Framework.Core",
+    "Luban.Runtime"
+  ],
   "autoReferenced": true,
   "allowUnsafeCode": false
 }

@@ -145,6 +145,18 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetSceneLoader.cs": {
       "sha256": "c492d3ab711cc5987b83ab925d1a51dc08a929e6be7fc7861f16933afde3c322",
       "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
+    },
+    "Packages/com.novorizon.audio/Runtime/AudioHandle.cs": {
+      "sha256": "5d7c563a06aa3b81e7b111ae8a203e8ac4cd16573f4dcc9837969595faec5b85",
+      "reason": "Add handle-controlled volume fades and fade-out recycling."
+    },
+    "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
+      "sha256": "84efe098ba64649108ad1a38ef4d86c10cf67860df296dd64e459c1d81df9576",
+      "reason": "Reuse managed voices, route AudioMixer groups and drive fades through one tick."
+    },
+    "Packages/com.novorizon.config/Runtime/ConfigManager.cs": {
+      "sha256": "eb0616c3fc43327cd7a62d215738f8afb99e1b4510b186a43854f4efc8169ed1",
+      "reason": "Support binary configuration loaders and generated Luban snapshot lifecycle."
     }
   }
 }

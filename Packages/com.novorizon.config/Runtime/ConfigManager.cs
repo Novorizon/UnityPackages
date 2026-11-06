@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Game.Framework.Config
 {
     /// <summary>按记录类型与键类型管理表。整表校验成功后才替换旧表；应在游戏主线程使用。</summary>
-    public sealed class ConfigManager : ConfigurableSingleton<ConfigManager>, IDisposable
+    public sealed partial class ConfigManager : ConfigurableSingleton<ConfigManager>, IDisposable
     {
         [Serializable]
         private sealed class JsonTable<T>
@@ -18,10 +18,11 @@ namespace Game.Framework.Config
         private readonly Dictionary<Type, object> tables = new Dictionary<Type, object>();
         private readonly Dictionary<Type, long> requests = new Dictionary<Type, long>();
         private Func<string, CancellationToken, Task<string>> loadText;
+        private Func<string, CancellationToken, Task<byte[]>> loadBytes;
         private long revision;
         private bool disposed;
         public static ConfigManager Instance => GetOrCreateInstance(() => new ConfigManager());
-        public int Count => tables.Count;
+        public int Count => tables.Count + generated.Count;
         public bool Initialized => loadText != null && !disposed;
 
         public static void Reset(bool stopping = false)
@@ -30,12 +31,12 @@ namespace Game.Framework.Config
         }
 
         /// <summary>默认使用 Resources 文本；可传入资源系统的文本加载函数，不绑定任何配置生成工具。</summary>
-        public void Initialize(Func<string, CancellationToken, Task<string>> textLoader = null)
+        public void Initialize(Func<string, CancellationToken, Task<string>> textLoader = null, Func<string, CancellationToken, Task<byte[]>> bytesLoader = null)
         {
             EnsureAvailable();
             if (loadText != null)
             {
-                if (textLoader != null && loadText != textLoader)
+                if ((textLoader != null && loadText != textLoader) || (bytesLoader != null && loadBytes != bytesLoader))
                 {
                     throw new InvalidOperationException("Configuration text loader is already initialized.");
                 }
@@ -44,6 +45,7 @@ namespace Game.Framework.Config
             }
 
             loadText = textLoader ?? LoadResourcesTextAsync;
+            loadBytes = bytesLoader ?? LoadResourcesBytesAsync;
         }
 
         public void SetTable<TKey, T>(IEnumerable<T> items, Func<T, TKey> keySelector)
@@ -159,6 +161,7 @@ namespace Game.Framework.Config
             EnsureAvailable();
             tables.Clear();
             requests.Clear();
+            generated.Clear();
         }
 
         private void EnsureAvailable()
@@ -179,6 +182,7 @@ namespace Game.Framework.Config
             Clear();
             disposed = true;
             loadText = null;
+            loadBytes = null;
             ReleaseInstance(this);
         }
 

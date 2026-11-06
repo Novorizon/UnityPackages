@@ -3,15 +3,15 @@
     {
       "name": "com.novorizon.ability",
       "version": "0.3.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": []
     },
     {
       "name": "com.novorizon.audio",
-      "version": "0.1.0-preview.2",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.audio#v0.1.0-preview.12",
+      "version": "0.2.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.audio#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -20,18 +20,19 @@
     },
     {
       "name": "com.novorizon.config",
-      "version": "0.1.0-preview.2",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.config#v0.1.0-preview.12",
+      "version": "0.2.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.config#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
-        "com.novorizon.framework"
+        "com.novorizon.framework",
+        "com.code-philosophy.luban"
       ]
     },
     {
       "name": "com.novorizon.ecs",
       "version": "2.0.0-preview.7",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -41,7 +42,7 @@
     {
       "name": "com.novorizon.framework",
       "version": "0.13.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": []
@@ -49,7 +50,7 @@
     {
       "name": "com.novorizon.framework.hybridclr",
       "version": "0.1.0-preview.6",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -60,7 +61,7 @@
     {
       "name": "com.novorizon.framework.ui",
       "version": "0.8.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -70,7 +71,7 @@
     {
       "name": "com.novorizon.framework.yooasset",
       "version": "0.13.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -81,7 +82,17 @@
     {
       "name": "com.novorizon.gpuanimator",
       "version": "4.0.0-preview.3",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.13",
+      "external": false,
+      "embed": false,
+      "dependencies": [
+        "com.novorizon.framework"
+      ]
+    },
+    {
+      "name": "com.novorizon.input",
+      "version": "0.1.0-preview.1",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.input#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -91,7 +102,7 @@
     {
       "name": "com.novorizon.rtree",
       "version": "1.0.0-preview.2",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.13",
       "external": false,
       "embed": false,
       "dependencies": []
@@ -109,6 +120,14 @@
       "external": true,
       "version": "2.3.18",
       "git": "https://github.com/tuyoogame/YooAsset.git?path=/Assets/YooAsset#4b6a8ca4064d7a59ba129acec8fecf134e86236e",
+      "embed": false,
+      "dependencies": []
+    },
+    {
+      "name": "com.code-philosophy.luban",
+      "external": true,
+      "version": "1.2.0",
+      "git": "https://github.com/focus-creative-games/luban_unity.git#061314200e2f03307c4d90b448e1de7b85431905",
       "embed": false,
       "dependencies": []
     }

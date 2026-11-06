@@ -25,5 +25,7 @@ namespace Game.Framework.Audio
         public void Pause() => owner?.Pause(Id, true);
         public void Resume() => owner?.Pause(Id, false);
         public void SetVolume(float volume) => owner?.SetVolume(Id, volume);
+        public bool FadeTo(float volume, float seconds, AudioFadeCurve curve = AudioFadeCurve.Linear) => owner != null && owner.FadeTo(Id, volume, seconds, false, curve);
+        public bool FadeOut(float seconds, AudioFadeCurve curve = AudioFadeCurve.Linear) => owner != null && owner.FadeTo(Id, 0, seconds, true, curve);
     }
 }

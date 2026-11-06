@@ -1,10 +1,10 @@
 # 游戏基础服务
 
-Framework 内提供场景、运行时数据与本地存储；音频为 com.novorizon.audio，配置为 com.novorizon.config。各自复用 Framework 单例，不依赖 ECS/Ability，不包含玩家、背包或关卡业务。framework.all 的目录包含这两个新包及 Unity Audio 模块。
+Framework 内提供场景、运行时数据与本地存储；音频为 com.novorizon.audio，配置为 com.novorizon.config。各自复用 Framework 单例，不依赖 ECS/Ability，不包含玩家、背包或关卡业务。输入为 com.novorizon.input；framework.all 的目录包含三个服务包、官方 Luban 运行时，以及 Unity Audio/Input System 模块。
 
 ## 初始化
 
-GameStarter 的 GameEntry 按资源、数据/存储、场景、音频、配置、UI/GPU/ECS 的顺序准备服务，然后启动 StartupModule。GameSession 保持原来的模块生命周期。
+GameStarter 的 GameEntry 按资源、数据/存储、输入、场景、音频、配置、UI/GPU/ECS 的顺序准备服务，然后启动 StartupModule。GameSession 保持原来的模块生命周期。
 
 ```csharp
 using Game.Framework.Audio;
@@ -49,7 +49,7 @@ RuntimeData 由项目定义。默认拥有注册对象，Remove/Clear/Dispose �
 
 配置是只读表，运行时数据是游戏运行中会改变的状态。ConfigManager.LoadJsonAsync 使用 {"items":[...]} 格式并校验键；SetTable 可直接接入配置生成工具。详见配置包 README。
 
-GameStarter 默认从 Resources 加载；开启 YooAsset 后读取 TextAsset.text。此适配使用现有 ResourceManager 的共享缓存，配置管理器不会调用 ReleaseHandle 影响其他消费者；资源包缓存的释放仍由资源管理生命周期负责。
+GameStarter 默认从 Resources 加载；开启 YooAsset 后通过独立 AcquireAsync<TextAsset> 租约读取 .text/.bytes，读取后释放当前租约。Luban 生成与整表加载见配置包 README。
 
 ## 本地存储
 
@@ -69,3 +69,5 @@ var restored = LocalStorageManager.Instance.LoadJson<RuntimeData>("settings.json
 ## 音频
 
 AudioManager 管理可复用音源，AudioHandle 管理一次播放。支持 Music/Sound/Voice/UI 分组、主音量、单次音量、2D/固定位置 3D、暂停恢复与自然完成通知。AudioClip 的加载和持有交给资源系统，场景中保留一个 AudioListener。详见音频包 README。
+
+输入包管理项目 .inputactions 的运行时副本、控制方案、设备过滤、嵌套屏蔽、订阅和交互式重绑定，保存绑定由项目调用本地存储。音频增加淡入淡出、等功率音乐交叉渐变、AudioMixer 分组路由和统一 Tick，复用音源及管理对象。详见各包 README。

@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ALL = 'com.novorizon.framework.all'
-OFFICIAL = {'com.code-philosophy.hybridclr', 'com.tuyoogame.yooasset'}
+OFFICIAL = {'com.code-philosophy.hybridclr', 'com.tuyoogame.yooasset', 'com.code-philosophy.luban'}
 
 
 def read(path):
@@ -77,7 +77,7 @@ def validate():
         'com.novorizon.framework', 'com.novorizon.framework.ui',
         'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
-        'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.config',
+        'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.config', 'com.novorizon.input',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -140,6 +140,7 @@ def validate():
         'Unity': 'com.novorizon.framework/Runtime/Unity/Game.Framework.Unity.asmdef',
         'Audio': 'com.novorizon.audio/Runtime/Game.Framework.Audio.asmdef',
         'Config': 'com.novorizon.config/Runtime/Game.Framework.Config.asmdef',
+        'Input': 'com.novorizon.input/Runtime/Game.Framework.Input.asmdef',
         'Resources': 'com.novorizon.framework.yooasset/Runtime/Game.Framework.Resources.YooAsset.asmdef',
     }
     model_root = ROOT / 'tools/GameModulesVerification'
@@ -206,6 +207,8 @@ def verify(dotnet):
         env = os.environ.copy()
         env.setdefault('DOTNET_CLI_HOME', str(Path(temp) / 'dotnet-home'))
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
+        from interaction_dependencies import prepare
+        prepare(ROOT, dotnet, env)
         for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
@@ -260,6 +263,7 @@ def unity_project(output):
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
     write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
+    (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
     print('Generated standalone Unity verification project:', output)
 
 

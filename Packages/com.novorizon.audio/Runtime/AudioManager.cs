@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Game.Framework.Audio
 {
     /// <summary>音源统一管理和回收。AudioClip 由调用者或资源系统持有，播放期间必须保持有效。</summary>
-    public sealed class AudioManager : MonoSingleton<AudioManager>
+    public sealed partial class AudioManager : MonoSingleton<AudioManager>
     {
         private sealed class Voice
         {
@@ -14,11 +14,14 @@ namespace Game.Framework.Audio
             internal float Volume;
             internal bool Paused;
             internal Action<AudioHandle> Completed;
+            internal FadeState Fade;
+            internal bool Music;
         }
 
         private readonly Dictionary<long, Voice> voices = new Dictionary<long, Voice>();
         private readonly Stack<AudioSource> pool = new Stack<AudioSource>();
-        private readonly List<long> finished = new List<long>();
+        private readonly List<(long Id, bool Natural)> finished = new List<(long, bool)>();
+        private readonly Stack<Voice> voicePool = new Stack<Voice>();
         private readonly float[] groupVolumes =
         {
             1,
@@ -55,6 +58,11 @@ namespace Game.Framework.Audio
                     {
                         Destroy(source.gameObject);
                     }
+                }
+
+                while (voicePool.Count + voices.Count > maxVoices)
+                {
+                    voicePool.Pop();
                 }
             }
         }
@@ -138,13 +146,15 @@ namespace Game.Framework.Audio
             source.pitch = pitch;
             source.spatialBlend = position.HasValue ? 1 : 0;
             source.transform.position = position ?? transform.position;
-            var voice = new Voice
-            {
-                Source = source,
-                Group = group,
-                Volume = volume,
-                Completed = completed
-            };
+            var voice = voicePool.Count == 0 ? new Voice() : voicePool.Pop();
+            voice.Source = source;
+            voice.Group = group;
+            voice.Volume = volume;
+            voice.Completed = completed;
+            voice.Paused = false;
+            voice.Music = false;
+            voice.Fade = default;
+            source.outputAudioMixerGroup = mixerGroups[(int)group];
             long id = ++nextId;
             voices.Add(id, voice);
             ApplyVolume(voice);
@@ -233,12 +243,24 @@ namespace Game.Framework.Audio
             if (voices.TryGetValue(id, out var voice))
             {
                 voices.Remove(id);
+                if (musicId == id)
+                {
+                    musicId = 0;
+                }
+
+                voice.Completed = null;
+                voice.Fade = default;
+                voice.Music = false;
                 if (voice.Source != null)
                 {
                     voice.Source.Stop();
                     voice.Source.clip = null;
+                    voice.Source.outputAudioMixerGroup = null;
                     pool.Push(voice.Source);
                 }
+
+                voice.Source = null;
+                voicePool.Push(voice);
             }
         }
 
@@ -267,6 +289,7 @@ namespace Game.Framework.Audio
             ValidateVolume(volume);
             if (voices.TryGetValue(id, out var voice))
             {
+                voice.Fade = default;
                 voice.Volume = volume;
                 ApplyVolume(voice);
             }
@@ -274,43 +297,9 @@ namespace Game.Framework.Audio
 
         private void Update()
         {
-            if (paused || IsDestroying)
+            if (AutomaticUpdate && !IsDestroying)
             {
-                return;
-            }
-
-            finished.Clear();
-            foreach (var pair in voices)
-            {
-                var voice = pair.Value;
-                if (voice.Source == null || (!voice.Paused && !AudioListener.pause && !voice.Source.isPlaying))
-                {
-                    finished.Add(pair.Key);
-                }
-            }
-
-            foreach (long id in finished)
-            {
-                if (!voices.TryGetValue(id, out var voice))
-                {
-                    continue;
-                }
-
-                var callback = voice.Completed;
-                Stop(id);
-                try
-                {
-                    callback?.Invoke(new AudioHandle(this, id));
-                }
-                catch (Exception error)
-                {
-                    Logger.Exception(error);
-                }
-
-                if (IsDestroying)
-                {
-                    break;
-                }
+                Tick(UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
             }
         }
 
@@ -371,6 +360,8 @@ namespace Game.Framework.Audio
             }
 
             voices.Clear();
+            voicePool.Clear();
+            musicId = 0;
             while (pool.Count != 0)
             {
                 var source = pool.Pop();
@@ -404,6 +395,9 @@ namespace Game.Framework.Audio
                 lifetimeOwner.ClearPlayback();
                 lifetimeOwner.masterVolume = 1;
                 lifetimeOwner.maxVoices = 32;
+                lifetimeOwner.AutomaticUpdate = true;
+                lifetimeOwner.UseUnscaledTime = true;
+                Array.Clear(lifetimeOwner.mixerGroups, 0, lifetimeOwner.mixerGroups.Length);
                 for (int i = 0; i < lifetimeOwner.groupVolumes.Length; i++)
                 {
                     lifetimeOwner.groupVolumes[i] = 1;

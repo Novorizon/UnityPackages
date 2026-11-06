@@ -17,7 +17,7 @@ namespace UnityEngine
         public static T FindObjectOfType<T>(bool includeInactive = false)
             where T : Object => FindObjectsOfType<T>(includeInactive).FirstOrDefault();
         public static T Instantiate<T>(T original)
-            where T : Object => Instantiate(original, null, false);
+            where T : Object => original is ICloneable copy ? (T)copy.Clone() : Instantiate(original, null, false);
     }
 
     public struct Quaternion
@@ -36,18 +36,21 @@ namespace UnityEngine
 
     public static partial class Time
     {
+        public static float unscaledDeltaTime = .016f;
         public static double timeAsDouble;
         public static double realtimeSinceStartupAsDouble;
     }
 
     public static partial class Application
     {
+        public static string dataPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Assets");
         public static string persistentDataPath = System.IO.Path.GetTempPath();
     }
 
     public class TextAsset : Object
     {
         public string text = "";
+        public byte[] bytes = Array.Empty<byte>();
     }
 
     public class Sprite : Object
@@ -100,8 +103,17 @@ namespace UnityEngine
         }
     }
 
+    public enum AudioDataLoadState
+    {
+        Unloaded,
+        Loading,
+        Loaded,
+        Failed
+    }
+
     public class AudioClip : Object
     {
+        public AudioDataLoadState loadState = AudioDataLoadState.Loaded;
     }
 
     public static class AudioListener
@@ -111,6 +123,7 @@ namespace UnityEngine
 
     public class AudioSource : MonoBehaviour
     {
+        public UnityEngine.Audio.AudioMixerGroup outputAudioMixerGroup;
         public AudioClip clip;
         public bool loop, playOnAwake;
         public float pitch, volume, spatialBlend;
@@ -122,6 +135,13 @@ namespace UnityEngine
         public void Pause() => playing = false;
         public void UnPause() => playing = true;
         public void FinishForTest() => playing = false;
+    }
+}
+
+namespace UnityEngine.Audio
+{
+    public class AudioMixerGroup : UnityEngine.Object
+    {
     }
 }
 

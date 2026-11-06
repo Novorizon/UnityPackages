@@ -1,0 +1,7 @@
+<module name="">
+    <bean name="Example">
+        <var name="id" type="int" />
+        <var name="name" type="string" />
+    </bean>
+    <table name="TbExample" value="Example" input="example.xlsx" index="id" />
+</module>

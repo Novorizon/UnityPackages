@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Input",
+  "rootNamespace": "Game.Framework.Input",
+  "references": ["Game.Framework.Core", "Unity.InputSystem"],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

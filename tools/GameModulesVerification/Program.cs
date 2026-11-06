@@ -19,7 +19,7 @@ using Object = UnityEngine.Object;
 using Scenes = Game.Framework.Scenes.SceneManager;
 using NativeScenes = UnityEngine.SceneManagement.SceneManager;
 
-internal static class Program
+internal static partial class Program
 {
     private static int passed;
     private static Pump context;
@@ -589,7 +589,8 @@ internal static class Program
             NativeScenes.UnloadSceneAsync(scene);
             Equal(1, YooAssets.Package.Scenes[0].ReleaseCount);
         });
-        Console.WriteLine($"PASS {passed} data, storage, config, scene, audio and resource regression scenarios (Unity/YooAsset API models; not native Unity).");
+        InteractionScenarios();
+        Console.WriteLine($"PASS {passed} service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).");
     }
 
     private static void Run(string name, Action test)

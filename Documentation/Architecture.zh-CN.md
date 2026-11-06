@@ -3,7 +3,7 @@
 采用一个 Git 仓库维护多个独立 UPM 包。共享提交、版本标签和自动验证；按包决定安装范围、程序集引用及运行时依赖。
 
 - Framework 继续提供通用单例、线程调度、事件、定时器、池、网络、场景、运行时数据和本地存储，不引用 UI、ECS、Ability、GPU、空间索引或 HybridCLR。
-- UI、HybridCLR 封装、YooAsset 适配、ECS、音频和配置单向使用 Framework。ECS 专用实体、系统顺序、存储和池策略由 ECS 实现。
+- UI、HybridCLR 封装、YooAsset 适配、ECS、输入、音频和配置单向使用 Framework。ECS 专用实体、系统顺序、存储和池策略由 ECS 实现。
 - Ability 与 ECS 互不依赖，项目需要共同使用时由项目接线；没有添加 ECS 到 IUnit 的适配层。
 - RTree 的六种树保持各自目录，运行时共用一个包、一个程序集；没有 Grid。
 - GpuAnimator 维持独立包及 Built-in 支持范围，Framework 对象池集成为可选 Sample。
