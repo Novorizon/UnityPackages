@@ -3,13 +3,13 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Framework.Config.Editor
+namespace Game.Framework.Data.Editor
 {
     public static class LubanGeneratorMenu
     {
         private const string SettingsPath = "Assets/Settings/LubanGenerator.asset";
         private static bool busy;
-        [MenuItem("Novorizon/Config/Luban/Create Project")]
+        [MenuItem("Novorizon/Data/Luban/Create Project")]
         public static void CreateProject()
         {
             string root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
@@ -38,10 +38,10 @@ namespace Game.Framework.Config.Editor
 
             AssetDatabase.Refresh();
             Selection.activeObject = settings;
-            Debug.Log("Luban project created at Config/Luban. Edit Data/example.xlsx, then use Novorizon/Config/Luban/Generate.");
+            Debug.Log("Luban project created at Config/Luban. Edit Data/example.xlsx, then use Novorizon/Data/Luban/Generate.");
         }
 
-        [MenuItem("Novorizon/Config/Luban/Generate")]
+        [MenuItem("Novorizon/Data/Luban/Generate")]
         public static async void Generate()
         {
             if (busy)
@@ -56,7 +56,7 @@ namespace Game.Framework.Config.Editor
                 var settings = Selection.activeObject as LubanGeneratorSettings ?? AssetDatabase.LoadAssetAtPath<LubanGeneratorSettings>(SettingsPath);
                 if (settings == null)
                 {
-                    throw new InvalidOperationException("Create a Luban project first: Novorizon/Config/Luban/Create Project.");
+                    throw new InvalidOperationException("Create a Luban project first: Novorizon/Data/Luban/Create Project.");
                 }
 
                 string root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));

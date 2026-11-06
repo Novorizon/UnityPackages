@@ -1,11 +1,12 @@
 {
   "repository": "https://github.com/Novorizon/UnityPackages.git",
-  "release": "v0.1.0-preview.21",
+  "release": "v0.1.0-preview.22",
   "unity": "2022.3.62f1",
   "packageReplacements": {
     "com.novorizon.ability.editor.odin": "com.novorizon.ability",
     "com.novorizon.ecsframework": "com.novorizon.ecs",
-    "com.guanjinbiao.gpuanimator": "com.novorizon.gpuanimator"
+    "com.guanjinbiao.gpuanimator": "com.novorizon.gpuanimator",
+    "com.novorizon.config": "com.novorizon.data"
   },
   "externalPackages": {
     "com.code-philosophy.hybridclr": {

@@ -46,7 +46,7 @@ var texture = await scope.AcquireAsync<Texture2D>("Textures/Example", token);
 // texture.Asset 保持有效，直到租约、scope 或资源管理器被关闭。
 ```
 
-GameStarter 开启 Initialize Yoo Asset 后，会安装使用这些租约的 UI 加载器；配置文本读取也使用短期独立租约，不再占用共享缓存。UI 包与 YooAsset 包之间没有增加强依赖，适配接线在 GameStarter。
+GameStarter 开启 Initialize Yoo Asset 后，会安装使用这些租约的 UI 加载器；Luban 清单和数据表的字节读取也使用短期独立租约，不再占用共享缓存。UI 包与 YooAsset 包之间没有增加强依赖，适配接线在 GameStarter。
 
 ## 网络
 
@@ -60,7 +60,7 @@ ConnectAsync(token) 的 token 仅取消该调用方的等待。多个调用方�
 
 ## GameEntry
 
-GameEntry 的 OnStart 按顺序直接初始化公共 Manager，OnExit 停止启动模块并逐项调用 Release。StartupModule 与 GameSession 保留；入口不再记录 Manager 所有权，不区分借用实例，不执行跨 Manager 的初始化失败回滚。
+GameEntry 默认先准备资源并加载热更，公共 Manager 由 HotGame.InitializeManagersAsync 直接初始化；关闭热更时使用 GameEntry 的同名方法。OnExit 停止启动模块和热更入口，对应入口逐项调用 Release。StartupModule 与 GameSession 保留；入口不再记录 Manager 所有权，不区分借用实例，不执行跨 Manager 的初始化失败回滚。
 
 MonoSingleton 提供成对的 OnStart/OnExit，每次运行各调用一次。重复访问 Instance 不重复启动；Dispose、Release、原生销毁和退出回调共用同一清理钩子。重复清理、部分初始化资源清理和错误记录在组件内部处理。Release 只操作已有实例，退出时不创建新 Manager；ConfigurableSingleton.Release 保留既有退出保护。
 
@@ -76,7 +76,7 @@ Framework 的线程、事件和时钟驱动仍由 Framework 管理。
 
 ## 单例自动登记和静态声明恢复
 
-三种单例基类共享 SingletonLifecycle，自动登记实例释放及引用重置。GameEntry 先关闭项目模块，ECS 自己维护 World → Entity → Pool 的清理顺序；Config/Input 等普通服务依靠基类及 IDisposable，无需逐类 Unity 启动特性。登记表在关闭 Domain Reload 的多次 Play 之间持续有效，清理不创建未使用的单例。
+三种单例基类共享 SingletonLifecycle，自动登记实例释放及引用重置。GameEntry 先关闭项目模块，ECS 自己维护 World → Entity → Pool 的清理顺序；Data/Input 等普通服务依靠基类及 IDisposable，无需逐类 Unity 启动特性。登记表在关闭 Domain Reload 的多次 Play 之间持续有效，清理不创建未使用的单例。
 
 Framework 内置 Source Generator 从 partial 单例子类的声明生成静态字段恢复，不需要手写字段赋值。关闭 Domain Reload 时，统一启动入口先清理旧实例，再执行生成代码；开启时不重复执行。Player 不生成编辑器静态重置代码。
 

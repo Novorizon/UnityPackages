@@ -28,10 +28,12 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 
 本次通用服务验证编译实际 Framework Core/Network、UIManager 和 GPU 播放器/调度器源码。24 组单例/网络/动画调度场景覆盖重置、退出保护、手动模式、重入通知和回收；174 项 UI 回归使用 Unity API 模型。历史基线保持不变，本次运行时代码修改逐文件记录 sourceChanges 的原因和 SHA-256。
 
-新增 GameModulesVerification 直接编译实际 Framework Core/Unity、音频、配置与 YooAsset 适配源码，关闭 .NET 传递项目引用；覆盖数据清理、真实临时目录存储、配置重载、场景排队、音源复用与资源退出回归。模型未执行原生音频、场景加载和 JsonUtility；平台文件系统验收范围见 GameServices.zh-CN.md。
+新增 GameModulesVerification 直接编译实际 Framework Core/Unity、音频、Luban 数据表与 YooAsset 适配源码，关闭 .NET 传递项目引用；覆盖表快照清理、真实临时目录存储、数据表重载、场景排队、音源复用与资源退出回归。模型未执行原生音频、场景加载和 JsonUtility；平台文件系统验收范围见 GameServices.zh-CN.md。
 
 本轮新增真实 loopback TCP 的传输/会话验证，覆盖并发连接等待取消、状态事件、超时、断线与重连、取消回调异常和释放失败；不依赖服务器业务协议。UI 验证新增重复打开、跨层单例、迟到加载、原生销毁等待及旧工厂关闭场景。资源验证覆盖独立租约、共享对象、逐请求取消、场景/窗口作用域和退出等待。
 
 本轮输入/Luban/音频校验使用 Unity Input System 1.11.2 的 API 边界模型、官方 Luban 4.12.0 CLI 与 1.2.0 ByteBuf 源码。验证真实 Excel → 生成 C# → 二进制 → Tables，以及失败保留旧输出、meta 保留、并发/取消不发布过期快照。输入覆盖 Map/设备/控制方案、嵌套屏蔽、订阅与重绑定清理；音频覆盖交叉渐变、路由、暂停、后台数据等待及预热后托管分配。原生输入事件、音频输出、Unity 导入和 IL2CPP 尚未执行。第三方测试依赖只下载到临时缓存，不进入包仓库。
 
 本轮验证配对 OnStart/OnExit、重复访问只启动一次、Release 不创建实例、不解除退出保护、原生延迟销毁和重复退出只清理一次，以及 ECS 的实际 SingletonBehaviour 通过 OnExit 清理。资源验证覆盖 Release 后内部等待关闭再初始化。GameStarter 验证入口直接初始化与 OnExit 清理，不再要求业务层所有权登记和失败回滚。
+
+DataManager 迁移验证使用官方 Luban CLI 生成的真实 cfg.Tables 和二进制文件，覆盖直接构造加载（无注册）、单一字节加载器、默认 Resources 路径、失败保留快照、后发请求优先、Clear/Dispose 取消以及停止后的单例重建。旧动态对象容器和通用 JSON 表 API 的测试随退役实现一同移除。

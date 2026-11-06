@@ -35,9 +35,9 @@ UI 包依赖 Framework 与 uGUI，以 IUIAssetLoader 对接任意资源系统；
 
 场景协调器为 `Game.Framework.Scenes.SceneManager`，支持 Build Settings 场景和可注入的 ISceneLoader；YooAsset 场景适配在独立 yooasset 包中。
 
-`Game.Framework.Data.DataManager` 按类型持有运行时数据并管理释放顺序。`Game.Framework.Storage.LocalStorageManager` 提供 persistentDataPath 下的版本化 JSON/Text/Bytes 读写、临时文件替换与备份。它们不定义玩家存档字段。
+`Game.Framework.Storage.LocalStorageManager` 提供 persistentDataPath 下的版本化 JSON/Text/Bytes 读写、临时文件替换与备份。它们不定义玩家存档字段。
 
-音频 `com.novorizon.audio` 和配置 `com.novorizon.config` 是依赖 Framework 的独立包，可通过 framework.all 一起安装。
+音频 `com.novorizon.audio` 和 Luban 数据表 `com.novorizon.data` 是依赖 Framework 的独立包，可通过 framework.all 一起安装。
 
 网络 StateChanged 提供派发后的状态通知。ConnectAsync 的取消只停止当前调用方等待，DisconnectAsync/DisposeAsync 才停止共享连接与重连。请求超时覆盖发送和响应，迟到响应不能污染后续请求，业务请求不自动重放。断开异常不跳过传输层释放。
 
@@ -75,4 +75,4 @@ Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加
 
 三种单例基类都提供 `public virtual void Initialize()`。EventManager、TimerManager 等实例创建后即可使用的服务，可以显式调用 `XxxManager.Instance.Initialize()`，让入口里的初始化顺序保持一致。MonoSingleton 的 OnStart/OnExit 生命周期不因这次显式调用而重复执行。
 
-同签名的无参 Initialize 使用 override；带参数的 Initialize 是正常重载。Input、Scene、Storage、Config 的无参 override 会转到各自默认参数配置，带参重载保留具体配置逻辑与命名参数兼容。ResourceManager 和 HotUpdateManager 需要等待异步加载，仍使用 InitializeAsync；调用其同步 Initialize 会明确提示等待异步方法，不能将服务误判为已初始化。
+同签名的无参 Initialize 使用 override；带参数的 Initialize 是正常重载。Input、Scene、Storage、Data 的无参 override 会转到各自默认参数配置，带参重载保留具体配置逻辑与命名参数兼容。ResourceManager 和 HotUpdateManager 需要等待异步加载，仍使用 InitializeAsync；调用其同步 Initialize 会明确提示等待异步方法，不能将服务误判为已初始化。

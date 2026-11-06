@@ -77,7 +77,7 @@ def validate():
         'com.novorizon.framework', 'com.novorizon.framework.ui',
         'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
-        'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.config', 'com.novorizon.input',
+        'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -139,7 +139,7 @@ def validate():
         'Core': 'com.novorizon.framework/Runtime/Core/Game.Framework.Core.asmdef',
         'Unity': 'com.novorizon.framework/Runtime/Unity/Game.Framework.Unity.asmdef',
         'Audio': 'com.novorizon.audio/Runtime/Game.Framework.Audio.asmdef',
-        'Config': 'com.novorizon.config/Runtime/Game.Framework.Config.asmdef',
+        'Data': 'com.novorizon.data/Runtime/Game.Framework.Data.asmdef',
         'Input': 'com.novorizon.input/Runtime/Game.Framework.Input.asmdef',
         'Resources': 'com.novorizon.framework.yooasset/Runtime/Game.Framework.Resources.YooAsset.asmdef',
     }

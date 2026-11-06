@@ -30,7 +30,7 @@ def prepare(root, dotnet, env):
         source = checkout(cache, 'tool-' + TOOL_COMMIT, 'https://github.com/focus-creative-games/luban.git', 'v4.12.0', TOOL_COMMIT, env)
         subprocess.run([dotnet, 'publish', str(source / 'src/Luban/Luban.csproj'), '-c', 'Release', '-o', str(cli.parent), '-m:1', '--disable-build-servers', '-p:NuGetAudit=false'], env=env, check=True)
     fixture = cache / 'fixture'
-    subprocess.run([dotnet, str(cli), '-t', 'client', '-c', 'cs-bin', '-d', 'bin', '--conf', str(root / 'Packages/com.novorizon.config/Templates~/LubanProject/luban.conf'), '-x', 'outputCodeDir=' + str(fixture / 'code'), '-x', 'outputDataDir=' + str(fixture / 'data')], env=env, check=True)
+    subprocess.run([dotnet, str(cli), '-t', 'client', '-c', 'cs-bin', '-d', 'bin', '--conf', str(root / 'Packages/com.novorizon.data/Templates~/LubanProject/luban.conf'), '-x', 'outputCodeDir=' + str(fixture / 'code'), '-x', 'outputDataDir=' + str(fixture / 'data')], env=env, check=True)
     env.update(LubanPackageRoot=str(runtime), LubanFixtureRoot=str(fixture), LUBAN_CLI=str(cli), NOVORIZON_DOTNET=dotnet)
 
 

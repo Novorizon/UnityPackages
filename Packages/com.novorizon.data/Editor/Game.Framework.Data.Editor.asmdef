@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Data.Editor",
+  "rootNamespace": "Game.Framework.Data.Editor",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
