@@ -13,7 +13,7 @@ using System.Runtime.ExceptionServices;
 [assembly: InternalsVisibleTo("Game.Framework.UI.Tests")]
 namespace UnityEngine
 {
-    public class Object
+    public partial class Object
     {
         private static readonly List<Object> objects = new List<Object>();
         private static readonly List<Object> pendingDestruction = new List<Object>();
@@ -280,7 +280,7 @@ namespace UnityEngine
         }
     }
 
-    public class Transform : Component
+    public partial class Transform : Component
     {
         private Transform parentValue;
         internal readonly List<Transform> Children = new List<Transform>();
@@ -980,7 +980,7 @@ namespace UnityEngine
         public static Color white => new Color(1, 1, 1, 1);
     }
 
-    public static class Application
+    public static partial class Application
     {
         public static bool isPlaying = true;
         public static event Action quitting;
@@ -1062,7 +1062,7 @@ namespace UnityEngine
         }
     }
 
-    public class AsyncOperation
+    public partial class AsyncOperation
     {
         public bool isDone { get; private set; }
 
@@ -1084,7 +1084,7 @@ namespace UnityEngine
         public Object asset;
     }
 
-    public static class Resources
+    public static partial class Resources
     {
         private static readonly Dictionary<string, Object> assets = new Dictionary<string, Object>();
         private static readonly List<(string path, ResourceRequest request)> pending = new List<(string, ResourceRequest)>();
@@ -1232,7 +1232,8 @@ namespace UnityEngine
 
     public enum RuntimeInitializeLoadType
     {
-        SubsystemRegistration
+        SubsystemRegistration,
+        BeforeSceneLoad
     }
 
     [AttributeUsage(AttributeTargets.Method)]
@@ -1477,10 +1478,11 @@ namespace UnityEngine.Events
 
 namespace UnityEngine.SceneManagement
 {
-    public struct Scene
+    public partial struct Scene
     {
         public int handle;
         public string name;
+        public bool isLoaded;
     }
 
     public enum LoadSceneMode
@@ -1489,7 +1491,7 @@ namespace UnityEngine.SceneManagement
         Additive
     }
 
-    public static class SceneManager
+    public static partial class SceneManager
     {
         public static event Action<Scene, LoadSceneMode> sceneLoaded;
         public static event Action<Scene> sceneUnloaded;

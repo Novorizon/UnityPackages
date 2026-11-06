@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>YooAsset</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <ProjectReference Include="../Core/Core.csproj" />
+    <Compile Include="YooAssetModel.cs" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,6 @@
 {
-  "packages": 9,
-  "ownedPackages": 9,
+  "packages": 11,
+  "ownedPackages": 11,
   "externalDependencyReferences": 2,
   "importedFilesChecked": 820,
   "externalHistoricalFilesOmitted": 1818,
@@ -23,8 +23,10 @@
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs",
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
-    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs"
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"
   ],
   "updatedDocumentation": [
     "Packages/com.guanjinbiao.gpuanimator/CHANGELOG.md",
@@ -58,21 +60,12 @@
     "Packages/com.novorizon.framework.yooasset/package.json",
     "Packages/com.novorizon.framework/Documentation~/Package.md",
     "Packages/com.novorizon.framework/Documentation~/Utilities.md",
+    "Packages/com.novorizon.framework/README.md",
     "Packages/com.novorizon.framework/package.json",
     "Packages/com.novorizon.rtree/Documentation~/index.md",
     "Packages/com.novorizon.rtree/README.md"
   ],
-  "activeAssemblies": 19,
-  "activeGuids": 347,
-  "nativeUnityExecuted": false,
-  "release": "v0.1.0-preview.10",
-  "serviceRuntimeScenarios": 24,
-  "uiRegressionChecks": 174,
-  "aggregateModelScenarios": 20,
-  "abilityPublicDeclarations": 1083,
-  "abilityEditorChecks": 91,
-  "abilityWithoutOdinCompile": true,
-  "thirdPartySourcesVendored": false,
-  "dependencyPayloadsBundled": false,
-  "unityAssetMetadataComplete": true
+  "activeAssemblies": 21,
+  "activeGuids": 368,
+  "nativeUnityExecuted": false
 }

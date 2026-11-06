@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>Game.Framework.Core</AssemblyName></PropertyGroup>
+  <ItemGroup>
+
+    <Compile Include="../../../Packages/com.novorizon.framework/Runtime/Core/**/*.cs" />
+  </ItemGroup>
+</Project>

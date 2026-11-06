@@ -109,6 +109,14 @@
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
       "sha256": "fe8905f05db7ebcb856ca14ecf8a2ac615fccd78d26d227715ad3e43f0504e67",
       "reason": "Add central GPU scheduling and playback notifications"
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
+      "sha256": "3f1d08f1b2e121115665bc4d98f8d50e4a7467c234ca66ca1b57b8860558c052",
+      "reason": "Reset and stop scene, data and local storage services alongside Framework lifecycle; apply required control-statement formatting"
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
+      "sha256": "68880b3e5c6ef22a5a17892256cbd51d3df9f43034c87aa61065c0d154d89367",
+      "reason": "Create independently owned scene loaders; continue shutdown cleanup after scene failure and prevent old-play cleanup from clearing new resources; apply required formatting"
     }
   }
 }

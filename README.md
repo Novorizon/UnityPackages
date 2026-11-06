@@ -2,13 +2,13 @@
 
 Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各库共用一个代码仓库，各自保留独立 UPM 包、程序集和依赖关系。
 
-统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.10`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
+统一远端为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.11`。可克隆完整仓库本地开发，也可通过独立包或聚合包安装。
 
 ## 包布局
 
 | 目录 | 职责 |
 | --- | --- |
-| `Packages/com.novorizon.framework` | 单例、主线程调度、事件、定时器、通用池、网络 |
+| `Packages/com.novorizon.framework` | 单例、线程调度、事件、定时器、池、网络、场景、运行时数据、本地存储 |
 | `Packages/com.novorizon.framework.ui` | 独立 UI 包 |
 | `Packages/com.novorizon.framework.yooasset` | Framework 的 YooAsset 适配 |
 | `Packages/com.novorizon.framework.hybridclr` | HybridCLR 默认配置、构建、补丁与启动封装 |
@@ -16,15 +16,17 @@ Novorizon 的 Unity 多包仓库。基础组件库继续叫 **Framework**；各�
 | `Packages/com.novorizon.ecs` | ECS 实体、系统、专用池及生命周期 |
 | `Packages/com.novorizon.rtree` | 六种树各自一个目录，共用一个包 |
 | `Packages/com.novorizon.gpuanimator` | Built-in GPU 动画烘焙、注入、播放及回收 |
+| `Packages/com.novorizon.audio` | 音频播放、分组音量、暂停和音源回收 |
+| `Packages/com.novorizon.config` | 类型化配置表、JSON 校验和异步重载 |
 | `Packages/com.novorizon.framework.all` | 自动聚合安装入口 |
 
-仓库共 **9 个自有包**，包名统一使用 `com.novorizon` 前缀。官方 HybridCLR、YooAsset 等第三方只通过依赖声明引用，由使用方的 Unity Package Manager 获取。UI 独立发布为包；Ability 运行时与编辑器在同一个包内。代码放在同一个仓库不代表运行时互相依赖。
+仓库共 **11 个自有包**，包名统一使用 `com.novorizon` 前缀。官方 HybridCLR、YooAsset 等第三方只通过依赖声明引用，由使用方的 Unity Package Manager 获取。UI 独立发布为包；Ability 运行时与编辑器在同一个包内。代码放在同一个仓库不代表运行时互相依赖。
 
 ## 使用
 
 本仓库只发布 UPM 包，不包含 Unity 工程。需要使用库时，在自己的 Unity 工程中通过 Package Manager 安装。完整集合使用聚合包，独立库使用各自的 Git 子目录地址。
 
-GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 依赖 Framework，其他包由它的编辑器窗口按需下载安装。它不使用指向本仓库的 `file:../../../` 路径，也不要求使用者克隆本仓库。
+GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 引用 framework.all 及完整依赖来源，在 GameEntry 集中初始化 Manager。它不使用指向本仓库的 `file:../../../` 路径，也不要求使用者克隆本仓库。
 
 本地开发某个包时，可在外部 Unity 工程中使用 Add package from disk 选择本仓库对应的 package.json；发布安装仍使用下面的 Git 地址。
 
@@ -33,9 +35,9 @@ GameStarter 是单独维护的 Unity 启动工程，默认通过 Git 依赖 Fram
 每个包均有独立安装路径，例如：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.11
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.11
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.11
 ```
 
 Unity 的 package.json 不支持 Git 传递依赖。需要全部库时使用聚合安装包；单独安装某个库时先安装它需要的自有基础包。聚合安装的所有 Git 来源使用同一个仓库、同一个版本标签；后续发行不应移动已发布标签。
@@ -60,7 +62,7 @@ python3 tools/workspace.py export --output /tmp/UnityPackages-release
 
 ## 从上一版升级
 
-Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.10` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
+Ability 运行时和 Odin 编辑器已合为 `com.novorizon.ability`；ECS 的包名为 `com.novorizon.ecs`；GpuAnimator 从 `com.guanjinbiao.gpuanimator` 改名为 `com.novorizon.gpuanimator`。`v0.1.0-preview.11` 的聚合安装器会在同一次 UPM 操作中安装新包并移除旧包。直接安装单个包的项目，应同时替换清单中的旧包名和 Git 安装路径，避免相同程序集被导入两次；GpuAnimator 的 `testables` 条目也使用新包名。已有嵌入副本需要由项目先移出再升级。
 
 Framework 的单例启动回调统一为 `OnStart`，项目中原来重写 `OnSingletonAccessed` 的类需要同步改名。配套 UI、ECS 和 HybridCLR 封装已同步；安装时使用同一发行标签。
 
@@ -82,10 +84,12 @@ python3 tools/workspace.py unity-project --output /tmp/NovorizonPackageValidatio
 
 UPM 对 Git 传递依赖有限制，Git 分发使用 `workspace.json` 中的上游来源，由聚合安装器或 GameStarter 把来源交给使用方工程的 Package Manager 一起解析。官方包下载至使用方工程的 UPM 管理区域，不进入本仓库。聚合包本身也不再打入其他库的 Payload。
 
-## v0.1.0-preview.10 升级
+## v0.1.0-preview.11 升级
 
 - Framework 增加 ConfigurableSingleton；NetworkManager 复用配置、重置和退出保护。
 - UI 总入口改名为 UIManager；更新源码中的 UIRoot 类型名，脚本 GUID 保留。
 - GpuAnimator 4.0 依赖 Framework，使用 GpuAnimatorManager 集中更新和汇总动画事件；项目手动驱动时保持 AutomaticUpdate=false。
-- 固定 Git 标签不会追踪新版本。独立工程更新 manifest 中的标签，或运行 GameStarter 的 sync-packages.py --ref v0.1.0-preview.10，再让 Unity 解析依赖；不要移动旧发行标签。
+- 固定 Git 标签不会追踪新版本。独立工程更新 manifest 中的标签，或运行 GameStarter 的 sync-packages.py --ref v0.1.0-preview.11，再让 Unity 解析依赖；不要移动旧发行标签。
 - 此次修改包含 AOT API 和程序集依赖变化，使用 HybridCLR 的项目需要重新 Build New Player，不能作为旧主包的纯热更补丁。
+
+场景、音频、数据、配置和本地存储的使用与边界见 [基础服务说明](Documentation/GameServices.zh-CN.md)。

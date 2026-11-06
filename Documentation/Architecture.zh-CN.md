@@ -2,8 +2,8 @@
 
 采用一个 Git 仓库维护多个独立 UPM 包。共享提交、版本标签和自动验证；按包决定安装范围、程序集引用及运行时依赖。
 
-- Framework 继续提供通用单例、线程调度、事件、定时器、池和网络，不引用 UI、ECS、Ability、GPU、空间索引或 HybridCLR。
-- UI、HybridCLR 封装、YooAsset 适配和 ECS 单向使用 Framework。ECS 专用实体、系统顺序、存储和池策略由 ECS 实现。
+- Framework 继续提供通用单例、线程调度、事件、定时器、池、网络、场景、运行时数据和本地存储，不引用 UI、ECS、Ability、GPU、空间索引或 HybridCLR。
+- UI、HybridCLR 封装、YooAsset 适配、ECS、音频和配置单向使用 Framework。ECS 专用实体、系统顺序、存储和池策略由 ECS 实现。
 - Ability 与 ECS 互不依赖，项目需要共同使用时由项目接线；没有添加 ECS 到 IUnit 的适配层。
 - RTree 的六种树保持各自目录，运行时共用一个包、一个程序集；没有 Grid。
 - GpuAnimator 维持独立包及 Built-in 支持范围，Framework 对象池集成为可选 Sample。
@@ -16,7 +16,7 @@
 
 包仓库不包含 Assets/Packages/ProjectSettings 形式的 Unity 工程。
 
-GameStarter 独立维护，默认通过 Git URL 安装 Framework，并通过模块窗口安装其他库。工程的运行与交付不依赖包仓库的本地目录结构。
+GameStarter 独立维护，默认通过 Git URL 安装 framework.all 及完整依赖来源，并在 GameEntry 初始化 Manager。工程的运行与交付不依赖包仓库的本地目录结构。
 
 原生包验收工程按需生成在包仓库外的临时目录。仓库中的工具和 API 模型用于开发验证，不是 Unity 工程。
 

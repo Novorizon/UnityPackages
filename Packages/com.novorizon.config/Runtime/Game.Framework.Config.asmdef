@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Config",
+  "rootNamespace": "Game.Framework.Config",
+  "references": ["Game.Framework.Core"],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

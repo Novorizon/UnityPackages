@@ -50,3 +50,9 @@ async System.Threading.Tasks.Task ReadTextAsync(string location)
 - UI 的 `IUIAssetLoader` 要求每次成功获取都可独立归还；不要把任意 UI 的 ReleasePrefab 直接接到全局 ReleaseHandle。应在项目适配器中持有专用句柄或实现明确的使用者计数。
 
 详细说明见资源指南。官方源码核对基线为 tag `2.3.18` / `4b6a8ca4064d7a59ba129acec8fecf134e86236e`，本仓库未复制或修改 YooAsset 源码。合同编译/回归不等于真实 Bundle、下载、场景、Editor 或 IL2CPP 验证。
+
+## 场景协调器
+
+在资源初始化成功后，把 `ResourceManager.Instance.CreateSceneLoader()` 传给 `Game.Framework.Scenes.SceneManager.Instance.Initialize(...)`。适配器独立持有每次场景加载的句柄，避免同地址共享缓存影响场景所有权；退出时由场景管理器释放。
+
+ShutdownAsync 会继续清理所有场景并释放资源缓存，即使某次场景卸载失败；最后聚合报告错误。旧 Play 会话的延迟清理不会清空新会话的缓存。
