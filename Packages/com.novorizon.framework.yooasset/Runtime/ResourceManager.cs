@@ -15,19 +15,19 @@ namespace Game.Resource
 {
     // A shared cache: ReleaseHandle/ReleaseAllAssets affect every consumer of that location.
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
-    public partial class ResourceManager : Singleton<ResourceManager>
+    public partial class ResourceManager : Singleton<ResourceManager>, IDisposable
     {
-        static ResourceManager()
+        public void Dispose()
         {
-            SingletonLifecycle.Register(ResetExistingForPlay, Release, order: -50);
-        }
-
-        private static void ResetExistingForPlay()
-        {
-            if (TryGetInstance(out var current))
+#if UNITY_EDITOR
+            if (EditorStaticReset.IsResetting)
             {
-                current.ResetForPlay();
+                ResetForPlay();
+                return;
             }
+
+#endif
+            ShutdownAsync().Forget();
         }
 
         private sealed class AssetLoad
@@ -686,11 +686,11 @@ namespace Game.Resource
         }
 
         /// <summary>入口退出时发起内部清理；不创建尚未使用的资源管理器。</summary>
-        public static void Release()
+        public new static void Release()
         {
-            if (IsCreated)
+            if (TryGetInstance(out var current))
             {
-                Instance.ShutdownAsync().Forget();
+                current.ShutdownAsync().Forget();
             }
         }
 

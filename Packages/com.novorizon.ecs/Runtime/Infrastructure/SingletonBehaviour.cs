@@ -25,7 +25,6 @@ namespace ECS
         {
             get
             {
-                Ecs.EnsureLifecycleRegistration();
                 if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
                 {
                     ResetForNewSession();
@@ -48,7 +47,6 @@ namespace ECS
 
         protected override void Awake()
         {
-            Ecs.EnsureLifecycleRegistration();
             if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
             {
                 ResetForNewSession();

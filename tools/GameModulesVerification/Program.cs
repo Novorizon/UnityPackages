@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Game.Framework;
 using Game.Framework.Audio;
 using Game.Framework.Data;
+using Game.Framework.Input;
 using Game.Framework.Storage;
 using Game.Resource;
 using UnityEngine;
@@ -594,6 +595,16 @@ internal static partial class Program
         // Native completion must release the shared queue even when the caller already observed cancellation.
         var operations = (SemaphoreSlim)typeof(Scenes).GetField("operations", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
         context.Until(() => operations.CurrentCount == 1);
+        // This harness owns the services it creates, just as the game entry does.
+        InputManager.Release();
+        DataManager.Release();
+        Scenes.Release();
+        if (ResourceManager.TryGetInstance(out var resources))
+        {
+            Complete(resources.ShutdownAsync());
+        }
+
+        Singleton<ResourceManager>.Release();
         passed++;
         Console.WriteLine("PASS " + name);
     }

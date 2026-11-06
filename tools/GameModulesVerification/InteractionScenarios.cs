@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Utilities;
 using Rebinding = UnityEngine.InputSystem.InputActionRebindingExtensions;
+using Object = UnityEngine.Object;
 
 internal static partial class Program
 {
@@ -61,8 +62,7 @@ internal static partial class Program
             var clip = new AudioClip();
             audio.Play(clip);
             True(audio.PlayingCount != 0);
-            Game.Framework.SingletonLifecycle.Reset();
-            Game.Framework.EditorStaticReset.RestoreDeclaredValues();
+            Object.ResetSingletonsForPlay();
             Game.Framework.UnityThread.Initialize();
             Same(audio, AudioManager.Instance);
             Near(.25f, audio.MasterVolume);

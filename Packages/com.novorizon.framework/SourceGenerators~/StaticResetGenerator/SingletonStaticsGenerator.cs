@@ -17,7 +17,7 @@ namespace Game.Framework.Generators
         private static readonly SymbolDisplayFormat NullableTypeFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
             SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
         private static readonly DiagnosticDescriptor PartialRequired = Rule("NVR001", "Partial declaration required", "Singleton '{0}' owns static state; mark it and its containing types partial to generate Editor reset code");
-        private static readonly DiagnosticDescriptor StaticConstructor = Rule("NVR002", "Static constructor cannot be replayed", "Singleton '{0}' has an explicit static constructor; put state initialization in declarations or Initialize (lifecycle registration calls are allowed)");
+        private static readonly DiagnosticDescriptor StaticConstructor = Rule("NVR002", "Static constructor cannot be replayed", "Singleton '{0}' has an explicit static constructor; put state initialization in declarations or Initialize");
         private static readonly DiagnosticDescriptor UnsupportedMember = Rule("NVR003", "Static declaration cannot be restored", "Static member '{0}' cannot be restored automatically: {1}");
         private static readonly DiagnosticDescriptor ReservedName = Rule("NVR004", "Reserved generated member name", "Member '{0}' uses a name reserved for Framework's generated static reset");
         private static readonly DiagnosticDescriptor CrossTypeDependency = Rule("NVR005", "Static initializer depends on another singleton", "Initializer for '{0}' reads another singleton's static state; perform dependent initialization in Initialize instead");
@@ -96,11 +96,8 @@ namespace Game.Framework.Generators
 
             foreach (var constructor in parts.SelectMany(item => item.Members).OfType<ConstructorDeclarationSyntax>().Where(item => item.Modifiers.Any(SyntaxKind.StaticKeyword)))
             {
-                if (!OnlyRegistersLifecycle(context, constructor))
-                {
-                    Report(context, StaticConstructor, constructor.GetLocation(), type.Name);
-                    return;
-                }
+                Report(context, StaticConstructor, constructor.GetLocation(), type.Name);
+                return;
             }
 
             bool valid = true;
@@ -203,18 +200,6 @@ namespace Game.Framework.Generators
         private static bool IsAutoProperty(PropertyDeclarationSyntax property)
         {
             return property.AccessorList != null && property.AccessorList.Accessors.All(item => item.Body == null && item.ExpressionBody == null);
-        }
-
-        private static bool OnlyRegistersLifecycle(GeneratorExecutionContext context, ConstructorDeclarationSyntax constructor)
-        {
-            if (constructor.Body == null)
-            {
-                return false;
-            }
-
-            var model = context.Compilation.GetSemanticModel(constructor.SyntaxTree);
-            return constructor.Body.Statements.All(statement => statement is ExpressionStatementSyntax expression && expression.Expression is InvocationExpressionSyntax call &&
-                model.GetSymbolInfo(call).Symbol is IMethodSymbol method && method.Name == "Register" && method.ContainingType.ToDisplayString() == "Game.Framework.SingletonLifecycle");
         }
 
         private static bool EmitMember(GeneratorExecutionContext context, SemanticModel model, ITypeSymbol type, bool readOnly, string name, ExpressionSyntax initializer, SyntaxNode node, StringBuilder clear, StringBuilder restore, INamedTypeSymbol owner)

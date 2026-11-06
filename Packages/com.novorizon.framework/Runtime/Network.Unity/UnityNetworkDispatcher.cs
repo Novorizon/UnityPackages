@@ -81,11 +81,7 @@ namespace Game.Framework.Network.Unity
 
     internal static class UnityNetworkIntegration
     {
-        static UnityNetworkIntegration()
-        {
-            SingletonLifecycle.Register(Reset, order: 100);
-        }
-
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
             NetworkDispatcherProvider.CreateAutomatic = null;

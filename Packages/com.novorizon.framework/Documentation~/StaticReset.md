@@ -18,9 +18,9 @@ public partial class ExampleManager : Singleton<ExampleManager>
 
 ## 执行条件
 
-Unity 2022.3：Edit → Project Settings → Editor → Enter Play Mode Settings。启用 Enter Play Mode Options 并取消 Reload Domain 时，UnityFrameworkBootstrap 在 SubsystemRegistration 中先释放旧实例、重置基类引用，然后执行生成的静态重置。开启 Reload Domain 时交给 CLR，不重复执行初始化表达式。进入 Play 时读取当前选项，切换选项无需重编译。
+Unity 2022.3：Edit → Project Settings → Editor → Enter Play Mode Settings。启用 Enter Play Mode Options 并取消 Reload Domain 时，UnityFrameworkBootstrap 在 SubsystemRegistration 中调用 EditorStaticReset：单例基类先清理旧实例及引用，随后恢复生成的静态声明值。开启 Reload Domain 时交给 CLR，不重复执行初始化表达式。进入 Play 时读取当前选项，切换选项无需重编译。
 
-生成的重置只在 UNITY_EDITOR 下存在。Player 没有 EditorStaticReset 类型、生成的重置方法或静态登记字段；运行时 Dispose/Release/OnExit 继续负责资源释放。额外代码不用于登录、切场景、配置重载或整个游戏重启。
+生成的重置和基类的编辑器登记只在 UNITY_EDITOR 下存在。Player 没有 EditorStaticReset 类型、生成的重置方法或全局清理注册表；正常退出由项目集中调用各服务的 Release，组件自身的 OnExit/Dispose 负责释放资源。额外代码不用于登录、切场景、配置重载或整个游戏重启。
 
 Reload Scene 与此独立。关闭 Reload Scene 是保留场景对象、跳过场景重建的选择；框架不会遍历组件、将实例配置恢复为默认值。保留下来的组件使用 OnExit 清理运行资源，OnStart 再次启动；音量、动画速度等已有实例配置保留。
 
@@ -29,7 +29,7 @@ Reload Scene 与此独立。关闭 Reload Scene 是保留场景对象、跳过�
 - 可赋值静态字段、自动属性：先恢复 default，再按声明执行显式初始化表达式。声明初值改动后重新编译，重置代码同步更新；支持 private、数组和字段式事件。
 - readonly List/Dictionary/HashSet：支持 new() 或无参数构造及集合初始化器；保留集合引用，清空并重建初始元素。readonly ConditionalWeakTable 支持清空。
 - readonly 不可变值保持原值；object 同步锁、SemaphoreSlim、ReaderWriterLockSlim 保留，避免替换仍有旧异步任务使用的锁。任意 readonly 可变对象不猜测处理，报告 NVR003。
-- 不会重新执行任意静态构造函数。只进行 SingletonLifecycle.Register 登记的静态构造可保留；其余有静态状态的类型报告 NVR002，应把状态初值写在声明，把启动动作写在 Initialize/OnStart。
+- 不会重新执行任意静态构造函数。有静态状态的单例若声明静态构造函数，报告 NVR002；应把状态初值写在声明，把启动动作写在 Initialize/OnStart。
 - 不处理普通工具类、嵌套辅助类自己的静态字段、第三方预编译 DLL、ThreadStatic 或自定义事件访问器。ThreadStatic 和自定义事件访问器在受管范围内报告错误。
 - 初始化表达式应可重复执行，不依赖其他 Manager 的可变静态状态。直接跨单例读取报告 NVR005；间接方法调用的副作用不可能由语法分析完全判定。重置不等同于完整 Domain Reload。
 - 初始化表达式只定义值，不替代资源释放；静态字段持有需释放的资源时，所属模块仍应在退出清理中释放它。

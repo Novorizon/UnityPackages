@@ -15,19 +15,15 @@ namespace Game.Framework
 
         private static readonly List<Entry> entries = new List<Entry>();
         private static readonly object gate = new object();
-        private static bool resetting;
+        private static volatile bool resetting;
+        public static bool IsResetting => resetting;
 
-        /// <summary>由生成器调用，不需要业务手动登记。</summary>
-        public static bool Register(Action clear, Action restore)
+        /// <summary>供单例基类和生成器使用；业务不需要手动登记。</summary>
+        public static bool Register(Action clear, Action restore = null)
         {
             if (clear == null)
             {
                 throw new ArgumentNullException(nameof(clear));
-            }
-
-            if (restore == null)
-            {
-                throw new ArgumentNullException(nameof(restore));
             }
 
             lock (gate)
@@ -89,6 +85,11 @@ namespace Game.Framework
 
         private static void Invoke(Action action, List<Exception> errors)
         {
+            if (action == null)
+            {
+                return;
+            }
+
             try
             {
                 action();

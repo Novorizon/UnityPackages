@@ -224,7 +224,6 @@ public partial class Owned : Game.Framework.Singleton<Owned>, IDisposable
             Equal(99, ownedType.GetField("Value").GetValue(null));
             cleaned = true;
         }));
-        SingletonLifecycle.Reset();
         EditorStaticReset.RestoreDeclaredValues();
         True(cleaned);
         Equal(1, ownedType.GetField("Value").GetValue(null));

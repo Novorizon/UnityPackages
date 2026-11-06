@@ -62,7 +62,7 @@ protected override void OnExit()
 
 ## 自动单例重置
 
-Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 的基类自动登记实例释放和引用重置。普通对象实现 IDisposable，组件使用 OnExit；未使用单例不会为清理而创建实例。Framework 不依赖 ECS、UI 或资源适配包，模块依赖顺序仍由各模块协调。
+Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 由项目入口集中调用 Release，普通对象实现 IDisposable，组件使用 OnExit；未使用单例不会为清理而创建实例。Player 不再保存全局清理回调或释放优先级。关闭 Domain Reload 时，基类通过已有 EditorStaticReset 清理旧实例和引用，再恢复生成的静态字段声明值。Framework 不依赖 ECS、UI 或资源适配包，模块依赖顺序由各模块协调。
 
 Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加 partial，即可从字段声明生成重置代码，不需要 Attribute、手写 Reset 或 RuntimeInitializeOnLoadMethod。修改声明初值后，生成代码同步更新。
 

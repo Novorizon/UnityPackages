@@ -4,15 +4,6 @@ using UnityEngine;
 
 namespace Game.Framework
 {
-    internal static class MonoSingletonLifecycle
-    {
-        internal static bool IsQuitting => SingletonLifecycle.IsQuitting;
-        internal static int Epoch => SingletonLifecycle.Epoch;
-
-        internal static void Reset() => SingletonLifecycle.Reset();
-        internal static void Quit() => SingletonLifecycle.MarkQuitting();
-    }
-
     public abstract class MonoSingleton<T> : MonoBehaviour, IDisposable where T : MonoSingleton<T>
     {
 #if UNITY_EDITOR
@@ -35,7 +26,9 @@ namespace Game.Framework
         private int lifetimeEpoch = -1;
         static MonoSingleton()
         {
-            SingletonLifecycle.Register(ResetForPlay, EndExistingLifetime);
+#if UNITY_EDITOR
+            EditorStaticReset.Register(ResetForPlay);
+#endif
         }
 
         private static void EndExistingLifetime()
@@ -66,7 +59,7 @@ namespace Game.Framework
         {
             get
             {
-                if (MonoSingletonLifecycle.IsQuitting || ending)
+                if (SingletonRuntimeState.IsQuitting || ending)
                 {
                     return null;
                 }
@@ -78,10 +71,10 @@ namespace Game.Framework
 
                 if (TryGetInstance(out var current))
                 {
-                    return SingletonLifecycle.IsResetting ? current : Prepare(current);
+                    return SingletonRuntimeState.IsResetting ? current : Prepare(current);
                 }
 
-                if (SingletonLifecycle.IsResetting)
+                if (SingletonRuntimeState.IsResetting)
                 {
                     throw new InvalidOperationException("Cannot create or initialize a MonoSingleton during reset: " + typeof(T).FullName);
                 }
@@ -172,9 +165,9 @@ namespace Game.Framework
         {
             try
             {
-                if (value.lifetimeEpoch != MonoSingletonLifecycle.Epoch)
+                if (value.lifetimeEpoch != SingletonRuntimeState.Epoch)
                 {
-                    value.lifetimeEpoch = MonoSingletonLifecycle.Epoch;
+                    value.lifetimeEpoch = SingletonRuntimeState.Epoch;
                     value.lifetimeStarted = false;
                     value.lifetimeEnded = false;
                 }
@@ -185,7 +178,7 @@ namespace Game.Framework
                     value.OnStart();
                 }
 
-                if (value.retired || MonoSingletonLifecycle.IsQuitting)
+                if (value.retired || SingletonRuntimeState.IsQuitting)
                 {
                     throw new ObjectDisposedException(typeof(T).FullName);
                 }
@@ -270,7 +263,7 @@ namespace Game.Framework
 
         protected virtual void Awake()
         {
-            if (retired || MonoSingletonLifecycle.IsQuitting)
+            if (retired || SingletonRuntimeState.IsQuitting)
             {
                 RetireSingleton();
                 Destroy(gameObject);
@@ -293,7 +286,7 @@ namespace Game.Framework
 
         protected virtual void OnApplicationQuit()
         {
-            MonoSingletonLifecycle.Quit();
+            SingletonRuntimeState.IsQuitting = true;
             EndLifetime();
         }
 

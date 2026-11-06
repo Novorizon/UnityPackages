@@ -192,8 +192,7 @@ public sealed class UIRootRegressionTests : IDisposable
         var oldPopups = root.Popups;
         int received = 0;
         root.Bus.Subscribe<int>(_ => received++);
-        SingletonLifecycle.Reset();
-        EditorStaticReset.RestoreDeclaredValues();
+        Object.ResetSingletonsForPlay();
         Assert.Same(root, UIManager.Instance);
         Assert.NotSame(oldPopups, root.Popups);
         root.Bus.Publish(42);
@@ -208,9 +207,7 @@ public sealed class UIRootRegressionTests : IDisposable
         var root = UIManager.Instance;
         var oldPopups = root.Popups;
         typeof(UIManager).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(root, null);
-        typeof(Game.Framework.MonoSingleton<>).Assembly.GetType("Game.Framework.MonoSingletonLifecycle")!.GetMethod("Reset", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, null);
-        SingletonLifecycle.Reset();
-        EditorStaticReset.RestoreDeclaredValues();
+        Object.ResetSingletonsForPlay();
         Assert.Same(root, UIManager.Instance);
         Assert.True(root.IsInitialized);
         Assert.NotSame(oldPopups, root.Popups);
