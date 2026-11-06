@@ -31,6 +31,8 @@ namespace Game.Framework.HotUpdate.Editor
         private static string[] Scenes => EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
         // 自定义配置可由项目的 Editor 初始化代码绑定；运行时传入同一份 C# 配置。
         public static Func<UpdateSettings> SettingsFactory { get; set; } = () => new UpdateSettings();
+        /// <summary>项目在 DLL 编译后构建对应资源；返回的精确版本写入同一发行清单。</summary>
+        public static Func<ReleaseManifest, string, string, bool, ReleaseContent> BuildContent { get; set; }
 
         internal static UpdateSettings Settings
         {
@@ -188,6 +190,12 @@ namespace Game.Framework.HotUpdate.Editor
                 aotMetadata = RequiredAot(hot, aot).Select(n => Describe(Path.Combine(aot, n + ".dll"))).ToArray()
             };
             ReleasePolicy.Validate(manifest);
+            if (BuildContent != null)
+            {
+                manifest.content = BuildContent(manifest, hot, aot, true);
+                ReleasePolicy.Validate(manifest);
+            }
+
             string archiveJson = JsonUtility.ToJson(manifest, true);
             File.WriteAllText(Path.Combine(archive, "baseline.json"), archiveJson, new UTF8Encoding(false));
             File.WriteAllText(Path.Combine(archive, "build-info.json"), JsonUtility.ToJson(new BuildInfo { unity = Application.unityVersion, hybridclr = new InstallerController().PackageVersion, target = Target.ToString(), development = false, entryAssembly = settings.entryAssembly, entryType = settings.entryType, assemblies = HotAssemblies, aotInputs = AotInputsFingerprint() }, true));
@@ -205,14 +213,17 @@ namespace Game.Framework.HotUpdate.Editor
                 }
             }
 
-            foreach (var file in manifest.assemblies)
+            if (manifest.content?.codeInResources != true)
             {
-                File.Copy(Path.Combine(hot, file.assemblyName + ".dll"), Path.Combine(BuiltinPath, file.fileName), true);
-            }
+                foreach (var file in manifest.assemblies)
+                {
+                    File.Copy(Path.Combine(hot, file.assemblyName + ".dll"), Path.Combine(BuiltinPath, file.fileName), true);
+                }
 
-            foreach (var file in manifest.aotMetadata)
-            {
-                File.Copy(Path.Combine(aot, file.assemblyName + ".dll"), Path.Combine(BuiltinPath, file.fileName), true);
+                foreach (var file in manifest.aotMetadata)
+                {
+                    File.Copy(Path.Combine(aot, file.assemblyName + ".dll"), Path.Combine(BuiltinPath, file.fileName), true);
+                }
             }
 
             File.WriteAllText(previous, archiveJson, new UTF8Encoding(false));
@@ -296,8 +307,13 @@ namespace Game.Framework.HotUpdate.Editor
             ReleasePolicy.Require(ReleasePolicy.Sha256File(bridgeCheck) == ReleasePolicy.Sha256File(Path.Combine(archive, "MethodBridge.inc")), "Native bridge requirements changed. A new player is required.");
             baseline.version = version;
             baseline.content = Settings.content;
-            ReleasePolicy.Validate(baseline);
             baseline.assemblies = HotAssemblies.Select(n => Describe(Path.Combine(hot, n + ".dll"))).ToArray();
+            if (BuildContent != null)
+            {
+                baseline.content = BuildContent(baseline, hot, aot, false);
+            }
+
+            ReleasePolicy.Validate(baseline);
             string output = Path.Combine(Root, "Artifacts", "Unsigned", baseline.platform, baseline.baselineId, version.ToString());
             ReleasePolicy.Require(!Directory.Exists(output), "Version output exists; export a new version.");
             Directory.CreateDirectory(output);
@@ -385,6 +401,13 @@ namespace Game.Framework.HotUpdate.Editor
         };
         internal static void ValidateBuiltin(ReleaseManifest baseline)
         {
+            if (baseline.content?.codeInResources == true)
+            {
+                ReleasePolicy.Require(BuildContent != null, "Install the project resource builder before building this baseline.");
+                // The project's resource build guard validates the packaged YooAsset output.
+                return;
+            }
+
             foreach (var file in baseline.assemblies.Concat(baseline.aotMetadata))
             {
                 ReleasePolicy.VerifyFile(Path.Combine(BuiltinPath, file.fileName), file);

@@ -9,7 +9,25 @@ using System.Threading;
 
 namespace Game.Framework
 {
-    /// <summary>按需创建的普通单例，自动登记新运行时的引用重置和已有实例的退出清理。</summary>
+    // 单例访问保护所需的内部状态；不保存实例、清理回调或释放顺序。
+    internal static class SingletonRuntimeState
+    {
+        internal static volatile bool IsQuitting;
+        internal static int Epoch;
+        internal static bool IsResetting
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return EditorStaticReset.IsResetting;
+#else
+                return false;
+#endif
+            }
+        }
+    }
+
+    /// <summary>按需创建的普通单例；运行时由所属入口集中 Release。</summary>
     public abstract class Singleton<T>
         where T : new()
     {
@@ -30,7 +48,9 @@ namespace Game.Framework
         private static bool resetting;
         static Singleton()
         {
-            SingletonLifecycle.Register(ResetSingleton, ShutdownSingleton);
+#if UNITY_EDITOR
+            EditorStaticReset.Register(ResetSingleton);
+#endif
         }
 
         private static Lazy<T> CreateLazy() => new Lazy<T>(() => new T(), LazyThreadSafetyMode.ExecutionAndPublication);
@@ -40,7 +60,7 @@ namespace Game.Framework
             {
                 lock (gate)
                 {
-                    if (resetting || (SingletonLifecycle.IsQuitting && !SingletonLifecycle.IsResetting) || (!lazy.IsValueCreated && (SingletonLifecycle.IsResetting || SingletonLifecycle.IsQuitting)))
+                    if (resetting || (SingletonRuntimeState.IsQuitting && !SingletonRuntimeState.IsResetting) || (!lazy.IsValueCreated && (SingletonRuntimeState.IsResetting || SingletonRuntimeState.IsQuitting)))
                     {
                         throw new InvalidOperationException("Cannot create a singleton during reset or shutdown: " + typeof(T).FullName);
                     }
@@ -96,11 +116,16 @@ namespace Game.Framework
             }
         }
 
-        private static void ShutdownSingleton()
+        /// <summary>释放已有实例并清空引用，不创建尚未使用的单例。</summary>
+        public static void Release()
         {
-            if (TryGetInstance(out var value) && value is IDisposable)
+            try
             {
                 ResetSingleton();
+            }
+            catch (Exception error)
+            {
+                Logger.Exception(error);
             }
         }
     }

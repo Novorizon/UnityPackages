@@ -123,7 +123,9 @@
     "Packages/com.novorizon.framework/Samples~/Network/link.xml",
     "Packages/com.novorizon.framework/Samples~/Network/link.xml.meta",
     "Packages/com.novorizon.gpuanimator/Documentation~/package-validation.md",
-    "Packages/com.novorizon.gpuanimator/Documentation~/package-validation.md.meta"
+    "Packages/com.novorizon.gpuanimator/Documentation~/package-validation.md.meta",
+    "Packages/com.novorizon.framework/Runtime/Core/SingletonLifecycle.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/SingletonLifecycle.cs.meta"
   ],
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
@@ -171,16 +173,16 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "1fb35e1d6718dc84abb223e8de43135a31bf6dda5ac66f9208f22de784399578",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "9d97da5859dde0e1b0a6632803d85993d5ed353c9720f6d868ff8b657d0c4875",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs": {
-      "sha256": "f0a9d4bd6c8d5bffa193704107ab4428866e1d79b8bc78f162e49620efbc4786",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
+      "sha256": "1c41c14cc62ecd33a2f96624fa4a68331b47eefa7d9b9b12f388daa2bfc32620",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs": {
       "sha256": "827f0da6e67efc18aaaf7200a86d7f24c4de9459b6930a4e7fd3f31ba6f5215d",
@@ -203,12 +205,12 @@
       "reason": "Add central GPU scheduling and playback notifications"
     },
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
-      "sha256": "0d9300500e911ca0171d6bcdd44c2252f6d1f6e2346f33c5ddebfa907dcd0217",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "3a1bd5b35e9b74fd7919cd68be83da5139d8777e25f1cc5af06bc1fbc4c9ae52",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "581804cf5c6b9c92642e8b9d7b19c7c32e5b9972cb7d8d6f825cb252733e94a1",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "f634b33e98b5eaf3ccf1171ddac53bf777c5b3ecc35b255358fe67642f13b2c3",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
@@ -247,16 +249,16 @@
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
-      "sha256": "41972b6ae93d7cf23abad1cfcb307e935ff266cfe9d5602398e289e62c1fde9b",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "7897d933732f55210de8a68b1a8f7260262d8ffad79af9780284d361faf3b51f",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Core/ConfigurableSingleton.cs": {
-      "sha256": "14221fc5d993538f0b56f1f84d2def45b53792f666653a76e637b5fb28ff42bd",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "0a4ae3f92ea885a971f71b706f8cb23007d3d3031333d652812df4007a11f48b",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "5ba418302c7dd4dc7efba7a40831e04b0cbc9834a481ad4293f2cee47ffb50be",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "de3a18dea743d613d3314e41f96004c2ff4464e0bc1bdfb1fd5340922c59695d",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
       "sha256": "71406c517c11e1479fb589cd2859fe0506f5f0693cb6dec183049fe104624456",
@@ -267,12 +269,12 @@
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
-      "sha256": "2339146453071ff7670319adc4c9c0c0bbfbafa98f356443625691cc243e8b95",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
-      "sha256": "b997342acafb17bbcab6ffa26a1d9f8520dc65c94d8b6c9b6edd259c914e18f9",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "fa2c506f8c8f2445b48bf7e4598b87f31ca2d2aa6dfcaea3ecca82a39cd5d0ab",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
       "sha256": "2d204826300da891044e2cc04d9b920e6fd9f01bd4fff4452d8ea44f9f800115",
@@ -287,8 +289,8 @@
       "reason": "Preserve corrupt install-state JSON until explicit retry and retain a recoverable failure state; bound registration polling after lost UPM request handles to once per half-second."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
-      "sha256": "5c29b9366e8780baee1e1a7c618abc7cb3d14bad0349ddf662a051afffce80bb",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "a0349f48abf6b1409bb889358b710e9aefe59579a676db9a90832c38d1a4bcdd",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs": {
       "sha256": "44a116ec542ff73e3eb98f608b6c204526b437a4c6c066f54e36bc6d39c43ff0",
@@ -303,16 +305,16 @@
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "7564361fb479965752415c0a9649cc7e3fd7a5ccebe911a55508f9a4322098ef",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "a15f0369f4ad3f2abc05422c818f267cd2e2b06708ea27de2a8235fcd0ca33dd",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
       "sha256": "97521eee81976da5685915b873f9d486c9b97b126db8870e33d5361d59ea935c",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
-      "sha256": "36f10d7c41fc8c6a14e52003f3a20b495e8b5e3a1317cdcfaa0b486d8bf2e0ba",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "b0bfd07a36a96f845bde97f9e7b2b6f68ab34ce6470e7cdb1ccd94d1a94d9c86",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
       "sha256": "36e44e400646b087c53ea0446cde47aca2cd1f8204b43fd773b76767de2e168d",
@@ -320,10 +322,6 @@
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
       "sha256": "abec211bf7367ef1cce0a25bd8345bc6d4a7c86733341e843aaef3505516ef5c",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
-    },
-    "Packages/com.novorizon.framework/Runtime/Core/SingletonLifecycle.cs": {
-      "sha256": "3b04cbc6b886b50027d76bcb35ca8f592d5123d23b6f760497d47d1be0356b54",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs": {
@@ -359,12 +357,12 @@
       "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {
-      "sha256": "791dc0a964f26db4250db4579300c54278f8ae3ad65fd52becf2dd9f1dd97e20",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "a7070b024e90ba52b31f0cbe07209a9af5187a0e6492d183df2906accf0ff5f7",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "410c5d43997115b0ddf9c672f19cdf5aabb3145c492cd0620c422295b2d665c0",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "156bf6f8318db654124d8b7e47353c547ec95d04849f697ee548ca37dad5b5fd",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
@@ -469,6 +467,10 @@
     "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
       "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",
       "reason": "Bind each dispatch batch to its original host so callbacks that reset and initialize a replacement host cannot consume the new session queue; preserve the prewarmed allocation-free path."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/EditorStaticReset.cs": {
+      "sha256": "45a0ae7e38e509c25ad98def43f2eacdef9a29ad495cc24202907abe9c53f949",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     }
   }
 }

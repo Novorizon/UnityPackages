@@ -15,6 +15,7 @@ internal static partial class Program
     private static void Main()
     {
         VerifyDispatchLifecycle();
+#if UNITY_EDITOR
         Check("retained GPU manager keeps playback configuration across lifecycle cleanup", () =>
         {
             Object.ResetTestState();
@@ -22,94 +23,112 @@ internal static partial class Program
             manager.PlaybackSpeed = .25f;
             manager.AutomaticUpdate = false;
             manager.IsPaused = true;
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
             True(ReferenceEquals(manager, GpuAnimatorManager.Instance));
             Equal(.25f, manager.PlaybackSpeed);
             True(!manager.AutomaticUpdate && manager.IsPaused);
         });
+#endif
         Check("legacy lazy singletons remain compatible", () =>
         {
             True(!Simple.IsCreated);
             True(ReferenceEquals(Simple.Instance, Simple.Instance));
         });
-        Check("ordinary singletons auto-register, release and recreate across repeated runs", () =>
+        Check("ordinary singletons explicitly release without creating and can be reused", () =>
         {
             var first = Resettable.Instance;
-            SingletonLifecycle.Reset();
+            Resettable.Release();
             Equal(1, first.Disposals);
             True(!Resettable.IsCreated);
             var second = Resettable.Instance;
             True(!ReferenceEquals(first, second));
-            SingletonLifecycle.Reset();
+            Resettable.Release();
             Equal(1, second.Disposals);
             True(!Resettable.IsCreated);
             var third = Resettable.Instance;
-            SingletonLifecycle.Shutdown();
-            SingletonLifecycle.Shutdown();
-            SingletonLifecycle.Reset();
+            Resettable.Release();
+            Resettable.Release();
             Equal(1, third.Disposals);
         });
-        Check("uncreated singleton registration does not create an object during reset or shutdown", () =>
+        Check("Release does not create an unused singleton and application quit blocks creation", () =>
         {
             True(!NeverCreated.IsCreated);
-            SingletonLifecycle.Reset();
-            SingletonLifecycle.Shutdown();
+            NeverCreated.Release();
+            Object.MarkQuittingForTest();
             Equal(0, NeverCreated.Created);
             Throws<InvalidOperationException>(() =>
             {
                 _ = NeverCreated.Instance;
             });
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
         });
-        Check("configurable singletons automatically dispose and reopen after play reset", () =>
+        Check("configurable singleton owners release instances before quitting", () =>
         {
             var old = Service.Instance;
-            SingletonLifecycle.Shutdown();
+            ConfigurableSingleton<Service>.Release();
             True(old.Disposed && !Service.IsCreated);
+            Object.MarkQuittingForTest();
             Throws<InvalidOperationException>(() =>
             {
                 _ = Service.Instance;
             });
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
             True(!ReferenceEquals(old, Service.Instance));
         });
-        Check("registry cleanup continues after failure and cannot construct another service", () =>
+        Check("quit permits access to an existing configurable service but forbids recreation", () =>
+        {
+            var current = Service.Instance;
+            Object.MarkQuittingForTest();
+            True(ReferenceEquals(current, Service.Instance));
+            ConfigurableSingleton<Service>.Release();
+            Throws<InvalidOperationException>(() => _ = Service.Instance);
+            Object.ResetSingletonsForPlay();
+        });
+        Check("central explicit cleanup continues after failure without constructing services during quit", () =>
         {
             var old = ThrowingReset.Instance;
             var next = Resettable.Instance;
-            SingletonLifecycle.Reset();
+            Object.MarkQuittingForTest();
+            ThrowingReset.Release();
+            Resettable.Release();
             True(old.Attempted && !ThrowingReset.IsCreated);
             Equal(1, next.Disposals);
             True(!NeverCreated.IsCreated);
+            Object.ResetSingletonsForPlay();
         });
+#if UNITY_EDITOR
         Check("resetting a retained component calls OnExit once and OnStart on its next use", () =>
         {
             Object.ResetTestState();
             var value = RetainedHook.Instance;
             int starts = value.Starts;
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
             Equal(1, value.Exits);
             True(!RetainedHook.TryGetInstance(out _));
             True(ReferenceEquals(value, RetainedHook.Instance));
             Equal(starts + 1, value.Starts);
-            SingletonLifecycle.Shutdown();
-            SingletonLifecycle.Shutdown();
+            var quit = typeof(MonoSingleton<RetainedHook>).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic);
+            quit.Invoke(value, null);
+            quit.Invoke(value, null);
             Equal(2, value.Exits);
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
             Equal(2, value.Exits);
         });
-        Check("module callbacks retain explicit ownership order and registration across runs", () =>
+#endif
+        Check("ECS uses its own Unity reset hook and explicit World Entity Pool ownership order", () =>
         {
-            ECS.Ecs.EnsureLifecycleRegistration();
+            var reset = typeof(ECS.Ecs).GetMethod("OnSubsystemRegistration", BindingFlags.Static | BindingFlags.NonPublic);
             ECS.EcsBoundary.Calls.Clear();
-            SingletonLifecycle.Reset();
+            reset.Invoke(null, null);
             Equal("world,entity,pool", string.Join(",", ECS.EcsBoundary.Calls));
             ECS.EcsBoundary.Calls.Clear();
-            SingletonLifecycle.Reset();
+            reset.Invoke(null, null);
             Equal("world,entity,pool", string.Join(",", ECS.EcsBoundary.Calls));
-            SingletonLifecycle.Shutdown();
+            typeof(ECS.Ecs).GetMethod("ObserveApplicationQuit", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
+            Application.QuitForTest();
             True(ECS.Ecs.IsQuitting);
-            SingletonLifecycle.Reset();
+            reset.Invoke(null, null);
+            Object.ResetSingletonsForPlay();
             True(!ECS.Ecs.IsQuitting);
         });
         Check("configurable singleton supports private constructors and concurrent acquisition", () =>
@@ -386,7 +405,7 @@ internal static partial class Program
     {
         try
         {
-            SingletonLifecycle.Reset();
+            Object.ResetSingletonsForPlay();
             action();
             passed++;
             Console.WriteLine("PASS " + name);

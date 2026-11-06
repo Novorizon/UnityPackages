@@ -25,7 +25,9 @@ namespace Game.Framework
         private static bool stopped;
         static ConfigurableSingleton()
         {
-            SingletonLifecycle.Register(() => ResetInstance(DisposeValue), () => ResetInstance(DisposeValue, true));
+#if UNITY_EDITOR
+            EditorStaticReset.Register(() => ResetInstance(DisposeValue));
+#endif
         }
 
         private static void DisposeValue(T value)
@@ -182,7 +184,7 @@ namespace Game.Framework
 
         private static void EnsureAvailable()
         {
-            if (stopped || resetting || (instance == null && (SingletonLifecycle.IsResetting || SingletonLifecycle.IsQuitting)))
+            if (stopped || resetting || (instance == null && (SingletonRuntimeState.IsResetting || SingletonRuntimeState.IsQuitting)))
             {
                 throw new InvalidOperationException("The service is stopping or resetting: " + typeof(T).FullName);
             }

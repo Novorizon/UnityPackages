@@ -22,6 +22,9 @@ namespace Game.Framework.HotUpdate
         public ReleaseContent content;
         [NonSerialized]
         public Func<ReleaseContentContext, CancellationToken, Task> prepareContentAsync;
+        /// <summary>可选资源提供方；先完成 prepareContentAsync，再读取并校验 DLL/AOT 元数据。未设置时保留独立文件流程。</summary>
+        [NonSerialized]
+        public Func<ReleaseContentContext, ReleaseFile, CancellationToken, Task<byte[]>> loadCodeAsync;
         public int requestTimeoutSeconds = 20;
         public int requestAttempts = 2;
         public int maxCachedReleases = 8;

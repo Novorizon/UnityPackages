@@ -8,21 +8,11 @@ namespace ECS
     /// <summary>Owns ECS startup without loading MVC or scanning user assemblies.</summary>
     public static class Ecs
     {
-        static Ecs()
-        {
-            // World -> Entity -> Pool 的顺序仍由 ECS 自己维护。
-            SingletonLifecycle.Register(OnSubsystemRegistration, OnSubsystemRegistration, order: -100);
-        }
-
-        internal static void EnsureLifecycleRegistration()
-        {
-        }
-
         public static bool IsQuitting
         {
             get
             {
-                return SingletonLifecycle.IsQuitting || SingletonRuntimeState.IsQuitting;
+                return SingletonRuntimeState.IsQuitting;
             }
         }
 
@@ -47,6 +37,19 @@ namespace ECS
             return manager.DefaultWorld;
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void ObserveApplicationQuit()
+        {
+            Application.quitting -= OnApplicationQuit;
+            Application.quitting += OnApplicationQuit;
+        }
+
+        private static void OnApplicationQuit()
+        {
+            SingletonRuntimeState.IsQuitting = true;
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void OnSubsystemRegistration()
         {
             SingletonRuntimeState.IsQuitting = true;

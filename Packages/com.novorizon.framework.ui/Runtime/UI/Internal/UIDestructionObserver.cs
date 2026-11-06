@@ -113,6 +113,7 @@ namespace UI
             quitting = true;
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         internal static void ResetForPlay()
         {
             quitting = false;

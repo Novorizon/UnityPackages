@@ -176,11 +176,6 @@ namespace UI
         readonly List<Task> retiredFactories = new();
         public bool IsInitialized => initialized && !destroyed && !shuttingDown;
 
-        static UIManager()
-        {
-            SingletonLifecycle.Register(UIDestructionObserver.ResetForPlay, order: 100);
-        }
-
         protected override void Awake()
         {
             if (quitting)

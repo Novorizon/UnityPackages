@@ -31,6 +31,14 @@ ReleaseManifest.content 保存资源包名和精确版本，与 DLL 哈希、基
 
 remoteBaseUrl 为清单根，remoteFilesBaseUrl 可单独指定 DLL 根；scopeRemoteByBaseline 按平台/渠道/基线划分路径。启用远程更新需要可信公钥和 HTTPS。
 
+### 由 YooAsset 等资源系统提供代码
+
+GameStarter 默认将 DLL 与 AOT 补充元数据打进同一个 YooAsset 资源版本：prepareContentAsync 先完成该版本全部缺失资源的下载，loadCodeAsync 再按 ReleaseContentContext.CodeLocation(file) 读取字节。封装会继续校验签名清单中的大小和 SHA256，验证全部代码后才加载元数据和程序集。资源下载、缓存与租约仍由 ResourceManager 负责；HotUpdateManager 负责发行和代码加载，不接管日常资源管理。
+
+这种基线的 content.codeInResources 为 true，缺少提供方直接失败；缓存只保留签名发行清单和启动健康记录，不额外保存一份 DLL。GameBuild.BuildContent 在 DLL 编译后调用项目资源构建器，将返回的精确资源版本绑定到该发行。主包内的代码也从资源包读取，不再复制一份独立 StreamingAssets DLL。
+
+未使用资源提供方的独立包使用者仍可沿用原文件传输接口。GameStarter 的旧 WR 源码、构建与部署流程完整保存在两个仓库的 backup/unitywebrequest-updates-20261106 分支；新项目流程只发布 assets/ 和 manifests/，发行入口的小型 JSON 仍经 HTTP 获取。
+
 ## 构建与发布
 
 - GameBuild.Configure：建立工程配置和入口模板，不覆盖已有游戏入口。

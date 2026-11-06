@@ -17,6 +17,12 @@ internal static partial class Program
         await Check("resource preparation failure prevents game entry construction", ContentFailure);
         await Check("release signatures bind the resource version and package identity", ContentPolicy);
         await Check("failed update resources fall back with packaged DLLs and reject the complete pair", ReleasePairFallback);
+        await Check("resource code shares completed downloads and restarts from manifest-only cache", () => RunReleasePair(ResourceCodeCase.Success));
+        await Check("missing unified resources revert both code and content without raw downloads", () => RunReleasePair(ResourceCodeCase.MissingResources));
+        await Check("resource DLL hash mismatch rejects the release before loading", () => RunReleasePair(ResourceCodeCase.CorruptDll));
+        await Check("resource AOT metadata stays pinned and fails as a complete pair", () => RunReleasePair(ResourceCodeCase.CorruptMetadata));
+        await Check("resource code cancellation never falls back or downloads raw DLLs", () => RunReleasePair(ResourceCodeCase.Cancelled));
+        await Check("resource-code baseline refuses silent standalone-download fallback", () => RunReleasePair(ResourceCodeCase.MissingProvider));
         await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
