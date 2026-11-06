@@ -196,8 +196,8 @@
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
-      "sha256": "14b8347662a18ffbf10068c65bc81f7230ffa2ad2e01616083aa42470d54dc65",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "01ebc8f17b3d47be979ac84a8ea2745b079486fd6a8f462ab4dd2f440ac57177",
+      "reason": "Pass optional game-owned startup context into the hot entry while preserving the existing IGameHost/IGameModule contract methods and legacy initialization overload."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
       "sha256": "c9324a7346451b82516bf00087cf54d7a5057cc7b2722aa2f388b9feedbcb437",
@@ -254,6 +254,10 @@
     "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs": {
       "sha256": "d91fce605647b2a45dc72e6fb09367313887a5dba09959b064bdd07b55d90508",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs": {
+      "sha256": "c7eaaa7cf629d8cfbd86f435ed1cadf1cd9973d391b017fa23c2c56deec1208a",
+      "reason": "Pass optional game-owned startup context into the hot entry while preserving the existing IGameHost/IGameModule contract methods and legacy initialization overload."
     }
   }
 }

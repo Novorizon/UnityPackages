@@ -16,6 +16,7 @@ internal static class Program
         await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
+        await Check("startup context reaches the optional host without serialization", StartupContext);
         await Check("missing startup acknowledgement fails and closes the entry", MissingAcknowledgement);
         await Check("initialization failure is propagated after entry cleanup", StartupFailure);
         await Check("cancelled call cannot construct a hot entry", AlreadyCancelled);
@@ -91,6 +92,19 @@ internal static class Program
         True(manager.Status == "Not started" && !manager.IsReady);
         True(Verification.FixtureHotGame.Created == 0);
         return Task.CompletedTask;
+    }
+
+    private static async Task StartupContext()
+    {
+        object context = new object();
+        Verification.FixtureHotGame.Initialize = (host, token) =>
+        {
+            True(host is IGameContextHost contextHost && ReferenceEquals(contextHost.StartupContext, context));
+            host.ReportReady("context");
+            return Task.CompletedTask;
+        };
+        await HotUpdateManager.Instance.InitializeAsync(Settings(), context);
+        True(HotUpdateManager.Instance.IsReady);
     }
 
     private static async Task InitializeOnce()

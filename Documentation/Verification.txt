@@ -1,4 +1,4 @@
-UnityPackages common initialization entry: v0.1.0-preview.20
+UnityPackages optional hot startup context: v0.1.0-preview.21
 
 Toolchain: .NET SDK 8.0.427; generator targets netstandard2.0 and Roslyn 3.8.0.
 Native Unity Editor / IL2CPP / device execution: NOT performed.
@@ -13,16 +13,19 @@ PASS 62 service scenarios in Player mode; 64 in Editor mode, including actual bo
      and retained audio configuration. Uses official Luban CLI/runtime; Unity/Input System/YooAsset are models.
 PASS 183 UI tests, including retained-root restart via lifecycle cleanup and generated static restoration.
 PASS 24 TCP/network tests; transport code and test thresholds were unchanged.
-PASS 12 explicit hot-update scenarios and separate Runtime / Editor / Player compilation.
+PASS 13 explicit hot-update scenarios and separate Runtime / Editor / Player compilation.
 PASS 20 aggregate installation scenarios.
 PASS RTree correctness and spatial differential/invariant suites.
 PASS Ability public API contracts; editor codec 22, reference preflight 25, sandbox 16,
      workspace 28, and Editor UI compilation with Odin disabled.
 PASS common Initialize dispatch reaches real default Config/Scene/Input setup through singleton base references;
      parameterized Input setup and asynchronous resource initialization guards remain effective.
-PASS standalone GameStarter: 48 lifecycle / startup / installation scenarios using Framework source and shipped analyzer.
+PASS standalone GameStarter: 49 lifecycle / startup / installation scenarios using Framework source and shipped analyzer.
 
 The normal CI entry remains `python3 tools/workspace.py verify`; it now rebuilds/checks the shipped
 analyzer and compiles both Editor and Player variants. Merge requires the complete GitHub check to pass.
 Real Unity 2022.3 import, Play transitions with each Enter Play Mode setting, and target-platform builds
 remain necessary native acceptance checks.
+
+Optional startup context is passed as the original object to IGameContextHost without changing IGameHost/IGameModule methods.
+Luban API/package cleanup has not been applied; its prototype is separate from this release.
