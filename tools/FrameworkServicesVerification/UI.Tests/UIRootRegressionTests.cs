@@ -202,6 +202,20 @@ public sealed class UIRootRegressionTests : IDisposable
     }
 
     [Fact]
+    public void RetainedRootCanStartAgainAfterItsQuitHook()
+    {
+        var root = UIManager.Instance;
+        var oldPopups = root.Popups;
+        typeof(UIManager).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(root, null);
+        typeof(Game.Framework.MonoSingleton<>).Assembly.GetType("Game.Framework.MonoSingletonLifecycle")!.GetMethod("Reset", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, null);
+        typeof(UIManager).GetMethod("ResetForPlay", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, null);
+        Assert.Same(root, UIManager.Instance);
+        Assert.True(root.IsInitialized);
+        Assert.NotSame(oldPopups, root.Popups);
+        Assert.Equal(1, SceneManager.SceneLoadedSubscriberCountForTest);
+    }
+
+    [Fact]
     public void InactiveParentsAndReparentingPropagateActivationToChildComponents()
     {
         var staging = new GameObject("Inactive Staging");

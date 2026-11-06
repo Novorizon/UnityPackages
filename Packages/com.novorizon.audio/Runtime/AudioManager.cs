@@ -375,15 +375,8 @@ namespace Game.Framework.Audio
             paused = false;
         }
 
-        protected override void OnDestroy()
+        protected override void OnExit()
         {
-            base.OnDestroy();
-            ClearPlayback();
-        }
-
-        protected override void OnApplicationQuit()
-        {
-            base.OnApplicationQuit();
             ClearPlayback();
         }
 

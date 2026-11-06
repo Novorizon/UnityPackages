@@ -1,23 +1,19 @@
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 12, "ownedPackages": 12, "externalDependencyReferences": 3, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": ["Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs", "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"], "activeAssemblies": 23, "activeGuids": 385, "nativeUnityExecuted": false}
-2026/11/06 02:13:59.574|INFO| ==========================================================================================
-2026/11/06 02:13:59.576|INFO|
-2026/11/06 02:13:59.576|INFO|  Luban is developed by Code Philosophy Technology Co., LTD. https://code-philosophy.com
-2026/11/06 02:13:59.576|INFO|
-2026/11/06 02:13:59.576|INFO| ==========================================================================================
-2026/11/06 02:13:59.772|INFO|load schema. collector: "default"
-2026/11/06 02:13:59.906|INFO|load datas begin
-2026/11/06 02:13:59.908|INFO|process code target:"cs-bin" begin
-2026/11/06 02:14:00.415|INFO|load datas end
-2026/11/06 02:14:00.415|INFO|validation begin
-2026/11/06 02:14:00.422|INFO|validation end
-2026/11/06 02:14:00.422|INFO|process data target:"bin" begin
-2026/11/06 02:14:00.479|INFO|[new] /tmp/novorizon-interaction-dependencies/fixture/data/tbexample.bytes
-2026/11/06 02:14:00.479|INFO|process data target:"bin" end
-2026/11/06 02:14:00.497|INFO|[new] /tmp/novorizon-interaction-dependencies/fixture/code/Example.cs
-2026/11/06 02:14:00.497|INFO|[new] /tmp/novorizon-interaction-dependencies/fixture/code/TbExample.cs
-2026/11/06 02:14:00.497|INFO|[new] /tmp/novorizon-interaction-dependencies/fixture/code/Tables.cs
-2026/11/06 02:14:00.497|INFO|process code target:"cs-bin" end
-2026/11/06 02:14:00.497|INFO|bye~
+PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 12, "ownedPackages": 12, "externalDependencyReferences": 3, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": [], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs", "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"], "activeAssemblies": 23, "activeGuids": 385, "nativeUnityExecuted": false}
+2026/11/06 03:37:37.040|INFO| ==========================================================================================
+2026/11/06 03:37:37.043|INFO|
+2026/11/06 03:37:37.043|INFO|  Luban is developed by Code Philosophy Technology Co., LTD. https://code-philosophy.com
+2026/11/06 03:37:37.043|INFO|
+2026/11/06 03:37:37.043|INFO| ==========================================================================================
+2026/11/06 03:37:37.162|INFO|load schema. collector: "default"
+2026/11/06 03:37:37.236|INFO|load datas begin
+2026/11/06 03:37:37.236|INFO|process code target:"cs-bin" begin
+2026/11/06 03:37:37.365|INFO|load datas end
+2026/11/06 03:37:37.365|INFO|validation begin
+2026/11/06 03:37:37.376|INFO|validation end
+2026/11/06 03:37:37.379|INFO|process data target:"bin" begin
+2026/11/06 03:37:37.399|INFO|process data target:"bin" end
+2026/11/06 03:37:37.422|INFO|process code target:"cs-bin" end
+2026/11/06 03:37:37.422|INFO|bye~
   Determining projects to restore...
   All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
@@ -26,7 +22,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:11.14
+Time Elapsed 00:00:04.12
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -61,7 +57,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:26.36
+Time Elapsed 00:00:22.60
 PASS legacy lazy singletons remain compatible
 PASS configurable singleton supports private constructors and concurrent acquisition
 PASS TryGetInstance never creates and configured services cannot be replaced implicitly
@@ -71,6 +67,13 @@ PASS stop prevents resurrection until an explicit reset
 PASS failed, null and reentrant factories leave creation retryable
 PASS cleanup exceptions release the reset gate
 PASS NetworkManager uses the Framework configurable singleton
+PASS Release never creates a configurable service and preserves the quit guard
+PASS MonoSingleton OnExit runs once across release and deferred native destruction
+PASS MonoSingleton starts once per run even when Instance is accessed repeatedly
+PASS duplicate components cannot run the active singleton's exit hook
+PASS quit and subsequent destruction share the same OnExit invocation
+PASS failed component startup cleans only its own lifetime inside the singleton
+PASS ECS releases its initialized state through OnExit exactly once
 PASS network stop and restart reuse the generic lifecycle
 PASS GPU player has no individual Unity Update callback
 PASS GPU auto registration and single manager tick
@@ -86,7 +89,7 @@ PASS GPU notification failures do not prevent completion callbacks
 PASS GPU manual players still publish global notifications
 PASS GPU reentrant animation switches preserve notification order
 PASS GPU steady scheduler updates allocate no managed memory
-PASS 24 singleton, actual network and GPU scheduling scenarios; Unity APIs are boundary models.
+PASS 31 singleton, actual network and GPU scheduling scenarios; Unity APIs are boundary models.
   Determining projects to restore...
   All projects are up-to-date for restore.
   Core -> /workspace/UnityPackages/tools/GameModulesVerification/Core/bin/Release/net8.0/Game.Framework.Core.dll
@@ -107,7 +110,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:13.71
+Time Elapsed 00:00:35.01
 PASS data registration uses exact declared types and rejects duplicates
 PASS data cleanup reverses ownership order and continues after failures
 PASS unowned data survives removal and cleanup cannot repopulate the manager
@@ -126,7 +129,7 @@ PASS build scene loading, activation and external unload keep ownership synchron
 PASS scene cancellation does not overlap an already started native load
 PASS scene cancellation before queue execution skips the provider
 System.InvalidOperationException: listener
-   at Program.<>c.<Main>b__2_79(Scene _) in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 267
+   at Program.<>c.<Main>b__2_80(Scene _) in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 267
    at Game.Framework.Scenes.SceneManager.Notify(Action`1 listeners, Scene scene) in /workspace/UnityPackages/Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs:line 171
 PASS failed scene loads release the queue and notification failures do not corrupt it
 PASS scene disposal retires pending results and disposes its provider
@@ -148,10 +151,11 @@ PASS cancelling one resource acquisition never cancels another acquisition
 PASS resource scope disposal cancels pending native loads and releases late handles
 PASS scene resource scope unload releases only that scene's resources
 PASS resource shutdown invalidates leases and awaits unfinished native releases
+PASS resource initialization waits for its own pending release without entry bookkeeping
 PASS failed or incorrectly typed acquisitions release their own handles
 System.AggregateException: One or more errors occurred. (cancellation callback)
  ---> System.InvalidOperationException: cancellation callback
-   at Program.<>c.<Main>b__2_90() in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 564
+   at Program.<>c.<Main>b__2_91() in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 580
    at System.Threading.CancellationTokenSource.Invoke(Delegate d, Object state, CancellationTokenSource source)
    at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
 --- End of stack trace from previous location ---
@@ -178,7 +182,7 @@ PASS Luban corrupt data and failed reload retain the previous complete snapshot
 PASS Luban rejects invalid manifests and missing table mappings before publishing
 PASS Luban concurrent loads, clear and cancellation cannot publish stale snapshots
 PASS Luban exporter invokes real CLI in paths with spaces and retains last good outputs on failure
-PASS 56 service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).
+PASS 57 service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).
   Determining projects to restore...
   All projects are up-to-date for restore.
   Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
@@ -187,7 +191,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:07.88
+Time Elapsed 00:00:01.30
 PASS regression: recycled nodes and deletion reinsertion
 PASS regression: root bounds, empty tree and refill
 PASS regression: failed operations preserve mappings
@@ -206,7 +210,7 @@ PASS regression: caller-owned query buffers and statistics
 PASS regression: reused queries allocate no managed memory
 PASS regression: concurrent queries use independent scratch
 PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 9.75s.
+PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 6.44s.
 Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -216,23 +220,23 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:09.80
-PASS geometry and boundary queries (0.18s)
-PASS randomized box indexes and RTree adapter (0.30s)
-PASS dynamic AABB handles, updates and pairs (0.14s)
-PASS dynamic AABB ordered, nested and moving objects (0.48s)
-PASS loose octree ownership, expansion and updates (0.03s)
-PASS subtree pruning and movement outside cached content bounds (0.02s)
+Time Elapsed 00:00:01.23
+PASS geometry and boundary queries (0.07s)
+PASS randomized box indexes and RTree adapter (0.13s)
+PASS dynamic AABB handles, updates and pairs (0.06s)
+PASS dynamic AABB ordered, nested and moving objects (0.26s)
+PASS loose octree ownership, expansion and updates (0.02s)
+PASS subtree pruning and movement outside cached content bounds (0.01s)
 PASS scaled and cancelling frustum planes (0.00s)
-PASS static BVH refit/rebuild (0.04s)
-PASS triangle BVH exact ray queries (0.11s)
-PASS triangle precision regressions (0.01s)
+PASS static BVH refit/rebuild (0.02s)
+PASS triangle BVH exact ray queries (0.07s)
+PASS triangle precision regressions (0.00s)
 PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.30s)
+PASS KD radius, k nearest, ties and rebuild (0.37s)
 PASS concurrent reads and writers (0.13s)
-PASS warmed reusable queries allocate zero bytes (0.70s)
-PASS public mutable interfaces and RTreeIndex adapter (0.08s)
-PASS: 94,160 assertions, 0 failed groups, 2.53s (full)
+PASS warmed reusable queries allocate zero bytes (0.75s)
+PASS public mutable interfaces and RTreeIndex adapter (0.17s)
+PASS: 94,160 assertions, 0 failed groups, 2.09s (full)
   Determining projects to restore...
   All projects are up-to-date for restore.
   Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
@@ -243,7 +247,7 @@ PASS: 94,160 assertions, 0 failed groups, 2.53s (full)
 Test run for /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll (.NETCoreApp,Version=v8.0)
 A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:   182, Skipped:     0, Total:   182, Duration: 3 s - Game.Framework.UI.Tests.dll (net8.0)
+Passed!  - Failed:     0, Passed:   183, Skipped:     0, Total:   183, Duration: 3 s - Game.Framework.UI.Tests.dll (net8.0)
   Determining projects to restore...
   All projects are up-to-date for restore.
   Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
@@ -263,7 +267,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:21.99
+Time Elapsed 00:00:17.52
 PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
   Determining projects to restore...
   All projects are up-to-date for restore.
@@ -275,7 +279,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:17.65
+Time Elapsed 00:00:13.18
 Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
 PASS codec: real JSON semantic round trip: crystal_maiden.json
 PASS codec: real JSON semantic round trip: lina.json
@@ -385,9 +389,9 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:23.49
+Time Elapsed 00:00:12.22
 
-Final targeted service/editor-exporter verification after rollback hardening:
+Final resource lease verification:
   Determining projects to restore...
   All projects are up-to-date for restore.
   Core -> /workspace/UnityPackages/tools/GameModulesVerification/Core/bin/Release/net8.0/Game.Framework.Core.dll
@@ -408,7 +412,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:23.98
+Time Elapsed 00:00:30.69
 PASS data registration uses exact declared types and rejects duplicates
 PASS data cleanup reverses ownership order and continues after failures
 PASS unowned data survives removal and cleanup cannot repopulate the manager
@@ -427,7 +431,7 @@ PASS build scene loading, activation and external unload keep ownership synchron
 PASS scene cancellation does not overlap an already started native load
 PASS scene cancellation before queue execution skips the provider
 System.InvalidOperationException: listener
-   at Program.<>c.<Main>b__2_79(Scene _) in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 267
+   at Program.<>c.<Main>b__2_82(Scene _) in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 267
    at Game.Framework.Scenes.SceneManager.Notify(Action`1 listeners, Scene scene) in /workspace/UnityPackages/Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs:line 171
 PASS failed scene loads release the queue and notification failures do not corrupt it
 PASS scene disposal retires pending results and disposes its provider
@@ -449,10 +453,13 @@ PASS cancelling one resource acquisition never cancels another acquisition
 PASS resource scope disposal cancels pending native loads and releases late handles
 PASS scene resource scope unload releases only that scene's resources
 PASS resource shutdown invalidates leases and awaits unfinished native releases
+PASS resource initialization waits for its own pending release without entry bookkeeping
+PASS protected leases keep native consumers alive until they finish their own cleanup
+PASS play reset can retire protected leases without an old shutdown clearing the new play
 PASS failed or incorrectly typed acquisitions release their own handles
 System.AggregateException: One or more errors occurred. (cancellation callback)
  ---> System.InvalidOperationException: cancellation callback
-   at Program.<>c.<Main>b__2_90() in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 564
+   at Program.<>c.<Main>b__2_93() in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 607
    at System.Threading.CancellationTokenSource.Invoke(Delegate d, Object state, CancellationTokenSource source)
    at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
 --- End of stack trace from previous location ---
@@ -479,4 +486,4 @@ PASS Luban corrupt data and failed reload retain the previous complete snapshot
 PASS Luban rejects invalid manifests and missing table mappings before publishing
 PASS Luban concurrent loads, clear and cancellation cannot publish stale snapshots
 PASS Luban exporter invokes real CLI in paths with spaces and retains last good outputs on failure
-PASS 56 service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).
+PASS 59 service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).

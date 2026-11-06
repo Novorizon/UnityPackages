@@ -7,6 +7,7 @@ namespace UnityEngine
     public static partial class Time
     {
         public static float deltaTime = .016f;
+        public static float fixedDeltaTime = .02f;
     }
 
     public class Renderer : MonoBehaviour

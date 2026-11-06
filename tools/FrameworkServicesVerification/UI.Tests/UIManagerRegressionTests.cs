@@ -116,7 +116,7 @@ public sealed class UIManagerRegressionTests : IDisposable
         var first = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeToast>(true));
         first.FailClose = true;
         first.Finish();
-        await DrainAsync();
+        await UntilAsync(() => ProbeToast.Opened == 2 && factory.ActiveCount == 1);
         Assert.Equal(2, ProbeToast.Opened);
         Assert.True(first.DestroyedForTest);
         Assert.Single(Debug.Exceptions);
@@ -125,9 +125,10 @@ public sealed class UIManagerRegressionTests : IDisposable
         Assert.NotSame(first, second);
         Assert.True(second.IsOpen);
         second.Finish();
-        await DrainAsync();
+        await UntilAsync(() => factory.ActiveCount == 0);
         Assert.Equal(0, factory.ActiveCount);
         toasts.Enqueue("third");
+        await UntilAsync(() => ProbeToast.Opened == 3);
         Assert.Equal(3, ProbeToast.Opened);
         toasts.Clear();
         Assert.Equal(0, factory.ActiveCount);
@@ -147,7 +148,7 @@ public sealed class UIManagerRegressionTests : IDisposable
             toasts.Enqueue("replacement");
         };
         first.Finish();
-        await DrainAsync();
+        await UntilAsync(() => ProbeToast.Opened == 2 && factory.ActiveCount == 1);
         Assert.Equal(2, ProbeToast.Opened);
         Assert.Equal(1, factory.ActiveCount);
         toasts.Clear(); // Requires the new runner's current handle to survive the old runner's finally.
@@ -156,11 +157,12 @@ public sealed class UIManagerRegressionTests : IDisposable
         Assert.Equal(3, ProbeToast.Opened);
     }
 
-    static async Task DrainAsync()
+    static async Task UntilAsync(Func<bool> completed)
     {
-        for (int i = 0; i < 6; i++)
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        while (!completed())
         {
-            await Task.Yield();
+            await Task.Delay(1, timeout.Token);
         }
     }
 

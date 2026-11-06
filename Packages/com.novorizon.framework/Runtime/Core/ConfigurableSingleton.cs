@@ -31,6 +31,25 @@ namespace Game.Framework
             }
         }
 
+        /// <summary>释放已有实例，不创建新实例；清理错误在框架内部记录。</summary>
+        public static void Release()
+        {
+            try
+            {
+                ResetCore(value =>
+                {
+                    if (value is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }, null);
+            }
+            catch (Exception error)
+            {
+                Logger.Exception(error);
+            }
+        }
+
         protected static T GetOrCreateInstance(Func<T> factory)
         {
             if (factory == null)
@@ -85,6 +104,11 @@ namespace Game.Framework
 
         protected static void ResetInstance(Action<T> release, bool stopping = false)
         {
+            ResetCore(release, stopping);
+        }
+
+        private static void ResetCore(Action<T> release, bool? stopping)
+        {
             T previous;
             lock (gate)
             {
@@ -95,7 +119,11 @@ namespace Game.Framework
 
                 previous = instance;
                 instance = null;
-                stopped = stopping;
+                if (stopping.HasValue)
+                {
+                    stopped = stopping.Value;
+                }
+
                 resetting = true;
             }
 
