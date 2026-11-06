@@ -1,6 +1,6 @@
 # Framework HybridCLR
 
-独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.3。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.10.0-preview.2，官方 HybridCLR 9.0.3。
+独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.9。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.14.0-preview.1，官方 HybridCLR 9.0.3。
 
 ## 安装
 
@@ -12,17 +12,46 @@
 
 ## 三个入口
 
-- **1. Setup Project**：生成设置、独立热更新 asmdef 和最小 IGameModule 入口。已存在的源码与设置保留；不创建或替换项目场景。
+- **1. Setup Project**：生成独立热更新 asmdef 和最小 HotGame 入口，不生成启动 JSON。已存在的源码保留；不创建或替换项目场景。
 - **2. Build New Player**：当前目标设为 Release IL2CPP；自动发现配置目录中的 Player asmdef，通过依赖排序后写入 HybridCLR，安装匹配原生运行时，生成桥接和裁剪信息，分析 AOT，冻结基线并构建。需要项目已将首场景加入 Build Settings。
 - **3. Export Patch**：只编译新热更新代码，以原主包的冻结 AOT 检查缺失 API、元数据集合、桥接与输入指纹。自动递增当前基线的导出版本；CI 可设置 HOTUPDATE_VERSION 指定更高版本。
 
 支持 Windows x64、Android ARM64、iOS ARM64。原生工具链与平台模块由 Unity 安装环境提供。每次 Build New Player 都创建新的基线；Advanced 菜单提供分别准备和构建已准备主包的入口。
 
-配置文件为 `Assets/Resources/NovorizonHotUpdateSettings.json`。修改 `hotUpdateRoot`、`entryAssembly`、`entryType` 可使用项目自己的命名。热更新目录只收集实际参与 Player 编译的 asmdef，支持名字/GUID 引用和多个程序集；不能从 AOT 程序集直接引用热更新程序集。共享契约放在热更新目录之外。新增或改变热更新程序集依赖顺序需要新主包。
+运行时由项目的 GameEntry 显式启动。基础 Manager 初始化完成后调用：
 
-自动启动仅在配置存在且 `autoStart=true` 时启用；Editor 执行 Unity 已编译源码，Player 按清单依次加载内置 AOT 元数据和热更新 DLL。关闭 autoStart 后，项目可在主线程访问 `GameBootstrap.Instance` 显式启动。启动对象继承 Framework 的 MonoSingleton，不另实现单例。游戏入口自行取消初始化会报告启动失败并释放模块；关闭或销毁会话引起的取消按正常终止处理。
+```csharp
+await HotUpdateManager.Instance.InitializeAsync(new UpdateSettings(), token);
+```
 
-没有配置时，本包不会创建启动对象，也不会拦截普通 Unity 构建。
+退出时先调用 `HotUpdateManager.Release()`，再释放其他 Manager。它复用 Framework 的 ConfigurableSingleton，是普通 C# 服务，不创建 GameObject，不使用 RuntimeInitializeOnLoadMethod 自动启动，也不读取启动 JSON。重复初始化返回同一个 Task；失败向调用方报告，入口对象的取消与清理由包内部处理。
+
+默认配置使用 Unity 的 Application.identifier，热更目录为 Assets/HotUpdate，程序集为 Game.HotUpdate，入口类型为 Game.HotUpdate.HotGame。自定义参数直接通过 UpdateSettings 传入。构建菜单默认使用同样的配置；需要自定义时，在项目 Editor 初始化代码中将 `GameBuild.SettingsFactory` 绑定到项目共享的 C# 配置工厂，运行时也调用这个工厂：
+
+```csharp
+// 放在项目的 AOT 程序集中。
+public static class ProjectHotUpdate
+{
+    public static UpdateSettings CreateSettings() => new UpdateSettings
+    {
+        channel = "development"
+    };
+}
+
+// 放在项目的 Editor 程序集中，并引用 Game.Framework.HotUpdate.Editor。
+[UnityEditor.InitializeOnLoad]
+public static class ProjectHotUpdateBuild
+{
+    static ProjectHotUpdateBuild()
+    {
+        Game.Framework.HotUpdate.Editor.GameBuild.SettingsFactory = ProjectHotUpdate.CreateSettings;
+    }
+}
+```
+
+Editor 使用 Unity 已编译的程序集；Player 准备版本、补充 AOT 元数据并加载热更 DLL 后创建入口对象。热更初始化完成后 GameEntry 才进入 Ready；HotGame 不反向等待 GameEntry，避免循环等待。停用热更时，项目直接跳过 InitializeAsync。
+
+热更新目录只收集实际参与 Player 编译的 asmdef，支持名字/GUID 引用和多个程序集；AOT 程序集不能直接引用热更程序集。共享契约放在热更目录之外。新增或改变热更新程序集依赖顺序需要新主包。未执行 Setup Project，或未建立热更目录与 asmdef 时，本包不会拦截普通 Unity 构建。
 
 ## 项目入口
 
@@ -31,7 +60,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Game.Framework.HotUpdate;
 
-public sealed class GameModule : IGameModule
+public sealed class HotGame : IGameModule
 {
     public async Task InitializeAsync(IGameHost host, CancellationToken token)
     {
@@ -65,3 +94,11 @@ Unity/HybridCLR、AOT 代码、公共契约、入口配置或热更新拓扑变�
 ## 验证边界
 
 仓库包含更新恢复、构建图、配置幂等、启动生命周期及发布工具回归。headless 测试编译真实 Framework 单例、包源码、官方分析器，Unity/native 命令为显式边界；不模拟真实 Editor 导入、IL2CPP、HTTPS、Android/iOS 或热更新后的设备执行。发行前仍需按目标平台完成实际验证。
+
+## HotGame 的创建与调用
+
+HotGame.cs 定义类型；加载完成后，HotUpdateManager 通过 Activator.CreateInstance 创建运行时对象，再调用 IGameModule.InitializeAsync。HotGame 是普通 C# 对象，不显示在 Hierarchy。
+
+GameStarter 的场景中只需要 GameEntry。它依次准备基础 Manager、可选启动模块和热更入口，负责整个启动顺序。GameEntry 的 Initialize Hot Update 开关默认开启；关闭后不会创建或加载热更入口。加载完成之前不要打开依赖热更脚本的场景。
+
+默认类型是 Game.HotUpdate.HotGame，程序集仍为 Game.HotUpdate；IGameModule 契约保持不变。升级现有项目时，移除旧的 GameBootstrap/HotGameBootstrap 场景组件和 NovorizonHotUpdateSettings.json，在自己的入口显式调用 InitializeAsync，并将配置移到 C#。Setup Project 不覆盖项目已有的自定义入口源码。此次 AOT 启动流程与入口类型变化需要重新构建 HybridCLR 主包。

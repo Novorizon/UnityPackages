@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 
 RUNTIME_COMMIT = '061314200e2f03307c4d90b448e1de7b85431905'
+HYBRIDCLR_COMMIT = '6cadd24d101f4cbd00cd80190106f6621132d24d'
 TOOL_COMMIT = '0e1a6179a524e71cc503c20bebbca47cc59c7619'
 
 
@@ -21,6 +22,8 @@ def checkout(cache, name, repository, tag, commit, env):
 def prepare(root, dotnet, env):
     cache = Path(env.get('NOVORIZON_VERIFY_CACHE', Path(tempfile.gettempdir()) / 'novorizon-interaction-dependencies'))
     cache.mkdir(parents=True, exist_ok=True)
+    hybridclr = checkout(cache, 'hybridclr-' + HYBRIDCLR_COMMIT, 'https://github.com/focus-creative-games/hybridclr_unity.git', 'v9.0.3', HYBRIDCLR_COMMIT, env)
+    env['HybridCLRPackageRoot'] = str(hybridclr)
     runtime = Path(env['LubanPackageRoot']) if env.get('LubanPackageRoot') else checkout(cache, 'runtime-' + RUNTIME_COMMIT, 'https://github.com/focus-creative-games/luban_unity.git', 'v1.2.0', RUNTIME_COMMIT, env)
     cli = Path(env['LUBAN_CLI']) if env.get('LUBAN_CLI') else cache / ('cli-' + TOOL_COMMIT) / 'Luban.dll'
     if not cli.exists():

@@ -13,6 +13,9 @@ namespace {{NAMESPACE}}
             host.ReportReady("1.0.0");
             return Task.CompletedTask;
         }
-        public void Shutdown() { }
+
+        public void Shutdown()
+        {
+        }
     }
 }
