@@ -58,7 +58,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
-        public static async Task GenerateAsync(string projectRoot, string configFile, string target, string codeOutput, string dataOutput, string locationPrefix, string dotnet, string lubanDll, string assemblyName = "Game.Data.Generated")
+        public static async Task GenerateAsync(string projectRoot, string configFile, string target, string codeOutput, string dataOutput, string locationPrefix, string dotnet, string lubanDll, string assemblyName = "Game.Data.Generated", bool autoReferenced = true)
         {
             projectRoot = Path.GetFullPath(projectRoot);
             string code = OutputPath(projectRoot, codeOutput), data = OutputPath(projectRoot, dataOutput);
@@ -102,7 +102,7 @@ namespace Game.Framework.Data.Editor
                     throw new InvalidOperationException("Luban succeeded without producing C# tables.");
                 }
 
-                File.WriteAllText(Path.Combine(stagedCode, assemblyName + ".asmdef"), "{\"name\":" + Json(assemblyName) + ",\"references\":[\"Luban.Runtime\"],\"autoReferenced\":true}");
+                File.WriteAllText(Path.Combine(stagedCode, assemblyName + ".asmdef"), "{\"name\":" + Json(assemblyName) + ",\"references\":[\"Luban.Runtime\"],\"autoReferenced\":" + (autoReferenced ? "true" : "false") + "}");
                 var files = Directory.GetFiles(stagedData, "*.bytes", SearchOption.AllDirectories).OrderBy(path => path, StringComparer.Ordinal).ToArray();
                 var manifest = new StringBuilder("{\"version\":1,\"format\":\"bin\",\"files\":[");
                 var names = new HashSet<string>(StringComparer.Ordinal);

@@ -61,7 +61,7 @@ namespace Game.Framework.Data.Editor
 
                 string root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
                 string dll = string.IsNullOrWhiteSpace(settings.lubanDll) ? await LubanExporter.EnsureToolAsync(root, settings.dotnetExecutable) : Path.GetFullPath(Path.Combine(root, settings.lubanDll));
-                await LubanExporter.GenerateAsync(root, settings.configFile, settings.target, settings.codeOutput, settings.dataOutput, settings.locationPrefix, settings.dotnetExecutable, dll, settings.generatedAssembly);
+                await LubanExporter.GenerateAsync(root, settings.configFile, settings.target, settings.codeOutput, settings.dataOutput, settings.locationPrefix, settings.dotnetExecutable, dll, settings.generatedAssembly, settings.generatedAutoReferenced);
                 AssetDatabase.Refresh();
                 Debug.Log("Luban C# tables, binary assets and manifest generated successfully.");
             }

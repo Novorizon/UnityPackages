@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Game.Framework;
 using Logger = Game.Framework.Logger;
@@ -54,6 +55,7 @@ namespace Game.Resource
         private readonly Dictionary<string, SceneLoad> scenes = new Dictionary<string, SceneLoad>();
         private readonly Dictionary<int, string> sceneLocations = new Dictionary<int, string>();
         public bool Initialized => initialized;
+        public string PackageVersion { get; private set; }
 
         /// <summary>场景协调器使用独立场景句柄，不借用共享的按地址缓存。</summary>
         public ISceneLoader CreateSceneLoader()
@@ -106,6 +108,43 @@ namespace Game.Resource
             return initialization;
         }
 
+        public async Task<bool> InitializeAsync(ResourceInitializationOptions options, CancellationToken token = default)
+        {
+            MainThread();
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            if (options.ConcurrentDownloads < 1 || options.FailedTryAgain < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(options));
+            }
+
+            token.ThrowIfCancellationRequested();
+            if (shuttingDown)
+            {
+                await TaskUtil.WaitAsync(shutdown, token);
+            }
+
+            if (initialized)
+            {
+                if (string.IsNullOrEmpty(options.PackageVersion) || PackageVersion == options.PackageVersion)
+                {
+                    return true;
+                }
+
+                throw new InvalidOperationException("Release resources before selecting another package version.");
+            }
+
+            if (initialization == null || initialization.IsCompleted)
+            {
+                initialization = InitializeCoreAsync(options, token);
+            }
+
+            return await TaskUtil.WaitAsync(initialization, token);
+        }
+
         private async Task<bool> InitializeAfterShutdownAsync(Task previous)
         {
             await previous;
@@ -118,13 +157,13 @@ namespace Game.Resource
             callback?.Invoke(result);
         }
 
-        private async Task<bool> InitializeCoreAsync()
+        private async Task<bool> InitializeCoreAsync(ResourceInitializationOptions options = null, CancellationToken token = default)
         {
             YooAssets.Initialize();
             package = YooAssets.TryGetPackage("DefaultPackage") ?? YooAssets.CreatePackage("DefaultPackage");
             YooAssets.SetDefaultPackage(package);
             int startedGeneration = generation;
-            bool success = await InitPackageAsync(package, YooAssetsSettings.CreateParameters());
+            bool success = await InitPackageCoreAsync(package, options?.Parameters ?? YooAssetsSettings.CreateParameters(), options, token);
             if (startedGeneration != generation)
             {
                 return false;
@@ -140,13 +179,22 @@ namespace Game.Resource
             return initialized;
         }
 
-        public async Task<bool> InitPackageAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
+        public Task<bool> InitPackageAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
+        {
+            return InitPackageCoreAsync(resourcePackage, parameters, null, CancellationToken.None);
+        }
+
+        private async Task<bool> InitPackageCoreAsync(ResourcePackage resourcePackage, InitializeParameters parameters,
+            ResourceInitializationOptions options, CancellationToken token)
         {
             MainThread();
+            token.ThrowIfCancellationRequested();
             if (resourcePackage.InitializeStatus != EOperationStatus.Succeed)
             {
                 var operation = resourcePackage.InitializeAsync(parameters);
+                // YooAsset 的初始化不能中止；保留任务直到原生操作结束，避免取消后并发初始化或销毁。
                 await operation.Task;
+                token.ThrowIfCancellationRequested();
                 if (operation.Status != EOperationStatus.Succeed)
                 {
                     Logger.Error(operation.Error);
@@ -154,23 +202,66 @@ namespace Game.Resource
                 }
             }
 
-            var version = resourcePackage.RequestPackageVersionAsync();
-            await version.Task;
-            if (version.Status != EOperationStatus.Succeed)
+            string version = options?.PackageVersion;
+            if (string.IsNullOrWhiteSpace(version))
             {
-                Logger.Error(version.Error);
-                return false;
+                var request = resourcePackage.RequestPackageVersionAsync();
+                await request.Task;
+                token.ThrowIfCancellationRequested();
+                if (request.Status != EOperationStatus.Succeed)
+                {
+                    Logger.Error(request.Error);
+                    return false;
+                }
+
+                version = request.PackageVersion;
             }
 
-            var manifest = resourcePackage.UpdatePackageManifestAsync(version.PackageVersion);
+            var manifest = resourcePackage.UpdatePackageManifestAsync(version);
             await manifest.Task;
+            token.ThrowIfCancellationRequested();
             if (manifest.Status != EOperationStatus.Succeed)
             {
                 Logger.Error(manifest.Error);
                 return false;
             }
 
+            if (options?.DownloadAll == true)
+            {
+                var downloader = resourcePackage.CreateResourceDownloader(options.ConcurrentDownloads, options.FailedTryAgain);
+                downloader.DownloadUpdateCallback = value => Report(options.Progress,
+                    new ResourceDownloadProgress(value.TotalDownloadCount, value.CurrentDownloadCount, value.TotalDownloadBytes, value.CurrentDownloadBytes));
+                using (token.Register(downloader.CancelDownload))
+                {
+                    downloader.BeginDownload();
+                    await TaskUtil.WaitAsync(downloader.Task, token);
+                }
+
+                token.ThrowIfCancellationRequested();
+                if (downloader.Status != EOperationStatus.Succeed)
+                {
+                    Logger.Error(downloader.Error);
+                    return false;
+                }
+
+                Report(options.Progress, new ResourceDownloadProgress(downloader.TotalDownloadCount, downloader.TotalDownloadCount,
+                    downloader.TotalDownloadBytes, downloader.TotalDownloadBytes));
+            }
+
+            PackageVersion = version;
             return true;
+        }
+
+        private static void Report(IProgress<ResourceDownloadProgress> progress, ResourceDownloadProgress value)
+        {
+            try
+            {
+                progress?.Report(value);
+            }
+            catch (Exception error)
+            {
+                Logger.Exception(error);
+            }
         }
 
         public async Task<T> LoadAssetAsync<T>(string location)
@@ -588,6 +679,7 @@ namespace Game.Resource
             sceneLocations.Clear();
             package = null;
             initialized = false;
+            PackageVersion = null;
             shuttingDown = false;
             initialization = null;
             shutdown = null;
@@ -661,6 +753,10 @@ namespace Game.Resource
                         await initialization;
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    // 取消初始化是正常退出路径；原生操作结束后继续释放资源。
+                }
                 catch (Exception error)
                 {
                     errors.Add(error);
@@ -710,6 +806,7 @@ namespace Game.Resource
                         if (startedGeneration == generation)
                         {
                             initialized = false;
+                            PackageVersion = null;
                             initialization = null;
                             shuttingDown = false;
                         }

@@ -62,3 +62,9 @@ ShutdownAsync 会继续清理所有场景并释放资源缓存，即使某次场
 AcquireAsync<T>(location, token) 每次取得独立 AssetLease<T>，通过 Asset 访问，结束使用后 Dispose。取消或释放不影响同地址的其他租约和旧共享缓存。取消未结束的原生 I/O 时，底层句柄延迟到加载结束再释放。
 
 CreateScope 管理一组租约；UIView 中可 Track 此作用域到本次打开，CreateSceneScope(scene) 在指定场景卸载时自动取消并释放。ShutdownAsync 使租约失效并等待原生获取释放。GameStarter 已接入独立租约的 UI 加载器与配置文本读取。
+
+## 精确版本初始化与下载
+
+InitializeAsync(ResourceInitializationOptions, token) 支持 Parameters、PackageVersion、DownloadAll、下载并发、重试及 IProgress<ResourceDownloadProgress>。指定 PackageVersion 时直接切换该清单，不查询远端 latest/version 文件；全部下载成功后才进入 Initialized。取消会取消下载器，失败不会发布就绪状态。
+
+已有资源版本需要切换时先 ShutdownAsync；项目应在加载游戏代码及资源消费者之前选定版本。CreateHostPlayModeParameters(mainUrl, fallbackUrl) 可显式提供服务器，不必修改全局默认地址。

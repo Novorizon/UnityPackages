@@ -61,3 +61,5 @@ DataManager.Instance.Initialize(async (location, token) =>
 旧 ConfigManager、ConfigTable、LoadJsonAsync、SetTable、LoadLubanAsync/GetLuban，以及 Framework Core 中的动态对象 DataManager 已删除。Luban 改用本包的 DataManager.LoadAsync/Get/TryGet。玩家等动态数据由业务自行维护；其他 JSON 可由业务加载 TextAsset 后直接反序列化。LocalStorageManager 的 JSON 存档 API 不受影响。
 
 包和 AOT 程序集依赖已变化，HybridCLR 项目需要重新构建 Player。
+
+生成器可通过 generatedAutoReferenced 配置生成 asmdef 的 autoReferenced。表结构需要热更时，将 codeOutput 放入项目热更目录并关闭自动引用，AOT 程序集不得直接依赖这些生成类型；具体加载放在游戏入口。GameStarter 已按此方式接线。

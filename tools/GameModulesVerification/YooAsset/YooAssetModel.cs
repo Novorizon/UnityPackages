@@ -126,6 +126,34 @@ namespace YooAsset
         }
     }
 
+    public struct DownloadUpdateData
+    {
+        public int TotalDownloadCount, CurrentDownloadCount;
+        public long TotalDownloadBytes, CurrentDownloadBytes;
+    }
+
+    public sealed class ResourceDownloaderOperation : Operation
+    {
+        public int TotalDownloadCount;
+        public long TotalDownloadBytes;
+        public int Begun, Cancelled;
+        public Action<DownloadUpdateData> DownloadUpdateCallback;
+        public void BeginDownload()
+        {
+            Begun++;
+            DownloadUpdateCallback?.Invoke(new DownloadUpdateData
+            {
+                TotalDownloadCount = TotalDownloadCount,
+                TotalDownloadBytes = TotalDownloadBytes
+            });
+        }
+
+        public void CancelDownload()
+        {
+            Cancelled++;
+        }
+    }
+
     public sealed class ResourcePackage
     {
         public ResourcePackage()
@@ -147,18 +175,30 @@ namespace YooAsset
         private readonly Dictionary<string, UnityEngine.Object> values = new Dictionary<string, UnityEngine.Object>();
         public readonly List<SceneHandle> Scenes = new List<SceneHandle>();
         public Task AssetGate = Task.CompletedTask, SceneGate = Task.CompletedTask;
+        public Task InitializeGate = Task.CompletedTask;
         public EOperationStatus InitializeStatus;
         public bool FailNextAsset, FailNextScene;
-        public int InitializeCalls;
+        public int InitializeCalls, VersionRequests;
+        public string SelectedVersion;
+        public ResourceDownloaderOperation Downloader = new ResourceDownloaderOperation();
+        public ResourceDownloaderOperation CreateResourceDownloader(int concurrency, int retries) => Downloader;
         public Operation InitializeAsync(InitializeParameters parameters)
         {
             InitializeCalls++;
             InitializeStatus = EOperationStatus.Succeed;
-            return new Operation();
+            return new Operation { Task = InitializeGate };
         }
 
-        public Operation RequestPackageVersionAsync() => new Operation();
-        public Operation UpdatePackageManifestAsync(string version) => new Operation();
+        public Operation RequestPackageVersionAsync()
+        {
+            VersionRequests++;
+            return new Operation();
+        }
+        public Operation UpdatePackageManifestAsync(string version)
+        {
+            SelectedVersion = version;
+            return new Operation();
+        }
         public AssetHandle LoadAssetAsync<T>(string location)
             where T : UnityEngine.Object
         {

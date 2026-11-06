@@ -8,11 +8,15 @@ using Game.Framework.HotUpdate;
 using Game.Framework.HotUpdate.Editor;
 using UnityEngine;
 
-internal static class Program
+internal static partial class Program
 {
     private static int passed;
     private static async Task Main()
     {
+        await Check("resources finish preparation before any compiled game entry is created", ContentBeforeEntry);
+        await Check("resource preparation failure prevents game entry construction", ContentFailure);
+        await Check("release signatures bind the resource version and package identity", ContentPolicy);
+        await Check("failed update resources fall back with packaged DLLs and reject the complete pair", ReleasePairFallback);
         await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
@@ -72,6 +76,68 @@ internal static class Program
         }
 
         throw new InvalidOperationException("Expected " + typeof(T).Name);
+    }
+
+    private static async Task ContentBeforeEntry()
+    {
+        var pending = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var settings = Settings();
+        settings.content = new ReleaseContent { packageName = "DefaultPackage", version = "tables-2" };
+        bool prepared = false;
+        settings.prepareContentAsync = async (content, token) =>
+        {
+            True(content.PackageVersion == "tables-2" && content.PackageName == "DefaultPackage");
+            True(Verification.FixtureHotGame.Created == 0);
+            prepared = true;
+            await pending.Task;
+        };
+        var manager = HotUpdateManager.Instance;
+        var starting = manager.InitializeAsync(settings);
+        while (!prepared)
+        {
+            await Task.Yield();
+        }
+
+        True(!manager.IsReady && Verification.FixtureHotGame.Created == 0);
+        pending.SetResult(true);
+        await starting;
+        True(manager.IsReady);
+    }
+
+    private static async Task ContentFailure()
+    {
+        var settings = Settings();
+        settings.prepareContentAsync = (content, token) => Task.FromException(new IOException("resource download failed"));
+        await Throws<IOException>(HotUpdateManager.Instance.InitializeAsync(settings));
+        True(Verification.FixtureHotGame.Created == 0);
+    }
+
+    private static Task ContentPolicy()
+    {
+        var file = new ReleaseFile { assemblyName = "Game", fileName = "Game.dll.bytes", size = 1, sha256 = new string('a', 64) };
+        var baseline = new ReleaseManifest
+        {
+            appId = "app", platform = "windows-x64", channel = "development", baselineId = "baseline", version = 1,
+            assemblies = new[] { file }, aotMetadata = Array.Empty<ReleaseFile>(),
+            content = new ReleaseContent { packageName = "DefaultPackage", version = "tables-1" }
+        };
+        var update = UnityEngine.JsonUtility.FromJson<ReleaseManifest>(UnityEngine.JsonUtility.ToJson(baseline));
+        update.version = 2;
+        update.content.version = "tables-2";
+        ReleasePolicy.MatchBaseline(update, baseline);
+        update.content.packageName = "OtherPackage";
+        bool rejected = false;
+        try
+        {
+            ReleasePolicy.MatchBaseline(update, baseline);
+        }
+        catch (InvalidDataException)
+        {
+            rejected = true;
+        }
+
+        True(rejected);
+        return Task.CompletedTask;
     }
 
     private static Task AssemblyBoundaries()

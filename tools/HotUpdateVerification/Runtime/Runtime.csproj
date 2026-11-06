@@ -9,5 +9,6 @@
     <ProjectReference Include="../HybridRuntime/HybridRuntime.csproj" />
     <ProjectReference Include="../Engine/Engine.csproj" />
     <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/**/*.cs" />
+    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
 </Project>
