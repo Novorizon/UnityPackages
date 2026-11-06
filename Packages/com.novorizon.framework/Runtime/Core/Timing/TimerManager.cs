@@ -212,6 +212,38 @@ namespace Game.Framework.Timing
             unscaledTime = lastUnscaledSample = real;
         }
 
+        // Unity may discover an explicitly created replacement after timers were already scheduled.
+        // Preserve that instance's elapsed time and pending deadlines; custom clocks remain untouched.
+        internal void EnsureClocks(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider)
+        {
+            MainThread();
+            if (scaledClock != null)
+            {
+                return;
+            }
+
+            if (updating)
+            {
+                throw new InvalidOperationException("Cannot bind clocks during timer dispatch.");
+            }
+
+            if (scaledTimeProvider == null || unscaledTimeProvider == null)
+            {
+                throw new ArgumentNullException(scaledTimeProvider == null ? nameof(scaledTimeProvider) : nameof(unscaledTimeProvider));
+            }
+
+            double game = scaledTimeProvider();
+            double real = unscaledTimeProvider();
+            Duration(game, nameof(scaledTimeProvider));
+            Duration(real, nameof(unscaledTimeProvider));
+            double gameOrigin = scaledTime;
+            double realOrigin = unscaledTime;
+            scaledClock = () => gameOrigin + (scaledTimeProvider() - game);
+            unscaledClock = () => realOrigin + (unscaledTimeProvider() - real);
+            lastScaledSample = scaledTime;
+            lastUnscaledSample = unscaledTime;
+        }
+
         public TimerHandle Schedule(double seconds, Action callback, bool useUnscaledTime = false) => Add(seconds, 0, callback, useUnscaledTime, default);
         public TimerHandle Repeat(double intervalSeconds, Action callback, bool useUnscaledTime = false, TimerRepeatMode mode = TimerRepeatMode.FixedRate)
         {

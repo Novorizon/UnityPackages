@@ -15,5 +15,6 @@
     <ProjectReference Include="LubanFixture/LubanFixture.csproj" />
     <Compile Include="Program.cs" />
     <Compile Include="InteractionScenarios.cs" />
+    <Compile Include="TimerDriverScenarios.cs" />
   </ItemGroup>
 </Project>
