@@ -1,6 +1,6 @@
 # Runtime 公开接口约定
 
-以提交 65794c791ab1f9ab59d2833bf79f867480f42411 的 0.2.1 行为为基线，当前合并包版本为 0.3.0-preview.1。程序集和命名空间保持 Game.Ability，不重命名公开类型或删除已有入口。
+以提交 65794c791ab1f9ab59d2833bf79f867480f42411 的 0.2.1 行为为基线。程序集和命名空间保持 Game.Ability，不重命名公开类型或删除已有入口。
 
 - AbilitySystem 持有战斗作用域；项目显式 Initialize、Update、RegisterUnit、RemoveUnit、ClearRuntime。
 - IUnit/IWorld/IResourceOwner/IPresentation 是 Ability 自己的边界。项目可以直接实现或适配；ECS 不依赖 Ability，也不要求 ECS 实体实现 IUnit。
