@@ -235,6 +235,9 @@ namespace UnityEngine.Networking
 
 namespace UnityEngine.SceneManagement
 {
+    public struct Scene
+    {
+    }
 }
 
 namespace UnityEditorInternal

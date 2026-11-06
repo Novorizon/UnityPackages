@@ -34,7 +34,8 @@
     "Packages/com.novorizon.framework.yooasset/package.json",
     "Packages/com.novorizon.framework.all/package.json",
     "Packages/com.novorizon.gpuanimator/GpuAnimator.asmdef",
-    "Packages/com.novorizon.framework.hybridclr/Runtime/Game.Framework.HotUpdate.asmdef"
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Game.Framework.HotUpdate.asmdef",
+    "Packages/com.novorizon.framework.hybridclr/Editor/Game.Framework.HotUpdate.Editor.asmdef"
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [

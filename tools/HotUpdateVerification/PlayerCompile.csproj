@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="Shared.props" />
-  <PropertyGroup>
-    <DefineConstants>UNITY_STANDALONE_WIN</DefineConstants>
-  </PropertyGroup>
+  <PropertyGroup><DefineConstants>UNITY_STANDALONE_WIN</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FrameworkServicesVerification/Core/Core.csproj" />
+    <ProjectReference Include="Engine/Engine.csproj" />
+    <ProjectReference Include="HybridRuntime/HybridRuntime.csproj" />
+    <Compile Include="../../Packages/com.novorizon.framework.hybridclr/Runtime/**/*.cs" />
+  </ItemGroup>
 </Project>

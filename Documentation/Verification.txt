@@ -1,136 +1,28 @@
-Source/dependency/GUID validation
+Editor Core reference fix validation
+PASS reproduced the original CS0012 and CS0117 before adding the direct Core reference, with separate Runtime/Editor DLLs and transitive references disabled.
+
+Package and assembly-reference validation
 PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 12, "ownedPackages": 12, "externalDependencyReferences": 3, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": [], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs", "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt", "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs", "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"], "activeAssemblies": 23, "activeGuids": 385, "nativeUnityExecuted": false}
 
-
-Full managed verification
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 12, "ownedPackages": 12, "externalDependencyReferences": 3, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": [], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs", "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt", "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs", "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"], "activeAssemblies": 23, "activeGuids": 385, "nativeUnityExecuted": false}
-Cloning into '/tmp/novorizon-interaction-dependencies/hybridclr-6cadd24d101f4cbd00cd80190106f6621132d24d'...
-Note: switching to '6cadd24d101f4cbd00cd80190106f6621132d24d'.
-
-You are in 'detached HEAD' state. You can look around, make experimental
-changes and commit them, and you can discard any commits you make in this
-state without impacting any branches by switching back to a branch.
-
-If you want to create a new branch to retain commits you create, you may
-do so (now or later) by using -c with the switch command. Example:
-
-  git switch -c <new-branch-name>
-
-Or undo this operation with:
-
-  git switch -
-
-Turn off this advice by setting config variable advice.detachedHead to false
-
-Cloning into '/tmp/novorizon-interaction-dependencies/runtime-061314200e2f03307c4d90b448e1de7b85431905'...
-Note: switching to '061314200e2f03307c4d90b448e1de7b85431905'.
-
-You are in 'detached HEAD' state. You can look around, make experimental
-changes and commit them, and you can discard any commits you make in this
-state without impacting any branches by switching back to a branch.
-
-If you want to create a new branch to retain commits you create, you may
-do so (now or later) by using -c with the switch command. Example:
-
-  git switch -c <new-branch-name>
-
-Or undo this operation with:
-
-  git switch -
-
-Turn off this advice by setting config variable advice.detachedHead to false
-
-Cloning into '/tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619'...
-Note: switching to '0e1a6179a524e71cc503c20bebbca47cc59c7619'.
-
-You are in 'detached HEAD' state. You can look around, make experimental
-changes and commit them, and you can discard any commits you make in this
-state without impacting any branches by switching back to a branch.
-
-If you want to create a new branch to retain commits you create, you may
-do so (now or later) by using -c with the switch command. Example:
-
-  git switch -c <new-branch-name>
-
-Or undo this operation with:
-
-  git switch -
-
-Turn off this advice by setting config variable advice.detachedHead to false
-
+Strict compile and targeted regression verification
   Determining projects to restore...
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Schema.Builtin/Luban.Schema.Builtin.csproj (in 751 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Typescript/Luban.Typescript.csproj (in 752 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Python/Luban.Python.csproj (in 7 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Rust/Luban.Rust.csproj (in 5 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Protobuf/Luban.Protobuf.csproj (in 23 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.PHP/Luban.PHP.csproj (in 22 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.MsgPack/Luban.MsgPack.csproj (in 48 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.L10N/Luban.L10N.csproj (in 4 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Lua/Luban.Lua.csproj (in 7 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Javascript/Luban.Javascript.csproj (in 6 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Java/Luban.Java.csproj (in 1 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Golang/Luban.Golang.csproj (in 12 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban/Luban.csproj (in 78 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.FlatBuffers/Luban.FlatBuffers.csproj (in 4 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Gdscript/Luban.Gdscript.csproj (in 29 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataValidator.Builtin/Luban.DataValidator.Builtin.csproj (in 7 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataTarget.Builtin/Luban.DataTarget.Builtin.csproj (in 8 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataLoader.Builtin/Luban.DataLoader.Builtin.csproj (in 8 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Cpp/Luban.Cpp.csproj (in 3 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Dart/Luban.Dart.csproj (in 4 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Core/Luban.Core.csproj (in 4 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.CSharp/Luban.CSharp.csproj (in 4 ms).
-  Restored /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Bson/Luban.Bson.csproj (in 2 ms).
-  Luban.Core -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Core/bin/Release/net8.0/Luban.Core.dll
-  Luban.Bson -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Bson/bin/Release/net8.0/Luban.Bson.dll
-  Luban.Cpp -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Cpp/bin/Release/net8.0/Luban.Cpp.dll
-  Luban.DataValidator.Builtin -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataValidator.Builtin/bin/Release/net8.0/Luban.DataValidator.Builtin.dll
-  Luban.CSharp -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.CSharp/bin/Release/net8.0/Luban.CSharp.dll
-  Luban.Dart -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Dart/bin/Release/net8.0/Luban.Dart.dll
-  Luban.DataLoader.Builtin -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataLoader.Builtin/bin/Release/net8.0/Luban.DataLoader.Builtin.dll
-  Luban.DataTarget.Builtin -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.DataTarget.Builtin/bin/Release/net8.0/Luban.DataTarget.Builtin.dll
-  Luban.FlatBuffers -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.FlatBuffers/bin/Release/net8.0/Luban.FlatBuffers.dll
-  Luban.Gdscript -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Gdscript/bin/Release/net8.0/Luban.Gdscript.dll
-  Luban.Golang -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Golang/bin/Release/net8.0/Luban.Golang.dll
-  Luban.Javascript -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Javascript/bin/Release/net8.0/Luban.Javascript.dll
-  Luban.Java -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Java/bin/Release/net8.0/Luban.Java.dll
-  Luban.L10N -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.L10N/bin/Release/net8.0/Luban.L10N.dll
-  Luban.Lua -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Lua/bin/Release/net8.0/Luban.Lua.dll
-  Luban.MsgPack -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.MsgPack/bin/Release/net8.0/Luban.MsgPack.dll
-  Luban.PHP -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.PHP/bin/Release/net8.0/Luban.PHP.dll
-  Luban.Protobuf -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Protobuf/bin/Release/net8.0/Luban.Protobuf.dll
-  Luban.Python -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Python/bin/Release/net8.0/Luban.Python.dll
-  Luban.Rust -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Rust/bin/Release/net8.0/Luban.Rust.dll
-  Luban.Schema.Builtin -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Schema.Builtin/bin/Release/net8.0/Luban.Schema.Builtin.dll
-  Luban.Typescript -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban.Typescript/bin/Release/net8.0/Luban.Typescript.dll
-  Luban -> /tmp/novorizon-interaction-dependencies/tool-0e1a6179a524e71cc503c20bebbca47cc59c7619/src/Luban/bin/Release/net8.0/Luban.dll
-  Luban -> /tmp/novorizon-interaction-dependencies/cli-0e1a6179a524e71cc503c20bebbca47cc59c7619/
-2026/11/06 05:05:45.440|INFO| ==========================================================================================
-2026/11/06 05:05:45.443|INFO|
-2026/11/06 05:05:45.443|INFO|  Luban is developed by Code Philosophy Technology Co., LTD. https://code-philosophy.com
-2026/11/06 05:05:45.443|INFO|
-2026/11/06 05:05:45.443|INFO| ==========================================================================================
-2026/11/06 05:05:45.780|INFO|load schema. collector: "default"
-2026/11/06 05:05:45.939|INFO|load datas begin
-2026/11/06 05:05:45.939|INFO|process code target:"cs-bin" begin
-2026/11/06 05:05:46.062|INFO|load datas end
-2026/11/06 05:05:46.062|INFO|validation begin
-2026/11/06 05:05:46.069|INFO|validation end
-2026/11/06 05:05:46.078|INFO|process data target:"bin" begin
-2026/11/06 05:05:46.087|INFO|process data target:"bin" end
-2026/11/06 05:05:46.117|INFO|process code target:"cs-bin" end
-2026/11/06 05:05:46.117|INFO|bye~
-  Determining projects to restore...
-  All projects are up-to-date for restore.
+  Restored /workspace/UnityPackages/tools/HotUpdateVerification/Editor/Editor.csproj (in 243 ms).
+  Restored /workspace/UnityPackages/tools/HotUpdateVerification/HotUpdateVerification.csproj (in 69 ms).
+  5 of 7 projects are up-to-date for restore.
   Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  Engine -> /workspace/UnityPackages/tools/HotUpdateVerification/Engine/bin/Release/net8.0/UnityEngine.CoreModule.dll
+  HybridRuntime -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridRuntime/bin/Release/net8.0/HybridCLR.Runtime.dll
+  Runtime -> /workspace/UnityPackages/tools/HotUpdateVerification/Runtime/bin/Release/net8.0/Game.Framework.HotUpdate.dll
+  HybridEditor -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridEditor/bin/Release/net8.0/HybridCLR.Editor.dll
+  Editor -> /workspace/UnityPackages/tools/HotUpdateVerification/Editor/bin/Release/net8.0/Game.Framework.HotUpdate.Editor.dll
   HotUpdateVerification -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/HotUpdateVerification.dll
 
 Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:07.21
+Time Elapsed 00:00:12.72
+PASS Runtime and Editor retain separate Unity assembly identities
 PASS loading starts only after an explicit call
 PASS repeated initialization shares one task and one hot entry
 PASS missing startup acknowledgement fails and closes the entry
@@ -142,7 +34,20 @@ PASS shutdown failure cannot retain the singleton or block a new instance
 PASS entry type must implement the shared AOT contract
 PASS default settings use the Unity application ID
 PASS setup uses code settings and does not generate startup JSON
-PASS 11 explicit hot-update startup and build-configuration scenarios (Unity API models; not native Unity).
+PASS 12 explicit hot-update startup and build-configuration scenarios (Unity API models; not native Unity).
+  Determining projects to restore...
+  Restored /workspace/UnityPackages/tools/HotUpdateVerification/PlayerCompile.csproj (in 255 ms).
+  3 of 4 projects are up-to-date for restore.
+  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
+  Engine -> /workspace/UnityPackages/tools/HotUpdateVerification/Engine/bin/Release/net8.0/UnityEngine.CoreModule.dll
+  HybridRuntime -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridRuntime/bin/Release/net8.0/HybridCLR.Runtime.dll
+  PlayerCompile -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/PlayerCompile.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.99
   Determining projects to restore...
   All projects are up-to-date for restore.
   AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
@@ -151,7 +56,7 @@ Build succeeded.
     0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:04.71
+Time Elapsed 00:00:06.70
 PASS automatic first install submits all unpublished dependencies together
 PASS matching installed versions skip add but still finish setup
 PASS persistent completion prevents installation on assembly reload
@@ -173,386 +78,3 @@ PASS migration failure retains the old packages
 PASS external packages always use upstream references
 PASS invalid dependency identities are rejected
 PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  Network -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Network/bin/Release/netstandard2.1/Game.Framework.Network.dll
-  Engine -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Engine/bin/Release/netstandard2.1/UnityEngine.CoreModule.dll
-  Unity -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Unity/bin/Release/netstandard2.1/Game.Framework.Unity.dll
-  Gpu -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Gpu/bin/Release/netstandard2.1/GpuAnimator.dll
-  FrameworkServicesVerification -> /workspace/UnityPackages/tools/FrameworkServicesVerification/bin/Release/net8.0/FrameworkServicesVerification.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:17.51
-PASS legacy lazy singletons remain compatible
-PASS configurable singleton supports private constructors and concurrent acquisition
-PASS TryGetInstance never creates and configured services cannot be replaced implicitly
-PASS reset releases outside the lock and blocks creation during cleanup
-PASS a stale release cannot clear a newer service
-PASS stop prevents resurrection until an explicit reset
-PASS failed, null and reentrant factories leave creation retryable
-PASS cleanup exceptions release the reset gate
-PASS NetworkManager uses the Framework configurable singleton
-PASS Release never creates a configurable service and preserves the quit guard
-PASS MonoSingleton OnExit runs once across release and deferred native destruction
-PASS MonoSingleton starts once per run even when Instance is accessed repeatedly
-PASS duplicate components cannot run the active singleton's exit hook
-PASS quit and subsequent destruction share the same OnExit invocation
-PASS failed component startup cleans only its own lifetime inside the singleton
-PASS ECS releases its initialized state through OnExit exactly once
-PASS network stop and restart reuse the generic lifecycle
-PASS GPU player has no individual Unity Update callback
-PASS GPU auto registration and single manager tick
-PASS GPU disable, enable, clear and destruction remove registrations
-PASS GPU manual mode stays outside the automatic scheduler
-PASS GPU notifications include direct calls and completion callbacks
-PASS GPU callback mutations defer new registrations until next tick
-PASS GPU pause, speed and invalid time inputs
-PASS GPU completion callback can replay without a duplicate tick
-PASS GPU manager recreation discovers live automatic players
-PASS GPU clear rejects reentrant replay from stop notifications
-PASS GPU notification failures do not prevent completion callbacks
-PASS GPU manual players still publish global notifications
-PASS GPU reentrant animation switches preserve notification order
-PASS GPU steady scheduler updates allocate no managed memory
-PASS 31 singleton, actual network and GPU scheduling scenarios; Unity APIs are boundary models.
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/GameModulesVerification/Core/bin/Release/net8.0/Game.Framework.Core.dll
-  Engine -> /workspace/UnityPackages/tools/GameModulesVerification/Engine/bin/Release/net8.0/UnityEngine.CoreModule.dll
-  Unity -> /workspace/UnityPackages/tools/GameModulesVerification/Unity/bin/Release/net8.0/Game.Framework.Unity.dll
-  Audio -> /workspace/UnityPackages/tools/GameModulesVerification/Audio/bin/Release/net8.0/Game.Framework.Audio.dll
-  LubanRuntime -> /workspace/UnityPackages/tools/GameModulesVerification/LubanRuntime/bin/Release/net8.0/Luban.Runtime.dll
-  Config -> /workspace/UnityPackages/tools/GameModulesVerification/Config/bin/Release/net8.0/Game.Framework.Config.dll
-  YooAsset -> /workspace/UnityPackages/tools/GameModulesVerification/YooAsset/bin/Release/net8.0/YooAsset.dll
-  Resources -> /workspace/UnityPackages/tools/GameModulesVerification/Resources/bin/Release/net8.0/Game.Framework.Resources.YooAsset.dll
-  InputSystem -> /workspace/UnityPackages/tools/GameModulesVerification/InputSystem/bin/Release/net8.0/Unity.InputSystem.dll
-  Input -> /workspace/UnityPackages/tools/GameModulesVerification/Input/bin/Release/net8.0/Game.Framework.Input.dll
-  LubanEditor -> /workspace/UnityPackages/tools/GameModulesVerification/LubanEditor/bin/Release/net8.0/Game.Framework.Config.Editor.dll
-  LubanFixture -> /workspace/UnityPackages/tools/GameModulesVerification/LubanFixture/bin/Release/net8.0/Game.Config.Generated.dll
-  GameModulesVerification -> /workspace/UnityPackages/tools/GameModulesVerification/bin/Release/net8.0/GameModulesVerification.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:48.84
-PASS data registration uses exact declared types and rejects duplicates
-PASS data cleanup reverses ownership order and continues after failures
-PASS unowned data survives removal and cleanup cannot repopulate the manager
-PASS data singleton reset releases owned data and cannot resurrect while stopping
-PASS storage writes real files, retains a backup and recovers a missing main file
-PASS storage rejects traversal and transaction-file aliases
-PASS storage JSON migration is explicit and never overwrites the original
-PASS storage detects invalid and future records and refuses root changes
-PASS config table lookup, immutable index and failed reload retain the old table
-PASS config supports typed tables from other generators and string keys
-PASS new config requests supersede older completions
-PASS cancelled config loads cannot publish even if the source ignores cancellation
-PASS clearing config invalidates outstanding loads without affecting other types
-PASS default config loader uses Resources and missing assets fail clearly
-PASS build scene loading, activation and external unload keep ownership synchronized
-PASS scene cancellation does not overlap an already started native load
-PASS scene cancellation before queue execution skips the provider
-System.InvalidOperationException: listener
-   at Program.<>c.<Main>b__2_82(Scene _) in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 267
-   at Game.Framework.Scenes.SceneManager.Notify(Action`1 listeners, Scene scene) in /workspace/UnityPackages/Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs:line 171
-PASS failed scene loads release the queue and notification failures do not corrupt it
-PASS scene disposal retires pending results and disposes its provider
-PASS scene unloading sends one notification and rejects unowned scenes
-PASS audio shares Framework singleton and old handles cannot stop reused sources
-PASS audio applies master, group and voice volume and honors capacity
-PASS audio pauses survive ticks and global resume retains individually paused voices
-PASS audio completion recycles before callbacks and reentrant play remains valid
-PASS audio 3D reuse resets source mode and group stop preserves other voices
-PASS audio destruction clears sources and cannot resurrect through an old handle
-PASS resource shutdown continues past a failed scene unload and releases assets
-PASS old resource shutdown cannot release assets from a new play session
-PASS YooAsset scene loader holds independent handles for repeated addresses
-PASS YooAsset scene load failure releases the acquired handle
-PASS reset scene managers cannot overlap an old native operation
-PASS storage reset invalidates old references without deleting files
-PASS independent resource leases share assets without sharing release ownership
-PASS cancelling one resource acquisition never cancels another acquisition
-PASS resource scope disposal cancels pending native loads and releases late handles
-PASS scene resource scope unload releases only that scene's resources
-PASS resource shutdown invalidates leases and awaits unfinished native releases
-PASS resource initialization waits for its own pending release without entry bookkeeping
-PASS protected leases keep native consumers alive until they finish their own cleanup
-PASS play reset can retire protected leases without an old shutdown clearing the new play
-PASS failed or incorrectly typed acquisitions release their own handles
-System.AggregateException: One or more errors occurred. (cancellation callback)
- ---> System.InvalidOperationException: cancellation callback
-   at Program.<>c.<Main>b__2_93() in /workspace/UnityPackages/tools/GameModulesVerification/Program.cs:line 607
-   at System.Threading.CancellationTokenSource.Invoke(Delegate d, Object state, CancellationTokenSource source)
-   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
---- End of stack trace from previous location ---
-   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
-   at System.Threading.CancellationTokenSource.ExecuteCallbackHandlers(Boolean throwOnFirstException)
-   --- End of inner exception stack trace ---
-   at System.Threading.CancellationTokenSource.ExecuteCallbackHandlers(Boolean throwOnFirstException)
-   at Game.Resource.ResourceScope.Dispose() in /workspace/UnityPackages/Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs:line 79
-PASS scope cancellation callback failure cannot prevent asset release
-PASS disposing a loader during loading retains a successful scene until native unload
-PASS play reset cannot release a legacy scene bundle before native scene unload
-PASS input clones assets and switches maps without changing project assets
-PASS input nested global and map blocks restore the latest requested state
-PASS input subscriptions, control scheme and device filters are scoped to the clone
-PASS input rebinding completes, cancels and retains blocks while restoring actions
-PASS input dispose cancels rebinds and leases cannot resurrect a replaced singleton
-PASS audio fade uses unified time and respects every pause source
-PASS audio music crossfade has equal power, capacity failure preserves current music
-PASS audio mixer routing updates playing voices and pool reuse resets fade and callback
-PASS audio warmed steady tick, fade and voice reuse avoid managed allocations
-PASS audio waits for background clip data before advancing fades or recycling
-PASS real Luban Excel generated C# reads the official binary runtime
-PASS Luban corrupt data and failed reload retain the previous complete snapshot
-PASS Luban rejects invalid manifests and missing table mappings before publishing
-PASS Luban concurrent loads, clear and cancellation cannot publish stale snapshots
-PASS Luban exporter invokes real CLI in paths with spaces and retains last good outputs on failure
-PASS 59 service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Correctness -> /workspace/UnityPackages/tools/RTreeCorrectness/bin/Release/net8.0/Correctness.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:06.55
-PASS regression: recycled nodes and deletion reinsertion
-PASS regression: root bounds, empty tree and refill
-PASS regression: failed operations preserve mappings
-PASS regression: rectangle equality and hashing
-PASS regression: rectangle subclass deletion uses bounds
-PASS regression: invalid input is rejected
-PASS regression: three-dimensional geometry
-PASS regression: nearest ties and inclusive distance limits
-PASS regression: nearest rounded norms and inclusive sqrt limits
-PASS regression: finite extreme coordinates
-PASS regression: minimum subnormal nearest ordering
-PASS regression: item slots are recycled and references released
-PASS regression: complete drain and node reuse
-PASS regression: STR packing and rebuild preserve every item
-PASS regression: caller-owned query buffers and statistics
-PASS regression: reused queries allocate no managed memory
-PASS regression: concurrent queries use independent scratch
-PASS regression: queries and writes are synchronized
-PASS: 18 regression groups, 168 randomized scenarios, 140,437 mutations, 100,188 differential query comparisons, 25,934,298 node invariant checks, 387,060,462 assertions; 7.61s.
-Randomized inputs: capacities 2/3/4/10; distributions uniform/points/nested/Z-only/identical/planar/line; seeds 7100..7105. Every scenario ends with a shuffled full drain.
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  SpatialCorrectness -> /workspace/UnityPackages/tools/RTreeSpatialCorrectness/bin/Release/net8.0/SpatialCorrectness.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:08.08
-PASS geometry and boundary queries (0.08s)
-PASS randomized box indexes and RTree adapter (0.13s)
-PASS dynamic AABB handles, updates and pairs (0.06s)
-PASS dynamic AABB ordered, nested and moving objects (0.27s)
-PASS loose octree ownership, expansion and updates (0.01s)
-PASS subtree pruning and movement outside cached content bounds (0.01s)
-PASS scaled and cancelling frustum planes (0.00s)
-PASS static BVH refit/rebuild (0.02s)
-PASS triangle BVH exact ray queries (0.06s)
-PASS triangle precision regressions (0.00s)
-PASS two-level scene query integration (0.00s)
-PASS KD radius, k nearest, ties and rebuild (0.14s)
-PASS concurrent reads and writers (0.16s)
-PASS warmed reusable queries allocate zero bytes (0.28s)
-PASS public mutable interfaces and RTreeIndex adapter (0.08s)
-PASS: 94,160 assertions, 0 failed groups, 1.31s (full)
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  PlayerCompile -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/PlayerCompile.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:10.26
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  Engine -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Engine/bin/Release/netstandard2.1/UnityEngine.CoreModule.dll
-  Unity -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Unity/bin/Release/netstandard2.1/Game.Framework.Unity.dll
-  UI -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI/bin/Release/netstandard2.1/Game.Framework.UI.dll
-  UI.Tests -> /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll
-Test run for /workspace/UnityPackages/tools/FrameworkServicesVerification/UI.Tests/bin/Release/net8.0/Game.Framework.UI.Tests.dll (.NETCoreApp,Version=v8.0)
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:   183, Skipped:     0, Total:   183, Duration: 3 s - Game.Framework.UI.Tests.dll (net8.0)
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  Network -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Network/bin/Release/netstandard2.1/Game.Framework.Network.dll
-  Network.Tests -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Network.Tests/bin/Release/net8.0/Game.Framework.Network.Tests.dll
-Test run for /workspace/UnityPackages/tools/FrameworkServicesVerification/Network.Tests/bin/Release/net8.0/Game.Framework.Network.Tests.dll (.NETCoreApp,Version=v8.0)
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 2 s - Game.Framework.Network.Tests.dll (net8.0)
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
-  AbilityRuntimeReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/Game.Ability.dll
-  ApiContract -> /workspace/UnityPackages/tools/AbilityVerification/ApiContract/bin/Release/net8.0/ApiContract.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:12.66
-PASS public API contract: 1083 declarations; Game.Ability assembly has no Editor/Odin/ECS dependency.
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  CoreSources -> /workspace/UnityPackages/tools/AbilityVerification/Core/bin/Release/net8.0/CoreSources.dll
-  EditorCoreSources -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorCoreSources.dll
-  EditorTests -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorTests.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:15.42
-Portable editor source checks: production codec/workspace/sandbox in a separate assembly; Unity math substitutes, no Unity Editor GUI runner.
-PASS codec: real JSON semantic round trip: crystal_maiden.json
-PASS codec: real JSON semantic round trip: lina.json
-PASS codec: real JSON semantic round trip: lion.json
-PASS codec: real JSON semantic round trip: sven.json
-PASS codec: real JSON semantic round trip: mountain_king.json
-PASS codec: real JSON semantic round trip: paladin.json
-PASS codec: real JSON semantic round trip: tauren_chieftain.json
-PASS codec: real JSON semantic round trip: composed_skills.json
-PASS codec: real JSON semantic round trip: external_chain_lightning.json
-PASS codec: real JSON semantic round trip: mixed_sources.json
-PASS codec: all public DTO fields survive export
-PASS codec: null duration inherits; empty duration remains explicit zero
-PASS codec: defaults, false overrides and empty arrays survive
-PASS codec: strings preserve Unicode, escaped controls and surrogate units
-PASS codec: writer is deterministic and keeps action/level order
-PASS codec: float output is independent of current culture
-PASS codec: nonfinite floats cannot be exported
-PASS codec: unknown, duplicate, malformed and future schema input is rejected
-PASS codec: domain-invalid drafts remain editable
-PASS codec: cloning detaches arrays and nested values
-PASS codec: SHA-256 fingerprints exact UTF-8 content
-PASS codec: null and unsupported exports fail explicitly
-Editor codec: 22 passed, 0 failed.
-PASS preflight: ten thousand references are bounded without recursive traversal
-PASS preflight: modifier reference edge is counted: created
-PASS preflight: modifier reference edge is counted: refresh
-PASS preflight: modifier reference edge is counted: destroy
-PASS preflight: modifier reference edge is counted: interval
-PASS preflight: modifier reference edge is counted: trigger
-PASS preflight: modifier reference edge is counted: aura
-PASS preflight: ability start is counted: intrinsic
-PASS preflight: ability start is counted: actions
-PASS preflight: ability start is counted: projectile
-PASS preflight: ability start is counted: toggleOn
-PASS preflight: ability start is counted: toggleOff
-PASS preflight: a thousand independent definitions are not a path limit violation
-PASS preflight: cross-file references preserve diagnostic source
-PASS preflight: small event cycles remain allowed by preflight and production
-PASS preflight: immediate cycle legality remains with production validator
-PASS preflight: large cycles receive a complexity guard, not a cycle prohibition
-PASS preflight: branching DAG uses a path bound rather than exponential enumeration
-PASS preflight: random DAG path bounds match an independent reference
-PASS preflight: SCC weights are counted once along their condensation path
-PASS preflight: explicit code-provider bundles are checked before registry validation
-PASS preflight: missing references and duplicate-name validity are not reimplemented
-PASS preflight: real hero and composition files stay below the authoring limit
-PASS preflight: preflight does not mutate authoring DTOs
-PASS preflight: authoring budget is configurable and cannot be disabled with int.MaxValue
-Editor reference preflight: 25 passed, 0 failed.
-PASS EditorSandbox real hero Nova uses level damage, targets and resources
-PASS EditorSandbox real hero tracking bolt damages and stuns only its primary target
-PASS EditorSandbox real hero frostbite runs immediate and final boundary damage
-PASS EditorSandbox real hero aura includes caster and follows selected level
-PASS EditorSandbox real hero piercing wave runs configured hit behavior
-PASS EditorSandbox friendly heal reports actual health change
-PASS EditorSandbox event recursion passes static graph but is stopped by operation budget
-PASS EditorSandbox event recursion is stopped by depth budget
-PASS EditorSandbox the same acyclic JSON can exceed its operation budget only at larger target counts
-PASS EditorSandbox a short window does not pretend to have completed a pending cast
-PASS EditorSandbox immediate modifier creation cycle is rejected before running
-PASS EditorSandbox very long reference chains are rejected iteratively before runtime graph validation
-PASS EditorSandbox custom script declarations never discover or execute project factories
-PASS EditorSandbox missing ability and malformed definitions remain isolated
-PASS EditorSandbox simulation input limits reject unbounded or nonfinite work
-PASS EditorSandbox repeat runs use fresh engines and do not retain runtime references
-Editor sandbox: 16 passed, 0 failed.
-PASS workspace: loads and sorts only JSON documents
-PASS workspace: new draft writes only on explicit save
-PASS workspace: existing document save replaces safely and clears dirty
-PASS workspace: unknown schema field remains read-only and unchanged
-PASS workspace: unsupported schema cannot be converted through SetDraft
-PASS workspace: invalid UTF8 is retained as a read error
-PASS workspace: external file change blocks overwrite and keeps draft
-PASS workspace: byte baseline detects BOM-only changes
-PASS workspace: recovery baseline exposes original BOM bytes and save transitions
-PASS workspace: new recovery baseline distinguishes never-saved files
-PASS workspace: deleted source blocks unexpected resurrection
-PASS workspace: new target created externally is not overwritten
-PASS workspace: semantic validation failure leaves original file intact
-PASS workspace: nonfinite authoring values become diagnostics without crashing
-PASS workspace: read-only file blocks atomic replacement
-PASS workspace: dirty reload is refused
-PASS workspace: Undo snapshots restore clean state without writing
-PASS workspace: path traversal and duplicate creation are rejected
-PASS workspace: existing cross-file reference validates and saves
-PASS workspace: save cannot depend on an unsaved sibling
-PASS workspace: unrelated invalid draft does not corrupt saved view
-PASS workspace: external read-only provider resolves explicit references
-PASS workspace: custom script declaration is a warning without factory execution
-PASS workspace: I/O failure preserves draft and blocking file
-PASS workspace: save revalidates external dependency changes against disk
-PASS workspace: all delivered hero files form a real editable workspace
-PASS workspace: oversized modifier reference chain cannot overwrite a valid file
-PASS workspace: external providers participate in preflight without a second Load
-Workspace checks: 28 passed, 0 failed.
-Editor source verification: 4 suites, 0 failed.
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  UnityCoreReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.CoreModule.dll
-  AbilityRuntimeReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/Game.Ability.dll
-  UnityImGuiReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEngine.IMGUIModule.dll
-  UnityEditorReference -> /workspace/UnityPackages/tools/AbilityVerification/Editor/UiCompile/bin/Release/net8.0/UnityEditor.dll
-  EditorUiCompile -> /workspace/UnityPackages/tools/AbilityVerification/Editor/bin/Release/net8.0/EditorUiCompile.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:15.54
-
-
-Focused recheck after preserving unconfigured build behavior
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  HotUpdateVerification -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/HotUpdateVerification.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:06.94
-PASS loading starts only after an explicit call
-PASS repeated initialization shares one task and one hot entry
-PASS missing startup acknowledgement fails and closes the entry
-PASS initialization failure is propagated after entry cleanup
-PASS cancelled call cannot construct a hot entry
-PASS exit cancels pending startup and rejects late acknowledgement
-PASS startup deadline stops an entry that ignores cancellation
-PASS shutdown failure cannot retain the singleton or block a new instance
-PASS entry type must implement the shared AOT contract
-PASS default settings use the Unity application ID
-PASS setup uses code settings and does not generate startup JSON
-PASS 11 explicit hot-update startup and build-configuration scenarios (Unity API models; not native Unity).

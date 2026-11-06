@@ -1,6 +1,6 @@
 # Framework HybridCLR
 
-独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.9。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.14.0-preview.1，官方 HybridCLR 9.0.3。
+独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.10。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.14.0-preview.1，官方 HybridCLR 9.0.3。
 
 ## 安装
 
@@ -102,3 +102,5 @@ HotGame.cs 定义类型；加载完成后，HotUpdateManager 通过 Activator.Cr
 GameStarter 的场景中只需要 GameEntry。它依次准备基础 Manager、可选启动模块和热更入口，负责整个启动顺序。GameEntry 的 Initialize Hot Update 开关默认开启；关闭后不会创建或加载热更入口。加载完成之前不要打开依赖热更脚本的场景。
 
 默认类型是 Game.HotUpdate.HotGame，程序集仍为 Game.HotUpdate；IGameModule 契约保持不变。升级现有项目时，移除旧的 GameBootstrap/HotGameBootstrap 场景组件和 NovorizonHotUpdateSettings.json，在自己的入口显式调用 InitializeAsync，并将配置移到 C#。Setup Project 不覆盖项目已有的自定义入口源码。此次 AOT 启动流程与入口类型变化需要重新构建 HybridCLR 主包。
+
+Editor 程序集直接引用 Game.Framework.Core，以访问 HotUpdateManager 继承的 ConfigurableSingleton API。编辑器启动检查用 TryGetInstance 读取已有实例，不负责创建或启动热更；GameEntry 使用 Instance.InitializeAsync 显式启动。验证器按 Unity asmdef 将 Runtime 与 Editor 分开编译，并关闭传递项目引用。

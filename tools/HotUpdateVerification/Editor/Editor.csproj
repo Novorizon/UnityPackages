@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Shared.props" />
+  <PropertyGroup>
+    <AssemblyName>Game.Framework.HotUpdate.Editor</AssemblyName>
+    <DefineConstants>UNITY_EDITOR;UNITY_STANDALONE_WIN</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../FrameworkServicesVerification/Core/Core.csproj" />
+    <ProjectReference Include="../Runtime/Runtime.csproj" />
+    <ProjectReference Include="../HybridEditor/HybridEditor.csproj" />
+    <ProjectReference Include="../HybridRuntime/HybridRuntime.csproj" />
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Editor/*.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Reference Include="dnlib"><HintPath>$(HybridCLRPackageRoot)/Plugins/dnlib.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>
