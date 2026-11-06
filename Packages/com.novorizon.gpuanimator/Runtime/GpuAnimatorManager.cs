@@ -41,7 +41,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
     public event Action<GpuAnimator, string> AnimationCompleted;
     public event Action<GpuAnimator, string> AnimationStopped;
     /// <summary>取得单例即可使用；不清空已经注册的播放器。</summary>
-    public void Initialize()
+    public override void Initialize()
     {
         if (initialized)
         {

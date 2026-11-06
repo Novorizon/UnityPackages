@@ -13,6 +13,11 @@ namespace Game.Framework
             return EditorStaticReset.Register(clear, restore);
         }
 #endif
+        /// <summary>统一的无参初始化入口。实例由 Instance 准备；有初始化工作的服务重写本方法。</summary>
+        public virtual void Initialize()
+        {
+        }
+
         private static readonly object gate = new object ();
         private static T instance;
         private static bool creating;

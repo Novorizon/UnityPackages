@@ -26,6 +26,11 @@ namespace Game.Framework.Storage
             ResetInstance(value => value.Dispose(), stopping);
         }
 
+        public override void Initialize()
+        {
+            Initialize((string)null);
+        }
+
         public void Initialize(string directory = null)
         {
             lock (gate)

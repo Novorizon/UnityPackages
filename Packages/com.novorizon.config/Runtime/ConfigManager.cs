@@ -30,6 +30,11 @@ namespace Game.Framework.Config
             ResetInstance(value => value.Dispose(), stopping);
         }
 
+        public override void Initialize()
+        {
+            Initialize(null, null);
+        }
+
         /// <summary>默认使用 Resources 文本；可传入资源系统的文本加载函数，不绑定任何配置生成工具。</summary>
         public void Initialize(Func<string, CancellationToken, Task<string>> textLoader = null, Func<string, CancellationToken, Task<byte[]>> bytesLoader = null)
         {

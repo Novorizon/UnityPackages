@@ -71,6 +71,16 @@ internal static partial class Program
             Equal(0, audio.PlayingCount);
         });
 #endif
+        Run("input supports the common default entry and its typed parameter overload", () =>
+        {
+            using var defaults = new InputManager();
+            Game.Framework.ConfigurableSingleton<InputManager> common = defaults;
+            common.Initialize();
+            True(defaults.Initialized);
+            using var configured = new InputManager();
+            configured.Initialize(InputAsset(), "Gameplay");
+            True(configured.FindAction("Move").enabled);
+        });
         Run("input clones assets and switches maps without changing project assets", () =>
         {
             using var input = new InputManager();

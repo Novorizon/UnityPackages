@@ -25,6 +25,22 @@ internal static partial class Program
     private static Pump context;
     private static void Main()
     {
+        Run("parameterless initialization dispatches through singleton bases to actual services", () =>
+        {
+            using var config = new ConfigManager();
+            ConfigurableSingleton<ConfigManager> commonConfig = config;
+            commonConfig.Initialize();
+            True(config.Initialized);
+            using var scenes = new Scenes();
+            ConfigurableSingleton<Scenes> commonScenes = scenes;
+            commonScenes.Initialize();
+            True(scenes.Initialized);
+        });
+        Run("asynchronous resource loading cannot be skipped through the synchronous base entry", () =>
+        {
+            Throws<InvalidOperationException>(() => ResourceManager.Instance.Initialize());
+            True(!ResourceManager.Instance.Initialized);
+        });
         Run("data registration uses exact declared types and rejects duplicates", () =>
         {
             using var data = new DataManager();

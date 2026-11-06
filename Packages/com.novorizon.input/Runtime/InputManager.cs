@@ -26,6 +26,11 @@ namespace Game.Framework.Input
         public string CurrentControlScheme { get; private set; }
 
         public static void Reset(bool stopping = false) => ResetInstance(value => value.Dispose(), stopping);
+        public override void Initialize()
+        {
+            Initialize(null, null);
+        }
+
         public void Initialize(InputActionAsset source = null, string initialMap = null)
         {
             MainThread();

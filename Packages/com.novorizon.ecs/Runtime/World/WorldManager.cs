@@ -57,7 +57,7 @@ namespace ECS
         public bool IsBatching => IsUpdating || batchDepth > 0 || isFlushing;
         internal bool HasOpenBatch => batchDepth > 0;
 
-        public void Initialize()
+        public override void Initialize()
         {
         }
 

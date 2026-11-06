@@ -212,7 +212,7 @@ namespace UI
             }
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             ThrowIfUnavailable();
             if (initialized || initializing)

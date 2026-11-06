@@ -1,11 +1,11 @@
 {
   "name": "com.novorizon.framework.yooasset",
-  "version": "0.15.0-preview.2",
+  "version": "0.15.0-preview.3",
   "displayName": "Novorizon YooAsset Adapter",
   "description": "Optional shared resource facade for YooAsset 2.3.18.",
   "unity": "2022.3",
   "dependencies": {
-    "com.novorizon.framework": "0.16.0-preview.1",
+    "com.novorizon.framework": "0.17.0-preview.1",
     "com.tuyoogame.yooasset": "2.3.18"
   },
   "samples": [
