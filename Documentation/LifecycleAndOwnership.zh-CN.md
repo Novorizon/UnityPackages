@@ -73,3 +73,13 @@ Framework 的线程、事件和时钟驱动仍由 Framework 管理。
 场景加载器解绑或 Play 重置不会提前释放仍被已加载场景使用的 YooAsset 句柄。YooAsset 自身按 sceneUnloaded 自动释放；关闭过程中迟到但成功的场景加载也遵守相同规则。解绑管理器不等于卸载场景，项目仍需显式管理场景切换。
 
 原生实例持有的资源可以通过 AcquireAsync<T>(..., keepAliveUntilDisposed: true) 声明：普通关闭会等待使用方 Dispose 租约后再释放句柄。GameStarter 的 UI 适配已使用此策略，窗口原生销毁之前 prefab 句柄保持有效。未完成获取会被正常取消，Play 重置仍可强制回收旧运行的租约。
+
+## 单例自动登记和静态声明恢复
+
+三种单例基类共享 SingletonLifecycle，自动登记实例释放及引用重置。GameEntry 先关闭项目模块，ECS 自己维护 World → Entity → Pool 的清理顺序；Config/Input 等普通服务依靠基类及 IDisposable，无需逐类 Unity 启动特性。登记表在关闭 Domain Reload 的多次 Play 之间持续有效，清理不创建未使用的单例。
+
+Framework 内置 Source Generator 从 partial 单例子类的声明生成静态字段恢复，不需要手写字段赋值。关闭 Domain Reload 时，统一启动入口先清理旧实例，再执行生成代码；开启时不重复执行。Player 不生成编辑器静态重置代码。
+
+关闭 Scene Reload 不意味着要覆盖实例配置。音频/UI/GPU 使用 OnExit 释放运行资源、OnStart 重新启动；音量、速度、自定义加载器等实例配置保留。场景共享操作锁、ECS 组件类型 ID 等基础设施按原有生命周期约定处理。
+
+完整规则见 [StaticReset.md](../Packages/com.novorizon.framework/Documentation~/StaticReset.md)。

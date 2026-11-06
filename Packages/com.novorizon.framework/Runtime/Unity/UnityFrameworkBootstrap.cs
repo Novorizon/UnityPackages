@@ -33,14 +33,19 @@ namespace Game.Framework
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
-            ResetGameServices(false);
+            SingletonLifecycle.Reset();
+#if UNITY_EDITOR
+            // Domain Reload 开启时由 CLR 初始化字段，避免重复执行声明中的初始化表达式。
+            if (UnityEditor.EditorSettings.enterPlayModeOptionsEnabled &&
+                (UnityEditor.EditorSettings.enterPlayModeOptions & UnityEditor.EnterPlayModeOptions.DisableDomainReload) != 0)
+            {
+                EditorStaticReset.RestoreDeclaredValues();
+            }
+#endif
             FrameworkUpdateDriver.Stop();
             GameObjectPool.DisposeAll();
-            TimerManager.Instance.ResetForPlay();
             ReferencePool.ClearAll();
             UnityThread.Reset();
-            MonoSingletonLifecycle.Reset();
-            Event.EventManager.Instance.Clear();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -55,35 +60,10 @@ namespace Game.Framework
 
         private static void OnQuitting()
         {
-            MonoSingletonLifecycle.Quit();
+            SingletonLifecycle.Shutdown();
             FrameworkUpdateDriver.Stop();
             GameObjectPool.DisposeAll();
-            TimerManager.Instance.ResetForPlay();
             ReferencePool.ClearAll();
-            ResetGameServices(true);
-        }
-
-        private static void ResetGameServices(bool stopping)
-        {
-            try
-            {
-                Scenes.SceneManager.Reset(stopping);
-            }
-            catch (Exception error)
-            {
-                Logger.Exception(error);
-            }
-
-            try
-            {
-                Data.DataManager.Reset(stopping);
-            }
-            catch (Exception error)
-            {
-                Logger.Exception(error);
-            }
-
-            Storage.LocalStorageManager.Reset(stopping);
         }
     }
 }

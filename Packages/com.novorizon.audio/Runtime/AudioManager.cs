@@ -29,7 +29,6 @@ namespace Game.Framework.Audio
             1,
             1
         };
-        private static AudioManager lifetimeOwner;
         private long nextId;
         private bool initialized;
         private bool paused;
@@ -81,7 +80,6 @@ namespace Game.Framework.Audio
 
         protected override void OnStart()
         {
-            lifetimeOwner = this;
             Initialize();
         }
 
@@ -380,25 +378,5 @@ namespace Game.Framework.Audio
             ClearPlayback();
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetForPlay()
-        {
-            if (lifetimeOwner != null)
-            {
-                lifetimeOwner.ClearPlayback();
-                lifetimeOwner.masterVolume = 1;
-                lifetimeOwner.maxVoices = 32;
-                lifetimeOwner.AutomaticUpdate = true;
-                lifetimeOwner.UseUnscaledTime = true;
-                Array.Clear(lifetimeOwner.mixerGroups, 0, lifetimeOwner.mixerGroups.Length);
-                for (int i = 0; i < lifetimeOwner.groupVolumes.Length; i++)
-                {
-                    lifetimeOwner.groupVolumes[i] = 1;
-                }
-            }
-
-            lifetimeOwner = null;
-            ResetSingletonReference();
-        }
     }
 }

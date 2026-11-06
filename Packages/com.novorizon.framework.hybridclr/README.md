@@ -1,6 +1,6 @@
 # Framework HybridCLR
 
-独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.10。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.14.0-preview.1，官方 HybridCLR 9.0.3。
+独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.11。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.15.0-preview.1，官方 HybridCLR 9.0.3。
 
 ## 安装
 

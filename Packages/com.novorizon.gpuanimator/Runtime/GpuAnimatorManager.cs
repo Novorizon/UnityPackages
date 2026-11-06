@@ -4,7 +4,7 @@ using Game.Framework;
 using UnityEngine;
 
 /// <summary>统一推进处于自动模式的播放器，并汇总所有播放器的动画通知。</summary>
-public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
+public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 {
     private struct Entry
     {
@@ -18,7 +18,6 @@ public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
     private bool ticking;
     private float playbackSpeed = 1;
     private bool initialized;
-    private static GpuAnimatorManager lifetimeOwner;
     public int Count => registered.Count;
     public bool IsPaused { get; set; }
     public bool AutomaticUpdate { get; set; } = true;
@@ -58,29 +57,7 @@ public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 
     protected override void OnStart()
     {
-        lifetimeOwner = this;
         Initialize();
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetForPlay()
-    {
-        if (lifetimeOwner != null)
-        {
-            lifetimeOwner.registered.Clear();
-            lifetimeOwner.entries.Clear();
-            lifetimeOwner.initialized = false;
-            lifetimeOwner.IsPaused = false;
-            lifetimeOwner.playbackSpeed = 1;
-            lifetimeOwner.AutomaticUpdate = true;
-            lifetimeOwner.AnimationChanged = null;
-            lifetimeOwner.AnimationStarted = null;
-            lifetimeOwner.AnimationCompleted = null;
-            lifetimeOwner.AnimationStopped = null;
-        }
-
-        lifetimeOwner = null;
-        ResetSingletonReference();
     }
 
     public bool Register(GpuAnimator player)
@@ -248,11 +225,6 @@ public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 
     protected override void OnExit()
     {
-        if (IsDestroying && ReferenceEquals(lifetimeOwner, this))
-        {
-            lifetimeOwner = null;
-        }
-
         registered.Clear();
         initialized = false;
         // 事件回调中销毁 Manager 时，Tick 的 finally 会负责清理数组。

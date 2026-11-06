@@ -16,6 +16,61 @@ internal static partial class Program
 {
     private static void InteractionScenarios()
     {
+#if UNITY_EDITOR
+        Run("generated static reset follows the current Domain Reload option", () =>
+        {
+            var reset = typeof(Game.Framework.MonoSingleton<>).Assembly.GetType("Game.Framework.UnityFrameworkBootstrap")
+                .GetMethod("Reset", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            _ = StaticResetProbe.Value;
+            int before = StaticResetCounter.Calls;
+            try
+            {
+                UnityEditor.EditorSettings.enterPlayModeOptionsEnabled = false;
+                StaticResetProbe.Value = 99;
+                reset.Invoke(null, null);
+                Equal(99, StaticResetProbe.Value);
+                Equal(before, StaticResetCounter.Calls);
+                UnityEditor.EditorSettings.enterPlayModeOptionsEnabled = true;
+                UnityEditor.EditorSettings.enterPlayModeOptions = UnityEditor.EnterPlayModeOptions.DisableSceneReload;
+                reset.Invoke(null, null);
+                Equal(99, StaticResetProbe.Value);
+                Equal(before, StaticResetCounter.Calls);
+                UnityEditor.EditorSettings.enterPlayModeOptions = UnityEditor.EnterPlayModeOptions.DisableDomainReload;
+                reset.Invoke(null, null);
+                Equal(5, StaticResetProbe.Value);
+                Equal(before + 1, StaticResetCounter.Calls);
+                StaticResetProbe.Value = 98;
+                UnityEditor.EditorSettings.enterPlayModeOptions |= UnityEditor.EnterPlayModeOptions.DisableSceneReload;
+                reset.Invoke(null, null);
+                Equal(5, StaticResetProbe.Value);
+                Equal(before + 2, StaticResetCounter.Calls);
+            }
+            finally
+            {
+                UnityEditor.EditorSettings.enterPlayModeOptionsEnabled = true;
+                UnityEditor.EditorSettings.enterPlayModeOptions = UnityEditor.EnterPlayModeOptions.DisableDomainReload;
+            }
+        });
+        Run("retained audio component keeps configuration while releasing playback", () =>
+        {
+            var audio = AudioManager.Instance;
+            audio.MasterVolume = .25f;
+            audio.MaxVoices = 7;
+            audio.AutomaticUpdate = false;
+            audio.UseUnscaledTime = false;
+            var clip = new AudioClip();
+            audio.Play(clip);
+            True(audio.PlayingCount != 0);
+            Game.Framework.SingletonLifecycle.Reset();
+            Game.Framework.EditorStaticReset.RestoreDeclaredValues();
+            Game.Framework.UnityThread.Initialize();
+            Same(audio, AudioManager.Instance);
+            Near(.25f, audio.MasterVolume);
+            Equal(7, audio.MaxVoices);
+            True(!audio.AutomaticUpdate && !audio.UseUnscaledTime);
+            Equal(0, audio.PlayingCount);
+        });
+#endif
         Run("input clones assets and switches maps without changing project assets", () =>
         {
             using var input = new InputManager();
@@ -370,4 +425,21 @@ internal static partial class Program
         source.controlSchemes = new ReadOnlyArray<InputControlScheme>(new[] { new InputControlScheme { name = "Keyboard", bindingGroup = "kb" } });
         return source;
     }
+#if UNITY_EDITOR
+    private static class StaticResetCounter
+    {
+        internal static int Calls;
+        internal static int Next()
+        {
+            Calls++;
+            return 5;
+        }
+    }
+
+    public sealed partial class StaticResetProbe : Game.Framework.Singleton<StaticResetProbe>
+    {
+        public static int Value = StaticResetCounter.Next();
+    }
+#endif
+
 }

@@ -1,52 +1,27 @@
 #nullable disable
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 namespace Game.Framework
 {
     internal static class MonoSingletonLifecycle
     {
-        private static readonly object gate = new object ();
-        private static readonly List<Action> resets = new List<Action>();
-        private static int quitting;
-        private static int epoch;
-        internal static bool IsQuitting => Volatile.Read(ref quitting) != 0;
-        internal static int Epoch => Volatile.Read(ref epoch);
+        internal static bool IsQuitting => SingletonLifecycle.IsQuitting;
+        internal static int Epoch => SingletonLifecycle.Epoch;
 
-        internal static void Register(Action reset)
-        {
-            lock (gate)
-            {
-                resets.Add(reset);
-            }
-        }
-
-        internal static void Reset()
-        {
-            Volatile.Write(ref quitting, 0);
-            Interlocked.Increment(ref epoch);
-            Action[] snapshot;
-            lock (gate)
-            {
-                snapshot = resets.ToArray();
-            }
-
-            foreach (var reset in snapshot)
-            {
-                reset();
-            }
-        }
-
-        internal static void Quit()
-        {
-            Volatile.Write(ref quitting, 1);
-        }
+        internal static void Reset() => SingletonLifecycle.Reset();
+        internal static void Quit() => SingletonLifecycle.MarkQuitting();
     }
 
     public abstract class MonoSingleton<T> : MonoBehaviour, IDisposable where T : MonoSingleton<T>
     {
+#if UNITY_EDITOR
+        // 供生成的派生类代码调用；MonoSingleton 的使用方无需为此增加 Core 程序集引用。
+        protected static bool RegisterEditorStaticReset(Action clear, Action restore)
+        {
+            return EditorStaticReset.Register(clear, restore);
+        }
+#endif
         private static T instance;
         private static bool ending;
         private bool retired;
@@ -55,7 +30,28 @@ namespace Game.Framework
         private int lifetimeEpoch = -1;
         static MonoSingleton()
         {
-            MonoSingletonLifecycle.Register(() => instance = null);
+            SingletonLifecycle.Register(ResetForPlay, EndExistingLifetime);
+        }
+
+        private static void EndExistingLifetime()
+        {
+            if (instance != null)
+            {
+                instance.EndLifetime();
+            }
+        }
+
+        private static void ResetForPlay()
+        {
+            try
+            {
+                EndExistingLifetime();
+            }
+            finally
+            {
+                instance = null;
+                ending = false;
+            }
         }
 
         public virtual string RootName => typeof(T).Name;
@@ -77,7 +73,12 @@ namespace Game.Framework
 
                 if (TryGetInstance(out var current))
                 {
-                    return Prepare(current);
+                    return SingletonLifecycle.IsResetting ? current : Prepare(current);
+                }
+
+                if (SingletonLifecycle.IsResetting)
+                {
+                    throw new InvalidOperationException("Cannot create or initialize a MonoSingleton during reset: " + typeof(T).FullName);
                 }
 
                 T found = null;

@@ -382,15 +382,5 @@ namespace Game.Framework.Input
                 owner = null;
             }
         }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetForPlay()
-        {
-            Reset();
-            Application.quitting -= OnQuitting;
-            Application.quitting += OnQuitting;
-        }
-
-        private static void OnQuitting() => Reset(true);
     }
 }

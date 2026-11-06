@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup Condition="'$(NovorizonStaticResetEditor)' == 'true'">
+    <DefineConstants>$(DefineConstants);UNITY_EDITOR</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="$(MSBuildThisFileDirectory)../Packages/com.novorizon.framework/Analyzers/Game.Framework.StaticResetGenerator.dll" />
+  </ItemGroup>
+</Project>

@@ -22,7 +22,9 @@
     "Packages/com.novorizon.ability.editor.odin/package.json",
     "Packages/com.novorizon.ability.editor.odin/package.json.meta",
     "Packages/com.novorizon.ecsframework/ECS-Framework.meta",
-    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta"
+    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta",
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs",
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs.meta"
   ],
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
@@ -66,8 +68,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "093d0f6d73f53cefa43edd2f2e44e33563e2145370b63cc40c6e2624c0b87a4d",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "534ae9d3dfc6469f2493ba622f77bea1284211cb88ed6482cd6ae96171d17c6e",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -114,12 +116,12 @@
       "reason": "Add central GPU scheduling and playback notifications"
     },
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
-      "sha256": "3f1d08f1b2e121115665bc4d98f8d50e4a7467c234ca66ca1b57b8860558c052",
-      "reason": "Reset and stop scene, data and local storage services alongside Framework lifecycle; apply required control-statement formatting"
+      "sha256": "0d9300500e911ca0171d6bcdd44c2252f6d1f6e2346f33c5ddebfa907dcd0217",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "42e8e013954c0b387b4ea647d21a91c0d1ec30ef6e583664dcbaeb7ac810dcd8",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "3660c84756bd5e5a032a29c37c6e67e02139711feb9ccb01c3bf7040ecc15278",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
@@ -154,28 +156,28 @@
       "reason": "Add handle-controlled volume fades and fade-out recycling."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
-      "sha256": "876dba679a052e0392f76626a4a95eecd1bb79a0a00c5a1ae2738a1db222df7f",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "bc475364da20adb9545d0398273a58114e549098899885ad2baeb63ee0171ffc",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.config/Runtime/ConfigManager.cs": {
-      "sha256": "eb0616c3fc43327cd7a62d215738f8afb99e1b4510b186a43854f4efc8169ed1",
-      "reason": "Support binary configuration loaders and generated Luban snapshot lifecycle."
+      "sha256": "7958f8ec50492c7bee73644cd1bd582969b9c9c92c62528e09ea0c6e07cc94a9",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
-      "sha256": "cda4b292c832126ec767558f04e6f3c8e44747c6b552b85e8de9ef21a3b2dfa7",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "41972b6ae93d7cf23abad1cfcb307e935ff266cfe9d5602398e289e62c1fde9b",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Core/ConfigurableSingleton.cs": {
-      "sha256": "df3f8005d20d59e6246f30b5101e7dda5cbf398667e83b4fe636f557e98032c4",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "6fab0943fa942d8417ee59ef095a0b1f3d15d73139522ac1148dae31f960aa95",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "651092aec8a56b6e606b8a101b872a8487dc71446d08ab2f7b7f7ca43186ee6e",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "92feecad450d2fcb4f98bef944b5a14683b73aabccb54cb989031be5557805a7",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
-      "sha256": "39a48a903f73a2159f8637bedd49251883634d45d2c8c3874bd1b1196412653a",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "7003c9ed431cd509cf7a7611913ee7930f44c6cf336c0013aaa2ba0d24503b09",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
       "sha256": "798e86e5e0f0eba2e1ad33d16322bb8a87152e85a95afc8ae43e0f25df4184f6",
@@ -200,6 +202,50 @@
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
       "sha256": "c9324a7346451b82516bf00087cf54d7a5057cc7b2722aa2f388b9feedbcb437",
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
+      "sha256": "5c29b9366e8780baee1e1a7c618abc7cb3d14bad0349ddf662a051afffce80bb",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs": {
+      "sha256": "44a116ec542ff73e3eb98f608b6c204526b437a4c6c066f54e36bc6d39c43ff0",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.ecs/Runtime/World/WorldManager.cs": {
+      "sha256": "211113bf0c87c7c7f6085ff6e1e517bccdb933a25beb07fbd8f6bbb5d32b271c",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs": {
+      "sha256": "2b6bae61a3d56725f89b02185fc7274f5728d17db6035524580c9d48481b499a",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
+      "sha256": "c08e319338f8cc80de7a840d69402b47f9c35c3cb492edf8d4dac5b3f9fd3e93",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
+      "sha256": "97521eee81976da5685915b873f9d486c9b97b126db8870e33d5361d59ea935c",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
+      "sha256": "36f10d7c41fc8c6a14e52003f3a20b495e8b5e3a1317cdcfaa0b486d8bf2e0ba",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.input/Runtime/InputManager.cs": {
+      "sha256": "7d2bc027377a1348d644227b07c34e7d73293228ddb0ad35baefa879b79122ab",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
+      "sha256": "abec211bf7367ef1cce0a25bd8345bc6d4a7c86733341e843aaef3505516ef5c",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/SingletonLifecycle.cs": {
+      "sha256": "3b04cbc6b886b50027d76bcb35ca8f592d5123d23b6f760497d47d1be0356b54",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs": {
+      "sha256": "38990c36fc1d84a53d59f2fc21eaaf9cda4738e7d9f2164a27c3b03fc1de169f",
+      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     }
   }
 }

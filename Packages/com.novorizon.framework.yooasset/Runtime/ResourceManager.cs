@@ -16,6 +16,19 @@ namespace Game.Resource
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
     public partial class ResourceManager : Singleton<ResourceManager>
     {
+        static ResourceManager()
+        {
+            SingletonLifecycle.Register(ResetExistingForPlay, Release, order: -50);
+        }
+
+        private static void ResetExistingForPlay()
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.ResetForPlay();
+            }
+        }
+
         private sealed class AssetLoad
         {
             internal readonly TaskCompletionSource<Object> Result = new TaskCompletionSource<Object>(TaskCreationOptions.RunContinuationsAsynchronously);

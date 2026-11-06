@@ -1,11 +1,11 @@
 {
   "name": "com.novorizon.framework.hybridclr",
-  "version": "0.1.0-preview.10",
+  "version": "0.1.0-preview.12",
   "displayName": "Novorizon Framework HybridCLR",
   "description": "Unity hot update setup, player baseline builds, patch export and verified startup.",
   "unity": "2022.3",
   "dependencies": {
-    "com.novorizon.framework": "0.14.0-preview.1",
+    "com.novorizon.framework": "0.16.0-preview.1",
     "com.code-philosophy.hybridclr": "9.0.3",
     "com.unity.modules.unitywebrequest": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0"

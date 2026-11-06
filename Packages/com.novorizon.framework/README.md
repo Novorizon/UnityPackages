@@ -60,3 +60,13 @@ protected override void OnExit()
 上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。ConfigurableSingleton<T> 同样提供 Release，内部清理 IDisposable 并保留退出保护。
 
 初始化状态和重复释放由组件内部处理。GameStarter 在 OnStart 直接准备服务、在 OnExit 直接释放，不维护 Manager 所有权或跨服务初始化失败回滚。
+
+## 自动单例重置
+
+Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 的基类自动登记实例释放和引用重置。普通对象实现 IDisposable，组件使用 OnExit；未使用单例不会为清理而创建实例。Framework 不依赖 ECS、UI 或资源适配包，模块依赖顺序仍由各模块协调。
+
+Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加 partial，即可从字段声明生成重置代码，不需要 Attribute、手写 Reset 或 RuntimeInitializeOnLoadMethod。修改声明初值后，生成代码同步更新。
+
+进入 Play 时判断编辑器的 Domain Reload 选项：关闭时执行静态恢复，开启时交给 Unity/CLR。Player 不生成这些编辑器成员。关闭 Scene Reload 时不强制覆盖保留组件的实例配置，OnStart/OnExit 负责正常启动和释放。
+
+支持范围、readonly 规则、诊断和生成器维护见 [静态重置](Documentation~/StaticReset.md)。

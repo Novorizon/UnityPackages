@@ -12,10 +12,8 @@ using Game.Framework;
 namespace UI
 {
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, "UI", "Game.Framework.UI", "UIRoot")]
-    public sealed class UIManager : MonoSingleton<UIManager>
+    public sealed partial class UIManager : MonoSingleton<UIManager>
     {
-        // Owns UI cleanup even if Framework's subsystem hook has already cleared its cache.
-        static UIManager? lifetimeOwner;
         static bool quitting;
         internal static bool IsQuitting => quitting;
 
@@ -178,27 +176,9 @@ namespace UI
         readonly List<Task> retiredFactories = new();
         public bool IsInitialized => initialized && !destroyed && !shuttingDown;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void ResetForPlay()
+        static UIManager()
         {
-            quitting = true;
-            try
-            {
-                if (lifetimeOwner != null)
-                {
-                    lifetimeOwner.Shutdown();
-                    lifetimeOwner.destroyed = false;
-                    lifetimeOwner.loader = new ResourcesAssetLoader();
-                    lifetimeOwner.explicitCamera = null;
-                }
-            }
-            finally
-            {
-                lifetimeOwner = null;
-                ResetSingletonReference();
-                UIDestructionObserver.ResetForPlay();
-                quitting = false;
-            }
+            SingletonLifecycle.Register(UIDestructionObserver.ResetForPlay, order: 100);
         }
 
         protected override void Awake()
@@ -214,7 +194,7 @@ namespace UI
 
         protected override void OnStart()
         {
-            lifetimeOwner = this;
+            destroyed = false;
             if (!shutdownCompletion.IsCompleted)
             {
                 // 允许通过 Instance 重复等待关闭；不能在关闭期间隐式重新初始化。
@@ -559,17 +539,7 @@ namespace UI
         protected override void OnExit()
         {
             destroyed = true;
-            try
-            {
-                Shutdown();
-            }
-            finally
-            {
-                if (IsDestroying && ReferenceEquals(lifetimeOwner, this))
-                {
-                    lifetimeOwner = null;
-                }
-            }
+            Shutdown();
         }
 
         /// <summary>Consumes Back at the highest eligible layer, including a veto or active input gate.</summary>
