@@ -1,6 +1,6 @@
 # Framework Pool
 
-此示例可选依赖 Framework 0.10.0-preview.1。先安装 Framework 主包，再导入本 Sample；GpuAnimator 运行时仍可独立使用。业务预先加载 prefab、网格、材质、纹理与解析后的 AnimationData，然后创建 GpuAnimatorPool。
+此示例复用同一发行标签的 Framework 对象池。GpuAnimator 运行时也依赖 Framework 的调度器单例。先安装包依赖，再导入本 Sample。业务预先加载 prefab、网格、材质、纹理与解析后的 AnimationData，然后创建 GpuAnimatorPool。
 
 ```csharp
 using GpuAnimatorSamples;

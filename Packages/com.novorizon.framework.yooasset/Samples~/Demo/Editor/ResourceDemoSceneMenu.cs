@@ -11,15 +11,29 @@ namespace Game.Framework.Samples.Resources.Editor
         public static void CreateScene()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
                 throw new System.InvalidOperationException("Create the demo scene outside Play mode.");
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            }
+
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                return;
+            }
+
             const string folder = "Assets/NovorizonDemos";
-            if (!AssetDatabase.IsValidFolder(folder)) AssetDatabase.CreateFolder("Assets", "NovorizonDemos");
+            if (!AssetDatabase.IsValidFolder(folder))
+            {
+                AssetDatabase.CreateFolder("Assets", "NovorizonDemos");
+            }
+
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
             var root = new GameObject("Novorizon Resource Demo");
             root.AddComponent<ResourceDemoController>();
             string path = AssetDatabase.GenerateUniqueAssetPath(folder + "/ResourceDemo.unity");
-            if (EditorSceneManager.SaveScene(scene, path)) Selection.activeGameObject = root;
+            if (EditorSceneManager.SaveScene(scene, path))
+            {
+                Selection.activeGameObject = root;
+            }
         }
     }
 }

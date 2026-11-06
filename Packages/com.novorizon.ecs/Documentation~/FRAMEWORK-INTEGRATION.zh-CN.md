@@ -1,16 +1,16 @@
 # Framework 接入与生命周期边界
 
-ECS 2.0.0-preview.2 面向 Unity 2022.3，依赖 Framework 0.10.0-preview.1 与 Mathematics 1.2.6。Framework 不依赖 ECS，ECS 与技能包之间也没有依赖或 IUnit 桥接。
+ECS 面向 Unity 2022.3，依赖同一发行标签中的 Framework 与 Mathematics 1.2.6。Framework 不依赖 ECS，ECS 与 Ability 独立。
 
 ## 安装
 
-先安装对应版本的 Framework 主包，再安装 ECS。Git 安装时在项目 manifest 中显式指定两个仓库地址；package.json 的版本依赖不会替项目选择一个 Git 分支。
+先安装对应版本的 Framework 主包，再安装 ECS。Git 安装时在项目 manifest 中显式指定同仓库的两个包地址；package.json 的版本依赖不会替项目选择一个 Git 分支。
 
-当前接入分支：
+安装地址：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.25
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.25
 ```
 
 自己的 asmdef 引用 ECS、Game.Framework.Core、Game.Framework.Unity，直接使用数学类型时另引用 Unity.Mathematics。QuickStart 已包含所需程序集引用。
@@ -33,6 +33,4 @@ DestroyInstance 会先逻辑退役，再请求 Unity Destroy。TryGetInstance �
 
 ## 验证
 
-运行 Tests~/verify.sh，需要 .NET 8 和一个相邻的 Framework 工作副本，也可指定 FrameworkRoot。核心模型直接编译两边的生产源码，外部消费和 QuickStart 检查分别编译 Unity 边界、Framework 单例与 ECS 程序集。
-
-本轮增加两种 Framework/ECS 重置顺序的租约释放、旧实体退役和重新初始化检查。现有组件、系统、池、延迟资源完成和异步回调边界回归继续运行。托管模型不代表实际 Unity Editor、IL2CPP 或设备验收。
+在 GameStarter 导入 QuickStart 后进行实际 Unity 编译和 Play，步骤见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.25/Documentation/Samples.zh-CN.md)。源仓库的旧 Tests~ 工具不在本 UPM 包内，不要求相邻 Framework 工作副本。

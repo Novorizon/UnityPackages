@@ -1,6 +1,6 @@
 # 安装与快速开始
 
-目标 Unity 2022.3 LTS，Windows / Android / iPhone，API Compatibility Level 为 .NET Standard 2.1。Unity 业务项目无需安装 .NET SDK；仓库维护、协议生成和 .NET 合同测试才需要 SDK。
+目标 Unity 2022.3 LTS，Windows / Android / iPhone，API Compatibility Level 为 .NET Standard 2.1。运行已生成的 Unity 游戏代码无需 .NET SDK；Luban 生成和维护回归需要 .NET 8 SDK。
 
 ## 选择安装包
 
@@ -15,14 +15,14 @@
 Package Manager → + → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.10
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.25
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.25
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.25
 ```
 
 一次粘贴一个需要的地址。正式项目可把分支替换成审核过的提交，避免自动跟随变更。已有同名包用 Package Manager 更新，不把第二份源码粘进 Assets。
 
-本地克隆可 Add package from disk，选择对应的 package.json。导出包可 Add package from tarball，选择对应 .tgz。ZIP 内的 Packages/Framework 是文档与源码镜像，Assets/NovorizonFramework 是主包替代导入方式；不要把整个 ZIP 目录拖入 Assets，也不要重复导入 UPM 与 Assets 副本。
+本地克隆可 Add package from disk，选择对应的 package.json。导出包可 Add package from tarball，选择对应 .tgz。不要把整个仓库拖入 Assets，也不要重复导入同一包源码。
 
 ## 第一次验证
 
@@ -31,9 +31,9 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 3. 保存当前修改场景，新建独立演示场景后 Play。
 4. 用仪表盘测试事件、计时器、池、后台工作回主线程及 Task。基础演示完全离线。
 
-安装 UI 后，在 UI 包 Samples 中 Import **UI Demo**，用 Create UI Demo Scene 运行。窗口模板、按钮、列表行均由 Demo 创建，无需手工制作 Prefab。**UI Categories** 是原有的业务脚本片段，仍需要自己绑定 Prefab，不能与 UI Demo 的完整场景步骤混用。
+安装 UI 后，在 UI 包 Samples 中 Import **UI Demo**，用 Create UI Demo Scene 运行。窗口模板、按钮、列表行均由 Demo 创建，无需手工制作 Prefab。
 
-TCP Network 与 Resource Demo 另有显式前置配置和操作。各 Demo 只在 Import 样例并点击创建场景菜单后启用，不在安装包时修改项目或联网。
+Resource Demo 需要项目的 YooAsset 采集配置。各 Demo 只在 Import 样例并点击创建场景菜单后启用，不在安装包时修改项目或联网。
 
 ## 首次网络连接
 
@@ -48,8 +48,6 @@ await network.ConnectAsync(ct);
 ```
 
 Initialize 只准备配置和派发，默认不执行账号登录。项目通过 Initialize(authenticate) 安装自己的认证回调，消息类型由项目提供；主包不包含进度、存档、Facebook 绑定或玩家 ID。
-
-GameServer 的完整登录、进度和存档例子需要导入 TCP Network Sample，使用 GameServerClient，见 [网络指南](Network.md) 与 [Sample](../Samples~/Network/README.md)。
 
 ## 业务入口与拥有者
 
@@ -68,4 +66,4 @@ GameServer 的完整登录、进度和存档例子需要导入 TCP Network Sampl
 
 出现重复类型通常是同时安装了包和同份 Assets 源码；找不到 UI/YooAsset 程序集通常是装错可选包或业务 asmdef 引用缺失。首次运行先用离线 Demo 排除导入问题，再测试外部服务。
 
-[基础服务](Foundation.md) · [网络](Network.md) · [Core Demo](../Samples~/Demo/README.md) · [网络 Demo](../Samples~/Network/README.md)
+[基础服务](Foundation.md) · [网络](Network.md) · [Core Demo](../Samples~/Demo/README.md)

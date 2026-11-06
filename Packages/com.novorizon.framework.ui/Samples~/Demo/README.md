@@ -1,6 +1,6 @@
 # 可运行 UI Demo
 
-适用 Unity 2022.3，只需要 `com.novorizon.framework.ui` 与 uGUI。无需主框架、YooAsset、Addressables、DOTween、外部 Prefab 或服务器。
+适用 Unity 2022.3，依赖 `com.novorizon.framework.ui`、Framework 与 uGUI。无需 YooAsset、Addressables、DOTween、外部 Prefab 或服务器。
 
 ## 开始
 

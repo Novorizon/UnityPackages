@@ -4,7 +4,7 @@ Framework 内提供场景与本地存储；音频为 com.novorizon.audio，Luban
 
 ## 初始化
 
-GameStarter 默认由 GameEntry 准备资源并加载热更，HotGame 按存储、输入、场景、音频、数据表加载器、UI/GPU/ECS 的顺序准备普通服务，再启动可选 StartupModule 和业务。关闭热更时由 GameEntry 的同名函数执行这套初始化；GameSession 只协调可选模块的生命周期。
+GameStarter 默认由 GameEntry 准备资源并加载热更，HotGame 按存储、输入、场景、音频、数据表加载器、UI/GPU/ECS 的顺序准备普通服务，再启动可选 StartupModule 和业务。编译源模式同样通过 HotGame 执行初始化；GameSession 只协调可选模块的生命周期。
 
 ```csharp
 using Game.Framework.Audio;
@@ -20,7 +20,7 @@ DataManager.Instance.Initialize();
 
 ## 场景
 
-默认场景必须加入 Build Settings；传入名称或路径。资源包场景在 ResourceManager.InitializeAsync 成功后，将 ResourceManager.Instance.CreateSceneLoader() 传给场景管理器 Initialize。GameStarter 开启 initializeYooAsset 时已接线，不需要复制或修改 YooAsset。
+默认场景必须加入 Build Settings；传入名称或路径。资源包场景在 ResourceManager.InitializeAsync 成功后，将 ResourceManager.Instance.CreateSceneLoader() 传给场景管理器 Initialize。GameStarter 已接好 YooAsset 场景加载器，不需要复制或修改 YooAsset。
 
 ```csharp
 var world = await GameSceneManager.Instance.LoadAsync("World", UnityEngine.SceneManagement.LoadSceneMode.Additive);
@@ -41,7 +41,7 @@ var row = tables.TbExample[1];
 var current = DataManager.Instance.Get<cfg.Tables>();
 ```
 
-生成的 Tables 负责具体表和引用解析。DataManager 负责异步读取与完整快照替换；加载失败保留上一次成功结果。GameStarter 默认从 Resources 加载；开启 YooAsset 后，清单和表文件共用一个字节加载器，每次读取使用独立 AcquireAsync<TextAsset> 租约并及时释放。生成和程序集引用详见 [Data 包说明](../Packages/com.novorizon.data/README.md)。
+生成的 Tables 负责具体表和引用解析。DataManager 负责异步读取与完整快照替换；加载失败保留上一次成功结果。DataManager 的通用默认实现可以从 Resources 读取；GameStarter 固定使用 YooAsset，清单和表文件共用一个字节加载器，每次读取使用独立 AcquireAsync<TextAsset> 租约并及时释放。生成和程序集引用详见 [Data 包说明](../Packages/com.novorizon.data/README.md)。
 
 玩家属性、背包等动态数据由业务层维护，不登记到 DataManager。其他 JSON 文件也由业务按具体结构读取、反序列化；框架不再提供通用 JSON 表包装。版本化 JSON 存档仍由 LocalStorageManager 提供。
 

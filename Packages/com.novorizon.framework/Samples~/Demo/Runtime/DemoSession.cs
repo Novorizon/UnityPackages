@@ -4,6 +4,10 @@ namespace Game.Framework.Samples.Demo
     public sealed class DemoSession : Singleton<DemoSession>
     {
         public int Visits { get; private set; }
-        public void RegisterVisit() { Visits++; }
+
+        public void RegisterVisit()
+        {
+            Visits++;
+        }
     }
 }

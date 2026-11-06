@@ -24,7 +24,7 @@ Runtime/
 通过 Package Manager → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.25
 ```
 
 也可使用发行包 tgz。仅安装所选 UPM 包，不将整个仓库拖入 Assets。项目 asmdef 引用 `RTree`。不依赖 ECS、技能、渲染管线或 Framework；本包没有需要重复实现的单例、通用定时器或对象池。
@@ -52,4 +52,4 @@ Package Manager 的 Samples 提供 Spatial Queries 组件，导入后在场景�
 
 保留原始 LGPL-2.1-or-later 许可及源码版权，不改成 MIT。项目使用和分发时保留对应许可材料。
 
-本轮通过 .NET Standard 2.1 编译、原有差分/随机和空间查询回归；这些检查不代表已完成 Unity Editor、IL2CPP 或设备验证。完整算法指南保留在仓库 docs/UserGuide.md 与 docs/SpatialQueries.md。
+本轮通过 .NET Standard 2.1 编译、原有差分/随机和空间查询回归；这些检查不代表已完成 Unity Editor、IL2CPP 或设备验证。算法源码位于各 Runtime 子目录；查询接入见本页与 Spatial Queries 示例。

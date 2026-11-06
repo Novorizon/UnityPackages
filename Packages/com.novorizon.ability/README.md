@@ -1,6 +1,6 @@
 # Ability
 
-当前版本 0.3.0-preview.1：保留 65794c7 的运行时行为和公开接口，增加[API 冻结约定](Documentation-public-api.md)。运行时和编辑器一起发布为一个 UPM 包。
+运行时和编辑器在同一个包中，公开接口遵循[API 冻结约定](Documentation-public-api.md)。
 
 面向 Unity 2022.3 的独立 Dota 风格技能包。公开命名空间为 `Game.Ability`，程序集为 `Game.Ability`。
 
@@ -16,7 +16,7 @@
 | 定义/JSON读取、校验和发布 | 提供要启用的定义来源、读取JSON文本、授予单位技能 |
 | `AbilityScript` / `ModifierScript` 扩展点 | 在自己的程序集实现并注册特殊技能，不修改包源码 |
 
-项目可以让自己的实体实现接口，也可以使用专门适配器。当前 Cube 的 `Game/TowerDefense/AbilityAdapters` 是一种项目接入方式，不是包的必要部分，也不随独立包导入。
+项目可以让自己的实体实现接口，也可以使用专门适配器。游戏的单位、资源与表现适配器放在自己的业务程序集，不随本包发布。
 
 0.2.1 修复长帧计时与异常收尾、来源归属、深引用校验和事件查询。技能来源必须曾成功登记、属于当前引擎和战斗代际，Owner 未被注销；同代普通移除技能后，已发射对象仍可保留技能归因。死亡但尚未注销的来源与 null 环境来源仍被支持。精确 HP 适配器须返回已提交事实，项目提交后的通知异常应自行隔离。
 
@@ -27,12 +27,12 @@ IWorld 可返回粗候选；FindUnits 最终按有限坐标和精确三维球半
 通过一个 Git URL 安装运行时及编辑器：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.10
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.25
 ```
 
 也可从 Package Manager 选择本目录 package.json 或导出的单个 Ability tarball。`Game.Ability.asmdef` 编译运行时；`Editor/Game.Ability.Editor.Odin.asmdef` 仅编译编辑器。没有 Odin 时运行时正常可用，工作台显示安装提示；Odin 插件由项目提供。
 
-从旧版本升级，先移除旧的独立 Editor 包；新版聚合安装器和 GameStarter 可选模块安装器会一并处理。编辑器使用见[编辑器指南](Documentation~/Editor/README.md)。
+编辑器使用见[编辑器指南](Documentation~/Editor/README.md)。
 
 ## 最小接入流程
 
@@ -56,7 +56,10 @@ engine.RegisterUnit(caster);
 Ability ability = engine.AddAbility(caster, "my.arc_bolt", 1, myResources);
 var order = new CastOrder { Caster = caster, AbilityName = "my.arc_bolt", Target = target };
 CastResult preview = engine.EvaluateOrder(order);
-if (preview.Success) engine.IssueOrder(order);
+if (preview.Success)
+{
+    engine.IssueOrder(order);
+}
 // 每个 simulation tick 调用 engine.Update(deltaTime)。
 // 单位注销：engine.RemoveUnit(unit)；战斗结束：engine.ClearRuntime()。
 ```
@@ -103,8 +106,9 @@ AutoCast、独立层到期、投射物视野尚未实现，相关配置明确拒
 
 仓库 `Data/AbilityJsonSources/Validation` 提供多种真实JSON技能、跨来源引用和外部脚本样例。`Assets/Tests/EditMode/Ability` 测试从这些文件加载并检查实际结算。它们是业务和测试资料，不是包运行依赖。
 
-`Data/AbilityJsonSources/Heroes` 另提供 Dota 2 和 Warcraft III 的 7 位英雄、14 个参考技能，每英雄文件可独立发布。具体实现和原作差异写在该目录 README 与配置 description 中；它们不是完整英雄套装或特定补丁的复刻。验证工程还提供 `Docs/AbilityEditorOdinPlan.md`，编辑器位于同包的 Editor 目录，入口 Tools / Ability / Skill Studio；使用与验收见 Docs/AbilityEditorGuide.md，运行时不依赖 Odin。编辑器回归夹具位于仓库 tools/AbilityVerification/Fixtures，不属于运行时内容。
 
 `Tools/AbilityVerification/PackageSmoke/run.sh` 只把本目录复制到空临时项目，以另一个程序集自建全部接口和脚本，验证无需项目源码也可使用包。Core/Business 离线检查和性能基准在同一验证目录。
 
 离线测试使用 Unity/NUnit 兼容层；正式发布仍需要 Unity 2022.3 EditMode/PlayMode、IL2CPP 和目标设备 Profiler 验证。
+
+编辑器使用见[编辑器指南](Documentation~/Editor/README.md)。测试夹具位于仓库 tools/AbilityVerification/Fixtures，不随运行时发布。

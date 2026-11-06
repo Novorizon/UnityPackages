@@ -19,7 +19,7 @@
 - **Stop Playback**：停止并保留当前姿势，不调用完成回调。
 - **Clear Playback**：停止并释放播放器持有的资源引用；再次播放前需要执行 **Initialize Sample**。示例保留解码缓存以供复用。
 
-示例使用 `AutomaticUpdate = true`，由播放器自己的 `Update` 推进时间，无须手动调用 `Tick`。控制方法均为公开无参方法，也可由业务按钮或自己的代码调用。
+示例使用 `AutomaticUpdate = true`，由 GpuAnimatorManager 统一推进时间，无须手动调用 `Tick`。控制方法均为公开无参方法，也可由业务按钮或自己的代码调用。
 
 ## 接入自己的业务
 

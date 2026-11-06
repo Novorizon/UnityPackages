@@ -26,19 +26,104 @@
     "Packages/com.novorizon.config/Editor/Game.Framework.Config.Editor.asmdef.meta": "Packages/com.novorizon.data/Editor/Game.Framework.Data.Editor.asmdef.meta"
   },
   "retiredFiles": [
+    "Packages/com.guanjinbiao.gpuanimator/Documentation~/package-validation.md",
+    "Packages/com.guanjinbiao.gpuanimator/Documentation~/package-validation.md.meta",
+    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta",
     "Packages/com.novorizon.ability.editor.odin/package.json",
     "Packages/com.novorizon.ability.editor.odin/package.json.meta",
-    "Packages/com.novorizon.ecsframework/ECS-Framework.meta",
-    "Packages/com.guanjinbiao.gpuanimator/GpuAnimator.meta",
-    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs",
-    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs.meta",
     "Packages/com.novorizon.config/Runtime/ConfigManager.cs",
     "Packages/com.novorizon.config/Runtime/ConfigManager.cs.meta",
     "Packages/com.novorizon.config/Runtime/ConfigTable.cs",
     "Packages/com.novorizon.config/Runtime/ConfigTable.cs.meta",
+    "Packages/com.novorizon.ecs/Documentation~/CORRECTNESS.zh-CN.md",
+    "Packages/com.novorizon.ecs/Documentation~/MVC-DECOUPLING.zh-CN.md",
+    "Packages/com.novorizon.ecs/Documentation~/OPTIMIZATION.zh-CN.md",
+    "Packages/com.novorizon.ecs/Documentation~/PACKAGE-RELEASE.zh-CN.md",
+    "Packages/com.novorizon.ecs/Documentation~/STORAGE-ROADMAP.zh-CN.md",
+    "Packages/com.novorizon.ecs/Documentation~/USABILITY.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/CORRECTNESS.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/MVC-DECOUPLING.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/OPTIMIZATION.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/PACKAGE-RELEASE.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/STORAGE-ROADMAP.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/Documentation~/USABILITY.zh-CN.md",
+    "Packages/com.novorizon.ecsframework/ECS-Framework.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Game.Framework.UI.Samples.asmdef",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Game.Framework.UI.Samples.asmdef.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/README.md",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ConfirmPopup.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ConfirmPopup.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/LoadingOverlay.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/LoadingOverlay.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SimpleToast.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SimpleToast.cs.meta",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/VirtualListExample.cs",
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/VirtualListExample.cs.meta",
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs",
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceBootstrap.cs.meta",
+    "Packages/com.novorizon.framework/Runtime/Core/Data.meta",
     "Packages/com.novorizon.framework/Runtime/Core/Data/DataManager.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Data/DataManager.cs.meta",
-    "Packages/com.novorizon.framework/Runtime/Core/Data.meta"
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoProductionLedger.cs",
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoProductionLedger.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Events.meta",
+    "Packages/com.novorizon.framework/Samples~/Events/EventView.cs",
+    "Packages/com.novorizon.framework/Samples~/Events/EventView.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Events/EventViewPublisher.cs",
+    "Packages/com.novorizon.framework/Samples~/Events/EventViewPublisher.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Events/README.md",
+    "Packages/com.novorizon.framework/Samples~/Foundation.meta",
+    "Packages/com.novorizon.framework/Samples~/Foundation/FoundationServicesExample.cs",
+    "Packages/com.novorizon.framework/Samples~/Foundation/FoundationServicesExample.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Foundation/README.md",
+    "Packages/com.novorizon.framework/Samples~/Network.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/AssemblyInfo.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/AssemblyInfo.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/BusinessNetworkExample.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/BusinessNetworkExample.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Editor.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Editor/Game.Framework.Network.Samples.Editor.asmdef",
+    "Packages/com.novorizon.framework/Samples~/Network/Editor/Game.Framework.Network.Samples.Editor.asmdef.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Editor/NetworkDemoMenu.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/Editor/NetworkDemoMenu.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Game.Framework.Network.Samples.asmdef",
+    "Packages/com.novorizon.framework/Samples~/Network/Game.Framework.Network.Samples.asmdef.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerAuthentication.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerAuthentication.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerClient.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerClient.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerResultCode.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/GameServerResultCode.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/LoginCredentials.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/LoginCredentials.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Messages.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Messages/Game.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/Messages/Game.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Protocol~.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Protocol~/contract.json",
+    "Packages/com.novorizon.framework/Samples~/Network/Protocol~/contract.json.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/Protocol~/game.proto",
+    "Packages/com.novorizon.framework/Samples~/Network/Protocol~/game.proto.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/README.md",
+    "Packages/com.novorizon.framework/Samples~/Network/README.md.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/TcpNetworkDemo.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/TcpNetworkDemo.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/TcpNetworkSample.cs",
+    "Packages/com.novorizon.framework/Samples~/Network/TcpNetworkSample.cs.meta",
+    "Packages/com.novorizon.framework/Samples~/Network/link.xml",
+    "Packages/com.novorizon.framework/Samples~/Network/link.xml.meta",
+    "Packages/com.novorizon.gpuanimator/Documentation~/package-validation.md",
+    "Packages/com.novorizon.gpuanimator/Documentation~/package-validation.md.meta"
   ],
   "metadataChanges": [
     "Packages/com.novorizon.ability/package.json",
@@ -51,7 +136,11 @@
     "Packages/com.novorizon.framework.all/package.json",
     "Packages/com.novorizon.gpuanimator/GpuAnimator.asmdef",
     "Packages/com.novorizon.framework.hybridclr/Runtime/Game.Framework.HotUpdate.asmdef",
-    "Packages/com.novorizon.framework.hybridclr/Editor/Game.Framework.HotUpdate.Editor.asmdef"
+    "Packages/com.novorizon.framework.hybridclr/Editor/Game.Framework.HotUpdate.Editor.asmdef",
+    "Packages/com.novorizon.rtree/package.json",
+    "Packages/com.novorizon.audio/package.json",
+    "Packages/com.novorizon.input/package.json",
+    "Packages/com.novorizon.data/package.json"
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
@@ -98,24 +187,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "sha256": "3ba03b35127688c1ced9d6c830175400603f3681ef912b15bea0a241248114d6",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
-    },
-    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs": {
-      "sha256": "15fa83afbf5182dd5a501090be9361cde522e763da3bc3be62b055bee8121da1",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
-    },
-    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs": {
-      "sha256": "f4b24af033a06765d733bce17df825fca063b4c6434f76f43a0bd2356afd7554",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
-    },
-    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs": {
-      "sha256": "976f76d0a49c5336df27b9d4c5cf2b727be769ee3bd554b1699c056749cf95e7",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
-    },
-    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs": {
-      "sha256": "a9c67def93f67a6b49694e02e8c136c3c1d1e6d9c27098b5908fed11e8bf9dc9",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
+      "sha256": "4f854bffc9bbd57d0ba2ae9a8e64f87ea3c1c80e4975813052f602b9a060d2da",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
       "sha256": "3802f2893865efecea430d18fbb806ff502013cef6801313f6b7040cd3ae0a64",
@@ -296,6 +369,102 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+    },
+    "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "f4d38f14471a55c091b0e26e6ab911d120c4582f4a4d0e2a44be2b36927e2b15"
+    },
+    "Packages/com.novorizon.gpuanimator/Samples~/FrameworkPool/GpuAnimatorPool.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "0829711fa6b073923336ffcb82e3d65eebe06a1cff0f7b10570b8d7213804c4d"
+    },
+    "Packages/com.novorizon.gpuanimator/Samples~/ManualCrowd/GpuAnimatorCrowdExample.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "feccce108b32ef10bf8aaeb418b9366bf75b8c1e8b30e59b82a5751f067bcc8c"
+    },
+    "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartComponents.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "8df8122a1bb6193b5ade78d5f5c763c531ccf3b18fd3091e64599f1f1535dded"
+    },
+    "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartDemo.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "49995aa4ea69cbcd5143d8fb59a1b3e134b054d132bc38c8da4f9b4b2336e384"
+    },
+    "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartMovementSystem.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "616ff88afc12df10876117ceaeb94b2125e5c92f0a21b3bf523dcce1d93763ec"
+    },
+    "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartSession.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "6fb1041407ddebbfb2e3d862d640097dbc96346d219078bf9b5d93215bea83b3"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/UIDemoSceneMenu.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "5bdcd144555d46bfca79c74f7eab72835a20b18f88057faeafd130d3dcc7501d"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoAssetLoader.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "f01fd2d6bcb8b913a8d2ddbcd6fc96ceda01c7da5b9237c8b7f4d908c23b09d9"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoConfirmPopup.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "751c0a9f284cec72f98af3ded1d2760e127b59741fe554659278f35b83c7645a"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "42afb0b5280f8723775b599c5a0ef8483a6ae2b5a26086bddfee2e80951e5096"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "bcdde51078fe2a507748ca689d231f0cd1b8e1f32005f2df6a281cf5ff2b17a9"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "3a97f77abe3d5cc35380b132f1137051eb0347a423c3b97f7bb952fcf201e02b"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "d879475e92da8c1b95903ed5f6713dbb13091d383ee189f88e030f93a116e654"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "714abf2e7a68fc0f173427f2eb5998fbe16928401e6d011b108b0b8feeba12a9"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoToast.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "a2ee2024aee66e373a29d30cc1c8eda74034115ab4dc6836d5551c06cd94b70e"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoWidgets.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "565576af53074956462d8b70a859a1d06fd5ffaebf0dc0588d5dfcf4879c33b4"
+    },
+    "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "10b2545d6ada76c12fa4370e43efd1d49282c5cd4c2e90a3b4b8d5ae3b23d5c8"
+    },
+    "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "f6b3776f01302231d014816f8dfd069b0c69471367707c7c19ff1215789dbba6"
+    },
+    "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "a21776b1b688e8e9c7c7f3ce4ca5c9f27600903e72c6eda6517e6dcfb1c7dc27"
+    },
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/CoreDemoPooledItem.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "01d26556f506a846778953f92dbeb2fbf28c035c5fbd20bc566cab60795169a5"
+    },
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoReferenceContext.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "82d280a4031f00d89ce276990a7fbffb3679ebbb9bdc52893dd1db50b76b122c"
+    },
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoSession.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "086a5edc49991abd5e6f076f70fe79a6ca95b0c43196d4e6cad1ff322fa1c3f3"
+    },
+    "Packages/com.novorizon.framework/Samples~/Demo/Runtime/FrameworkDemo.cs": {
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
+      "sha256": "8e4b2deb656f6e371e7abbec9b091abc54883516afe62f2193465ae1ebef6dac"
     },
     "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
       "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",

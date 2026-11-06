@@ -2,11 +2,11 @@
   "name": "com.novorizon.ecs",
   "displayName": "ECS",
   "description": "Entity-component systems for Unity using Novorizon Framework foundation services.",
-  "version": "2.0.0-preview.13",
+  "version": "2.0.0-preview.14",
   "unity": "2022.3",
   "license": "MIT",
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.2",
+    "com.novorizon.framework": "0.18.0-preview.3",
     "com.unity.mathematics": "1.2.6"
   },
   "samples": [

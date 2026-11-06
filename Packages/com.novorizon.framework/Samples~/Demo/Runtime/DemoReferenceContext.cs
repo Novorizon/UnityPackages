@@ -8,6 +8,10 @@ namespace Game.Framework.Samples.Demo
     {
         public GameObject? Target;
         public int Amount;
-        public void Reset() { Target = null; Amount = 0; }
+        public void Reset()
+        {
+            Target = null;
+            Amount = 0;
+        }
     }
 }

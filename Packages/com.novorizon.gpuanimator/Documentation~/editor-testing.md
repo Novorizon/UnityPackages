@@ -40,4 +40,10 @@
 
 ## 自动化执行
 
-在安装本包、Unity Test Framework 并配置 testables 的 Built-in 测试工程运行：`python Tools~/run-unity-tests.py --unity /path/to/Unity --project /path/to/project --output /path/to/new-results`。报告必须包含非零且全部通过的测试。新增 GpuAnimatorPlaybackTests 连接烘焙、保存、解码、注入、播放与清理；本轮源码环境没有执行这些原生步骤。
+在安装 Unity Test Framework 并配置 testables 的 Built-in 工程中运行：
+
+```sh
+Unity -batchmode -nographics -projectPath /path/to/GameStarter -runTests -testPlatform EditMode -assemblyNames GpuAnimator.Editor.Tests -testResults /path/to/results/gpu.xml -logFile /path/to/results/gpu.log
+```
+
+报告必须包含非零且全部通过的测试；保留 XML 与完整日志。原生测试和图形/设备验收分开记录。云端编译步骤见 [GameStarter 验收说明](https://github.com/Novorizon/GameStarter/blob/main/Documentation/UnityValidation.zh-CN.md)。

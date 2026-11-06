@@ -10,14 +10,15 @@ namespace ECS.Samples.QuickStart
         private readonly float speed;
         private QuickStartMovementSystem movement;
         private bool disposed;
-
         public World World { get; private set; }
         public ulong EntityId { get; private set; }
 
         public QuickStartSession(float speed = 1)
         {
             if (float.IsNaN(speed) || float.IsInfinity(speed))
+            {
                 throw new ArgumentOutOfRangeException(nameof(speed));
+            }
 
             this.speed = speed;
             ownerId = checked(++nextOwnerId);
@@ -44,12 +45,18 @@ namespace ECS.Samples.QuickStart
 
         public float Position
         {
-            get { return EntityManager.Instance.GetComponentData<DemoPosition>(GetEntity()).X; }
+            get
+            {
+                return EntityManager.Instance.GetComponentData<DemoPosition>(GetEntity()).X;
+            }
         }
 
         public bool IsPaused
         {
-            get { return EntityManager.Instance.GetComponentData<DemoVelocity>(GetEntity()) == null; }
+            get
+            {
+                return EntityManager.Instance.GetComponentData<DemoVelocity>(GetEntity()) == null;
+            }
         }
 
         public void Pause()
@@ -61,34 +68,55 @@ namespace ECS.Samples.QuickStart
         {
             var entity = GetEntity();
             if (EntityManager.Instance.GetComponentData<DemoVelocity>(entity) == null)
+            {
                 EntityManager.Instance.AddComponentData<DemoVelocity>(entity).Speed = speed;
+            }
         }
 
         private Entity GetEntity()
         {
-            if (disposed) throw new ObjectDisposedException(nameof(QuickStartSession));
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(QuickStartSession));
+            }
+
             if (!EntityManager.Instance.TryGetEntity(EntityId, out var entity))
+            {
                 throw new InvalidOperationException("This demo entity has been removed.");
+            }
+
             return entity;
         }
 
         public void Dispose()
         {
-            if (disposed) return;
+            if (disposed)
+            {
+                return;
+            }
+
             disposed = true;
             // Unity shuts down managers in unspecified order; do not create them during shutdown.
-            if (Ecs.IsQuitting || EntityManager.applicationIsQuitting || WorldManager.applicationIsQuitting ||
-                ReferencePool.applicationIsQuitting) return;
+            if (Ecs.IsQuitting || EntityManager.applicationIsQuitting || WorldManager.applicationIsQuitting || ReferencePool.applicationIsQuitting)
+            {
+                return;
+            }
 
             try
             {
-                if (EntityId != 0) EntityManager.Instance.DestroyEntity(EntityId);
+                if (EntityId != 0)
+                {
+                    EntityManager.Instance.DestroyEntity(EntityId);
+                }
             }
             finally
             {
                 // A GUID identifies our entity; the owner token also guards a reused system reference.
                 if (movement != null && movement.OwnerId == ownerId)
+                {
                     World.RemoveSystem(movement);
+                }
+
                 movement = null;
             }
         }
