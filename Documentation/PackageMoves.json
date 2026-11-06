@@ -361,7 +361,7 @@
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "a08cb1132a17db7be2fd26f76a51a08793c9015f444ea768228f3c2253d17986",
+      "sha256": "156bf6f8318db654124d8b7e47353c547ec95d04849f697ee548ca37dad5b5fd",
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {

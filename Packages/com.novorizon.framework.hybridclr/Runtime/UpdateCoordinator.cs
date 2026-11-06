@@ -239,8 +239,14 @@ namespace Game.Framework.HotUpdate
             if (settings.loadCodeAsync == null)
             {
                 // Materialize and hash all code bytes BEFORE any Assembly.Load to close file replacement races.
-                try { selected.Assemblies = await ReadAssemblies(selected, token); }
-                catch (OperationCanceledException) { throw; }
+                try
+                {
+                    selected.Assemblies = await ReadAssemblies(selected, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 catch (Exception exception) when (selected.Id != null)
                 {
                     cache.Reject(selected.Id, exception.Message);
@@ -250,7 +256,9 @@ namespace Game.Framework.HotUpdate
                 }
                 selected.AotMetadata = new byte[baseline.aotMetadata.Length][];
                 for (int i = 0; i < baseline.aotMetadata.Length; i++)
+                {
                     selected.AotMetadata[i] = await ReadBuiltinVerified(baseline.aotMetadata[i], token);
+                }
             }
 
             selected.AcceptedVersion = highestHealthyVersion;
