@@ -210,8 +210,8 @@
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "c9324a7346451b82516bf00087cf54d7a5057cc7b2722aa2f388b9feedbcb437",
-      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
+      "sha256": "7956b6cf08b2075ab8ca01ef6cea55da6ea57effe15ab0c1b706419eed30f5dc",
+      "reason": "Preserve corrupt install-state JSON until explicit retry and retain a recoverable failure state; bound registration polling after lost UPM request handles to once per half-second."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
       "sha256": "5c29b9366e8780baee1e1a7c618abc7cb3d14bad0349ddf662a051afffce80bb",
@@ -296,6 +296,10 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
+      "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",
+      "reason": "Bind each dispatch batch to its original host so callbacks that reset and initialize a replacement host cannot consume the new session queue; preserve the prewarmed allocation-free path."
     }
   }
 }

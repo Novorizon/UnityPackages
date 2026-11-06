@@ -140,18 +140,50 @@ namespace Game.Framework
         }
         public static int Update(int maximumCallbacks = MaximumCallbacksPerBatch)
         {
-            if (!IsMainThread) throw new InvalidOperationException("Dispatch must run on the initialized main thread.");
-            if (maximumCallbacks < 1) throw new ArgumentOutOfRangeException(nameof(maximumCallbacks));
+            if (maximumCallbacks < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maximumCallbacks));
+            }
+
+            Host current;
             int count;
-            lock (gate) count = Math.Min(maximumCallbacks, queue.Count);
+            lock (gate)
+            {
+                current = host;
+                if (current == null || current.ThreadId != Thread.CurrentThread.ManagedThreadId)
+                {
+                    throw new InvalidOperationException("Dispatch must run on the initialized main thread.");
+                }
+
+                count = Math.Min(maximumCallbacks, queue.Count);
+            }
+
             int executed = 0;
             while (executed < count)
             {
                 WorkItem work;
-                lock (gate) { if (queue.Count == 0) break; work = queue.Dequeue(); }
+                lock (gate)
+                {
+                    // A callback may reset and initialize another Play session on this
+                    // same thread. Only that session's own pump may consume its work.
+                    if (!ReferenceEquals(host, current) || queue.Count == 0)
+                    {
+                        break;
+                    }
+
+                    work = queue.Dequeue();
+                }
+
                 var action = work.Take();
-                try { action?.Invoke(); }
-                catch (Exception error) { work.Fail(error); }
+                try
+                {
+                    action?.Invoke();
+                }
+                catch (Exception error)
+                {
+                    work.Fail(error);
+                }
+
                 executed++;
             }
             return executed;

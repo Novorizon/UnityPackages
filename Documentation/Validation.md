@@ -8,7 +8,7 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 
 迁入的可执行验证包括：
 
-- 聚合安装器：20 组模型场景，包含同仓库相邻目录安装以及旧 Editor/ECS/GpuAnimator 包的原子替换与失败保留；使用 Unity/UPM API 模型验证请求恢复、失败、重试、批量依赖与源码安装路径。
+- 聚合安装器：22 组模型场景，包含同仓库相邻目录安装以及旧 Editor/ECS/GpuAnimator 包的原子替换与失败保留；使用 Unity/UPM API 模型验证请求恢复、失败、重试、批量依赖、源码安装路径、损坏状态恢复与注册查询频率。
 - RTree：保留原正确性与空间查询回归程序，直接编译统一仓库的 canonical Runtime 源码；覆盖树变更、查询及空间索引一致性。
 
 使用 .NET SDK 8 运行 `python3 tools/workspace.py verify`。这些检查不执行真实 Unity API、UPM 服务或渲染。历史仓库中其他验证结果属于原提交的记录，本次不据此声称重新运行了全部旧仓库测试。
@@ -39,3 +39,5 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 DataManager 迁移验证使用官方 Luban CLI 生成的真实 cfg.Tables 和二进制文件，覆盖直接构造加载（无注册）、单一字节加载器、默认 Resources 路径、失败保留快照、后发请求优先、Clear/Dispose 取消以及停止后的单例重建。旧动态对象容器和通用 JSON 表 API 的测试随退役实现一同移除。
 
 配套发行新增验证：资源准备先于入口创建、资源准备失败不构造入口、资源绑定允许版本变化而拒绝包身份变化；资源失败时回到配套内置 DLL 和资源并拒绝该更新；精确资源版本跳过 latest 查询、下载取消不发布初始化状态，退出等待不可取消的原生初始化。真实 Unity/IL2CPP 仍由独立工程的原生验收入口执行。
+
+主线程派发回归直接编译实际 UnityThread，覆盖回调内更换手动宿主、SynchronizationContext 宿主切换，以及预热后 Post/Update 的零托管分配。上下文由测试驱动，不代表执行过原生 Unity Play 会话切换。
