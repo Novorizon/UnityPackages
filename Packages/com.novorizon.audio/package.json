@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.audio",
-  "version": "0.1.0-preview.1",
+  "version": "0.1.0-preview.2",
   "displayName": "Novorizon Audio",
   "description": "Pooled 2D/3D audio playback with stable handles, volume groups and lifecycle cleanup.",
   "unity": "2022.3",
@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.12.0-preview.1",
+    "com.novorizon.framework": "0.13.0-preview.1",
     "com.unity.modules.audio": "1.0.0"
   }
 }

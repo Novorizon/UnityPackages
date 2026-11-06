@@ -7,6 +7,11 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace UnityEngine
 {
+    // Unity also exposes Logger; keep it present to detect ambiguous imported type names.
+    public class Logger
+    {
+    }
+
     public partial class Object
     {
         public static T FindObjectOfType<T>(bool includeInactive = false)

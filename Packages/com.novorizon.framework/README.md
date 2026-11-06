@@ -38,3 +38,5 @@ UI 包依赖 Framework 与 uGUI，以 IUIAssetLoader 对接任意资源系统；
 `Game.Framework.Data.DataManager` 按类型持有运行时数据并管理释放顺序。`Game.Framework.Storage.LocalStorageManager` 提供 persistentDataPath 下的版本化 JSON/Text/Bytes 读写、临时文件替换与备份。它们不定义玩家存档字段。
 
 音频 `com.novorizon.audio` 和配置 `com.novorizon.config` 是依赖 Framework 的独立包，可通过 framework.all 一起安装。
+
+网络 StateChanged 提供派发后的状态通知。ConnectAsync 的取消只停止当前调用方等待，DisconnectAsync/DisposeAsync 才停止共享连接与重连。请求超时覆盖发送和响应，迟到响应不能污染后续请求，业务请求不自动重放。断开异常不跳过传输层释放。

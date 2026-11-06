@@ -112,15 +112,39 @@ namespace YooAsset
             UnloadCount++;
             return new UnloadSceneOperation
             {
-                Task = UnloadGate,
+                Task = CompleteUnloadAsync(),
                 Status = FailUnload ? EOperationStatus.Failed : EOperationStatus.Succeed
             };
+        }
+        private async Task CompleteUnloadAsync()
+        {
+            await UnloadGate;
+            if (!FailUnload)
+            {
+                UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(SceneObject);
+            }
         }
     }
 
     public sealed class ResourcePackage
     {
+        public ResourcePackage()
+        {
+            // Mirrors YooAsset 2.3.18 ResourceManager.OnSceneUnloaded ownership, not native I/O.
+            UnityEngine.SceneManagement.SceneManager.sceneUnloaded += scene =>
+            {
+                foreach (var handle in Scenes)
+                {
+                    if (handle.IsValid && handle.SceneObject.handle == scene.handle)
+                    {
+                        handle.Release();
+                    }
+                }
+            };
+        }
+
         public readonly List<AssetHandle> Assets = new List<AssetHandle>();
+        private readonly Dictionary<string, UnityEngine.Object> values = new Dictionary<string, UnityEngine.Object>();
         public readonly List<SceneHandle> Scenes = new List<SceneHandle>();
         public Task AssetGate = Task.CompletedTask, SceneGate = Task.CompletedTask;
         public EOperationStatus InitializeStatus;
@@ -138,7 +162,12 @@ namespace YooAsset
         public AssetHandle LoadAssetAsync<T>(string location)
             where T : UnityEngine.Object
         {
-            UnityEngine.Object value = typeof(T) == typeof(GameObject) ? new GameObject(location) : (UnityEngine.Object)Activator.CreateInstance(typeof(T));
+            if (!values.TryGetValue(location, out var value))
+            {
+                value = typeof(T) == typeof(GameObject) ? new GameObject(location) : (UnityEngine.Object)Activator.CreateInstance(typeof(T));
+                values.Add(location, value);
+            }
+
             var handle = new AssetHandle
             {
                 Task = AssetGate,

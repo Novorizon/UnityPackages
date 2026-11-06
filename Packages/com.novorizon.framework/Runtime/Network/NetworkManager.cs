@@ -84,6 +84,23 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>按派发队列顺序通知连接状态变化；Disposed 后停止派发，最终状态可读取 State。</summary>
+        public event Action<NetworkState> StateChanged
+        {
+            add
+            {
+                Session.StateChanged += value;
+            }
+
+            remove
+            {
+                if (session != null)
+                {
+                    session.StateChanged -= value;
+                }
+            }
+        }
+
         public event Action Reconnected
         {
             add

@@ -411,10 +411,7 @@ namespace Game.Resource
                 await load.Handle.Task;
                 if (load.Invalidated)
                 {
-                    if (load.Handle.IsValid)
-                    {
-                        load.Handle.Release();
-                    }
+                    YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
 
                     return;
                 }
@@ -434,10 +431,7 @@ namespace Game.Resource
                     scenes.Remove(location);
                 }
 
-                if (load.Handle.IsValid)
-                {
-                    load.Handle.Release();
-                }
+                YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
 
                 load.Result.TrySetException(error);
             }
@@ -537,6 +531,7 @@ namespace Game.Resource
         internal void ResetForPlay()
         {
             generation++;
+            ReleaseOwnedAssetsAsync().Forget();
             if (atlasRegistered)
             {
                 SpriteAtlasManager.atlasRequested -= RequestAtlas;
@@ -563,10 +558,7 @@ namespace Game.Resource
             {
                 load.Invalidated = true;
                 load.Result.TrySetCanceled();
-                if (load.Handle.IsValid)
-                {
-                    load.Handle.Release();
-                }
+                RetireSceneHandleAsync(load.Handle).Forget();
             }
 
             scenes.Clear();
@@ -587,6 +579,22 @@ namespace Game.Resource
             }
 
             return shutdown = ShutdownCoreAsync();
+        }
+
+        private static async Task RetireSceneHandleAsync(SceneHandle handle)
+        {
+            if (!handle.IsValid)
+            {
+                return;
+            }
+            try
+            {
+                await handle.Task;
+            }
+            catch
+            {
+            }
+            YooAssetSceneLoader.ReleaseIfSceneUnloaded(handle);
         }
 
         private async Task ShutdownCoreAsync()
@@ -645,6 +653,7 @@ namespace Game.Resource
                     try
                     {
                         ReleaseAllAssets();
+                        await ReleaseOwnedAssetsAsync();
                     }
                     finally
                     {

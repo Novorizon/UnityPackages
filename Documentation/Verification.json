@@ -17,7 +17,12 @@
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs",
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs",
@@ -26,6 +31,7 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"
   ],
   "updatedDocumentation": [
@@ -66,6 +72,6 @@
     "Packages/com.novorizon.rtree/README.md"
   ],
   "activeAssemblies": 21,
-  "activeGuids": 368,
+  "activeGuids": 373,
   "nativeUnityExecuted": false
 }

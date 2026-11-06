@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.config",
-  "version": "0.1.0-preview.1",
+  "version": "0.1.0-preview.2",
   "displayName": "Novorizon Config",
   "description": "Typed configuration tables, validated JSON imports and transactional asynchronous reloads.",
   "unity": "2022.3",
@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.12.0-preview.1",
+    "com.novorizon.framework": "0.13.0-preview.1",
     "com.unity.modules.jsonserialize": "1.0.0"
   }
 }

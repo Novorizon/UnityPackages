@@ -56,3 +56,9 @@ async System.Threading.Tasks.Task ReadTextAsync(string location)
 在资源初始化成功后，把 `ResourceManager.Instance.CreateSceneLoader()` 传给 `Game.Framework.Scenes.SceneManager.Instance.Initialize(...)`。适配器独立持有每次场景加载的句柄，避免同地址共享缓存影响场景所有权；退出时由场景管理器释放。
 
 ShutdownAsync 会继续清理所有场景并释放资源缓存，即使某次场景卸载失败；最后聚合报告错误。旧 Play 会话的延迟清理不会清空新会话的缓存。
+
+## 独立资源租约
+
+AcquireAsync<T>(location, token) 每次取得独立 AssetLease<T>，通过 Asset 访问，结束使用后 Dispose。取消或释放不影响同地址的其他租约和旧共享缓存。取消未结束的原生 I/O 时，底层句柄延迟到加载结束再释放。
+
+CreateScope 管理一组租约；UIView 中可 Track 此作用域到本次打开，CreateSceneScope(scene) 在指定场景卸载时自动取消并释放。ShutdownAsync 使租约失效并等待原生获取释放。GameStarter 已接入独立租约的 UI 加载器与配置文本读取。

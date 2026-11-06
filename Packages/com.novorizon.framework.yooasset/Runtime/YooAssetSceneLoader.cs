@@ -6,6 +6,7 @@ using Game.Framework.Scenes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using YooAsset;
+using Logger = Game.Framework.Logger;
 
 namespace Game.Resource
 {
@@ -49,10 +50,7 @@ namespace Game.Resource
             }
             catch
             {
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
+                ReleaseIfSceneUnloaded(handle);
 
                 throw;
             }
@@ -92,6 +90,21 @@ namespace Game.Resource
             }
         }
 
+        internal static void ReleaseIfSceneUnloaded(SceneHandle handle)
+        {
+            if (!handle.IsValid)
+            {
+                return;
+            }
+            if (handle.Status == EOperationStatus.Succeed && handle.SceneObject.IsValid() && handle.SceneObject.isLoaded)
+            {
+                // YooAsset 自己的 SceneHandles 列表持有此句柄，sceneUnloaded 时自动释放。
+                // 仅解绑管理器时不能卸载仍被场景使用的 Bundle。
+                return;
+            }
+            handle.Release();
+        }
+
         private static void Report(IProgress<float> progress, float value)
         {
             try
@@ -129,10 +142,7 @@ namespace Game.Resource
             UnityEngine.SceneManagement.SceneManager.sceneUnloaded -= OnSceneUnloaded;
             foreach (var handle in handles.Values)
             {
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
+                ReleaseIfSceneUnloaded(handle);
             }
 
             handles.Clear();

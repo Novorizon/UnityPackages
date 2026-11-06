@@ -210,7 +210,8 @@ def verify(dotnet):
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
-        subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification/UI.Tests/UI.Tests.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+        for suite in ['UI.Tests', 'Network.Tests']:
+            subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification' / suite / (suite + '.csproj')), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:
             project = ROOT / 'tools/AbilityVerification' / (name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)

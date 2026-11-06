@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework.all",
-  "version": "0.1.0-preview.11",
+  "version": "0.1.0-preview.12",
   "displayName": "Novorizon Framework All",
   "description": "Install the complete Novorizon Unity package suite and configure HybridCLR automatically.",
   "unity": "2022.3",

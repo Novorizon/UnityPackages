@@ -21,7 +21,6 @@ namespace UI
         bool disposed;
         int generation;
         CancellationTokenSource? runningCancellation;
-
         public ToastManager(UIInstanceFactory factory)
         {
             this.factory = factory;
@@ -30,9 +29,22 @@ namespace UI
 
         public void Enqueue(string prefabPath, object? args = null, ToastOptions? options = null)
         {
-            if (disposed || factory.IsDisposed) return;
+            if (disposed || factory.IsDisposed)
+            {
+                return;
+            }
+
             queue.Enqueue((prefabPath, args, options));
-            if (isRunning) return;
+            StartIfNeeded();
+        }
+
+        void StartIfNeeded()
+        {
+            if (isRunning || disposed || factory.IsDisposed || queue.Count == 0)
+            {
+                return;
+            }
+
             isRunning = true;
             var cancellation = new CancellationTokenSource();
             runningCancellation = cancellation;
@@ -56,20 +68,32 @@ namespace UI
                         Debug.LogException(exception);
                         continue;
                     }
+
                     if (disposed || runGeneration != generation)
                     {
                         CloseItem(handle);
                         return;
                     }
+
                     if (!handle.IsValid || !(handle.View is UIToast toast))
                     {
                         CloseItem(handle, destroy: true);
                         continue;
                     }
+
                     current = handle;
-                    try { await toast.Completion; }
-                    catch (Exception exception) { Debug.LogException(exception); }
-                    finally { CloseItem(handle); }
+                    try
+                    {
+                        await toast.Completion;
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogException(exception);
+                    }
+                    finally
+                    {
+                        CloseItem(handle);
+                    }
                 }
             }
             catch (Exception exception)
@@ -79,19 +103,36 @@ namespace UI
             finally
             {
                 cancellation.Dispose();
-                if (ReferenceEquals(runningCancellation, cancellation)) runningCancellation = null;
-                if (runGeneration == generation) isRunning = false;
+                if (ReferenceEquals(runningCancellation, cancellation))
+                {
+                    runningCancellation = null;
+                }
+
+                if (runGeneration == generation)
+                {
+                    isRunning = false;
+                    StartIfNeeded();
+                }
             }
         }
 
         void CloseItem(UIHandle handle, bool destroy = false)
         {
-            try { factory.CloseApproved(handle, destroy, !destroy, destroy ? UICloseReason.Cancelled : UICloseReason.Completed); }
-            catch (Exception exception) { Debug.LogException(exception); }
+            try
+            {
+                factory.CloseApproved(handle, destroy, !destroy, destroy ? UICloseReason.Cancelled : UICloseReason.Completed);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
             finally
             {
                 // OnClose/OnDisable may clear the queue and open a new generation synchronously.
-                if (current.Id == handle.Id && ReferenceEquals(current.View, handle.View)) current = default;
+                if (current.Id == handle.Id && ReferenceEquals(current.View, handle.View))
+                {
+                    current = default;
+                }
             }
         }
 
@@ -105,13 +146,25 @@ namespace UI
             isRunning = false;
             CancellationTokenSource? cancellation = runningCancellation;
             runningCancellation = null;
-            cancellation?.Cancel();
+            try
+            {
+                cancellation?.Cancel();
+            }
+            catch (Exception error)
+            {
+                Debug.LogException(error);
+            }
+
             factory.CloseApproved(handle, false, true, UICloseReason.Cancelled);
         }
 
         public void Dispose()
         {
-            if (disposed) return;
+            if (disposed)
+            {
+                return;
+            }
+
             disposed = true;
             factory.Disposed -= Dispose;
             Clear();
