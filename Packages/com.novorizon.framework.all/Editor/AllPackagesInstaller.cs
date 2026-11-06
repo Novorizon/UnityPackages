@@ -23,6 +23,7 @@ namespace Game.Framework.All.Editor
         private static AddAndRemoveRequest adding;
         private static EmbedRequest embedding;
         private static bool blocked, batch, verifyAfterAdd;
+        private static double nextRegistrationCheck;
         private static string StatePath => Path.Combine(projectRoot, "ProjectSettings/NovorizonFrameworkAll.install.json");
         private static string ReportPath => Path.Combine(projectRoot, "Library/NovorizonFrameworkAll/verification.json");
 
@@ -75,7 +76,27 @@ namespace Game.Framework.All.Editor
             release = owner.version;
             catalog = JsonUtility.FromJson<PackageCatalog>(File.ReadAllText(Path.Combine(packageRoot, "Dependencies.json")));
             catalog.Validate();
-            state = File.Exists(StatePath) ? JsonUtility.FromJson<InstallState>(File.ReadAllText(StatePath)) : null;
+            if (File.Exists(StatePath))
+            {
+                try
+                {
+                    state = JsonUtility.FromJson<InstallState>(File.ReadAllText(StatePath));
+                }
+                catch (ArgumentException exception)
+                {
+                    // Preserve the damaged file until an explicit retry replaces it. Keep a
+                    // usable in-memory failure state so RetryInstallation does not parse it again.
+                    state = new InstallState
+                    {
+                        release = release,
+                        phase = "Failed",
+                        error = "Cannot read installation state: " + exception.Message + ". Use Tools/Novorizon/All Packages/Retry Installation."
+                    };
+                    Debug.LogError("[Novorizon All] " + state.error);
+                    return true;
+                }
+            }
+
             if (state == null || state.release != release)
             {
                 state = new InstallState
@@ -106,6 +127,7 @@ namespace Game.Framework.All.Editor
         private static void Advance(string phase)
         {
             state.phase = phase;
+            nextRegistrationCheck = 0;
             state.deadline = DateTime.UtcNow.AddMinutes(5).Ticks;
             Save();
             Debug.Log("[Novorizon All] " + phase);
@@ -182,6 +204,12 @@ namespace Game.Framework.All.Editor
                 // without issuing a second UPM operation while the native request may still run.
                 if ((state.phase == "Install" && state.addSubmitted && !verifyAfterAdd) || (state.phase == "Embed" && state.embedSubmitted))
                 {
+                    if (EditorApplication.timeSinceStartup < nextRegistrationCheck)
+                    {
+                        return;
+                    }
+
+                    nextRegistrationCheck = EditorApplication.timeSinceStartup + .5;
                     var registered = PackageInfo.GetAllRegisteredPackages();
                     if (state.phase == "Install" && catalog.packages.All(p => registered.Any(i => i.name == p.name && i.version == p.version)) && !registered.Any(i => (catalog.obsoletePackages ?? Array.Empty<string>()).Contains(i.name)))
                     {
@@ -386,6 +414,7 @@ namespace Game.Framework.All.Editor
             adding = null;
             embedding = null;
             verifyAfterAdd = false;
+            nextRegistrationCheck = 0;
             Save();
         }
 

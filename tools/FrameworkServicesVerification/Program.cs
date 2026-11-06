@@ -14,6 +14,7 @@ internal static partial class Program
     private static int passed;
     private static void Main()
     {
+        VerifyDispatchLifecycle();
         Check("retained GPU manager keeps playback configuration across lifecycle cleanup", () =>
         {
             Object.ResetTestState();

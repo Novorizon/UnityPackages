@@ -30,7 +30,17 @@ namespace UnityEngine
         {
             IncludeFields = true
         };
-        public static T FromJson<T>(string json) => JsonSerializer.Deserialize<T>(json, Options);
+        public static T FromJson<T>(string json)
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<T>(json, Options);
+            }
+            catch (JsonException error)
+            {
+                throw new ArgumentException("Invalid JSON", error);
+            }
+        }
         public static string ToJson(object value) => JsonSerializer.Serialize(value, Options);
     }
 }
@@ -58,6 +68,7 @@ namespace UnityEditor
     public static class EditorApplication
     {
         public static bool isCompiling, isUpdating, isPlayingOrWillChangePlaymode;
+        public static double timeSinceStartup;
         public static int? ExitCode;
         public static event Action update;
         public static void TickForTest() => update?.Invoke();
@@ -95,8 +106,13 @@ namespace UnityEditor.PackageManager
         public string name, version, resolvedPath;
         public PackageSource source;
         public static PackageInfo Owner;
+        public static int RegistrationQueries;
         public static PackageInfo FindForAssembly(Assembly assembly) => Owner;
-        public static PackageInfo[] GetAllRegisteredPackages() => Client.Installed.Values.ToArray();
+        public static PackageInfo[] GetAllRegisteredPackages()
+        {
+            RegistrationQueries++;
+            return Client.Installed.Values.ToArray();
+        }
     }
 
     public static class Client
