@@ -40,4 +40,4 @@ Reload Scene 与此独立。关闭 Reload Scene 是保留场景对象、跳过�
 
 源码位于 SourceGenerators~/StaticResetGenerator，Unity 不将它当作运行时代码导入。维护者安装 global.json 固定的 .NET SDK 后，使用 `python3 tools/build-static-reset.py` 构建并更新包内 DLL；CI 用 --check 检查源码和发布 DLL 一致，并验证 Editor/Player 两种程序集边界。用户无需执行此命令。
 
-当前自动验证覆盖 Roslyn 3.8 的生成、编译和执行，以及现有程序集模型；尚未在真实 Unity Editor 中执行导入和连续 Play 验证。
+自动验证覆盖 Roslyn 3.8 的生成、编译和执行，以及 Editor/Player 程序集模型。移除 SingletonLifecycle 的包提交 47a4a7d 已在 GameStarter 的独立副本中通过 Unity 2022.3.62f1 实际导入、全部 8 个 Demo 的程序集编译检查，以及关闭 Domain Reload/Scene Reload 的连续两次 Play；同一 GameEntry 两次就绪，两次退出后事件和定时器实例均已释放。该结果不代表 IL2CPP、渲染和设备验收通过；完整日志由配套 GameStarter 验证报告保存。
