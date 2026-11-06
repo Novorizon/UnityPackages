@@ -8,9 +8,8 @@ namespace UI
     public sealed class PanelOptions
     {
         public bool AllowMultiple { get; set; } = false;
-
         public bool CacheOnClose { get; set; } = true;
-
+        public UIDuplicatePolicy DuplicatePolicy { get; set; } = UIDuplicatePolicy.Refresh;
         public string? GroupId { get; set; }
     }
 
@@ -22,7 +21,6 @@ namespace UI
         readonly List<PanelEntry> opened = new();
         readonly SemaphoreSlim navigation = new(1, 1);
         readonly CancellationTokenSource lifetime = new();
-
         public PanelManager(UIInstanceFactory factory)
         {
             this.factory = factory;
@@ -55,7 +53,7 @@ namespace UI
         public Task<UIHandle> ShowAsync(string prefabPath, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default)
         {
             PanelOptions opt = options ?? new PanelOptions();
-            return ShowCoreAsync(prefabPath, args, opt.AllowMultiple, opt.CacheOnClose, opt.GroupId, false, cancellationToken);
+            return ShowCoreAsync(prefabPath, args, opt.AllowMultiple, opt.CacheOnClose, opt.GroupId, false, cancellationToken, opt.DuplicatePolicy);
         }
 
         public bool Hide(string prefabPath, UICloseReason reason = UICloseReason.Programmatic)
@@ -84,9 +82,17 @@ namespace UI
                 return false;
             }
 
-            if (!factory.CanClose(handle, reason)) return false;
+            if (!factory.CanClose(handle, reason))
+            {
+                return false;
+            }
+
             index = FindIndex(handle);
-            if (index < 0 || !handle.IsValid) return false;
+            if (index < 0 || !handle.IsValid)
+            {
+                return false;
+            }
+
             RemovePanel(index, true, reason);
             return true;
         }
@@ -95,39 +101,61 @@ namespace UI
         {
             cancellationToken.ThrowIfCancellationRequested();
             for (int i = opened.Count - 1; i >= 0; i--)
+            {
                 if (opened[i].Handle.PrefabPath == prefabPath && opened[i].Handle.IsValid)
+                {
                     return HideAsync(opened[i].Handle, reason, cancellationToken);
+                }
+            }
+
             return Task.FromResult(false);
         }
 
-        public Task<bool> HideAsync(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default)
-            => HideCoreAsync(handle, reason, null, false, cancellationToken);
-
+        public Task<bool> HideAsync(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default) => HideCoreAsync(handle, reason, null, false, cancellationToken);
         async Task<bool> HideCoreAsync(UIHandle handle, UICloseReason reason, string? requiredGroup, bool requireBackTop, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (factory.IsDisposed || !handle.IsValid || FindIndex(handle) < 0) return false;
+            if (factory.IsDisposed || !handle.IsValid || FindIndex(handle) < 0)
+            {
+                return false;
+            }
+
             bool approved = await factory.CanCloseAsync(handle, reason, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             int index = FindIndex(handle);
-            if (!approved || factory.IsDisposed || !handle.IsValid || index < 0) return false;
+            if (!approved || factory.IsDisposed || !handle.IsValid || index < 0)
+            {
+                return false;
+            }
+
             if (requiredGroup != null)
             {
-                if (!groupStacks.TryGetValue(requiredGroup, out List<UIHandle>? group)) return false;
+                if (!groupStacks.TryGetValue(requiredGroup, out List<UIHandle>? group))
+                {
+                    return false;
+                }
+
                 PruneGroup(group);
-                if (group.Count == 0 || !Same(group[group.Count - 1], handle)) return false;
+                if (group.Count == 0 || !Same(group[group.Count - 1], handle))
+                {
+                    return false;
+                }
             }
+
             if (requireBackTop)
             {
                 UIHandle? top = PeekBackClosablePanel();
-                if (!top.HasValue || !Same(top.Value, handle)) return false;
+                if (!top.HasValue || !Same(top.Value, handle))
+                {
+                    return false;
+                }
             }
+
             RemovePanel(index, true, reason);
             return true;
         }
 
         static bool Same(UIHandle first, UIHandle second) => first.Id == second.Id && ReferenceEquals(first.View, second.View);
-
         void RemovePanel(int index, bool close, UICloseReason reason = UICloseReason.Destroyed)
         {
             PanelEntry entry = opened[index];
@@ -155,12 +183,18 @@ namespace UI
 
             try
             {
-                if (close) factory.CloseApproved(handle, false, true, reason);
+                if (close)
+                {
+                    factory.CloseApproved(handle, false, true, reason);
+                }
             }
             finally
             {
                 // Cleanup callbacks may fail or push a replacement. Restore the current top.
-                if (restoreGroup && entry.GroupId != null) ShowGroupTop(entry.GroupId);
+                if (restoreGroup && entry.GroupId != null)
+                {
+                    ShowGroupTop(entry.GroupId);
+                }
             }
         }
 
@@ -194,26 +228,40 @@ namespace UI
         public Task<bool> PopGroupAsync(string groupId, UICloseReason reason = UICloseReason.Back, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (factory.IsDisposed || !groupStacks.TryGetValue(groupId, out List<UIHandle>? stack)) return Task.FromResult(false);
+            if (factory.IsDisposed || !groupStacks.TryGetValue(groupId, out List<UIHandle>? stack))
+            {
+                return Task.FromResult(false);
+            }
+
             PruneGroup(stack);
             return stack.Count == 0 ? Task.FromResult(false) : HideCoreAsync(stack[stack.Count - 1], reason, groupId, false, cancellationToken);
         }
 
         public UIHandle? PeekBackClosablePanel()
         {
-            if (factory.IsDisposed) return null;
+            if (factory.IsDisposed)
+            {
+                return null;
+            }
+
             for (int i = opened.Count - 1; i >= 0; i--)
             {
                 UIHandle handle = opened[i].Handle;
-                if (handle.IsValid && handle.View is UIPanel panel && panel.HideOnBack && panel.gameObject.activeInHierarchy) return handle;
+                if (handle.IsValid && handle.View is UIPanel panel && panel.HideOnBack && panel.gameObject.activeInHierarchy)
+                {
+                    return handle;
+                }
             }
+
             return null;
         }
+
         public bool HideAnyBackClosablePanel()
         {
             UIHandle? top = PeekBackClosablePanel();
             return top.HasValue && Hide(top.Value, UICloseReason.Back);
         }
+
         public Task<bool> HideAnyBackClosablePanelAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -221,12 +269,20 @@ namespace UI
             return top.HasValue ? HideCoreAsync(top.Value, UICloseReason.Back, null, true, cancellationToken) : Task.FromResult(false);
         }
 
-        async Task<UIHandle> ShowCoreAsync(string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, string? groupId, bool toggle, CancellationToken cancellationToken)
+        async Task<UIHandle> ShowCoreAsync(string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, string? groupId, bool toggle, CancellationToken cancellationToken, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (factory.IsDisposed) return default;
-            using CancellationTokenSource? linked = cancellationToken.CanBeCanceled
-                ? CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token, cancellationToken) : null;
+            if (!System.Enum.IsDefined(typeof(UIDuplicatePolicy), duplicatePolicy))
+            {
+                throw new System.ArgumentOutOfRangeException(nameof(duplicatePolicy));
+            }
+
+            if (factory.IsDisposed)
+            {
+                return default;
+            }
+
+            using CancellationTokenSource? linked = cancellationToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token, cancellationToken) : null;
             CancellationToken operationToken = linked?.Token ?? lifetime.Token;
             bool acquired = false;
             try
@@ -248,13 +304,23 @@ namespace UI
 
                 if (groupId == null && !allowMultiple && singletonPanelsByPath.TryGetValue(prefabPath, out UIHandle existing) && existing.IsValid && existing.View != null)
                 {
+                    if (duplicatePolicy == UIDuplicatePolicy.Reject)
+                    {
+                        throw new System.InvalidOperationException("Panel is already open: " + prefabPath);
+                    }
+
+                    existing.View.transform.SetAsLastSibling();
                     existing.View.InternalSetVisible(true);
                     if (factory.IsDisposed || !existing.IsValid)
                     {
                         return default;
                     }
 
-                    existing.View.InternalOnOpen(args);
+                    if (duplicatePolicy == UIDuplicatePolicy.Refresh)
+                    {
+                        existing.View.InternalOnOpen(args);
+                    }
+
                     cancellationToken.ThrowIfCancellationRequested();
                     return !factory.IsDisposed && existing.IsValid ? existing : default;
                 }
@@ -262,9 +328,14 @@ namespace UI
                 UIHandle handle = await factory.OpenAsync(UIKind.Panel, UILayer.Panel, prefabPath, args, groupId != null || allowMultiple, cacheOnClose, null, operationToken);
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    if (handle.IsValid) factory.CloseApproved(handle, false, true, UICloseReason.Cancelled);
+                    if (handle.IsValid)
+                    {
+                        factory.CloseApproved(handle, false, true, UICloseReason.Cancelled);
+                    }
+
                     cancellationToken.ThrowIfCancellationRequested();
                 }
+
                 if (factory.IsDisposed || !handle.IsValid)
                 {
                     return default;
@@ -280,7 +351,11 @@ namespace UI
                     }
 
                     PruneGroup(stack);
-                    if (stack.Count > 0) previous = stack[stack.Count - 1];
+                    if (stack.Count > 0)
+                    {
+                        previous = stack[stack.Count - 1];
+                    }
+
                     stack.Add(handle);
                 }
                 else if (!allowMultiple)
@@ -355,7 +430,11 @@ namespace UI
         void OnFactoryDisposed()
         {
             factory.Disposed -= OnFactoryDisposed;
-            foreach (PanelEntry entry in opened) Unsubscribe(entry.Handle);
+            foreach (PanelEntry entry in opened)
+            {
+                Unsubscribe(entry.Handle);
+            }
+
             opened.Clear();
             singletonPanelsByPath.Clear();
             groupStacks.Clear();
@@ -364,13 +443,20 @@ namespace UI
 
         void Unsubscribe(UIHandle handle)
         {
-            if (!ReferenceEquals(handle.View, null)) handle.View.Destroyed -= OnPanelDestroyed;
+            if (!ReferenceEquals(handle.View, null))
+            {
+                handle.View.Destroyed -= OnPanelDestroyed;
+            }
         }
 
         void OnPanelDestroyed(UIView view)
         {
             view.Destroyed -= OnPanelDestroyed;
-            if (factory.IsDisposed) return;
+            if (factory.IsDisposed)
+            {
+                return;
+            }
+
             for (int i = opened.Count - 1; i >= 0; i--)
             {
                 if (ReferenceEquals(opened[i].Handle.View, view))
@@ -385,7 +471,6 @@ namespace UI
         {
             public readonly UIHandle Handle;
             public readonly string? GroupId;
-
             public PanelEntry(UIHandle handle, string? groupId)
             {
                 Handle = handle;

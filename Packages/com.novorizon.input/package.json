@@ -1,0 +1,15 @@
+{
+  "name": "com.novorizon.input",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Input",
+  "description": "Unity Input System action maps, control schemes, nested blocking and interactive rebinding.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.13.0-preview.1",
+    "com.unity.inputsystem": "1.11.2",
+    "com.unity.ugui": "1.0.0"
+  }
+}

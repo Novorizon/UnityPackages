@@ -4,7 +4,7 @@
 
 Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccessed 统一改名为 OnStart。PackageMoves.json 逐文件记录这四处符号改名；检查器反向替换后必须恢复导入基线的完整 SHA-256，确保没有混入其他运行时修改。
 
-工作区检查覆盖：9 个自有包及 2 个外部依赖引用的名称、版本、自有依赖闭包与环路、Framework 依赖方向、ECS/Ability 独立性、第三方上游来源和无 Payload 约束、同仓库版本标签、可导入文件及目录的 .meta 完整性、主动导入的程序集名称和 GUID 唯一性，以及包仓库不含 Unity 工程的结构约束。
+工作区检查覆盖：12 个自有包及 3 个外部依赖引用的名称、版本、自有依赖闭包与环路、Framework 依赖方向、ECS/Ability 独立性、第三方上游来源和无 Payload 约束、同仓库版本标签、可导入文件及目录的 .meta 完整性、主动导入的程序集名称和 GUID 唯一性，以及包仓库不含 Unity 工程的结构约束。
 
 迁入的可执行验证包括：
 
@@ -27,3 +27,9 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 新增 Ability 校验使用同一个包中的实际运行时和编辑器源码：1083 条公开 API 快照、91 项编辑器 Codec/Workspace/Sandbox 回归及缺少 Odin 时的 Editor 编译。数据样例仅用于 tools 下的测试夹具，不进入运行时包。
 
 本次通用服务验证编译实际 Framework Core/Network、UIManager 和 GPU 播放器/调度器源码。24 组单例/网络/动画调度场景覆盖重置、退出保护、手动模式、重入通知和回收；174 项 UI 回归使用 Unity API 模型。历史基线保持不变，本次运行时代码修改逐文件记录 sourceChanges 的原因和 SHA-256。
+
+新增 GameModulesVerification 直接编译实际 Framework Core/Unity、音频、配置与 YooAsset 适配源码，关闭 .NET 传递项目引用；覆盖数据清理、真实临时目录存储、配置重载、场景排队、音源复用与资源退出回归。模型未执行原生音频、场景加载和 JsonUtility；平台文件系统验收范围见 GameServices.zh-CN.md。
+
+本轮新增真实 loopback TCP 的传输/会话验证，覆盖并发连接等待取消、状态事件、超时、断线与重连、取消回调异常和释放失败；不依赖服务器业务协议。UI 验证新增重复打开、跨层单例、迟到加载、原生销毁等待及旧工厂关闭场景。资源验证覆盖独立租约、共享对象、逐请求取消、场景/窗口作用域和退出等待。
+
+本轮输入/Luban/音频校验使用 Unity Input System 1.11.2 的 API 边界模型、官方 Luban 4.12.0 CLI 与 1.2.0 ByteBuf 源码。验证真实 Excel → 生成 C# → 二进制 → Tables，以及失败保留旧输出、meta 保留、并发/取消不发布过期快照。输入覆盖 Map/设备/控制方案、嵌套屏蔽、订阅与重绑定清理；音频覆盖交叉渐变、路由、暂停、后台数据等待及预热后托管分配。原生输入事件、音频输出、Unity 导入和 IL2CPP 尚未执行。第三方测试依赖只下载到临时缓存，不进入包仓库。

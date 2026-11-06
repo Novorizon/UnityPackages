@@ -130,3 +130,9 @@ root.RefreshPlatform();
 ## 0.7 迁移
 
 UI 总入口从 `UIRoot` 改名为 `UIManager`，调用 `UIManager.Instance.Initialize()`。原脚本 GUID 保留，并提供 Unity MovedFrom 标记；项目源码中的旧类型名需要更新。Canvas 和层级节点仍由该入口管理，没有增加额外转发层。
+
+## 重复打开与退出等待
+
+PopupOptions/PanelOptions 的 DuplicatePolicy 支持 Refresh、Focus、Reject；PageNavigator.PushAsync 的 repeatPolicy 支持 Allow、ReuseTop、RefreshTop、RejectTop。默认保持原有行为。单例按 Kind/Layer/Path 区分，聚焦弹窗同步调整返回顺序与遮罩。
+
+加载器可实现 ICancellableUIAssetLoader 传递逐调用取消；旧加载器仍兼容。ShutdownAsync 等待当前和已替换工厂的未完成获取及原生销毁后的 prefab 租约释放，再关闭资源系统。

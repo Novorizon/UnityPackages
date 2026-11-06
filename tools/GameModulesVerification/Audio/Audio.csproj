@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>Game.Framework.Audio</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.csproj" />
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <ProjectReference Include="../Unity/Unity.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.audio/Runtime/*.cs" />
+  </ItemGroup>
+</Project>

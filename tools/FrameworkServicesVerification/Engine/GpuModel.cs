@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace UnityEngine
 {
-    public static class Time
+    public static partial class Time
     {
         public static float deltaTime = .016f;
     }

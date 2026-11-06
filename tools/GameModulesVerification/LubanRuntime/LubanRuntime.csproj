@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Luban.Runtime</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <Target Name="CheckDependency" BeforeTargets="CoreCompile">
+    <Error Condition="!Exists('$(LubanPackageRoot)/Runtime/ByteBuf.cs')" Text="Run tools/workspace.py verify to fetch the pinned official Luban runtime, or supply LubanPackageRoot." />
+  </Target>
+  <ItemGroup><Compile Include="$(LubanPackageRoot)/Runtime/*.cs" /></ItemGroup>
+</Project>

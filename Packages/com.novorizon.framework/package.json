@@ -1,8 +1,8 @@
 {
   "name": "com.novorizon.framework",
-  "version": "0.11.0-preview.1",
+  "version": "0.13.0-preview.1",
   "displayName": "Novorizon Framework",
-  "description": "Managed core, Unity main-thread services, typed events and a modular TCP/Protobuf game client.",
+  "description": "Unity game foundation: shared services, events, timers, pools, scenes, runtime data, local storage and networking.",
   "unity": "2022.3",
   "author": {
     "name": "Novorizon",
@@ -29,5 +29,8 @@
       "description": "Main-thread timers, prefab reuse and bounded managed object reuse.",
       "path": "Samples~/Foundation"
     }
-  ]
+  ],
+  "dependencies": {
+    "com.unity.modules.jsonserialize": "1.0.0"
+  }
 }

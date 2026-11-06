@@ -12,10 +12,11 @@ import subprocess
 import tarfile
 import tempfile
 import zipfile
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 ALL = 'com.novorizon.framework.all'
-OFFICIAL = {'com.code-philosophy.hybridclr', 'com.tuyoogame.yooasset'}
+OFFICIAL = {'com.code-philosophy.hybridclr', 'com.tuyoogame.yooasset', 'com.code-philosophy.luban'}
 
 
 def read(path):
@@ -72,7 +73,12 @@ def sync():
 
 def validate():
     config, packages = read(ROOT / 'workspace.json'), definitions()
-    assert len(packages) == 9
+    assert set(packages) == {
+        'com.novorizon.framework', 'com.novorizon.framework.ui',
+        'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
+        'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
+        'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.config', 'com.novorizon.input',
+    }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
     assert not set(config.get('packageReplacements', {})) & set(packages)
@@ -128,6 +134,28 @@ def validate():
                     assert match[1] not in guids, ('Duplicate active GUID', file, guids.get(match[1]))
                     guids[match[1]] = file
     baseline = read(ROOT / 'Documentation/ImportBaseline.json')
+    # Keep the strict .NET compilation boundary aligned with each production asmdef.
+    module_models = {
+        'Core': 'com.novorizon.framework/Runtime/Core/Game.Framework.Core.asmdef',
+        'Unity': 'com.novorizon.framework/Runtime/Unity/Game.Framework.Unity.asmdef',
+        'Audio': 'com.novorizon.audio/Runtime/Game.Framework.Audio.asmdef',
+        'Config': 'com.novorizon.config/Runtime/Game.Framework.Config.asmdef',
+        'Input': 'com.novorizon.input/Runtime/Game.Framework.Input.asmdef',
+        'Resources': 'com.novorizon.framework.yooasset/Runtime/Game.Framework.Resources.YooAsset.asmdef',
+    }
+    model_root = ROOT / 'tools/GameModulesVerification'
+    assert ET.parse(model_root / 'Directory.Build.props').getroot().findtext('.//DisableTransitiveProjectReferences') == 'true'
+    for model, asmdef in module_models.items():
+        project = model_root / model / (model + '.csproj')
+        definition = read(ROOT / 'Packages' / asmdef)
+        xml = ET.parse(project).getroot()
+        assert xml.findtext('.//AssemblyName') == definition['name']
+        references = set()
+        for item in xml.findall('.//ProjectReference'):
+            dependency = (project.parent / item.attrib['Include']).resolve()
+            if dependency.parent.name != 'Engine':
+                references.add(ET.parse(dependency).getroot().findtext('.//AssemblyName'))
+        assert references == set(definition.get('references', [])), (model, 'Verification direct references differ from Unity asmdef')
     doc_changes = []
     layout = read(ROOT / 'Documentation/PackageMoves.json')
     def relocated(relative):
@@ -179,11 +207,14 @@ def verify(dotnet):
         env = os.environ.copy()
         env.setdefault('DOTNET_CLI_HOME', str(Path(temp) / 'dotnet-home'))
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
-        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        from interaction_dependencies import prepare
+        prepare(ROOT, dotnet, env)
+        for folder, project_name in [('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
-        subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification/UI.Tests/UI.Tests.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+        for suite in ['UI.Tests', 'Network.Tests']:
+            subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification' / suite / (suite + '.csproj')), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:
             project = ROOT / 'tools/AbilityVerification' / (name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
@@ -232,6 +263,7 @@ def unity_project(output):
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
     write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
+    (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
     print('Generated standalone Unity verification project:', output)
 
 

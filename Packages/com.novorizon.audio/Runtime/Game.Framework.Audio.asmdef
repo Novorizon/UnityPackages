@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Audio",
+  "rootNamespace": "Game.Framework.Audio",
+  "references": ["Game.Framework.Core", "Game.Framework.Unity"],
+  "autoReferenced": true,
+  "allowUnsafeCode": false
+}

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="Core/Core.csproj" />
+    <ProjectReference Include="Engine/Engine.csproj" />
+    <ProjectReference Include="Unity/Unity.csproj" />
+    <ProjectReference Include="Audio/Audio.csproj" />
+    <ProjectReference Include="Config/Config.csproj" />
+    <ProjectReference Include="YooAsset/YooAsset.csproj" />
+    <ProjectReference Include="Resources/Resources.csproj" />
+    <ProjectReference Include="Input/Input.csproj" />
+    <ProjectReference Include="InputSystem/InputSystem.csproj" />
+    <ProjectReference Include="LubanRuntime/LubanRuntime.csproj" />
+    <ProjectReference Include="LubanEditor/LubanEditor.csproj" />
+    <ProjectReference Include="LubanFixture/LubanFixture.csproj" />
+    <Compile Include="Program.cs" />
+    <Compile Include="InteractionScenarios.cs" />
+  </ItemGroup>
+</Project>

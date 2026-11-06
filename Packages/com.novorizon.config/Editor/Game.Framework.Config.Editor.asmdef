@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Config.Editor",
+  "rootNamespace": "Game.Framework.Config.Editor",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

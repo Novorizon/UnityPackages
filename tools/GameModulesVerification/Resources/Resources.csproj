@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>Game.Framework.Resources.YooAsset</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.csproj" />
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <ProjectReference Include="../Unity/Unity.csproj" />
+    <ProjectReference Include="../YooAsset/YooAsset.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.framework.yooasset/Runtime/*.cs" />
+  </ItemGroup>
+</Project>

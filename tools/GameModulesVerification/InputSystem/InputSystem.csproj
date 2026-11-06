@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>Unity.InputSystem</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <Compile Include="InputSystemModel.cs" />
+  </ItemGroup>
+</Project>

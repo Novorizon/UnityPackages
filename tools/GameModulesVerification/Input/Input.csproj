@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AssemblyName>Game.Framework.Input</AssemblyName></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Core/Core.csproj" />
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <ProjectReference Include="../InputSystem/InputSystem.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.input/Runtime/*.cs" />
+  </ItemGroup>
+</Project>

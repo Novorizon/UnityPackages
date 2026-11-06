@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework.ui",
-  "version": "0.7.0-preview.1",
+  "version": "0.8.0-preview.1",
   "displayName": "Novorizon Framework UI",
   "description": "Loader-agnostic uGUI pages, popups, panels, overlays and queued toasts.",
   "unity": "2022.3",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "com.unity.ugui": "1.0.0",
-    "com.novorizon.framework": "0.11.0-preview.1"
+    "com.novorizon.framework": "0.13.0-preview.1"
   },
   "samples": [
     {

@@ -174,6 +174,10 @@ namespace UI
         EventSystem? currentEventSystem;
         Camera? explicitCamera;
         bool destroyed, rebuilding, initialized, initializing, platformSubscribed, shuttingDown, warnedMissingInput;
+        Task shutdownCompletion = Task.CompletedTask;
+        readonly List<Task> retiredFactories = new();
+        public bool IsInitialized => initialized && !destroyed && !shuttingDown;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetForPlay()
         {
@@ -210,6 +214,11 @@ namespace UI
         protected override void OnStart()
         {
             lifetimeOwner = this;
+            if (!shutdownCompletion.IsCompleted)
+            {
+                // 允许通过 Instance 重复等待关闭；不能在关闭期间隐式重新初始化。
+                return;
+            }
             Initialize();
         }
 
@@ -270,6 +279,11 @@ namespace UI
             if (quitting || shuttingDown)
             {
                 throw new InvalidOperationException("UIManager is stopping.");
+            }
+
+            if (!shutdownCompletion.IsCompleted)
+            {
+                throw new InvalidOperationException("Await UIManager.ShutdownAsync before initializing it again.");
             }
         }
 
@@ -425,7 +439,7 @@ namespace UI
             {
                 int nextId = factory?.NextId ?? 1;
                 StopBackRequests();
-                factory?.Dispose(clearBus ? UICloseReason.Reset : UICloseReason.Disposed);
+                RetireFactory(clearBus ? UICloseReason.Reset : UICloseReason.Disposed);
                 if (destroyed || quitting)
                 {
                     return;
@@ -484,7 +498,7 @@ namespace UI
 
         void Shutdown()
         {
-            if (shuttingDown)
+            if (shuttingDown || (!initialized && !initializing && !shutdownCompletion.IsCompleted))
             {
                 return;
             }
@@ -494,7 +508,15 @@ namespace UI
             {
                 UnsubscribePlatform();
                 StopBackRequests();
-                factory?.Dispose();
+                var previousShutdown = shutdownCompletion;
+                RetireFactory(UICloseReason.Disposed);
+                if (!previousShutdown.IsCompleted)
+                {
+                    retiredFactories.Add(previousShutdown);
+                }
+
+                shutdownCompletion = Task.WhenAll(retiredFactories);
+                retiredFactories.Clear();
                 Bus.Clear();
                 initialized = false;
                 currentEventSystem = preferredEventSystem = null;
@@ -509,6 +531,27 @@ namespace UI
             {
                 shuttingDown = false;
             }
+        }
+
+        void RetireFactory(UICloseReason reason)
+        {
+            retiredFactories.RemoveAll(task => task.IsCompleted);
+            if (factory != null)
+            {
+                factory.Dispose(reason);
+                var released = factory.DisposeAsync();
+                if (!released.IsCompleted)
+                {
+                    retiredFactories.Add(released);
+                }
+            }
+        }
+
+        /// <summary>关闭所有窗口，等待未完成加载及原生对象销毁后释放的 prefab 租约。</summary>
+        public Task ShutdownAsync()
+        {
+            Shutdown();
+            return shutdownCompletion;
         }
 
         protected override void OnDestroy()
@@ -663,7 +706,7 @@ namespace UI
             {
                 await UICancellation.WaitAsync(previous.Completion.Task, cancellationToken);
             }
-            catch (Exception)when (!cancellationToken.IsCancellationRequested)
+            catch (Exception) when (!cancellationToken.IsCancellationRequested)
             {
             }
 
@@ -685,7 +728,7 @@ namespace UI
                 request.Token.ThrowIfCancellationRequested();
                 result = await HandleBackCoreAsync(request.Token);
             }
-            catch (OperationCanceledException)when (request.Token.IsCancellationRequested)
+            catch (OperationCanceledException) when (request.Token.IsCancellationRequested)
             {
             }
             catch (Exception exception)
@@ -703,7 +746,7 @@ namespace UI
                         await request.CancellationPropagation;
                         await request.Dialogs.DrainCancelledAsync(request.OwnerToken);
                     }
-                    catch (OperationCanceledException)when (request.OwnerToken.IsCancellationRequested)
+                    catch (OperationCanceledException) when (request.OwnerToken.IsCancellationRequested)
                     {
                     }
                     catch (Exception exception)

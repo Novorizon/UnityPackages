@@ -63,8 +63,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "46c3a474a91a6388685c73040d7d3ff3eb2b09043a994384fe36f2875df2e381",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
+      "sha256": "598418ec08ab3173203fb8e8ee37268ae3afc936c9b002575b6a1dcaf676ec04",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -103,12 +103,60 @@
       "reason": "Use Framework configurable singleton lifecycle for NetworkManager"
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs": {
-      "sha256": "09adee350a4b7dd622bc4523493db6d3fbd72cf500e5d93ba62d15bc5d089654",
-      "reason": "Use Framework configurable singleton lifecycle for NetworkManager"
+      "sha256": "d9c9216b3df7d4187162262a6bd80147aaadc0145569efbdacc38318e05ebd74",
+      "reason": "Isolate connect-wait cancellation, report states and guarantee timeout and shutdown cleanup"
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
       "sha256": "fe8905f05db7ebcb856ca14ecf8a2ac615fccd78d26d227715ad3e43f0504e67",
       "reason": "Add central GPU scheduling and playback notifications"
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
+      "sha256": "3f1d08f1b2e121115665bc4d98f8d50e4a7467c234ca66ca1b57b8860558c052",
+      "reason": "Reset and stop scene, data and local storage services alongside Framework lifecycle; apply required control-statement formatting"
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
+      "sha256": "1c6649db3b699463ab90e3d9ad13cf830e38611e764eed7a2156443d734935db",
+      "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
+      "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
+      "reason": "Isolate connect-wait cancellation, report states and guarantee timeout and shutdown cleanup"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs": {
+      "sha256": "130e2964a0397d6e750fee1a32180c491c82f54097273373d195453ebdcc43c5",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs": {
+      "sha256": "993648295ff7224e164d9490ff70f73e92c5bd961cbb4806c88be764b3a2612e",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs": {
+      "sha256": "f86de78ef76a478a9907f4629d5f31e923ca71a2b172e33efb828f3aab3bf221",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs": {
+      "sha256": "c5649746cd5ac23588218be343a3adc16af15f31bdade8f57b6b0e5955ef56fd",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs": {
+      "sha256": "6a59c49d2d1417d33a14acd6aa05348796d9b157a545cce23b7bbc9ce44b0eab",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetSceneLoader.cs": {
+      "sha256": "c492d3ab711cc5987b83ab925d1a51dc08a929e6be7fc7861f16933afde3c322",
+      "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
+    },
+    "Packages/com.novorizon.audio/Runtime/AudioHandle.cs": {
+      "sha256": "5d7c563a06aa3b81e7b111ae8a203e8ac4cd16573f4dcc9837969595faec5b85",
+      "reason": "Add handle-controlled volume fades and fade-out recycling."
+    },
+    "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
+      "sha256": "84efe098ba64649108ad1a38ef4d86c10cf67860df296dd64e459c1d81df9576",
+      "reason": "Reuse managed voices, route AudioMixer groups and drive fades through one tick."
+    },
+    "Packages/com.novorizon.config/Runtime/ConfigManager.cs": {
+      "sha256": "eb0616c3fc43327cd7a62d215738f8afb99e1b4510b186a43854f4efc8169ed1",
+      "reason": "Support binary configuration loaders and generated Luban snapshot lifecycle."
     }
   }
 }
