@@ -10,63 +10,101 @@ namespace Game.Framework.Network.Unity
     // At most one drain is posted per dispatcher, even while the application is paused.
     internal sealed class UnityNetworkDispatcher : IAutomaticNetworkDispatcher
     {
-
         private readonly QueuedNetworkDispatcher queue = new QueuedNetworkDispatcher();
         private readonly Action drain;
         private int scheduled, disposed;
-
-        internal UnityNetworkDispatcher() { drain = Drain; }
+        internal UnityNetworkDispatcher()
+        {
+            drain = Drain;
+        }
 
         public bool TryPost(Action callback, int retainedPayloadBytes)
         {
-            if (Volatile.Read(ref disposed) != 0 || !queue.TryPost(callback, retainedPayloadBytes)) return false;
+            if (Volatile.Read(ref disposed) != 0 || !queue.TryPost(callback, retainedPayloadBytes))
+            {
+                return false;
+            }
+
             Schedule();
             return true;
         }
 
         private void Schedule()
         {
-            if (Volatile.Read(ref disposed) != 0 || Interlocked.CompareExchange(ref scheduled, 1, 0) != 0) return;
-            try { UnityThread.Post(drain); }
-            catch { Volatile.Write(ref scheduled, 0); throw; }
+            if (Volatile.Read(ref disposed) != 0 || Interlocked.CompareExchange(ref scheduled, 1, 0) != 0)
+            {
+                return;
+            }
+
+            try
+            {
+                UnityThread.Post(drain);
+            }
+            catch
+            {
+                Volatile.Write(ref scheduled, 0);
+                throw;
+            }
         }
 
         private void Drain()
         {
             try
             {
-                if (Volatile.Read(ref disposed) == 0) queue.Pump(64);
+                if (Volatile.Read(ref disposed) == 0)
+                {
+                    queue.Pump(64);
+                }
             }
-            catch (Exception error) { Debug.LogException(error); }
+            catch (Exception error)
+            {
+                Debug.LogException(error);
+            }
             finally
             {
                 Volatile.Write(ref scheduled, 0);
-                if (queue.PendingCount > 0) Schedule();
+                if (queue.PendingCount > 0)
+                {
+                    Schedule();
+                }
             }
         }
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref disposed, 1) == 0) queue.Dispose();
+            if (Interlocked.Exchange(ref disposed, 1) == 0)
+            {
+                queue.Dispose();
+            }
         }
     }
 
     internal static class UnityNetworkIntegration
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Reset()
+        static UnityNetworkIntegration()
         {
-            NetworkManager.ResetSingleton();
-            NetworkDispatcherProvider.CreateAutomatic = null; NetworkDefaults.ConfigurationProvider = null;
+            SingletonLifecycle.Register(Reset, order: 100);
         }
 
-        private static void OnQuitting() { NetworkManager.ResetSingleton(stopping: true); }
+        private static void Reset()
+        {
+            NetworkDispatcherProvider.CreateAutomatic = null;
+            NetworkDefaults.ConfigurationProvider = null;
+        }
 
         private static NetworkConfiguration LoadConfiguration()
         {
-            if (!UnityThread.IsMainThread) throw new InvalidOperationException("Create NetworkManager on the Unity main thread.");
+            if (!UnityThread.IsMainThread)
+            {
+                throw new InvalidOperationException("Create NetworkManager on the Unity main thread.");
+            }
+
             var settings = Resources.Load<NetworkSettings>("NetworkSettings");
-            if (settings == null) throw new InvalidOperationException("Create a Resources/NetworkSettings asset before using the default NetworkManager constructor.");
+            if (settings == null)
+            {
+                throw new InvalidOperationException("Create a Resources/NetworkSettings asset before using the default NetworkManager constructor.");
+            }
+
             return settings.CreateConfiguration();
         }
 
@@ -74,14 +112,15 @@ namespace Game.Framework.Network.Unity
         private static void Initialize()
         {
             UnityThread.Initialize();
-            Application.quitting -= OnQuitting;
-            Application.quitting += OnQuitting;
             NetworkDefaults.ConfigurationProvider = LoadConfiguration;
             int mainThread = Thread.CurrentThread.ManagedThreadId;
             NetworkDispatcherProvider.CreateAutomatic = () =>
             {
                 if (Thread.CurrentThread.ManagedThreadId != mainThread)
+                {
                     throw new InvalidOperationException("Create NetworkManager on the Unity main thread, or provide a custom dispatcher.");
+                }
+
                 return new UnityNetworkDispatcher();
             };
         }

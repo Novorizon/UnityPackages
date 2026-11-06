@@ -192,6 +192,9 @@ namespace UnityEngine
                 assembly.GetType("Game.Framework.MonoSingletonLifecycle")?.GetMethod("Reset", BindingFlags.Static | BindingFlags.NonPublic)?.Invoke(null, null);
             }
 
+#if UNITY_EDITOR
+            Game.Framework.EditorStaticReset.RestoreDeclaredValues();
+#endif
             DeferGameObjectDestructionForTest = false;
             FlushDestroyQueueForTest();
             foreach (var value in objects.OfType<GameObject>().ToArray())

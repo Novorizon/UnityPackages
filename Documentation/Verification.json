@@ -2,13 +2,17 @@
   "packages": 12,
   "ownedPackages": 12,
   "externalDependencyReferences": 3,
-  "importedFilesChecked": 820,
+  "importedFilesChecked": 818,
   "externalHistoricalFilesOmitted": 1818,
   "unchangedRuntimeAndAssetFiles": false,
   "runtimeSymbolRenames": [],
   "approvedSourceChanges": [
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs",
+    "Packages/com.novorizon.ecs/Runtime/Ecs.cs",
+    "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs",
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs",
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs",
+    "Packages/com.novorizon.ecs/Runtime/World/WorldManager.cs",
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs",
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs",
@@ -30,6 +34,10 @@
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs",
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs",
+    "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",
@@ -76,6 +84,6 @@
     "Packages/com.novorizon.rtree/README.md"
   ],
   "activeAssemblies": 23,
-  "activeGuids": 385,
+  "activeGuids": 388,
   "nativeUnityExecuted": false
 }

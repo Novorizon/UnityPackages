@@ -6,11 +6,31 @@ namespace Game.Framework
     public abstract class ConfigurableSingleton<T>
         where T : class
     {
+#if UNITY_EDITOR
+        // 供生成的派生类代码调用；MonoSingleton 的使用方无需为此增加 Core 程序集引用。
+        protected static bool RegisterEditorStaticReset(Action clear, Action restore)
+        {
+            return EditorStaticReset.Register(clear, restore);
+        }
+#endif
         private static readonly object gate = new object ();
         private static T instance;
         private static bool creating;
         private static bool resetting;
         private static bool stopped;
+        static ConfigurableSingleton()
+        {
+            SingletonLifecycle.Register(() => ResetInstance(DisposeValue), () => ResetInstance(DisposeValue, true));
+        }
+
+        private static void DisposeValue(T value)
+        {
+            if (value is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
         public static bool IsCreated
         {
             get
@@ -157,7 +177,7 @@ namespace Game.Framework
 
         private static void EnsureAvailable()
         {
-            if (stopped || resetting)
+            if (stopped || resetting || (instance == null && (SingletonLifecycle.IsResetting || SingletonLifecycle.IsQuitting)))
             {
                 throw new InvalidOperationException("The service is stopping or resetting: " + typeof(T).FullName);
             }

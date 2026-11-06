@@ -11,7 +11,7 @@ namespace ECS
     }
 
     /// <summary>ECS initialization and update policy on Framework's Unity singleton implementation.</summary>
-    public class SingletonBehaviour<T> : MonoSingleton<T> where T : SingletonBehaviour<T>
+    public partial class SingletonBehaviour<T> : MonoSingleton<T> where T : SingletonBehaviour<T>
     {
         private static T lifetimeOwner;
         private static int sessionEpoch;
@@ -25,6 +25,7 @@ namespace ECS
         {
             get
             {
+                Ecs.EnsureLifecycleRegistration();
                 if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
                 {
                     ResetForNewSession();
@@ -47,6 +48,7 @@ namespace ECS
 
         protected override void Awake()
         {
+            Ecs.EnsureLifecycleRegistration();
             if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
             {
                 ResetForNewSession();

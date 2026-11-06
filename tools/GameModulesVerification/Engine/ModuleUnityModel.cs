@@ -225,3 +225,22 @@ namespace UnityEngine.SceneManagement
         }
     }
 }
+
+#if UNITY_EDITOR
+namespace UnityEditor
+{
+    [System.Flags]
+    public enum EnterPlayModeOptions
+    {
+        None = 0,
+        DisableDomainReload = 1,
+        DisableSceneReload = 2
+    }
+
+    public static class EditorSettings
+    {
+        public static bool enterPlayModeOptionsEnabled = true;
+        public static EnterPlayModeOptions enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload;
+    }
+}
+#endif

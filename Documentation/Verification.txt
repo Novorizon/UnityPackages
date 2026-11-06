@@ -1,80 +1,29 @@
-Editor Core reference fix validation
-PASS reproduced the original CS0012 and CS0117 before adding the direct Core reference, with separate Runtime/Editor DLLs and transitive references disabled.
+UnityPackages generated static reset integration: v0.1.0-preview.19
 
-Package and assembly-reference validation
-PASS package dependency closure, source hashes, assembly/GUID uniqueness and package-only repository structure: {"packages": 12, "ownedPackages": 12, "externalDependencyReferences": 3, "importedFilesChecked": 820, "externalHistoricalFilesOmitted": 1818, "unchangedRuntimeAndAssetFiles": false, "runtimeSymbolRenames": [], "approvedSourceChanges": ["Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs", "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs", "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs", "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt", "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs", "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs", "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs", "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs", "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs", "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs", "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs", "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs", "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"], "activeAssemblies": 23, "activeGuids": 385, "nativeUnityExecuted": false}
+Toolchain: .NET SDK 8.0.427; generator targets netstandard2.0 and Roslyn 3.8.0.
+Native Unity Editor / IL2CPP / device execution: NOT performed.
 
-Strict compile and targeted regression verification
-  Determining projects to restore...
-  Restored /workspace/UnityPackages/tools/HotUpdateVerification/Editor/Editor.csproj (in 243 ms).
-  Restored /workspace/UnityPackages/tools/HotUpdateVerification/HotUpdateVerification.csproj (in 69 ms).
-  5 of 7 projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  Engine -> /workspace/UnityPackages/tools/HotUpdateVerification/Engine/bin/Release/net8.0/UnityEngine.CoreModule.dll
-  HybridRuntime -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridRuntime/bin/Release/net8.0/HybridCLR.Runtime.dll
-  Runtime -> /workspace/UnityPackages/tools/HotUpdateVerification/Runtime/bin/Release/net8.0/Game.Framework.HotUpdate.dll
-  HybridEditor -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridEditor/bin/Release/net8.0/HybridCLR.Editor.dll
-  Editor -> /workspace/UnityPackages/tools/HotUpdateVerification/Editor/bin/Release/net8.0/Game.Framework.HotUpdate.Editor.dll
-  HotUpdateVerification -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/HotUpdateVerification.dll
+PASS package closure, source hash records, assembly/GUID uniqueness, package-only structure.
+PASS shipped generator equals its source build; a separate checkout path produces identical DLL bytes.
+PASS 23 generator scenarios using actual Framework Core: declaration changes, private/default/nullable state,
+     arrays, auto properties, readonly collections, events, partial aliases, closed generics, nested types,
+     repeated resets, late registration, diagnostics, cleanup order, and Player exclusion.
+PASS 38 singleton/network/GPU scheduling scenarios in both Player and Editor compilation models.
+PASS 59 service scenarios in Player mode; 61 in Editor mode, including actual bootstrap option gating
+     and retained audio configuration. Uses official Luban CLI/runtime; Unity/Input System/YooAsset are models.
+PASS 183 UI tests, including retained-root restart via lifecycle cleanup and generated static restoration.
+PASS 24 TCP/network tests on isolated rerun. The 500 ms queued-cancellation test timed out once while
+     other compilation was active; transport code and the test threshold were unchanged.
+PASS 12 explicit hot-update scenarios and separate Runtime / Editor / Player compilation.
+PASS 20 aggregate installation scenarios.
+PASS RTree correctness and spatial differential/invariant suites.
+PASS Ability public API contracts; editor codec 22, reference preflight 25, sandbox 16,
+     workspace 28, and Editor UI compilation with Odin disabled.
+PASS additional local ECS harness: 92/92 checks linked to current package runtime sources and final generator;
+     includes GUID restart, late async callbacks, lifecycle ordering, entities, systems and pooling.
+PASS standalone GameStarter: 48 lifecycle / startup / installation scenarios using Framework source and shipped analyzer.
 
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:12.72
-PASS Runtime and Editor retain separate Unity assembly identities
-PASS loading starts only after an explicit call
-PASS repeated initialization shares one task and one hot entry
-PASS missing startup acknowledgement fails and closes the entry
-PASS initialization failure is propagated after entry cleanup
-PASS cancelled call cannot construct a hot entry
-PASS exit cancels pending startup and rejects late acknowledgement
-PASS startup deadline stops an entry that ignores cancellation
-PASS shutdown failure cannot retain the singleton or block a new instance
-PASS entry type must implement the shared AOT contract
-PASS default settings use the Unity application ID
-PASS setup uses code settings and does not generate startup JSON
-PASS 12 explicit hot-update startup and build-configuration scenarios (Unity API models; not native Unity).
-  Determining projects to restore...
-  Restored /workspace/UnityPackages/tools/HotUpdateVerification/PlayerCompile.csproj (in 255 ms).
-  3 of 4 projects are up-to-date for restore.
-  Core -> /workspace/UnityPackages/tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll
-  Engine -> /workspace/UnityPackages/tools/HotUpdateVerification/Engine/bin/Release/net8.0/UnityEngine.CoreModule.dll
-  HybridRuntime -> /workspace/UnityPackages/tools/HotUpdateVerification/HybridRuntime/bin/Release/net8.0/HybridCLR.Runtime.dll
-  PlayerCompile -> /workspace/UnityPackages/tools/HotUpdateVerification/bin/Release/net8.0/PlayerCompile.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:07.99
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  AllPackagesVerification -> /workspace/UnityPackages/tools/AllPackagesVerification/bin/Release/net8.0/AllPackagesVerification.dll
-
-Build succeeded.
-    0 Warning(s)
-    0 Error(s)
-
-Time Elapsed 00:00:06.70
-PASS automatic first install submits all unpublished dependencies together
-PASS matching installed versions skip add but still finish setup
-PASS persistent completion prevents installation on assembly reload
-PASS pending add survives lost handles without concurrent UPM calls
-PASS pending embed survives lost handles without concurrent UPM calls
-PASS compilation errors stop setup and retry waits for active requests
-PASS network failure stops auto retries and explicit retry recovers
-PASS embed failure stops configuration and retry recovers
-PASS configuration failure keeps installed libraries and can retry
-PASS compiled and playing editors do not start UPM operations
-PASS resolved version mismatch is reported instead of claiming success
-PASS incompatible embedded package is preserved
-PASS local monorepo uses portable sibling package folders
-PASS source install falls back to the release tag
-PASS aggregate version change runs the new setup once
-PASS batch completion requires package, embed and settings evidence
-PASS legacy editor, ECS and GPU animator packages are replaced atomically
-PASS migration failure retains the old packages
-PASS external packages always use upstream references
-PASS invalid dependency identities are rejected
-PASS 20 aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.
+The normal CI entry remains `python3 tools/workspace.py verify`; it now rebuilds/checks the shipped
+analyzer and compiles both Editor and Player variants. Merge requires the complete GitHub check to pass.
+Real Unity 2022.3 import, Play transitions with each Enter Play Mode setting, and target-platform builds
+remain necessary native acceptance checks.

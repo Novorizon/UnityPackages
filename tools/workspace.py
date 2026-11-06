@@ -211,6 +211,11 @@ def validate():
 
 
 def verify(dotnet):
+    import importlib.util
+    generator_spec = importlib.util.spec_from_file_location('build_static_reset', ROOT / 'tools/build-static-reset.py')
+    generator_build = importlib.util.module_from_spec(generator_spec)
+    generator_spec.loader.exec_module(generator_build)
+    generator_build.build(dotnet, check=True)
     report = validate()
     with tempfile.TemporaryDirectory(prefix='unity-packages-verify-') as temp:
         env = os.environ.copy()
@@ -218,13 +223,19 @@ def verify(dotnet):
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
         from interaction_dependencies import prepare
         prepare(ROOT, dotnet, env)
-        for folder, project_name in [('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
         subprocess.run([dotnet, 'build', str(ROOT / 'tools/HotUpdateVerification/PlayerCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+        # Compile and execute actual runtime sources with UNITY_EDITOR and the shipped analyzer.
+        for folder, project_name in [('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification')]:
+            project = ROOT / 'tools' / folder / (project_name + '.csproj')
+            subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo', '-p:NovorizonStaticResetEditor=true'], cwd=temp, env=env, check=True)
+            subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
         for suite in ['UI.Tests', 'Network.Tests']:
-            subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification' / suite / (suite + '.csproj')), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
+            options = ['-p:NovorizonStaticResetEditor=true'] if suite == 'UI.Tests' else []
+            subprocess.run([dotnet, 'test', str(ROOT / 'tools/FrameworkServicesVerification' / suite / (suite + '.csproj')), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'] + options, cwd=temp, env=env, check=True)
         for name in ['ApiContract/ApiContract', 'Editor/EditorTests']:
             project = ROOT / 'tools/AbilityVerification' / (name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)

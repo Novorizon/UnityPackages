@@ -8,7 +8,7 @@ namespace ECS
     /// Main-thread pool for managed class instances. Generic creation uses new T(), not reflection.
     /// Configure factories before first use; Type/string creation only uses registered factories.
     /// </summary>
-    public class ReferencePool : SingletonBehaviour<ReferencePool>
+    public partial class ReferencePool : SingletonBehaviour<ReferencePool>
     {
         private enum InstanceStatus { CheckedOut, Initializing, Recycling, Pooled, Discarded }
 

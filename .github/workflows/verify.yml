@@ -15,5 +15,5 @@ jobs:
           python-version: '3.12'
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          global-json-file: global.json
       - run: python3 tools/workspace.py verify
