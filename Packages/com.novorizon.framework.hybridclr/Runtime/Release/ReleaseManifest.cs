@@ -35,6 +35,7 @@ namespace Game.Framework.HotUpdate
     {
         public string packageName;
         public string version;
+        public bool codeInResources;
     }
 
     /// <summary>从已验证发行复制的资源绑定，在加载任何热更程序集之前交给项目准备。</summary>
@@ -44,13 +45,21 @@ namespace Game.Framework.HotUpdate
         public string PackageName { get; }
         public string PackageVersion { get; }
         public bool IsPackaged { get; }
+        public string BaselineId { get; }
 
-        public ReleaseContentContext(string platform, ReleaseContent content, bool isPackaged)
+        public ReleaseContentContext(string platform, ReleaseContent content, bool isPackaged, string baselineId = null)
         {
             Platform = platform;
             PackageName = content?.packageName;
             PackageVersion = content?.version;
             IsPackaged = isPackaged;
+            BaselineId = baselineId;
+        }
+
+        public string CodeLocation(ReleaseFile file)
+        {
+            ReleasePolicy.Require(!string.IsNullOrEmpty(BaselineId), "Code resources require a player baseline.");
+            return "HotUpdate/" + BaselineId + "/" + file.fileName;
         }
     }
 
@@ -126,6 +135,8 @@ namespace Game.Framework.HotUpdate
                 baseline.assemblies.Select(f => f.assemblyName)), "Assembly dependency order/topology changed.");
             Require((update.content == null) == (baseline.content == null)
                 && (update.content == null || update.content.packageName == baseline.content.packageName), "Content package binding changed.");
+            Require(update.content == null || update.content.codeInResources == baseline.content.codeInResources,
+                "Code delivery mode changed; create a new player baseline.");
             Require(update.aotMetadata.Length == baseline.aotMetadata.Length, "AOT metadata list changed.");
             for (int i = 0; i < baseline.aotMetadata.Length; i++)
             {

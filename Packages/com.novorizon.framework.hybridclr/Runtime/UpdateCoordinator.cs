@@ -60,24 +60,36 @@ namespace Game.Framework.HotUpdate
             try
             {
                 var release = await PrepareInternal(token);
-                if (settings.prepareContentAsync != null)
+                try
+                {
+                    await PrepareContent(release, token);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception error) when (release.Id != null)
+                {
+                    cache.Reject(release.Id, "Content preparation failed: " + error.Message);
+                    log("Content preparation failed; selecting packaged code and resources. " + error.Message);
+                    release = await PreparePackaged(token);
+                    release.Cache = cache;
+                    await PrepareContent(release, token);
+                }
+
+                if (release.Id != null)
                 {
                     try
                     {
-                        await settings.prepareContentAsync(new ReleaseContentContext(release.Manifest.platform, release.Manifest.content, release.Id == null), token);
+                        cache.BeginBoot(release.Id);
                     }
-                    catch (OperationCanceledException)
+                    catch (Exception error) when (error is IOException || error is UnauthorizedAccessException)
                     {
-                        throw;
-                    }
-                    catch (Exception error) when (release.Id != null)
-                    {
-                        // No metadata or managed code has been loaded yet; fall back with the matching packaged resources.
-                        cache.Reject(release.Id, "Content preparation failed: " + error.Message);
-                        log("Content preparation failed; selecting packaged code and resources. " + error.Message);
+                        cache.Dispose();
+                        cache = null;
+                        log("Cannot track update health; using packaged content. " + error.Message);
                         release = await PreparePackaged(token);
-                        release.Cache = cache;
-                        await settings.prepareContentAsync(new ReleaseContentContext(release.Manifest.platform, release.Manifest.content, true), token);
+                        await PrepareContent(release, token);
                     }
                 }
 
@@ -90,10 +102,49 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        private async Task PrepareContent(PreparedRelease release, CancellationToken token)
+        {
+            var context = new ReleaseContentContext(
+                release.Manifest.platform,
+                release.Manifest.content,
+                release.Id == null,
+                release.Manifest.baselineId);
+            if (settings.prepareContentAsync != null)
+            {
+                await settings.prepareContentAsync(context, token);
+            }
+
+            if (settings.loadCodeAsync != null)
+            {
+                release.Assemblies = new byte[release.Manifest.assemblies.Length][];
+                for (int i = 0; i < release.Assemblies.Length; i++)
+                {
+                    release.Assemblies[i] = await ReadResourceCode(context, release.Manifest.assemblies[i], token);
+                }
+
+                release.AotMetadata = new byte[baseline.aotMetadata.Length][];
+                for (int i = 0; i < release.AotMetadata.Length; i++)
+                {
+                    release.AotMetadata[i] = await ReadResourceCode(context, baseline.aotMetadata[i], token);
+                }
+            }
+        }
+
+        private async Task<byte[]> ReadResourceCode(ReleaseContentContext context, ReleaseFile file, CancellationToken token)
+        {
+            byte[] bytes = await settings.loadCodeAsync(context, file, token);
+            token.ThrowIfCancellationRequested();
+            ReleasePolicy.Require(bytes != null && bytes.LongLength == file.size && ReleasePolicy.Sha256(bytes) == file.sha256,
+                "Code resource failed verification: " + file.fileName);
+            return bytes;
+        }
+
         private async Task<PreparedRelease> PrepareInternal(CancellationToken token)
         {
             baseline = JsonUtility.FromJson<ReleaseManifest>(await transport.ReadText(BuiltinUrl("builtin.json"), token));
             ReleasePolicy.Validate(baseline);
+            ReleasePolicy.Require(baseline.content?.codeInResources != true || settings.loadCodeAsync != null,
+                "This player requires a resource code provider; standalone DLL downloads are disabled.");
             ReleasePolicy.Require(baseline.appId == settings.appId && baseline.channel == settings.channel
                 && baseline.platform == PlatformId(), "Packaged baseline does not match application configuration.");
             try
@@ -146,7 +197,10 @@ namespace Game.Framework.HotUpdate
                         cache.DeleteRelease(id);
                         continue;
                     }
-                    await Task.Run(() => VerifyDirectory(directory, manifest), token);
+                    if (settings.loadCodeAsync == null)
+                    {
+                        await Task.Run(() => VerifyDirectory(directory, manifest), token);
+                    }
                     candidates.Add(new PreparedRelease { Manifest = manifest, Id = id, Directory = directory, Cache = cache });
                 }
                 catch (OperationCanceledException) { throw; }
@@ -182,31 +236,24 @@ namespace Game.Framework.HotUpdate
             }
             PreparedRelease selected = candidates.OrderByDescending(c => c.Manifest.version).FirstOrDefault()
                 ?? new PreparedRelease { Manifest = baseline, Cache = cache };
-            // Materialize and hash all code bytes BEFORE any Assembly.Load to close file replacement races.
-            try { selected.Assemblies = await ReadAssemblies(selected, token); }
-            catch (OperationCanceledException) { throw; }
-            catch (Exception exception) when (selected.Id != null)
+            if (settings.loadCodeAsync == null)
             {
-                cache.Reject(selected.Id, exception.Message);
-                log("Cached content changed during startup; using packaged release.");
-                selected = new PreparedRelease { Manifest = baseline, Cache = cache };
-                selected.Assemblies = await ReadAssemblies(selected, token);
-            }
-            selected.AotMetadata = new byte[baseline.aotMetadata.Length][];
-            for (int i = 0; i < baseline.aotMetadata.Length; i++)
-                selected.AotMetadata[i] = await ReadBuiltinVerified(baseline.aotMetadata[i], token);
-            selected.AcceptedVersion = highestHealthyVersion;
-            if (selected.Id != null)
-            {
-                try { cache.BeginBoot(selected.Id); }
-                catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+                // Materialize and hash all code bytes BEFORE any Assembly.Load to close file replacement races.
+                try { selected.Assemblies = await ReadAssemblies(selected, token); }
+                catch (OperationCanceledException) { throw; }
+                catch (Exception exception) when (selected.Id != null)
                 {
-                    cache.Dispose();
-                    cache = null;
-                    log("Cannot track update health; using packaged content. " + exception.Message);
-                    return await PreparePackaged(token);
+                    cache.Reject(selected.Id, exception.Message);
+                    log("Cached content changed during startup; using packaged release.");
+                    selected = new PreparedRelease { Manifest = baseline, Cache = cache };
+                    selected.Assemblies = await ReadAssemblies(selected, token);
                 }
+                selected.AotMetadata = new byte[baseline.aotMetadata.Length][];
+                for (int i = 0; i < baseline.aotMetadata.Length; i++)
+                    selected.AotMetadata[i] = await ReadBuiltinVerified(baseline.aotMetadata[i], token);
             }
+
+            selected.AcceptedVersion = highestHealthyVersion;
             log("Selected release " + selected.Manifest.version + " (" + (selected.Id == null ? "packaged" : "verified cache") + ").");
             return selected;
         }
@@ -214,10 +261,15 @@ namespace Game.Framework.HotUpdate
         private async Task<PreparedRelease> PreparePackaged(CancellationToken token)
         {
             var release = new PreparedRelease { Manifest = baseline, AcceptedVersion = baseline.version };
-            release.Assemblies = await ReadAssemblies(release, token);
-            release.AotMetadata = new byte[baseline.aotMetadata.Length][];
-            for (int i = 0; i < release.AotMetadata.Length; i++)
-                release.AotMetadata[i] = await ReadBuiltinVerified(baseline.aotMetadata[i], token);
+            if (settings.loadCodeAsync == null)
+            {
+                release.Assemblies = await ReadAssemblies(release, token);
+                release.AotMetadata = new byte[baseline.aotMetadata.Length][];
+                for (int i = 0; i < release.AotMetadata.Length; i++)
+                {
+                    release.AotMetadata[i] = await ReadBuiltinVerified(baseline.aotMetadata[i], token);
+                }
+            }
             return release;
         }
 
@@ -268,7 +320,10 @@ namespace Game.Framework.HotUpdate
             if (cache.WasRejected(id)) { log("Skipped previously rejected release."); return null; }
             if (Directory.Exists(cache.ReleasePath(id)))
             {
-                await Task.Run(() => VerifyDirectory(cache.ReleasePath(id), manifest), token);
+                if (settings.loadCodeAsync == null)
+                {
+                    await Task.Run(() => VerifyDirectory(cache.ReleasePath(id), manifest), token);
+                }
                 return new PreparedRelease { Manifest = manifest, Id = id, Directory = cache.ReleasePath(id), Cache = cache };
             }
             // Bound disk growth; a full cache requires operator intervention rather than unbounded writes.
@@ -286,8 +341,13 @@ namespace Game.Framework.HotUpdate
                 }
 
                 var releaseRoot = new Uri(filesRoot, id + "/");
-                foreach (var file in manifest.assemblies)
-                    await transport.DownloadVerified(new Uri(releaseRoot, file.fileName), Path.Combine(stage, file.fileName), file, token);
+                if (settings.loadCodeAsync == null)
+                {
+                    foreach (var file in manifest.assemblies)
+                    {
+                        await transport.DownloadVerified(new Uri(releaseRoot, file.fileName), Path.Combine(stage, file.fileName), file, token);
+                    }
+                }
                 return new PreparedRelease { Manifest = manifest, Id = id, Directory = cache.Commit(stage, id, text), Cache = cache };
             }
             finally

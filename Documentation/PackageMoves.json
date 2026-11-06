@@ -269,12 +269,12 @@
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
-      "sha256": "2339146453071ff7670319adc4c9c0c0bbfbafa98f356443625691cc243e8b95",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
-      "sha256": "b997342acafb17bbcab6ffa26a1d9f8520dc65c94d8b6c9b6edd259c914e18f9",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "fa2c506f8c8f2445b48bf7e4598b87f31ca2d2aa6dfcaea3ecca82a39cd5d0ab",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
       "sha256": "2d204826300da891044e2cc04d9b920e6fd9f01bd4fff4452d8ea44f9f800115",
@@ -357,12 +357,12 @@
       "reason": "Replace legacy config/runtime-data APIs with direct-factory Luban DataManager in its own package; no pre-registration."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {
-      "sha256": "791dc0a964f26db4250db4579300c54278f8ae3ad65fd52becf2dd9f1dd97e20",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "a7070b024e90ba52b31f0cbe07209a9af5187a0e6492d183df2906accf0ff5f7",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "410c5d43997115b0ddf9c672f19cdf5aabb3145c492cd0620c422295b2d665c0",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "a08cb1132a17db7be2fd26f76a51a08793c9015f444ea768228f3c2253d17986",
+      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
