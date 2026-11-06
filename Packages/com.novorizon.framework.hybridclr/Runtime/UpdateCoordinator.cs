@@ -57,8 +57,37 @@ namespace Game.Framework.HotUpdate
 
         public async Task<PreparedRelease> Prepare(CancellationToken token)
         {
-            try { return await PrepareInternal(token); }
-            catch { cache?.Dispose(); throw; }
+            try
+            {
+                var release = await PrepareInternal(token);
+                if (settings.prepareContentAsync != null)
+                {
+                    try
+                    {
+                        await settings.prepareContentAsync(new ReleaseContentContext(release.Manifest.platform, release.Manifest.content, release.Id == null), token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception error) when (release.Id != null)
+                    {
+                        // No metadata or managed code has been loaded yet; fall back with the matching packaged resources.
+                        cache.Reject(release.Id, "Content preparation failed: " + error.Message);
+                        log("Content preparation failed; selecting packaged code and resources. " + error.Message);
+                        release = await PreparePackaged(token);
+                        release.Cache = cache;
+                        await settings.prepareContentAsync(new ReleaseContentContext(release.Manifest.platform, release.Manifest.content, true), token);
+                    }
+                }
+
+                return release;
+            }
+            catch
+            {
+                cache?.Dispose();
+                throw;
+            }
         }
 
         private async Task<PreparedRelease> PrepareInternal(CancellationToken token)
@@ -223,6 +252,10 @@ namespace Game.Framework.HotUpdate
         private async Task<PreparedRelease> FetchUpdate(long floor, string acceptedId, CancellationToken token)
         {
             Uri root = ReleasePolicy.HttpsDirectory(settings.remoteBaseUrl);
+            if (settings.scopeRemoteByBaseline)
+            {
+                root = new Uri(root, baseline.platform + "/" + baseline.channel + "/" + baseline.baselineId + "/");
+            }
             string text = null;
             for (int i = 0; i < settings.requestAttempts; i++)
             {
@@ -245,7 +278,14 @@ namespace Game.Framework.HotUpdate
             try
             {
                 // Files live under the payload hash, so replacing release.json cannot mix release contents.
-                var releaseRoot = new Uri(root, id + "/");
+                Uri filesRoot = string.IsNullOrWhiteSpace(settings.remoteFilesBaseUrl)
+                    ? root : ReleasePolicy.HttpsDirectory(settings.remoteFilesBaseUrl);
+                if (settings.scopeRemoteByBaseline && !string.IsNullOrWhiteSpace(settings.remoteFilesBaseUrl))
+                {
+                    filesRoot = new Uri(filesRoot, baseline.platform + "/" + baseline.channel + "/" + baseline.baselineId + "/");
+                }
+
+                var releaseRoot = new Uri(filesRoot, id + "/");
                 foreach (var file in manifest.assemblies)
                     await transport.DownloadVerified(new Uri(releaseRoot, file.fileName), Path.Combine(stage, file.fileName), file, token);
                 return new PreparedRelease { Manifest = manifest, Id = id, Directory = cache.Commit(stage, id, text), Cache = cache };

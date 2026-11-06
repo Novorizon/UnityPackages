@@ -10,6 +10,8 @@
     <ProjectReference Include="Editor/Editor.csproj" />
     <ProjectReference Include="Engine/Engine.csproj" />
     <ProjectReference Include="HybridEditor/HybridEditor.csproj" />
+    <ProjectReference Include="HybridRuntime/HybridRuntime.csproj" />
     <Compile Include="Program.cs" />
+    <Compile Include="ReleasePairScenario.cs" />
   </ItemGroup>
 </Project>

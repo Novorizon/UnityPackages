@@ -107,3 +107,11 @@ Editor 程序集直接引用 Game.Framework.Core，以访问 HotUpdateManager �
 
 
 项目可以使用 InitializeAsync(settings, startupContext, token) 传入自己的启动参数。热更端通过可选 IGameContextHost.StartupContext 取得对象；IGameHost 和 IGameModule 原有方法保持不变，原有模块仍可使用旧重载。参数不被封装序列化，不进入发布清单。GameStarter 使用独立 Game.Startup AOT 程序集定义具体参数类型，热更端可以读取但不反向等待 GameEntry 就绪。新增 AOT 接口和项目契约程序集需要重建 Player 基线。
+
+## 配套资源版本
+
+ReleaseManifest.content 可绑定 packageName/version，签名覆盖该绑定。UpdateSettings.prepareContentAsync 在读取并验证代码后、装载 AOT 元数据或程序集之前准备对应资源；失败时只在装载代码前回到配套内置发行。scopeRemoteByBaseline 可按 platform/channel/baselineId 选择清单；remoteFilesBaseUrl 可将 DLL 与清单部署到不同 HTTPS 前缀。
+
+loadFromCompiledAssemblies 用于本地编译的 IGameModule；Editor 自动使用编译源。IGameApplicationEvents 是可选的暂停/焦点通知，由宿主通过 NotifyApplicationPause/Focus 转发。
+
+Editor 的 SettingsFactory 可提供当前 ReleaseContent；资源版本不计入固定 AOT 输入指纹，程序集拓扑、AOT 元数据与其他固定设置仍被校验。ExportUpdateToDirectory 返回未签名输出目录，方便项目接入既有签名发布流程。已有主包需要重建。

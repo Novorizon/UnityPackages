@@ -183,6 +183,7 @@ namespace Game.Framework.HotUpdate.Editor
                 channel = settings.channel,
                 baselineId = id,
                 version = 1,
+                content = settings.content,
                 assemblies = HotAssemblies.Select(n => Describe(Path.Combine(hot, n + ".dll"))).ToArray(),
                 aotMetadata = RequiredAot(hot, aot).Select(n => Describe(Path.Combine(aot, n + ".dll"))).ToArray()
             };
@@ -265,6 +266,11 @@ namespace Game.Framework.HotUpdate.Editor
         [MenuItem("Tools/Novorizon/Hot Update/3. Export Patch")]
         public static void ExportUpdate()
         {
+            ExportUpdateToDirectory();
+        }
+
+        public static string ExportUpdateToDirectory()
+        {
             RequireConfigured();
             var baseline = ReadBaseline();
             string versionRoot = Path.Combine(Root, "Artifacts", "Unsigned", baseline.platform, baseline.baselineId);
@@ -289,6 +295,8 @@ namespace Game.Framework.HotUpdate.Editor
             GenerateBridgeCheck(hot, aot, bridgeCheck);
             ReleasePolicy.Require(ReleasePolicy.Sha256File(bridgeCheck) == ReleasePolicy.Sha256File(Path.Combine(archive, "MethodBridge.inc")), "Native bridge requirements changed. A new player is required.");
             baseline.version = version;
+            baseline.content = Settings.content;
+            ReleasePolicy.Validate(baseline);
             baseline.assemblies = HotAssemblies.Select(n => Describe(Path.Combine(hot, n + ".dll"))).ToArray();
             string output = Path.Combine(Root, "Artifacts", "Unsigned", baseline.platform, baseline.baselineId, version.ToString());
             ReleasePolicy.Require(!Directory.Exists(output), "Version output exists; export a new version.");
@@ -300,6 +308,7 @@ namespace Game.Framework.HotUpdate.Editor
 
             File.WriteAllText(Path.Combine(output, "manifest.json"), JsonUtility.ToJson(baseline, true), new UTF8Encoding(false));
             Debug.Log("UNSIGNED_UPDATE_EXPORTED " + output + ". Sign it with this package's Tools~/ReleaseTool before publishing.");
+            return output;
         }
 
         private static List<string> RequiredAot(string hot, string aot)
@@ -358,9 +367,12 @@ namespace Game.Framework.HotUpdate.Editor
             var hot = new HashSet<string>(HotAssemblies);
             var player = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.Player);
             var sources = player.Where(a => !hot.Contains(a.name)).SelectMany(a => a.sourceFiles);
-            var references = player.SelectMany(a => a.compiledAssemblyReferences);
+            var references = player.SelectMany(a => a.compiledAssemblyReferences)
+                .Where(path => !hot.Contains(Path.GetFileNameWithoutExtension(path)));
             var files = sources.Concat(references).Concat(new[] { "Packages/manifest.json", "ProjectSettings/ProjectSettings.asset" }).Concat(Directory.GetFiles("Assets", "*.xml", SearchOption.AllDirectories)).Where(File.Exists).Distinct().Select(path => new { Name = path.Replace('\\', '/').Replace(Root.Replace('\\', '/') + "/", ""), Hash = ReleasePolicy.Sha256File(path) }).OrderBy(f => f.Name, StringComparer.Ordinal);
-            return ReleasePolicy.Sha256(Encoding.UTF8.GetBytes(JsonUtility.ToJson(Settings) + "\n" + string.Join("\n", files.Select(f => f.Name + ":" + f.Hash))));
+            var settings = JsonUtility.FromJson<UpdateSettings>(JsonUtility.ToJson(Settings));
+            settings.content = null;
+            return ReleasePolicy.Sha256(Encoding.UTF8.GetBytes(JsonUtility.ToJson(settings) + "\n" + string.Join("\n", files.Select(f => f.Name + ":" + f.Hash))));
         }
 
         private static string Archive(ReleaseManifest baseline) => Path.Combine(Root, "Artifacts", "Baselines", baseline.platform, baseline.baselineId);

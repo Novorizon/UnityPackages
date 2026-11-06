@@ -17,6 +17,8 @@
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
     "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs",
@@ -35,6 +37,7 @@
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs",
     "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs",
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs",
+    "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs",
@@ -86,6 +89,6 @@
     "Packages/com.novorizon.rtree/README.md"
   ],
   "activeAssemblies": 23,
-  "activeGuids": 384,
+  "activeGuids": 385,
   "nativeUnityExecuted": false
 }

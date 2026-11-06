@@ -60,16 +60,20 @@ namespace Game.Resource
 
         public static InitializeParameters CreateHostPlayModeParameters()
         {
-            ValidateRemoteUrls();
-            IRemoteServices remoteServices = new RemoteServices(DefaultHostServer.TrimEnd('/'), string.IsNullOrWhiteSpace(FallbackHostServer) ? DefaultHostServer.TrimEnd('/') : FallbackHostServer.TrimEnd('/'));
-            FileSystemParameters cacheFileSystemParams = FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices, null, YooCachePath);
-            FileSystemParameters buildinFileSystemParams = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
+            return CreateHostPlayModeParameters(DefaultHostServer, FallbackHostServer);
+        }
 
-            HostPlayModeParameters parameters = new HostPlayModeParameters();
-            parameters.BuildinFileSystemParameters = buildinFileSystemParams;
-            parameters.CacheFileSystemParameters = cacheFileSystemParams;
-
-            return parameters;
+        public static InitializeParameters CreateHostPlayModeParameters(string mainUrl, string fallbackUrl = null)
+        {
+            ValidateRemoteUrl(mainUrl);
+            fallbackUrl = string.IsNullOrWhiteSpace(fallbackUrl) ? mainUrl : fallbackUrl;
+            ValidateRemoteUrl(fallbackUrl);
+            IRemoteServices remoteServices = new RemoteServices(mainUrl.TrimEnd('/'), fallbackUrl.TrimEnd('/'));
+            return new HostPlayModeParameters
+            {
+                BuildinFileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters(),
+                CacheFileSystemParameters = FileSystemParameters.CreateDefaultCacheFileSystemParameters(remoteServices, null, YooCachePath)
+            };
         }
 
         public static InitializeParameters CreateCustomPlayModeParameters()
@@ -92,9 +96,16 @@ namespace Game.Resource
         /// </summary>
         private static void ValidateRemoteUrls()
         {
-            foreach (string url in new[] { DefaultHostServer, string.IsNullOrWhiteSpace(FallbackHostServer) ? DefaultHostServer : FallbackHostServer })
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var parsed) || (parsed.Scheme != "http" && parsed.Scheme != "https"))
-                    throw new InvalidOperationException("Configure YooAssetsSettings.DefaultHostServer before enabling remote play mode.");
+            ValidateRemoteUrl(DefaultHostServer);
+            ValidateRemoteUrl(string.IsNullOrWhiteSpace(FallbackHostServer) ? DefaultHostServer : FallbackHostServer);
+        }
+
+        private static void ValidateRemoteUrl(string url)
+        {
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var parsed) || (parsed.Scheme != "http" && parsed.Scheme != "https"))
+            {
+                throw new InvalidOperationException("Configure a valid resource host URL before enabling remote play mode.");
+            }
         }
         private class RemoteServices : IRemoteServices
         {

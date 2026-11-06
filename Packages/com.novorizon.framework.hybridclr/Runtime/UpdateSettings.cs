@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Game.Framework.HotUpdate
@@ -14,6 +16,12 @@ namespace Game.Framework.HotUpdate
         public string appId = Application.identifier;
         public string channel = "development";
         public string remoteBaseUrl = "";
+        public string remoteFilesBaseUrl = "";
+        public bool scopeRemoteByBaseline;
+        public bool loadFromCompiledAssemblies;
+        public ReleaseContent content;
+        [NonSerialized]
+        public Func<ReleaseContentContext, CancellationToken, Task> prepareContentAsync;
         public int requestTimeoutSeconds = 20;
         public int requestAttempts = 2;
         public int maxCachedReleases = 8;
@@ -32,6 +40,10 @@ namespace Game.Framework.HotUpdate
             }
 
             ReleasePolicy.HttpsDirectory(remoteBaseUrl);
+            if (!string.IsNullOrWhiteSpace(remoteFilesBaseUrl))
+            {
+                ReleasePolicy.HttpsDirectory(remoteFilesBaseUrl);
+            }
             ReleasePolicy.Require(trustedKeys != null && trustedKeys.Length > 0, "Remote updates need trusted public keys.");
             var ids = new System.Collections.Generic.HashSet<string>(StringComparer.Ordinal);
             foreach (var key in trustedKeys)

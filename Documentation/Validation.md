@@ -37,3 +37,5 @@ Framework、UI、ECS 和 HybridCLR 的单例启动回调已从 OnSingletonAccess
 本轮验证配对 OnStart/OnExit、重复访问只启动一次、Release 不创建实例、不解除退出保护、原生延迟销毁和重复退出只清理一次，以及 ECS 的实际 SingletonBehaviour 通过 OnExit 清理。资源验证覆盖 Release 后内部等待关闭再初始化。GameStarter 验证入口直接初始化与 OnExit 清理，不再要求业务层所有权登记和失败回滚。
 
 DataManager 迁移验证使用官方 Luban CLI 生成的真实 cfg.Tables 和二进制文件，覆盖直接构造加载（无注册）、单一字节加载器、默认 Resources 路径、失败保留快照、后发请求优先、Clear/Dispose 取消以及停止后的单例重建。旧动态对象容器和通用 JSON 表 API 的测试随退役实现一同移除。
+
+配套发行新增验证：资源准备先于入口创建、资源准备失败不构造入口、资源绑定允许版本变化而拒绝包身份变化；资源失败时回到配套内置 DLL 和资源并拒绝该更新；精确资源版本跳过 latest 查询、下载取消不发布初始化状态，退出等待不可取消的原生初始化。真实 Unity/IL2CPP 仍由独立工程的原生验收入口执行。

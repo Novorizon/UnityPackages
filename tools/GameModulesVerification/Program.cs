@@ -24,6 +24,59 @@ internal static partial class Program
     private static Pump context;
     private static void Main()
     {
+        Run("pinned resource versions skip latest lookup and complete downloads before readiness", () =>
+        {
+            var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
+            package.Downloader.TotalDownloadCount = 3;
+            package.Downloader.TotalDownloadBytes = 100;
+            True(Complete(resources.InitializeAsync(new ResourceInitializationOptions
+            {
+                PackageVersion = "release-2",
+                DownloadAll = true
+            })));
+            Equal(0, package.VersionRequests);
+            Equal("release-2", package.SelectedVersion);
+            Equal("release-2", resources.PackageVersion);
+            Equal(1, package.Downloader.Begun);
+            True(resources.Initialized);
+        });
+        Run("cancelled resource downloads never publish an initialized package", () =>
+        {
+            var resources = ResourceManager.Instance;
+            var pending = Gate<bool>();
+            YooAssets.Package.Downloader.Task = pending.Task;
+            using var stop = new CancellationTokenSource();
+            var loading = resources.InitializeAsync(new ResourceInitializationOptions
+            {
+                PackageVersion = "release-3",
+                DownloadAll = true
+            }, stop.Token);
+            stop.Cancel();
+            Fails<OperationCanceledException>(loading);
+            True(!resources.Initialized);
+            Equal(1, YooAssets.Package.Downloader.Cancelled);
+            pending.SetResult(true);
+        });
+        Run("shutdown waits for nonabortable native initialization after caller cancellation", () =>
+        {
+            var resources = ResourceManager.Instance;
+            var pending = Gate<bool>();
+            YooAssets.Package.InitializeGate = pending.Task;
+            using var stop = new CancellationTokenSource();
+            var loading = resources.InitializeAsync(new ResourceInitializationOptions
+            {
+                PackageVersion = "release-4"
+            }, stop.Token);
+            stop.Cancel();
+            Fails<OperationCanceledException>(loading);
+            var shutdown = resources.ShutdownAsync();
+            True(!shutdown.IsCompleted);
+            Equal(1, YooAssets.Package.InitializeCalls);
+            pending.SetResult(true);
+            Complete(shutdown);
+            True(!resources.Initialized);
+        });
         Run("parameterless initialization dispatches through singleton bases to actual services", () =>
         {
             using var data = new DataManager();

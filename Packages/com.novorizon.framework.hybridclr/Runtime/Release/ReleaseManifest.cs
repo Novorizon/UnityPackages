@@ -27,6 +27,31 @@ namespace Game.Framework.HotUpdate
         public long version;
         public ReleaseFile[] assemblies;
         public ReleaseFile[] aotMetadata;
+        public ReleaseContent content;
+    }
+
+    [Serializable]
+    public sealed class ReleaseContent
+    {
+        public string packageName;
+        public string version;
+    }
+
+    /// <summary>从已验证发行复制的资源绑定，在加载任何热更程序集之前交给项目准备。</summary>
+    public sealed class ReleaseContentContext
+    {
+        public string Platform { get; }
+        public string PackageName { get; }
+        public string PackageVersion { get; }
+        public bool IsPackaged { get; }
+
+        public ReleaseContentContext(string platform, ReleaseContent content, bool isPackaged)
+        {
+            Platform = platform;
+            PackageName = content?.packageName;
+            PackageVersion = content?.version;
+            IsPackaged = isPackaged;
+        }
     }
 
     [Serializable] public sealed class SignedEnvelope
@@ -67,6 +92,14 @@ namespace Game.Framework.HotUpdate
             Require(manifest.assemblies != null && manifest.assemblies.Length > 0 && manifest.assemblies.Length <= 16,
                 "Expected 1-16 hot update assemblies.");
             Require(manifest.aotMetadata != null && manifest.aotMetadata.Length <= 16, "Invalid AOT metadata list.");
+            if (manifest.content != null)
+            {
+                foreach (string value in new[] { manifest.content.packageName, manifest.content.version })
+                {
+                    Require(value != null && SafeName.IsMatch(value) && !value.Contains(".."), "Invalid content binding.");
+                }
+            }
+
             var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             long total = 0;
             foreach (var file in manifest.assemblies.Concat(manifest.aotMetadata))
@@ -91,6 +124,8 @@ namespace Game.Framework.HotUpdate
                 && update.contractVersion == baseline.contractVersion, "Update does not match this player baseline.");
             Require(update.assemblies.Select(f => f.assemblyName).SequenceEqual(
                 baseline.assemblies.Select(f => f.assemblyName)), "Assembly dependency order/topology changed.");
+            Require((update.content == null) == (baseline.content == null)
+                && (update.content == null || update.content.packageName == baseline.content.packageName), "Content package binding changed.");
             Require(update.aotMetadata.Length == baseline.aotMetadata.Length, "AOT metadata list changed.");
             for (int i = 0; i < baseline.aotMetadata.Length; i++)
             {

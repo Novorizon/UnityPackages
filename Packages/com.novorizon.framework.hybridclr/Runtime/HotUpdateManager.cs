@@ -66,59 +66,70 @@ namespace Game.Framework.HotUpdate
             {
                 await Task.Yield();
                 stopToken.ThrowIfCancellationRequested();
-#if UNITY_EDITOR
-                // Editor uses Unity's compiled assembly and does not prove IL2CPP/metadata behavior.
-                Log("Editor mode: running compiled source; remote release loading is disabled.");
-                var assembly = AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == settings.entryAssembly);
-#else
-                using (var preparation = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
-                {
-                    preparation.CancelAfter(TimeSpan.FromSeconds(settings.prepareTimeoutSeconds));
-                    try
-                    {
-                        release = await new UpdateCoordinator(settings, Log).Prepare(preparation.Token);
-                    }
-                    catch (OperationCanceledException) when (!stopToken.IsCancellationRequested)
-                    {
-                        throw new TimeoutException("Content preparation exceeded its time budget.");
-                    }
-                }
-
-                stopToken.ThrowIfCancellationRequested();
-                for (int i = 0; i < release.AotMetadata.Length; i++)
-                {
-                    var code = RuntimeApi.LoadMetadataForAOTAssembly(release.AotMetadata[i], HomologousImageMode.SuperSet);
-                    if (code != LoadImageErrorCode.OK)
-                    {
-                        throw new InvalidOperationException("AOT metadata load failed: " + release.Manifest.aotMetadata[i].assemblyName + " / " + code);
-                    }
-                }
-
-                release.AotMetadata = null;
-                // Never attempt an in-process fallback once metadata or managed code has been loaded.
                 Assembly assembly = null;
-                for (int i = 0; i < release.Assemblies.Length; i++)
-                {
-                    var expectedName = release.Manifest.assemblies[i].assemblyName;
-                    if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == expectedName))
-                    {
-                        throw new InvalidOperationException("Hot update assembly already loaded: " + expectedName);
-                    }
-
-                    var loaded = Assembly.Load(release.Assemblies[i]);
-                    if (loaded.GetName().Name != expectedName)
-                    {
-                        throw new InvalidOperationException("Unexpected assembly identity.");
-                    }
-
-                    if (expectedName == settings.entryAssembly)
-                    {
-                        assembly = loaded;
-                    }
-                }
-
-                release.Assemblies = null;
+                bool compiled = settings.loadFromCompiledAssemblies;
+#if UNITY_EDITOR
+                compiled = true;
 #endif
+                if (compiled)
+                {
+                    Log("Compiled game module mode; remote DLL loading is disabled.");
+                    if (settings.prepareContentAsync != null)
+                    {
+                        await settings.prepareContentAsync(new ReleaseContentContext("compiled", settings.content, true), stopToken);
+                    }
+
+                    assembly = AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == settings.entryAssembly);
+                }
+                else
+                {
+                    using (var preparation = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
+                    {
+                        preparation.CancelAfter(TimeSpan.FromSeconds(settings.prepareTimeoutSeconds));
+                        try
+                        {
+                            release = await new UpdateCoordinator(settings, Log).Prepare(preparation.Token);
+                        }
+                        catch (OperationCanceledException) when (!stopToken.IsCancellationRequested)
+                        {
+                            throw new TimeoutException("Content preparation exceeded its time budget.");
+                        }
+                    }
+
+                    stopToken.ThrowIfCancellationRequested();
+                    for (int i = 0; i < release.AotMetadata.Length; i++)
+                    {
+                        var code = RuntimeApi.LoadMetadataForAOTAssembly(release.AotMetadata[i], HomologousImageMode.SuperSet);
+                        if (code != LoadImageErrorCode.OK)
+                        {
+                            throw new InvalidOperationException("AOT metadata load failed: " + release.Manifest.aotMetadata[i].assemblyName + " / " + code);
+                        }
+                    }
+
+                    release.AotMetadata = null;
+                    // Never attempt an in-process fallback once metadata or managed code has been loaded.
+                    for (int i = 0; i < release.Assemblies.Length; i++)
+                    {
+                        var expectedName = release.Manifest.assemblies[i].assemblyName;
+                        if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == expectedName))
+                        {
+                            throw new InvalidOperationException("Hot update assembly already loaded: " + expectedName);
+                        }
+
+                        var loaded = Assembly.Load(release.Assemblies[i]);
+                        if (loaded.GetName().Name != expectedName)
+                        {
+                            throw new InvalidOperationException("Unexpected assembly identity.");
+                        }
+
+                        if (expectedName == settings.entryAssembly)
+                        {
+                            assembly = loaded;
+                        }
+                    }
+
+                    release.Assemblies = null;
+                }
                 if (assembly == null)
                 {
                     throw new InvalidOperationException("Entry assembly was not found: " + settings.entryAssembly);
@@ -271,6 +282,22 @@ namespace Game.Framework.HotUpdate
 
             ready = true;
             hotGameVersion = version;
+        }
+
+        public void NotifyApplicationPause(bool paused)
+        {
+            if (IsReady && hotGame is IGameApplicationEvents events)
+            {
+                events.OnApplicationPause(paused);
+            }
+        }
+
+        public void NotifyApplicationFocus(bool focused)
+        {
+            if (IsReady && hotGame is IGameApplicationEvents events)
+            {
+                events.OnApplicationFocus(focused);
+            }
         }
 
         /// <summary>取消加载并清理热更入口；重复调用安全，不卸载已经加载的 DLL。</summary>

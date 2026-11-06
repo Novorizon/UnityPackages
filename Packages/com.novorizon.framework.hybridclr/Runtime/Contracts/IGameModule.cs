@@ -16,6 +16,12 @@ namespace Game.Framework.HotUpdate
         object StartupContext { get; }
     }
 
+    public interface IGameApplicationEvents
+    {
+        void OnApplicationPause(bool paused);
+        void OnApplicationFocus(bool focused);
+    }
+
     public interface IGameModule
     {
         Task InitializeAsync(IGameHost host, CancellationToken token);
