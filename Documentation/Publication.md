@@ -1,11 +1,12 @@
 # 发布统一仓库
 
-统一仓库为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.10`。`main` 维护最新源码，发行安装地址使用固定标签。
+统一仓库为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.11`。`main` 维护最新源码，发行安装地址使用固定标签。
 
 已有维护工作区可按以下方式提交后续发行：
 
 ```sh
-git push origin main
+git push origin <review-branch>
+# 创建 PR 审查并合并；已验证的预览也可从功能分支提交创建固定标签。
 # 修改 workspace.json 的 release 并完成 sync、verify 后创建新发行标签：
 git tag <new-release>
 git push origin <new-release>
