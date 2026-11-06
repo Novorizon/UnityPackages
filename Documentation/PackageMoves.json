@@ -12,7 +12,11 @@
     "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.novorizon.gpuanimator/",
     "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
-    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs.meta": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs.meta"
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs.meta": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs.meta",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs.meta": "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs.meta",
+    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
+    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/GameModule.cs.txt.meta": "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt.meta"
   },
   "retiredFiles": [
     "Packages/com.novorizon.ability.editor.odin/package.json",
@@ -46,10 +50,10 @@
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": {
       "OnSingletonAccessed": "OnStart"
     },
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": {
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
       "OnSingletonAccessed": "OnStart"
     },
-    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
+    "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs": {
       "OnSingletonAccessed": "OnStart"
     }
   },
@@ -162,10 +166,6 @@
       "sha256": "cda4b292c832126ec767558f04e6f3c8e44747c6b552b85e8de9ef21a3b2dfa7",
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": {
-      "sha256": "b078797b1f097021443c6107e575550b265683dadb14cc6ee187c1ee442ad6b5",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
-    },
     "Packages/com.novorizon.framework/Runtime/Core/ConfigurableSingleton.cs": {
       "sha256": "df3f8005d20d59e6246f30b5101e7dda5cbf398667e83b4fe636f557e98032c4",
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
@@ -181,6 +181,22 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
       "sha256": "798e86e5e0f0eba2e1ad33d16322bb8a87152e85a95afc8ae43e0f25df4184f6",
       "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs": {
+      "sha256": "f6cc460cb67b063a40aafa54c12070eb3ee6479e8615680fc9cf886cb19a4080",
+      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
+      "sha256": "f8e3f55e5e0f2211d6cdda7f5cb9e1d7f906b48a29d4b856ea53326830c6f6fa",
+      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
+      "sha256": "ae9a77335dbf9997f6d097257a35f7b98ee0263786841309ad3a36d98d27a631",
+      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
+      "sha256": "2d204826300da891044e2cc04d9b920e6fd9f01bd4fff4452d8ea44f9f800115",
+      "reason": "Rename hot entry and host to HotGame/HotGameBootstrap; preserve metadata GUIDs and document class versus runtime object creation."
     }
   }
 }

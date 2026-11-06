@@ -9,16 +9,16 @@ using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
-    public sealed class GameBootstrap : MonoSingleton<GameBootstrap>, IGameHost
+    public sealed class HotGameBootstrap : MonoSingleton<HotGameBootstrap>, IGameHost
     {
-        private static GameBootstrap sessionOwner;
+        private static HotGameBootstrap sessionOwner;
         private CancellationTokenSource lifetime;
-        private IGameModule module;
-        private bool moduleStopped;
+        private IGameModule hotGame;
+        private bool hotGameStopped;
         private bool ready;
         private bool initializationReturned;
         private bool startupClosed;
-        private string moduleVersion;
+        private string hotGameVersion;
         public static string Status { get; private set; } = "Starting";
         public static bool Failed { get; private set; }
 
@@ -36,13 +36,15 @@ namespace Game.Framework.HotUpdate
             Failed = false;
         }
 
+        // Unity 识别此特性，在首个场景加载后调用 AutoCreate，无需 GameEntry 手动调用。
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Create()
+        private static void AutoCreate()
         {
             try
             {
                 if (Resources.Load<TextAsset>(UpdateSettings.ResourceName) && UpdateSettings.Load().autoStart)
                 {
+                    // 单例基类在场景中查找宿主；不存在时创建 GameObject 并添加本组件。
                     _ = Instance;
                 }
             }
@@ -60,8 +62,8 @@ namespace Game.Framework.HotUpdate
             }
 
             sessionOwner = this;
-            ready = initializationReturned = startupClosed = moduleStopped = false;
-            module = null;
+            ready = initializationReturned = startupClosed = hotGameStopped = false;
+            hotGame = null;
             lifetime = new CancellationTokenSource();
             _ = StartAsync(lifetime);
         }
@@ -136,13 +138,15 @@ namespace Game.Framework.HotUpdate
                 Type entry = assembly.GetType(settings.entryType, true);
                 if (!typeof(IGameModule).IsAssignableFrom(entry))
                 {
-                    throw new InvalidOperationException("Incompatible game module contract.");
+                    throw new InvalidOperationException("Incompatible hot game contract.");
                 }
 
-                module = (IGameModule)Activator.CreateInstance(entry);
+                // 脚本文件定义类型；这里才创建运行时对象，相当于 new HotGame()。
+                // 通过接口调用，让 AOT 宿主不必引用热更程序集里的具体类型。
+                hotGame = (IGameModule)Activator.CreateInstance(entry);
                 using (var startup = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
                 {
-                    Task initialize = module.InitializeAsync(new SessionHost(this, session), startup.Token);
+                    Task initialize = hotGame.InitializeAsync(new SessionHost(this, session), startup.Token);
                     Task deadline = Task.Delay(TimeSpan.FromSeconds(settings.startupTimeoutSeconds), startup.Token);
                     if (await Task.WhenAny(initialize, deadline) != initialize)
                     {
@@ -159,7 +163,7 @@ namespace Game.Framework.HotUpdate
                 initializationReturned = true;
                 if (!ready)
                 {
-                    throw new InvalidOperationException("Game module did not acknowledge startup health.");
+                    throw new InvalidOperationException("Hot game did not acknowledge startup health.");
                 }
 
                 stopToken.ThrowIfCancellationRequested();
@@ -170,8 +174,8 @@ namespace Game.Framework.HotUpdate
 
                 release?.Cache?.Dispose();
                 startupClosed = true;
-                Status = "Ready / " + moduleVersion;
-                Log("STARTUP_OK " + moduleVersion);
+                Status = "Ready / " + hotGameVersion;
+                Log("STARTUP_OK " + hotGameVersion);
                 if (Application.isBatchMode && !Application.isEditor)
                 {
                     Application.Quit(0);
@@ -194,7 +198,7 @@ namespace Game.Framework.HotUpdate
                 }
 
                 startupClosed = true;
-                StopModule();
+                StopHotGame();
                 if (release?.Id != null)
                 {
                     try
@@ -232,9 +236,9 @@ namespace Game.Framework.HotUpdate
 
         private sealed class SessionHost : IGameHost
         {
-            private readonly GameBootstrap owner;
+            private readonly HotGameBootstrap owner;
             private readonly CancellationTokenSource session;
-            internal SessionHost(GameBootstrap owner, CancellationTokenSource session)
+            internal SessionHost(HotGameBootstrap owner, CancellationTokenSource session)
             {
                 this.owner = owner;
                 this.session = session;
@@ -267,7 +271,7 @@ namespace Game.Framework.HotUpdate
             }
 
             ready = true;
-            moduleVersion = version;
+            hotGameVersion = version;
         }
 
         protected override void OnExit()
@@ -283,22 +287,22 @@ namespace Game.Framework.HotUpdate
         {
             startupClosed = true;
             lifetime?.Cancel();
-            StopModule();
+            StopHotGame();
             lifetime?.Dispose();
             lifetime = null;
         }
 
-        private void StopModule()
+        private void StopHotGame()
         {
-            if (moduleStopped)
+            if (hotGameStopped)
             {
                 return;
             }
 
-            moduleStopped = true;
+            hotGameStopped = true;
             try
             {
-                module?.Shutdown();
+                hotGame?.Shutdown();
             }
             catch (Exception exception)
             {

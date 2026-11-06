@@ -9,7 +9,10 @@
   "approvedSourceChanges": [
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs",
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs",
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs",
+    "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs",
+    "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/HotGameBootstrap.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",

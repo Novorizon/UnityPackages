@@ -1,6 +1,6 @@
 # Framework HybridCLR
 
-独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.3。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.10.0-preview.2，官方 HybridCLR 9.0.3。
+独立 Unity package：`com.novorizon.framework.hybridclr` 0.1.0-preview.8。运行时与构建工具都包含在本包，不再要求项目复制 Demo 的中间层。Unity 最低版本 2022.3，当前核对版本 2022.3.62f1；Framework 0.14.0-preview.1，官方 HybridCLR 9.0.3。
 
 ## 安装
 
@@ -20,7 +20,7 @@
 
 配置文件为 `Assets/Resources/NovorizonHotUpdateSettings.json`。修改 `hotUpdateRoot`、`entryAssembly`、`entryType` 可使用项目自己的命名。热更新目录只收集实际参与 Player 编译的 asmdef，支持名字/GUID 引用和多个程序集；不能从 AOT 程序集直接引用热更新程序集。共享契约放在热更新目录之外。新增或改变热更新程序集依赖顺序需要新主包。
 
-自动启动仅在配置存在且 `autoStart=true` 时启用；Editor 执行 Unity 已编译源码，Player 按清单依次加载内置 AOT 元数据和热更新 DLL。关闭 autoStart 后，项目可在主线程访问 `GameBootstrap.Instance` 显式启动。启动对象继承 Framework 的 MonoSingleton，不另实现单例。游戏入口自行取消初始化会报告启动失败并释放模块；关闭或销毁会话引起的取消按正常终止处理。
+自动启动仅在配置存在且 `autoStart=true` 时启用；Editor 执行 Unity 已编译源码，Player 按清单依次加载内置 AOT 元数据和热更新 DLL。关闭 autoStart 后，项目可在主线程访问 `HotGameBootstrap.Instance` 显式启动。启动对象继承 Framework 的 MonoSingleton，不另实现单例。游戏入口自行取消初始化会报告启动失败并释放模块；关闭或销毁会话引起的取消按正常终止处理。
 
 没有配置时，本包不会创建启动对象，也不会拦截普通 Unity 构建。
 
@@ -31,7 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Game.Framework.HotUpdate;
 
-public sealed class GameModule : IGameModule
+public sealed class HotGame : IGameModule
 {
     public async Task InitializeAsync(IGameHost host, CancellationToken token)
     {
@@ -65,3 +65,11 @@ Unity/HybridCLR、AOT 代码、公共契约、入口配置或热更新拓扑变�
 ## 验证边界
 
 仓库包含更新恢复、构建图、配置幂等、启动生命周期及发布工具回归。headless 测试编译真实 Framework 单例、包源码、官方分析器，Unity/native 命令为显式边界；不模拟真实 Editor 导入、IL2CPP、HTTPS、Android/iOS 或热更新后的设备执行。发行前仍需按目标平台完成实际验证。
+
+## HotGame 的创建与调用
+
+HotGame.cs 是类的源代码文件。文件存在说明类型已经定义，不代表运行时对象已经创建。HotGame 是普通 C# 对象，不会显示在 Hierarchy；场景中可见的是 MonoBehaviour 宿主 HotGameBootstrap。
+
+Unity 在首个场景加载后自动调用带 RuntimeInitializeOnLoadMethod(AfterSceneLoad) 的 AutoCreate 静态方法。autoStart=true 时，该方法访问 HotGameBootstrap.Instance，单例基类查找场景组件或创建 GameObject 并 AddComponent，随后调用 OnStart。
+
+启动后取得热更程序集，通过 entryType 查找 HotGame 类型，Activator.CreateInstance 创建对象，再调用 IGameModule.InitializeAsync。新默认类型为 Game.HotUpdate.HotGame，程序集仍为 Game.HotUpdate；IGameModule 契约保持不变。已有项目自定义的入口配置与脚本由项目维护，Setup Project 不覆盖已有代码。入口类型名属于主包基线配置，升级后需要重新构建主包。
