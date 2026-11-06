@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Shared.props" />
+  <PropertyGroup>
+    <AssemblyName>Game.Framework.HotUpdate</AssemblyName>
+    <DefineConstants>UNITY_EDITOR;UNITY_STANDALONE_WIN</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../FrameworkServicesVerification/Core/Core.csproj" />
+    <ProjectReference Include="../HybridRuntime/HybridRuntime.csproj" />
+    <ProjectReference Include="../Engine/Engine.csproj" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/**/*.cs" />
+  </ItemGroup>
+</Project>

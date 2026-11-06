@@ -57,6 +57,7 @@
     "Packages/com.novorizon.ecsframework/Documentation~/QUICKSTART.zh-CN.md",
     "Packages/com.novorizon.ecsframework/Samples~/QuickStart/README.md",
     "Packages/com.novorizon.ecsframework/package.json",
+    "Packages/com.novorizon.framework.hybridclr/Editor/Game.Framework.HotUpdate.Editor.asmdef",
     "Packages/com.novorizon.framework.hybridclr/README.md",
     "Packages/com.novorizon.framework.hybridclr/Runtime/Game.Framework.HotUpdate.asmdef",
     "Packages/com.novorizon.framework.hybridclr/package.json",

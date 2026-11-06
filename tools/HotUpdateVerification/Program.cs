@@ -13,6 +13,7 @@ internal static class Program
     private static int passed;
     private static async Task Main()
     {
+        await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
         await Check("missing startup acknowledgement fails and closes the entry", MissingAcknowledgement);
@@ -70,6 +71,15 @@ internal static class Program
         }
 
         throw new InvalidOperationException("Expected " + typeof(T).Name);
+    }
+
+    private static Task AssemblyBoundaries()
+    {
+        True(typeof(GameBuild).Assembly.GetName().Name == "Game.Framework.HotUpdate.Editor");
+        True(typeof(HotUpdateManager).Assembly.GetName().Name == "Game.Framework.HotUpdate");
+        True(typeof(Game.Framework.ConfigurableSingleton<>).Assembly.GetName().Name == "Game.Framework.Core");
+        True(typeof(GameBuild).Assembly != typeof(HotUpdateManager).Assembly);
+        return Task.CompletedTask;
     }
 
     private static Task ExplicitStartup()

@@ -145,8 +145,7 @@ def validate():
     }
     model_root = ROOT / 'tools/GameModulesVerification'
     assert ET.parse(model_root / 'Directory.Build.props').getroot().findtext('.//DisableTransitiveProjectReferences') == 'true'
-    for model, asmdef in module_models.items():
-        project = model_root / model / (model + '.csproj')
+    def check_assembly_model(project, asmdef):
         definition = read(ROOT / 'Packages' / asmdef)
         xml = ET.parse(project).getroot()
         assert xml.findtext('.//AssemblyName') == definition['name']
@@ -155,7 +154,17 @@ def validate():
             dependency = (project.parent / item.attrib['Include']).resolve()
             if dependency.parent.name != 'Engine':
                 references.add(ET.parse(dependency).getroot().findtext('.//AssemblyName'))
-        assert references == set(definition.get('references', [])), (model, 'Verification direct references differ from Unity asmdef')
+        assert references == set(definition.get('references', [])), (project, 'Verification direct references differ from Unity asmdef')
+
+    for model, asmdef in module_models.items():
+        check_assembly_model(model_root / model / (model + '.csproj'), asmdef)
+    hot_models = ROOT / 'tools/HotUpdateVerification'
+    assert ET.parse(hot_models / 'Directory.Build.props').getroot().findtext('.//DisableTransitiveProjectReferences') == 'true'
+    for model in ['Runtime', 'Editor']:
+        project = hot_models / model / (model + '.csproj')
+        check_assembly_model(project, 'com.novorizon.framework.hybridclr/' + model + '/Game.Framework.HotUpdate' + ('.Editor' if model == 'Editor' else '') + '.asmdef')
+        compiled = [item.attrib['Include'] for item in ET.parse(project).getroot().findall('.//Compile')]
+        assert all('/' + ('Editor' if model == 'Runtime' else 'Runtime') + '/' not in item for item in compiled), 'Do not compile Runtime and Editor into the same verification assembly'
     doc_changes = []
     layout = read(ROOT / 'Documentation/PackageMoves.json')
     def relocated(relative):

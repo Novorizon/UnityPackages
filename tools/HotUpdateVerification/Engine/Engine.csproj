@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Shared.props" />
+  <PropertyGroup><AssemblyName>UnityEngine.CoreModule</AssemblyName></PropertyGroup>
+  <ItemGroup><Compile Include="../UnityApiModel.cs" /></ItemGroup>
+</Project>
