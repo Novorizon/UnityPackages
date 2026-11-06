@@ -178,7 +178,11 @@ namespace UI
         readonly List<Task> retiredFactories = new();
         public bool IsInitialized => initialized && !destroyed && !shuttingDown;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static UIManager()
+        {
+            SingletonLifecycle.Register(ResetForPlay, order: 100);
+        }
+
         static void ResetForPlay()
         {
             quitting = true;

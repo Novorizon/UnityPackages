@@ -19,6 +19,86 @@ internal static class Program
             True(!Simple.IsCreated);
             True(ReferenceEquals(Simple.Instance, Simple.Instance));
         });
+        Check("ordinary singletons auto-register, release and recreate across repeated runs", () =>
+        {
+            var first = Resettable.Instance;
+            SingletonLifecycle.Reset();
+            Equal(1, first.Disposals);
+            True(!Resettable.IsCreated);
+            var second = Resettable.Instance;
+            True(!ReferenceEquals(first, second));
+            SingletonLifecycle.Reset();
+            Equal(1, second.Disposals);
+            True(!Resettable.IsCreated);
+            var third = Resettable.Instance;
+            SingletonLifecycle.Shutdown();
+            SingletonLifecycle.Shutdown();
+            SingletonLifecycle.Reset();
+            Equal(1, third.Disposals);
+        });
+        Check("uncreated singleton registration does not create an object during reset or shutdown", () =>
+        {
+            True(!NeverCreated.IsCreated);
+            SingletonLifecycle.Reset();
+            SingletonLifecycle.Shutdown();
+            Equal(0, NeverCreated.Created);
+            Throws<InvalidOperationException>(() =>
+            {
+                _ = NeverCreated.Instance;
+            });
+            SingletonLifecycle.Reset();
+        });
+        Check("configurable singletons automatically dispose and reopen after play reset", () =>
+        {
+            var old = Service.Instance;
+            SingletonLifecycle.Shutdown();
+            True(old.Disposed && !Service.IsCreated);
+            Throws<InvalidOperationException>(() =>
+            {
+                _ = Service.Instance;
+            });
+            SingletonLifecycle.Reset();
+            True(!ReferenceEquals(old, Service.Instance));
+        });
+        Check("registry cleanup continues after failure and cannot construct another service", () =>
+        {
+            var old = ThrowingReset.Instance;
+            var next = Resettable.Instance;
+            SingletonLifecycle.Reset();
+            True(old.Attempted && !ThrowingReset.IsCreated);
+            Equal(1, next.Disposals);
+            True(!NeverCreated.IsCreated);
+        });
+        Check("resetting a retained component calls OnExit once and OnStart on its next use", () =>
+        {
+            Object.ResetTestState();
+            var value = RetainedHook.Instance;
+            int starts = value.Starts;
+            SingletonLifecycle.Reset();
+            Equal(1, value.Exits);
+            True(!RetainedHook.TryGetInstance(out _));
+            True(ReferenceEquals(value, RetainedHook.Instance));
+            Equal(starts + 1, value.Starts);
+            SingletonLifecycle.Shutdown();
+            SingletonLifecycle.Shutdown();
+            Equal(2, value.Exits);
+            SingletonLifecycle.Reset();
+            Equal(2, value.Exits);
+        });
+        Check("module callbacks retain explicit ownership order and registration across runs", () =>
+        {
+            ECS.Ecs.EnsureLifecycleRegistration();
+            ECS.EcsBoundary.Calls.Clear();
+            SingletonLifecycle.Reset();
+            Equal("ids,world,entity,pool", string.Join(",", ECS.EcsBoundary.Calls));
+            ECS.EcsBoundary.Calls.Clear();
+            SingletonLifecycle.Reset();
+            Equal("ids,world,entity,pool", string.Join(",", ECS.EcsBoundary.Calls));
+            SingletonLifecycle.Shutdown();
+            True(ECS.Ecs.IsQuitting);
+            SingletonLifecycle.Reset();
+            True(!ECS.Ecs.IsQuitting);
+        });
         Check("configurable singleton supports private constructors and concurrent acquisition", () =>
         {
             Service.Reset();
@@ -86,6 +166,7 @@ internal static class Program
         });
         Check("cleanup exceptions release the reset gate", () =>
         {
+            _ = Service.Instance;
             Throws<InvalidOperationException>(() => Service.ResetWith(_ => throw new InvalidOperationException("cleanup")));
             True(Service.Instance != null);
         });
@@ -292,6 +373,7 @@ internal static class Program
     {
         try
         {
+            SingletonLifecycle.Reset();
             action();
             passed++;
             Console.WriteLine("PASS " + name);
@@ -332,6 +414,43 @@ internal static class Program
         }
 
         throw new Exception("Expected " + typeof(T).Name);
+    }
+
+    public sealed class RetainedHook : MonoSingleton<RetainedHook>
+    {
+        public int Starts;
+        public int Exits;
+        protected override void OnStart() => Starts++;
+        protected override void OnExit() => Exits++;
+    }
+
+    public sealed class Resettable : Singleton<Resettable>, IDisposable
+    {
+        public int Disposals;
+        public void Dispose() => Disposals++;
+    }
+
+    public sealed class NeverCreated : Singleton<NeverCreated>
+    {
+        public static int Created;
+        public NeverCreated()
+        {
+            Created++;
+        }
+    }
+
+    public sealed class ThrowingReset : Singleton<ThrowingReset>, IDisposable
+    {
+        public bool Attempted;
+        public void Dispose()
+        {
+            Attempted = true;
+            Throws<InvalidOperationException>(() =>
+            {
+                _ = NeverCreated.Instance;
+            });
+            throw new InvalidOperationException("Expected cleanup failure");
+        }
     }
 
     public sealed class Simple : Singleton<Simple>

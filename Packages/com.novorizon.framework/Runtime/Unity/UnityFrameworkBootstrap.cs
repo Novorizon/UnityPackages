@@ -33,14 +33,11 @@ namespace Game.Framework
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
-            ResetGameServices(false);
+            SingletonLifecycle.Reset();
             FrameworkUpdateDriver.Stop();
             GameObjectPool.DisposeAll();
-            TimerManager.Instance.ResetForPlay();
             ReferencePool.ClearAll();
             UnityThread.Reset();
-            MonoSingletonLifecycle.Reset();
-            Event.EventManager.Instance.Clear();
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -55,35 +52,10 @@ namespace Game.Framework
 
         private static void OnQuitting()
         {
-            MonoSingletonLifecycle.Quit();
+            SingletonLifecycle.Shutdown();
             FrameworkUpdateDriver.Stop();
             GameObjectPool.DisposeAll();
-            TimerManager.Instance.ResetForPlay();
             ReferencePool.ClearAll();
-            ResetGameServices(true);
-        }
-
-        private static void ResetGameServices(bool stopping)
-        {
-            try
-            {
-                Scenes.SceneManager.Reset(stopping);
-            }
-            catch (Exception error)
-            {
-                Logger.Exception(error);
-            }
-
-            try
-            {
-                Data.DataManager.Reset(stopping);
-            }
-            catch (Exception error)
-            {
-                Logger.Exception(error);
-            }
-
-            Storage.LocalStorageManager.Reset(stopping);
         }
     }
 }

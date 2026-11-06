@@ -11,6 +11,19 @@ namespace Game.Framework
         private static bool creating;
         private static bool resetting;
         private static bool stopped;
+        static ConfigurableSingleton()
+        {
+            SingletonLifecycle.Register(() => ResetInstance(DisposeValue), () => ResetInstance(DisposeValue, true));
+        }
+
+        private static void DisposeValue(T value)
+        {
+            if (value is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
         public static bool IsCreated
         {
             get
@@ -157,7 +170,7 @@ namespace Game.Framework
 
         private static void EnsureAvailable()
         {
-            if (stopped || resetting)
+            if (stopped || resetting || (instance == null && (SingletonLifecycle.IsResetting || SingletonLifecycle.IsQuitting)))
             {
                 throw new InvalidOperationException("The service is stopping or resetting: " + typeof(T).FullName);
             }

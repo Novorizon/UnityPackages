@@ -62,7 +62,11 @@ public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
         Initialize();
     }
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static GpuAnimatorManager()
+    {
+        SingletonLifecycle.Register(ResetForPlay, order: 100);
+    }
+
     private static void ResetForPlay()
     {
         if (lifetimeOwner != null)

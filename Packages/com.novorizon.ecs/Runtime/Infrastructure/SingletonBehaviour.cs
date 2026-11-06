@@ -13,6 +13,11 @@ namespace ECS
     /// <summary>ECS initialization and update policy on Framework's Unity singleton implementation.</summary>
     public class SingletonBehaviour<T> : MonoSingleton<T> where T : SingletonBehaviour<T>
     {
+        static SingletonBehaviour()
+        {
+            Ecs.EnsureLifecycleRegistration();
+        }
+
         private static T lifetimeOwner;
         private static int sessionEpoch;
         public static bool applicationIsQuitting;

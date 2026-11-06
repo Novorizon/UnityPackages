@@ -1,6 +1,6 @@
 # 发布统一仓库
 
-统一仓库为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.17`。`main` 维护最新源码，发行安装地址使用固定标签。
+统一仓库为 [Novorizon/UnityPackages](https://github.com/Novorizon/UnityPackages)，当前发行标签为 `v0.1.0-preview.18`。`main` 维护最新源码，发行安装地址使用固定标签。
 
 已有维护工作区可按以下方式提交后续发行：
 

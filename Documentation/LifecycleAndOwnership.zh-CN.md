@@ -73,3 +73,13 @@ Framework 的线程、事件和时钟驱动仍由 Framework 管理。
 场景加载器解绑或 Play 重置不会提前释放仍被已加载场景使用的 YooAsset 句柄。YooAsset 自身按 sceneUnloaded 自动释放；关闭过程中迟到但成功的场景加载也遵守相同规则。解绑管理器不等于卸载场景，项目仍需显式管理场景切换。
 
 原生实例持有的资源可以通过 AcquireAsync<T>(..., keepAliveUntilDisposed: true) 声明：普通关闭会等待使用方 Dispose 租约后再释放句柄。GameStarter 的 UI 适配已使用此策略，窗口原生销毁之前 prefab 句柄保持有效。未完成获取会被正常取消，Play 重置仍可强制回收旧运行的租约。
+
+## 单例自动登记
+
+框架的三种单例基类共享 SingletonLifecycle。登记的是静态重置函数，不是某个旧实例的捕获委托；注册表在关闭域重载的多次 Play 之间持续有效。进入 Play 的统一 Unity 回调执行清理与引用重置，Application.quitting 执行退出回调。关闭后再次重置不会重复清理已经退出的组件。
+
+GameEntry 的回调先关闭项目模块和全局服务；ECS 包内部负责世界、实体、池的依赖顺序。Audio/UI/GPU 的少量附加静态状态通过模块登记的后置回调处理。Config/Input 等普通服务依靠基类和 IDisposable，无需逐类添加 RuntimeInitializeOnLoadMethod。资源适配包的重置只处理已创建实例，不会在启动时隐式创建 ResourceManager。
+
+未使用的单例不会因为重置而实例化。清理失败会记录并继续其余回调；清理过程中禁止创建新单例。场景共享操作锁、ECS 组件类型 ID 和用于识别旧对象归属的跟踪表按其原有约定保留，不做全字段清零。
+
+重置不按“字段初值是否为默认值”分类。框架不会对自定义子类静态字段进行默认值扫描或清零。需要恢复的模块状态由模块自己的回调处理；声明与恢复应使用同一常量或工厂，避免修改一处后遗漏另一处。例如 ECS 实体 ID 起点在声明和重置中都引用 InitialEntityGuid。

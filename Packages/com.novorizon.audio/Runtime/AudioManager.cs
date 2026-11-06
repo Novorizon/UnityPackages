@@ -380,7 +380,11 @@ namespace Game.Framework.Audio
             ClearPlayback();
         }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static AudioManager()
+        {
+            SingletonLifecycle.Register(ResetForPlay, order: 100);
+        }
+
         private static void ResetForPlay()
         {
             if (lifetimeOwner != null)

@@ -60,3 +60,13 @@ protected override void OnExit()
 上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。ConfigurableSingleton<T> 同样提供 Release，内部清理 IDisposable 并保留退出保护。
 
 初始化状态和重复释放由组件内部处理。GameStarter 在 OnStart 直接准备服务、在 OnExit 直接释放，不维护 Manager 所有权或跨服务初始化失败回滚。
+
+## 自动单例重置
+
+Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 首次使用时自动登记类型级回调。UnityFrameworkBootstrap 是唯一的 SubsystemRegistration 入口：新一次 Play 开始前先关闭项目入口和有顺序要求的模块，再清理已有实例、重置引用。退出时统一派发已有实例的清理，不会为清理创建对象。
+
+登记表跨 Play 保留；关闭 Domain Reload 后无需业务逐类添加 Unity 启动特性。普通子类无需实现 Reset。普通对象实现 IDisposable，组件使用已有 OnExit；少数额外静态状态由模块显式登记，框架不通过反射猜测字段初值。MonoSingleton 保留场景组件的重启由 OnStart/OnExit 与运行代次共同处理。
+
+SingletonLifecycle.Register(reset, shutdown, order) 面向框架和适配模块，order 较小者先执行。项目入口先于全局服务，ECS 自己保持 World -> Entity -> Pool 的清理顺序；Framework 不引用 ECS、UI、资源等独立包。模块回调不得在清理期间新建单例。全局保护只覆盖单例生命周期，不意味着各服务的业务方法都可跨线程调用。
+
+启动回调只能重置框架掌握的状态，不能安全地自动重置子类的所有 static 字段。配置重载也不需要重建整个管理器。此处的自动重置用于新一次 Unity 运行及退出清理。
