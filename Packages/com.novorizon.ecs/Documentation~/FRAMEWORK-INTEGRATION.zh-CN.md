@@ -9,8 +9,8 @@ ECS 面向 Unity 2022.3，依赖同一发行标签中的 Framework 与 Mathemati
 安装地址：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.24
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.24
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.25
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.25
 ```
 
 自己的 asmdef 引用 ECS、Game.Framework.Core、Game.Framework.Unity，直接使用数学类型时另引用 Unity.Mathematics。QuickStart 已包含所需程序集引用。
@@ -33,4 +33,4 @@ DestroyInstance 会先逻辑退役，再请求 Unity Destroy。TryGetInstance �
 
 ## 验证
 
-在 GameStarter 导入 QuickStart 后进行实际 Unity 编译和 Play，步骤见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Samples.zh-CN.md)。源仓库的旧 Tests~ 工具不在本 UPM 包内，不要求相邻 Framework 工作副本。
+在 GameStarter 导入 QuickStart 后进行实际 Unity 编译和 Play，步骤见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.25/Documentation/Samples.zh-CN.md)。源仓库的旧 Tests~ 工具不在本 UPM 包内，不要求相邻 Framework 工作副本。

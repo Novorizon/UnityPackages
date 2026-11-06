@@ -12,4 +12,4 @@ Unity 2022.3 托管组件框架，使用 `class : IComponent` 保存数据，由
 
 Framework 提供公共单例；实体、组件/系统池、工厂和清理顺序保留在 ECS。World 是共享实体表上的系统执行组，不提供实体隔离、Chunk 或 Burst 查询。
 
-示例可以直接创建 Cube，验证移动、暂停、重启和清理；不需要业务 Prefab 或资源 provider。真实 Unity 编译与验收见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Samples.zh-CN.md)。
+示例可以直接创建 Cube，验证移动、暂停、重启和清理；不需要业务 Prefab 或资源 provider。真实 Unity 编译与验收见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.25/Documentation/Samples.zh-CN.md)。

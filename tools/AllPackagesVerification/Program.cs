@@ -64,6 +64,8 @@ internal static class Program
         Check("migration failure retains the old packages", FailedMigration);
         Check("external packages always use upstream references", ExternalReferences);
         Check("invalid dependency identities are rejected", InvalidCatalog);
+        Check("corrupt persisted state stops safely and explicit retry recovers", CorruptState);
+        Check("lost request handles poll registration at a bounded rate", RegistrationPolling);
         Console.WriteLine($"PASS {passed} aggregate installation scenarios. Unity/UPM are API models; native Unity was not executed.");
     }
 
@@ -129,6 +131,7 @@ internal static class Program
 
     private static void Reload()
     {
+        typeof(AllPackagesInstaller).GetField("nextRegistrationCheck", PrivateStatic).SetValue(null, 0d);
         foreach (string name in new[]
         {
             "catalog",
@@ -177,6 +180,8 @@ internal static class Program
         Client.Reset();
         Debug.Errors.Clear();
         EditorApplication.ExitCode = null;
+        EditorApplication.timeSinceStartup = 0;
+        PackageInfo.RegistrationQueries = 0;
         Setup.Calls = 0;
         Setup.Fail = false;
         Reload();
@@ -206,6 +211,7 @@ internal static class Program
     {
         for (int i = 0; i < 60 && Phase() != "Complete" && Phase() != "Failed"; i++)
         {
+            EditorApplication.timeSinceStartup += .5;
             EditorApplication.TickForTest();
         }
 
@@ -216,6 +222,7 @@ internal static class Program
     {
         for (int i = 0; i < 50 && !condition(); i++)
         {
+            EditorApplication.timeSinceStartup += .5;
             EditorApplication.TickForTest();
         }
 
@@ -440,6 +447,42 @@ internal static class Program
         Equal("Complete", Phase());
         True(!Directory.Exists(Path.Combine(PackageInfo.Owner.resolvedPath, "Payload~")));
     });
+    private static void CorruptState() => InProject(c =>
+    {
+        string path = Path.Combine(Root, "ProjectSettings/NovorizonFrameworkAll.install.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        File.WriteAllText(path, "{truncated");
+        EditorApplication.TickForTest();
+        Equal(0, Client.Adds.Count);
+        True(Debug.Errors.Count > 0);
+        Equal("{truncated", File.ReadAllText(path));
+        AllPackagesInstaller.RetryInstallation();
+        Drain();
+        Equal("Complete", Phase());
+        Equal(1, Client.Adds.Count);
+    });
+
+    private static void RegistrationPolling() => InProject(c =>
+    {
+        Client.HoldAdd = true;
+        Until(() => Client.Adds.Count > 0);
+        Reload();
+        int before = PackageInfo.RegistrationQueries;
+        for (int i = 0; i < 100; i++)
+        {
+            EditorApplication.TickForTest();
+        }
+
+        Equal(1, PackageInfo.RegistrationQueries - before);
+        EditorApplication.timeSinceStartup += 1;
+        EditorApplication.TickForTest();
+        Equal(2, PackageInfo.RegistrationQueries - before);
+        Equal(1, Client.Adds.Count);
+        Client.CompleteAdd();
+        Drain();
+        Equal("Complete", Phase());
+    });
+
     private static void InvalidCatalog()
     {
         var c = new PackageCatalog

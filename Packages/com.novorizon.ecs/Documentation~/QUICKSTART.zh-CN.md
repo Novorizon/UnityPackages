@@ -7,8 +7,8 @@
 在 Unity 的 **Window → Package Manager → + → Add package from git URL** 添加：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.24
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.24
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.25
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.25
 ```
 
 上面使用固定发行标签。本地开发可 Add package from disk，选择 Packages/com.novorizon.ecs/package.json；同时声明 Framework 和 Mathematics 来源。
@@ -55,4 +55,4 @@ system.EntityId = entityId;
 
 ## 验证范围
 
-Import 后编译示例，在真实 Unity Play 中检查移动、暂停、重启和退出；未导入的 Samples~ 不参与编译。完整流程见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Samples.zh-CN.md)。
+Import 后编译示例，在真实 Unity Play 中检查移动、暂停、重启和退出；未导入的 Samples~ 不参与编译。完整流程见仓库 [Demo 索引](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.25/Documentation/Samples.zh-CN.md)。

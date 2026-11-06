@@ -5,10 +5,10 @@
 Package Manager → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.24
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.25
 ```
 
-也可安装导出的单个 `com.novorizon.framework.all-0.1.0-preview.12.tgz`。聚合包只包含 Editor 安装器与依赖目录，不捆绑其他包源码、tarball 或 Payload~。安装需要 Git 和正常网络访问。
+也可安装导出的单个 `com.novorizon.framework.all-0.1.0-preview.24.tgz`。聚合包只包含 Editor 安装器与依赖目录，不捆绑其他包源码、tarball 或 Payload~。安装需要 Git 和正常网络访问。
 
 ## 依赖声明
 
@@ -24,6 +24,8 @@ Odin Inspector 插件由项目自行提供；缺少 Odin 不影响 Ability 运�
 
 安装进度保存在使用方 ProjectSettings/NovorizonFrameworkAll.install.json，跨重编译和重启恢复。失败后先修复 Console/UPM 错误，再使用 Tools/Novorizon/All Packages/Retry Installation。已经安装的包保留。
 
+状态文件 JSON 损坏时，自动安装停止并保留文件内容；Retry Installation 会重新建立状态。重编译丢失 UPM 请求句柄后，安装器每半秒检查一次注册结果，避免每个 Editor update 都创建包列表快照。
+
 ## 验证
 
-20 组安装 API 模型验证覆盖批量依赖、请求恢复、失败重试、旧包迁移及第三方必须使用上游来源。没有执行真实 Unity/UPM/IL2CPP 或设备验收。维护说明见 [Development.md](Documentation~/Development.md)。
+22 组安装 API 模型验证覆盖批量依赖、请求恢复、失败重试、损坏状态恢复、注册查询频率、旧包迁移及第三方必须使用上游来源。没有执行真实 Unity/UPM/IL2CPP 或设备验收。维护说明见 [Development.md](Documentation~/Development.md)。

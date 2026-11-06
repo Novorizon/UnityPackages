@@ -75,6 +75,8 @@ await UnityThread.RunAsync(() => transform.localScale = Vector3.one, token);
 
 Reset 属于宿主切换/退出，会废弃队列并取消等待型操作；普通页面不重置全局派发器。
 
+回调内执行 Reset 并初始化新宿主后，当前批次立即结束。新宿主提交的工作由其自己的 SynchronizationContext 或下一次手动 Update 派发，旧批次不会继续消费新会话的队列。
+
 ## 独立 .NET 宿主
 
 在选定线程 InitializeManual，再由该线程周期调用 UnityThread.Update。已有宿主不能在不同线程或上下文重复绑定；先结束旧任务并 Reset。手动派发不自动驱动计时器，后者见 [Timing](Timing.md)。正常 Unity 使用自动方式，不混用手动推进。

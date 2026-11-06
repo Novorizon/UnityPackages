@@ -78,4 +78,4 @@ TCP v2 使用 28 字节 little-endian 头，包含魔数、版本、消息号、
 
 连接状态、取消、超时、重连和释放由统一仓库 tools/FrameworkServicesVerification/Network.Tests 回归。协议消息、认证、玩家数据和存档 API 放在业务工程，不随 Framework 发布。
 
-实际 Unity 编译与平台网络行为见仓库[验证范围](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.24/Documentation/Validation.md)。
+实际 Unity 编译与平台网络行为见仓库[验证范围](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.25/Documentation/Validation.md)。

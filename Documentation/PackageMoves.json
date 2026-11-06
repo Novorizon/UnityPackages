@@ -187,8 +187,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "reason": "Retain current demos, remove game-specific content, use independent resource leases and apply Allman control blocks.",
-      "sha256": "4f854bffc9bbd57d0ba2ae9a8e64f87ea3c1c80e4975813052f602b9a060d2da"
+      "sha256": "3ba03b35127688c1ced9d6c830175400603f3681ef912b15bea0a241248114d6",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
       "sha256": "3802f2893865efecea430d18fbb806ff502013cef6801313f6b7040cd3ae0a64",
@@ -283,8 +283,8 @@
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "c9324a7346451b82516bf00087cf54d7a5057cc7b2722aa2f388b9feedbcb437",
-      "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
+      "sha256": "7956b6cf08b2075ab8ca01ef6cea55da6ea57effe15ab0c1b706419eed30f5dc",
+      "reason": "Preserve corrupt install-state JSON until explicit retry and retain a recoverable failure state; bound registration polling after lost UPM request handles to once per half-second."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
       "sha256": "5c29b9366e8780baee1e1a7c618abc7cb3d14bad0349ddf662a051afffce80bb",
@@ -465,6 +465,26 @@
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/FrameworkDemo.cs": {
       "reason": "Retain current demos, remove game-specific content, use independent resource leases and apply Allman control blocks.",
       "sha256": "8e4b2deb656f6e371e7abbec9b091abc54883516afe62f2193465ae1ebef6dac"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/MainMenuPage.cs": {
+      "sha256": "15fa83afbf5182dd5a501090be9361cde522e763da3bc3be62b055bee8121da1",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/ScopedPageExample.cs": {
+      "sha256": "f4b24af033a06765d733bce17df825fca063b4c6434f76f43a0bd2356afd7554",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SettingsPopup.cs": {
+      "sha256": "976f76d0a49c5336df27b9d4c5cf2b727be769ee3bd554b1699c056749cf95e7",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Example/Scripts/SidePanel.cs": {
+      "sha256": "a9c67def93f67a6b49694e02e8c136c3c1d1e6d9c27098b5908fed11e8bf9dc9",
+      "reason": "Rename UI entry to UIManager and apply braced control statements"
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
+      "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",
+      "reason": "Bind each dispatch batch to its original host so callbacks that reset and initialize a replacement host cannot consume the new session queue; preserve the prewarmed allocation-free path."
     }
   }
 }

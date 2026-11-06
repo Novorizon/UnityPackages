@@ -7,7 +7,7 @@ Unity 2022.3 的 Built-in GPU 骨骼动画包。烘焙器将动画写入纹理�
 先安装同一发行标签的 Framework，或直接使用 framework.all。独立包地址：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.24
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.25
 ```
 
 在 GpuSkinning → Baker 执行 Validate 再 Bake。加载同一套 prefab、Mesh、材质、动画纹理和 bytes，解析数据后注入：
