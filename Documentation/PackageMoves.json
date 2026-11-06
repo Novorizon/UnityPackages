@@ -309,8 +309,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
-      "sha256": "97521eee81976da5685915b873f9d486c9b97b126db8870e33d5361d59ea935c",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "f512bbf2ef5a4eae038d7985cba10be09876436ce48a1fa48d648fe6d3b2bf98",
+      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
     },
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
       "sha256": "b0bfd07a36a96f845bde97f9e7b2b6f68ab34ce6470e7cdb1ccd94d1a94d9c86",
@@ -471,6 +471,10 @@
     "Packages/com.novorizon.framework/Runtime/Core/EditorStaticReset.cs": {
       "sha256": "45a0ae7e38e509c25ad98def43f2eacdef9a29ad495cc24202907abe9c53f949",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs": {
+      "sha256": "c052244876b7070dd39b4a56c74be1d80d2ae38e02a48b5a920b65be0a54e31c",
+      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
     }
   }
 }

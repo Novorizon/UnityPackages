@@ -62,6 +62,7 @@
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",
+    "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs",
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs",

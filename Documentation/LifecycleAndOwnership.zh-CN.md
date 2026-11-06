@@ -83,3 +83,8 @@ Framework 内置 Source Generator 从 partial 单例子类的声明生成静态�
 关闭 Scene Reload 不意味着要覆盖实例配置。音频/UI/GPU 使用 OnExit 释放运行资源、OnStart 重新启动；音量、速度、自定义加载器等实例配置保留。场景共享操作锁、ECS 组件类型 ID 等基础设施按原有生命周期约定处理。
 
 完整规则见 [StaticReset.md](../Packages/com.novorizon.framework/Documentation~/StaticReset.md)。
+
+
+## Unity 计时器驱动与服务释放
+
+FrameworkUpdateDriver 的安装和每帧更新只查询已有 TimerManager，不会在游戏入口 Release 后自动重建服务。业务显式创建新的 TimerManager 后，驱动在下一次更新补齐尚未绑定的 Unity 时钟；使用该实例已经流逝的时间作为起点，保留排队任务的剩余时长。时钟只补绑一次，显式 UseClocks 的自定义提供方不被覆盖。缩放与非缩放时钟独立推进。
