@@ -24,7 +24,13 @@ namespace Game.Framework.HotUpdate
         public bool IsReady { get; private set; }
         public bool Failed { get; private set; }
 
-        /// <summary>由 GameEntry 在基础服务就绪后显式调用；不会自动启动或创建 GameObject。</summary>
+        /// <summary>此服务需要异步加载，调用方应等待 InitializeAsync 完成。</summary>
+        public override void Initialize()
+        {
+            throw new InvalidOperationException("Use and await InitializeAsync to initialize HotUpdateManager.");
+        }
+
+        /// <summary>由 GameEntry 显式调用；加载程序集后进入 HotGame.InitializeAsync，不自动创建 GameObject。</summary>
         public Task InitializeAsync(UpdateSettings settings = null, CancellationToken token = default)
         {
             if (disposed)

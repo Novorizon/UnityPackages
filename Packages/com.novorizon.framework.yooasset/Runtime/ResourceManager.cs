@@ -79,6 +79,12 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>此服务需要异步加载，调用方应等待 InitializeAsync 完成。</summary>
+        public override void Initialize()
+        {
+            throw new InvalidOperationException("Use and await InitializeAsync to initialize ResourceManager.");
+        }
+
         public Task<bool> InitializeAsync()
         {
             MainThread();

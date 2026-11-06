@@ -127,3 +127,6 @@ Framework 0.10.0-preview.2 起，派生类重写 `protected override void OnStar
 `Singleton<T>` 保持原有 Lazy 无参创建行为。需要工厂配置和运行重置的服务可继承 `ConfigurableSingleton<T>`：派生类用 GetOrCreateInstance 提供默认工厂，用 ConfigureInstance 在首次取实例前配置服务，用 ResetInstance 显式清理并重置，用 ReleaseInstance 按实例身份清除引用。基类提供 IsCreated 和 TryGetInstance，查询不会创建对象。
 
 ResetInstance 在锁外清理旧实例，清理期间拒绝创建；stopping=true 阻止退出时重新创建，显式重置后可开始新的运行。网络参数、认证与连接仍由 NetworkManager 校验和处理，NetworkManager 已复用此基类。
+
+
+单例基类提供无参 virtual Initialize，用于在项目入口集中显式准备服务。有实际无参初始化逻辑时 override；需要参数时新增重载，并可让无参 override 委托到默认参数配置。这个入口不重新调用 MonoSingleton.OnStart，也不代替需要 await 的异步初始化。

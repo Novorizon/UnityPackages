@@ -38,6 +38,7 @@
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs",
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Initialization.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",

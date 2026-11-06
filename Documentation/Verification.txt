@@ -1,4 +1,4 @@
-UnityPackages generated static reset integration: v0.1.0-preview.19
+UnityPackages common initialization entry: v0.1.0-preview.20
 
 Toolchain: .NET SDK 8.0.427; generator targets netstandard2.0 and Roslyn 3.8.0.
 Native Unity Editor / IL2CPP / device execution: NOT performed.
@@ -9,18 +9,17 @@ PASS 23 generator scenarios using actual Framework Core: declaration changes, pr
      arrays, auto properties, readonly collections, events, partial aliases, closed generics, nested types,
      repeated resets, late registration, diagnostics, cleanup order, and Player exclusion.
 PASS 38 singleton/network/GPU scheduling scenarios in both Player and Editor compilation models.
-PASS 59 service scenarios in Player mode; 61 in Editor mode, including actual bootstrap option gating
+PASS 62 service scenarios in Player mode; 64 in Editor mode, including actual bootstrap option gating
      and retained audio configuration. Uses official Luban CLI/runtime; Unity/Input System/YooAsset are models.
 PASS 183 UI tests, including retained-root restart via lifecycle cleanup and generated static restoration.
-PASS 24 TCP/network tests on isolated rerun. The 500 ms queued-cancellation test timed out once while
-     other compilation was active; transport code and the test threshold were unchanged.
+PASS 24 TCP/network tests; transport code and test thresholds were unchanged.
 PASS 12 explicit hot-update scenarios and separate Runtime / Editor / Player compilation.
 PASS 20 aggregate installation scenarios.
 PASS RTree correctness and spatial differential/invariant suites.
 PASS Ability public API contracts; editor codec 22, reference preflight 25, sandbox 16,
      workspace 28, and Editor UI compilation with Odin disabled.
-PASS additional local ECS harness: 92/92 checks linked to current package runtime sources and final generator;
-     includes GUID restart, late async callbacks, lifecycle ordering, entities, systems and pooling.
+PASS common Initialize dispatch reaches real default Config/Scene/Input setup through singleton base references;
+     parameterized Input setup and asynchronous resource initialization guards remain effective.
 PASS standalone GameStarter: 48 lifecycle / startup / installation scenarios using Framework source and shipped analyzer.
 
 The normal CI entry remains `python3 tools/workspace.py verify`; it now rebuilds/checks the shipped

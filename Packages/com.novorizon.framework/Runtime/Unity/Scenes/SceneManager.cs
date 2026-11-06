@@ -27,6 +27,11 @@ namespace Game.Framework.Scenes
             ResetInstance(value => value.Dispose(), stopping);
         }
 
+        public override void Initialize()
+        {
+            Initialize((ISceneLoader)null);
+        }
+
         /// <summary>加载器交由管理器持有；实现 IDisposable 时随管理器一起释放。</summary>
         public void Initialize(ISceneLoader sceneLoader = null)
         {

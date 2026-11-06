@@ -70,3 +70,9 @@ Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加
 进入 Play 时判断编辑器的 Domain Reload 选项：关闭时执行静态恢复，开启时交给 Unity/CLR。Player 不生成这些编辑器成员。关闭 Scene Reload 时不强制覆盖保留组件的实例配置，OnStart/OnExit 负责正常启动和释放。
 
 支持范围、readonly 规则、诊断和生成器维护见 [静态重置](Documentation~/StaticReset.md)。
+
+## 统一初始化入口
+
+三种单例基类都提供 `public virtual void Initialize()`。EventManager、TimerManager 等实例创建后即可使用的服务，可以显式调用 `XxxManager.Instance.Initialize()`，让入口里的初始化顺序保持一致。MonoSingleton 的 OnStart/OnExit 生命周期不因这次显式调用而重复执行。
+
+同签名的无参 Initialize 使用 override；带参数的 Initialize 是正常重载。Input、Scene、Storage、Config 的无参 override 会转到各自默认参数配置，带参重载保留具体配置逻辑与命名参数兼容。ResourceManager 和 HotUpdateManager 需要等待异步加载，仍使用 InitializeAsync；调用其同步 Initialize 会明确提示等待异步方法，不能将服务误判为已初始化。

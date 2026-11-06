@@ -83,7 +83,7 @@ namespace Game.Framework.Audio
             Initialize();
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             MainThread();
             initialized = true;
