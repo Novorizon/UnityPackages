@@ -12,7 +12,7 @@ public sealed class NetworkLifecycleTests
     {
         AutoReconnect = false,
         HeartbeatIntervalMilliseconds = 0,
-        RequestTimeoutMilliseconds = 100,
+        RequestTimeoutMilliseconds = 5000,
         AuthenticationTimeoutMilliseconds = 2000
     };
     [Fact]
@@ -68,7 +68,9 @@ public sealed class NetworkLifecycleTests
     public async Task RequestTimeoutRemovesPendingAndLateResponseCannotCompleteANewRequest()
     {
         using var peer = new FakePeer();
-        await using var client = new NetworkManager(peer.Options, Options());
+        var options = Options();
+        options.RequestTimeoutMilliseconds = 100;
+        await using var client = new NetworkManager(peer.Options, options);
         await client.ConnectAsync();
         using var socket = await peer.AcceptAsync();
         var first = client.RequestAsync<Int32Value>(50, new Int32Value());
@@ -90,7 +92,9 @@ public sealed class NetworkLifecycleTests
         {
             HoldSends = true
         };
-        await using var client = new NetworkManager(transport, Options());
+        var options = Options();
+        options.RequestTimeoutMilliseconds = 100;
+        await using var client = new NetworkManager(transport, options);
         await client.ConnectAsync();
         await Assert.ThrowsAsync<TimeoutException>(() => client.RequestAsync<Int32Value>(50, new Int32Value()).WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.Equal(0, client.PendingRequestCount);
