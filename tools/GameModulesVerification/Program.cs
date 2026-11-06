@@ -543,6 +543,49 @@ internal static partial class Program
             Equal(0, resources.OwnedAssetCount);
             True(!resources.Initialized);
         });
+        Run("resource initialization waits for its own pending release without entry bookkeeping", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Complete(resources.InitializeAsync());
+            var loading = Gate<bool>();
+            YooAssets.Package.AssetGate = loading.Task;
+            var late = resources.AcquireAsync<TextAsset>("late release");
+            ResourceManager.Release();
+            var restarting = resources.InitializeAsync();
+            True(!restarting.IsCompleted);
+            Fails<OperationCanceledException>(late);
+            loading.SetResult(true);
+            True(Complete(restarting));
+            True(resources.Initialized);
+            Equal(0, resources.OwnedAssetCount);
+        });
+        Run("protected leases keep native consumers alive until they finish their own cleanup", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Complete(resources.InitializeAsync());
+            var lease = Complete(resources.AcquireAsync<TextAsset>("native consumer", keepAliveUntilDisposed: true));
+            var stopping = resources.ShutdownAsync();
+            True(!stopping.IsCompleted && lease.IsValid);
+            Equal(0, YooAssets.Package.Assets[0].ReleaseCount);
+            var restarting = resources.InitializeAsync();
+            True(!restarting.IsCompleted);
+            lease.Dispose();
+            Complete(stopping);
+            True(Complete(restarting));
+            Equal(1, YooAssets.Package.Assets[0].ReleaseCount);
+        });
+        Run("play reset can retire protected leases without an old shutdown clearing the new play", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Complete(resources.InitializeAsync());
+            var lease = Complete(resources.AcquireAsync<TextAsset>("old native", keepAliveUntilDisposed: true));
+            var stopping = resources.ShutdownAsync();
+            True(!stopping.IsCompleted);
+            typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
+            True(Complete(resources.InitializeAsync()));
+            Complete(stopping);
+            True(resources.Initialized && !lease.IsValid);
+        });
         Run("failed or incorrectly typed acquisitions release their own handles", () =>
         {
             var resources = ResourceManager.Instance;

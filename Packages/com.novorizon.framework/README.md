@@ -40,3 +40,23 @@ UI 包依赖 Framework 与 uGUI，以 IUIAssetLoader 对接任意资源系统；
 音频 `com.novorizon.audio` 和配置 `com.novorizon.config` 是依赖 Framework 的独立包，可通过 framework.all 一起安装。
 
 网络 StateChanged 提供派发后的状态通知。ConnectAsync 的取消只停止当前调用方等待，DisconnectAsync/DisposeAsync 才停止共享连接与重连。请求超时覆盖发送和响应，迟到响应不能污染后续请求，业务请求不自动重放。断开异常不跳过传输层释放。
+
+## 单例启停
+
+MonoSingleton<T> 的 OnStart 在一次运行中只执行一次，OnExit 负责对应的退出清理。重复访问 Instance 不重复启动；Dispose、Release、Unity 销毁或退出共用同一退出钩子。
+
+```csharp
+protected override void OnStart()
+{
+    LocalStorageManager.Instance.Initialize();
+}
+
+protected override void OnExit()
+{
+    LocalStorageManager.Release();
+}
+```
+
+上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。ConfigurableSingleton<T> 同样提供 Release，内部清理 IDisposable 并保留退出保护。
+
+初始化状态和重复释放由组件内部处理。GameStarter 在 OnStart 直接准备服务、在 OnExit 直接释放，不维护 Manager 所有权或跨服务初始化失败回滚。

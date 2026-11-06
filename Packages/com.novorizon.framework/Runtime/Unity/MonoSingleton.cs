@@ -8,24 +8,56 @@ namespace Game.Framework
 {
     internal static class MonoSingletonLifecycle
     {
-        private static readonly object gate = new object();
+        private static readonly object gate = new object ();
         private static readonly List<Action> resets = new List<Action>();
         private static int quitting;
+        private static int epoch;
         internal static bool IsQuitting => Volatile.Read(ref quitting) != 0;
-        internal static void Register(Action reset) { lock (gate) resets.Add(reset); }
+        internal static int Epoch => Volatile.Read(ref epoch);
+
+        internal static void Register(Action reset)
+        {
+            lock (gate)
+            {
+                resets.Add(reset);
+            }
+        }
+
         internal static void Reset()
         {
             Volatile.Write(ref quitting, 0);
-            Action[] snapshot; lock (gate) snapshot = resets.ToArray();
-            foreach (var reset in snapshot) reset();
+            Interlocked.Increment(ref epoch);
+            Action[] snapshot;
+            lock (gate)
+            {
+                snapshot = resets.ToArray();
+            }
+
+            foreach (var reset in snapshot)
+            {
+                reset();
+            }
         }
-        internal static void Quit() { Volatile.Write(ref quitting, 1); }
+
+        internal static void Quit()
+        {
+            Volatile.Write(ref quitting, 1);
+        }
     }
-    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
+
+    public abstract class MonoSingleton<T> : MonoBehaviour, IDisposable where T : MonoSingleton<T>
     {
         private static T instance;
+        private static bool ending;
         private bool retired;
-        static MonoSingleton() { MonoSingletonLifecycle.Register(() => instance = null); }
+        private bool lifetimeStarted;
+        private bool lifetimeEnded;
+        private int lifetimeEpoch = -1;
+        static MonoSingleton()
+        {
+            MonoSingletonLifecycle.Register(() => instance = null);
+        }
+
         public virtual string RootName => typeof(T).Name;
         protected bool IsDestroying => retired;
 
@@ -33,17 +65,39 @@ namespace Game.Framework
         {
             get
             {
-                if (MonoSingletonLifecycle.IsQuitting) return null;
-                if (!UnityThread.IsMainThread) throw new InvalidOperationException("MonoSingleton instances must be accessed on the initialized Unity main thread.");
-                if (TryGetInstance(out var current)) return Prepare(current);
+                if (MonoSingletonLifecycle.IsQuitting || ending)
+                {
+                    return null;
+                }
+
+                if (!UnityThread.IsMainThread)
+                {
+                    throw new InvalidOperationException("MonoSingleton instances must be accessed on the initialized Unity main thread.");
+                }
+
+                if (TryGetInstance(out var current))
+                {
+                    return Prepare(current);
+                }
 
                 T found = null;
                 foreach (var candidate in FindObjectsOfType<T>(true))
                 {
-                    if (candidate.retired) continue;
-                    if (found == null) found = candidate;
-                    else candidate.RejectDuplicate(found);
+                    if (candidate.retired)
+                    {
+                        continue;
+                    }
+
+                    if (found == null)
+                    {
+                        found = candidate;
+                    }
+                    else
+                    {
+                        candidate.RejectDuplicate(found);
+                    }
                 }
+
                 if (found != null)
                 {
                     instance = found;
@@ -54,11 +108,19 @@ namespace Game.Framework
                 try
                 {
                     var created = go.AddComponent<T>();
-                    if (created.retired) throw new ObjectDisposedException(typeof(T).FullName);
+                    if (created.retired)
+                    {
+                        throw new ObjectDisposedException(typeof(T).FullName);
+                    }
+
                     instance = created;
                     return Prepare(created);
                 }
-                catch { Destroy(go); throw; }
+                catch
+                {
+                    Destroy(go);
+                    throw;
+                }
             }
         }
 
@@ -72,24 +134,66 @@ namespace Game.Framework
         /// <summary>Retires the reference immediately, including while native Destroy is deferred.</summary>
         public static void DestroyInstance()
         {
-            if (!TryGetInstance(out var current)) return;
-            current.RetireSingleton();
-            Destroy(current.gameObject);
+            if (!TryGetInstance(out var current))
+            {
+                return;
+            }
+
+            current.Dispose();
+        }
+
+        /// <summary>释放已有实例，不通过 Instance 创建或初始化组件。</summary>
+        public static void Release() => DestroyInstance();
+        public void Dispose()
+        {
+            if (retired)
+            {
+                return;
+            }
+
+            RetireSingleton();
+            try
+            {
+                EndLifetime();
+            }
+            finally
+            {
+                Destroy(gameObject);
+            }
         }
 
         private static T Prepare(T value)
         {
             try
             {
-                value.OnStart();
-                if (value.retired || MonoSingletonLifecycle.IsQuitting) throw new ObjectDisposedException(typeof(T).FullName);
-                if (value.transform.parent == null) DontDestroyOnLoad(value.gameObject);
+                if (value.lifetimeEpoch != MonoSingletonLifecycle.Epoch)
+                {
+                    value.lifetimeEpoch = MonoSingletonLifecycle.Epoch;
+                    value.lifetimeStarted = false;
+                    value.lifetimeEnded = false;
+                }
+
+                if (!value.lifetimeStarted)
+                {
+                    value.lifetimeStarted = true;
+                    value.OnStart();
+                }
+
+                if (value.retired || MonoSingletonLifecycle.IsQuitting)
+                {
+                    throw new ObjectDisposedException(typeof(T).FullName);
+                }
+
+                if (value.transform.parent == null)
+                {
+                    DontDestroyOnLoad(value.gameObject);
+                }
+
                 return value;
             }
             catch
             {
-                value.RetireSingleton();
-                Destroy(value.gameObject);
+                value.Dispose();
                 throw;
             }
         }
@@ -101,24 +205,96 @@ namespace Game.Framework
         }
 
         // Domain-specific initialization and cleanup remain in the component using this base.
-        protected virtual void OnStart() { }
-        protected virtual void OnDuplicateInstance(T existing) { Destroy(gameObject); }
-        protected static void ResetSingletonReference() { instance = null; }
+        protected virtual void OnStart()
+        {
+        }
+
+        /// <summary>与 OnStart 对应的清理钩子；同次运行只调用一次。</summary>
+        protected virtual void OnExit()
+        {
+        }
+
+        protected void EndLifetime()
+        {
+            if (!lifetimeStarted || lifetimeEnded)
+            {
+                return;
+            }
+
+            lifetimeEnded = true;
+            ending = true;
+            try
+            {
+                OnExit();
+            }
+            catch (Exception error)
+            {
+                Logger.Exception(error);
+            }
+            finally
+            {
+                ending = false;
+            }
+        }
+
+        protected virtual void OnDuplicateInstance(T existing)
+        {
+            Destroy(gameObject);
+        }
+
+        protected static void ResetSingletonReference()
+        {
+            if (instance != null)
+            {
+                instance.lifetimeStarted = false;
+                instance.lifetimeEnded = false;
+            }
+
+            instance = null;
+        }
+
         protected void RetireSingleton()
         {
             retired = true;
-            if (ReferenceEquals(instance, this)) instance = null;
+            if (ReferenceEquals(instance, this))
+            {
+                instance = null;
+            }
         }
 
         protected virtual void Awake()
         {
-            if (retired || MonoSingletonLifecycle.IsQuitting) { RetireSingleton(); Destroy(gameObject); return; }
-            if (instance != null && instance != this) { RejectDuplicate(instance); return; }
+            if (retired || MonoSingletonLifecycle.IsQuitting)
+            {
+                RetireSingleton();
+                Destroy(gameObject);
+                return;
+            }
+
+            if (instance != null && instance != this)
+            {
+                RejectDuplicate(instance);
+                return;
+            }
+
             instance = (T)this;
             Prepare((T)this);
-            if (transform.parent != null) Logger.Warn("MonoSingleton should be placed on a root GameObject: " + typeof(T).Name);
+            if (transform.parent != null)
+            {
+                Logger.Warn("MonoSingleton should be placed on a root GameObject: " + typeof(T).Name);
+            }
         }
-        protected virtual void OnApplicationQuit() { MonoSingletonLifecycle.Quit(); }
-        protected virtual void OnDestroy() { RetireSingleton(); }
+
+        protected virtual void OnApplicationQuit()
+        {
+            MonoSingletonLifecycle.Quit();
+            EndLifetime();
+        }
+
+        protected virtual void OnDestroy()
+        {
+            RetireSingleton();
+            EndLifetime();
+        }
     }
 }

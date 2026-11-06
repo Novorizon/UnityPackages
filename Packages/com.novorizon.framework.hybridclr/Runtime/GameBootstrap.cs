@@ -25,7 +25,11 @@ namespace Game.Framework.HotUpdate
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
-            if (sessionOwner != null) sessionOwner.CloseSession();
+            if (sessionOwner != null)
+            {
+                sessionOwner.CloseSession();
+            }
+
             sessionOwner = null;
             ResetSingletonReference();
             Status = "Starting";
@@ -37,14 +41,24 @@ namespace Game.Framework.HotUpdate
         {
             try
             {
-                if (Resources.Load<TextAsset>(UpdateSettings.ResourceName) && UpdateSettings.Load().autoStart) _ = Instance;
+                if (Resources.Load<TextAsset>(UpdateSettings.ResourceName) && UpdateSettings.Load().autoStart)
+                {
+                    _ = Instance;
+                }
             }
-            catch (Exception exception) { FailStartup(exception); }
+            catch (Exception exception)
+            {
+                FailStartup(exception);
+            }
         }
 
         protected override void OnStart()
         {
-            if (lifetime != null) return;
+            if (lifetime != null)
+            {
+                return;
+            }
+
             sessionOwner = this;
             ready = initializationReturned = startupClosed = moduleStopped = false;
             module = null;
@@ -69,18 +83,26 @@ namespace Game.Framework.HotUpdate
                 using (var preparation = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
                 {
                     preparation.CancelAfter(TimeSpan.FromSeconds(settings.prepareTimeoutSeconds));
-                    try { release = await new UpdateCoordinator(settings, Log).Prepare(preparation.Token); }
+                    try
+                    {
+                        release = await new UpdateCoordinator(settings, Log).Prepare(preparation.Token);
+                    }
                     catch (OperationCanceledException) when (!stopToken.IsCancellationRequested)
-                    { throw new TimeoutException("Content preparation exceeded its time budget."); }
+                    {
+                        throw new TimeoutException("Content preparation exceeded its time budget.");
+                    }
                 }
+
                 stopToken.ThrowIfCancellationRequested();
                 for (int i = 0; i < release.AotMetadata.Length; i++)
                 {
                     var code = RuntimeApi.LoadMetadataForAOTAssembly(release.AotMetadata[i], HomologousImageMode.SuperSet);
                     if (code != LoadImageErrorCode.OK)
-                        throw new InvalidOperationException("AOT metadata load failed: "
-                            + release.Manifest.aotMetadata[i].assemblyName + " / " + code);
+                    {
+                        throw new InvalidOperationException("AOT metadata load failed: " + release.Manifest.aotMetadata[i].assemblyName + " / " + code);
+                    }
                 }
+
                 release.AotMetadata = null;
                 // Never attempt an in-process fallback once metadata or managed code has been loaded.
                 Assembly assembly = null;
@@ -88,16 +110,35 @@ namespace Game.Framework.HotUpdate
                 {
                     var expectedName = release.Manifest.assemblies[i].assemblyName;
                     if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == expectedName))
+                    {
                         throw new InvalidOperationException("Hot update assembly already loaded: " + expectedName);
+                    }
+
                     var loaded = Assembly.Load(release.Assemblies[i]);
-                    if (loaded.GetName().Name != expectedName) throw new InvalidOperationException("Unexpected assembly identity.");
-                    if (expectedName == settings.entryAssembly) assembly = loaded;
+                    if (loaded.GetName().Name != expectedName)
+                    {
+                        throw new InvalidOperationException("Unexpected assembly identity.");
+                    }
+
+                    if (expectedName == settings.entryAssembly)
+                    {
+                        assembly = loaded;
+                    }
                 }
+
                 release.Assemblies = null;
 #endif
-                if (assembly == null) throw new InvalidOperationException("Entry assembly was not found: " + settings.entryAssembly);
+                if (assembly == null)
+                {
+                    throw new InvalidOperationException("Entry assembly was not found: " + settings.entryAssembly);
+                }
+
                 Type entry = assembly.GetType(settings.entryType, true);
-                if (!typeof(IGameModule).IsAssignableFrom(entry)) throw new InvalidOperationException("Incompatible game module contract.");
+                if (!typeof(IGameModule).IsAssignableFrom(entry))
+                {
+                    throw new InvalidOperationException("Incompatible game module contract.");
+                }
+
                 module = (IGameModule)Activator.CreateInstance(entry);
                 using (var startup = CancellationTokenSource.CreateLinkedTokenSource(stopToken))
                 {
@@ -109,36 +150,67 @@ namespace Game.Framework.HotUpdate
                         stopToken.ThrowIfCancellationRequested();
                         throw new TimeoutException("Game initialization exceeded its time budget.");
                     }
+
                     await initialize;
                     startup.Cancel();
                 }
+
                 stopToken.ThrowIfCancellationRequested();
                 initializationReturned = true;
-                if (!ready) throw new InvalidOperationException("Game module did not acknowledge startup health.");
+                if (!ready)
+                {
+                    throw new InvalidOperationException("Game module did not acknowledge startup health.");
+                }
+
                 stopToken.ThrowIfCancellationRequested();
-                if (release?.Id != null) release.Cache.MarkHealthy(release.Id, release.Manifest.version > release.AcceptedVersion);
+                if (release?.Id != null)
+                {
+                    release.Cache.MarkHealthy(release.Id, release.Manifest.version > release.AcceptedVersion);
+                }
+
                 release?.Cache?.Dispose();
                 startupClosed = true;
                 Status = "Ready / " + moduleVersion;
                 Log("STARTUP_OK " + moduleVersion);
-                if (Application.isBatchMode && !Application.isEditor) Application.Quit(0);
+                if (Application.isBatchMode && !Application.isEditor)
+                {
+                    Application.Quit(0);
+                }
             }
             catch (OperationCanceledException) when (stopToken.IsCancellationRequested)
-            { release?.Cache?.Dispose(); if (ReferenceEquals(lifetime, session)) startupClosed = true; }
+            {
+                release?.Cache?.Dispose();
+                if (ReferenceEquals(lifetime, session))
+                {
+                    startupClosed = true;
+                }
+            }
             catch (Exception exception)
             {
-                if (!ReferenceEquals(lifetime, session)) { release?.Cache?.Dispose(); return; }
+                if (!ReferenceEquals(lifetime, session))
+                {
+                    release?.Cache?.Dispose();
+                    return;
+                }
+
                 startupClosed = true;
                 StopModule();
                 if (release?.Id != null)
                 {
-                    try { release.Cache.Reject(release.Id, exception.Message); }
-                    catch (Exception cacheError) { Debug.LogException(cacheError); }
+                    try
+                    {
+                        release.Cache.Reject(release.Id, exception.Message);
+                    }
+                    catch (Exception cacheError)
+                    {
+                        Debug.LogException(cacheError);
+                    }
                 }
+
                 release?.Cache?.Dispose();
                 startupClosed = true;
                 FailStartup(exception);
-                // The next process can safely choose another release; this process cannot unload its code.
+            // The next process can safely choose another release; this process cannot unload its code.
             }
         }
 
@@ -147,35 +219,64 @@ namespace Game.Framework.HotUpdate
             Failed = true;
             Status = "Startup failed. Please restart the game.";
             Debug.LogException(exception);
-            if (Application.isBatchMode && !Application.isEditor) Application.Quit(1);
+            if (Application.isBatchMode && !Application.isEditor)
+            {
+                Application.Quit(1);
+            }
         }
 
-        public void Log(string message) { Debug.Log("[Startup] " + message); }
+        public void Log(string message)
+        {
+            Debug.Log("[Startup] " + message);
+        }
+
         private sealed class SessionHost : IGameHost
         {
             private readonly GameBootstrap owner;
             private readonly CancellationTokenSource session;
-            internal SessionHost(GameBootstrap owner, CancellationTokenSource session) { this.owner = owner; this.session = session; }
-            public void Log(string message) { if (ReferenceEquals(owner.lifetime, session)) owner.Log(message); }
+            internal SessionHost(GameBootstrap owner, CancellationTokenSource session)
+            {
+                this.owner = owner;
+                this.session = session;
+            }
+
+            public void Log(string message)
+            {
+                if (ReferenceEquals(owner.lifetime, session))
+                {
+                    owner.Log(message);
+                }
+            }
+
             public void ReportReady(string version)
             {
-                if (!ReferenceEquals(owner.lifetime, session)) throw new InvalidOperationException("Startup session has ended.");
+                if (!ReferenceEquals(owner.lifetime, session))
+                {
+                    throw new InvalidOperationException("Startup session has ended.");
+                }
+
                 owner.ReportReady(version);
             }
         }
+
         public void ReportReady(string version)
         {
             if (ready || initializationReturned || startupClosed || lifetime == null || lifetime.IsCancellationRequested || string.IsNullOrWhiteSpace(version))
+            {
                 throw new InvalidOperationException("Invalid startup acknowledgement.");
+            }
+
             ready = true;
             moduleVersion = version;
         }
 
-        protected override void OnDestroy()
+        protected override void OnExit()
         {
             CloseSession();
-            if (ReferenceEquals(sessionOwner, this)) sessionOwner = null;
-            base.OnDestroy();
+            if (ReferenceEquals(sessionOwner, this))
+            {
+                sessionOwner = null;
+            }
         }
 
         private void CloseSession()
@@ -189,10 +290,20 @@ namespace Game.Framework.HotUpdate
 
         private void StopModule()
         {
-            if (moduleStopped) return;
+            if (moduleStopped)
+            {
+                return;
+            }
+
             moduleStopped = true;
-            try { module?.Shutdown(); }
-            catch (Exception exception) { Debug.LogException(exception); }
+            try
+            {
+                module?.Shutdown();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
         }
     }
 }

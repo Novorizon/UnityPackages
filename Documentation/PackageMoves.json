@@ -63,8 +63,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "598418ec08ab3173203fb8e8ee37268ae3afc936c9b002575b6a1dcaf676ec04",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "093d0f6d73f53cefa43edd2f2e44e33563e2145370b63cc40c6e2624c0b87a4d",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -115,8 +115,8 @@
       "reason": "Reset and stop scene, data and local storage services alongside Framework lifecycle; apply required control-statement formatting"
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "1c6649db3b699463ab90e3d9ad13cf830e38611e764eed7a2156443d734935db",
-      "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
+      "sha256": "42e8e013954c0b387b4ea647d21a91c0d1ec30ef6e583664dcbaeb7ac810dcd8",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
@@ -151,12 +151,36 @@
       "reason": "Add handle-controlled volume fades and fade-out recycling."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
-      "sha256": "84efe098ba64649108ad1a38ef4d86c10cf67860df296dd64e459c1d81df9576",
-      "reason": "Reuse managed voices, route AudioMixer groups and drive fades through one tick."
+      "sha256": "876dba679a052e0392f76626a4a95eecd1bb79a0a00c5a1ae2738a1db222df7f",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     },
     "Packages/com.novorizon.config/Runtime/ConfigManager.cs": {
       "sha256": "eb0616c3fc43327cd7a62d215738f8afb99e1b4510b186a43854f4efc8169ed1",
       "reason": "Support binary configuration loaders and generated Luban snapshot lifecycle."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
+      "sha256": "cda4b292c832126ec767558f04e6f3c8e44747c6b552b85e8de9ef21a3b2dfa7",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs": {
+      "sha256": "b078797b1f097021443c6107e575550b265683dadb14cc6ee187c1ee442ad6b5",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/ConfigurableSingleton.cs": {
+      "sha256": "df3f8005d20d59e6246f30b5101e7dda5cbf398667e83b4fe636f557e98032c4",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
+      "sha256": "651092aec8a56b6e606b8a101b872a8487dc71446d08ab2f7b7f7ca43186ee6e",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
+      "sha256": "39a48a903f73a2159f8637bedd49251883634d45d2c8c3874bd1b1196412653a",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
+      "sha256": "798e86e5e0f0eba2e1ad33d16322bb8a87152e85a95afc8ae43e0f25df4184f6",
+      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
     }
   }
 }

@@ -21,13 +21,20 @@ namespace ECS
         private bool initializationAttempted;
         private bool deleted;
         private Exception initializationError;
-
         public new static T Instance
         {
             get
             {
-                if (sessionEpoch != SingletonRuntimeState.SessionEpoch) ResetForNewSession();
-                if (applicationIsQuitting || SingletonRuntimeState.IsQuitting) return null;
+                if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
+                {
+                    ResetForNewSession();
+                }
+
+                if (applicationIsQuitting || SingletonRuntimeState.IsQuitting)
+                {
+                    return null;
+                }
+
                 return MonoSingleton<T>.Instance;
             }
         }
@@ -40,7 +47,11 @@ namespace ECS
 
         protected override void Awake()
         {
-            if (sessionEpoch != SingletonRuntimeState.SessionEpoch) ResetForNewSession();
+            if (sessionEpoch != SingletonRuntimeState.SessionEpoch)
+            {
+                ResetForNewSession();
+            }
+
             base.Awake();
         }
 
@@ -57,17 +68,31 @@ namespace ECS
 
         private void EnsureInitialized()
         {
-            if (IsDestroying) throw new ObjectDisposedException(typeof(T).FullName);
-            if (initialized || initializing) return;
+            if (IsDestroying)
+            {
+                throw new ObjectDisposedException(typeof(T).FullName);
+            }
+
+            if (initialized || initializing)
+            {
+                return;
+            }
+
             if (initializationError != null)
+            {
                 throw new InvalidOperationException("ECS singleton initialization previously failed: " + typeof(T).FullName, initializationError);
+            }
+
             initializing = true;
             initializationAttempted = true;
             try
             {
                 OnInitialized();
                 if (IsDestroying || deleted || applicationIsQuitting || SingletonRuntimeState.IsQuitting)
+                {
                     throw new ObjectDisposedException(typeof(T).FullName, "The singleton stopped during initialization.");
+                }
+
                 initialized = true;
             }
             catch (Exception error)
@@ -75,7 +100,10 @@ namespace ECS
                 initializationError = error;
                 throw;
             }
-            finally { initializing = false; }
+            finally
+            {
+                initializing = false;
+            }
         }
 
         protected override void OnApplicationQuit()
@@ -85,16 +113,28 @@ namespace ECS
             base.OnApplicationQuit();
         }
 
-        protected override void OnDestroy()
+        protected override void OnExit()
         {
-            RetireSingleton();
-            try { DeleteOnce(); }
-            finally { if (ReferenceEquals(lifetimeOwner, this)) lifetimeOwner = null; base.OnDestroy(); }
+            try
+            {
+                DeleteOnce();
+            }
+            finally
+            {
+                if (IsDestroying && ReferenceEquals(lifetimeOwner, this))
+                {
+                    lifetimeOwner = null;
+                }
+            }
         }
 
         private void DeleteOnce()
         {
-            if (deleted || !initializationAttempted) return;
+            if (deleted || !initializationAttempted)
+            {
+                return;
+            }
+
             deleted = true;
             OnDelete();
         }
@@ -108,7 +148,11 @@ namespace ECS
             bool cleanupSucceeded = false;
             try
             {
-                if (old != null) old.DeleteOnce();
+                if (old != null)
+                {
+                    old.DeleteOnce();
+                }
+
                 cleanupSucceeded = true;
             }
             finally
@@ -119,22 +163,64 @@ namespace ECS
                     old.initializing = false;
                     old.initializationAttempted = false;
                     old.initializationError = null;
-                    if (cleanupSucceeded) old.deleted = false;
-                    else old.RetireSingleton();
+                    if (cleanupSucceeded)
+                    {
+                        old.deleted = false;
+                    }
+                    else
+                    {
+                        old.RetireSingleton();
+                    }
                 }
+
                 lifetimeOwner = null;
                 ResetSingletonReference();
                 applicationIsQuitting = false;
             }
         }
 
-        public enum UpdateMode { FIXED_UPDATE, UPDATE, LATE_UPDATE }
+        public enum UpdateMode
+        {
+            FIXED_UPDATE,
+            UPDATE,
+            LATE_UPDATE
+        }
+
         public UpdateMode updateMode = UpdateMode.UPDATE;
-        private void Update() { if (initialized && !IsDestroying && updateMode == UpdateMode.UPDATE) OnUpdate(Time.deltaTime); }
-        private void FixedUpdate() { if (initialized && !IsDestroying && updateMode == UpdateMode.FIXED_UPDATE) OnUpdate(Time.fixedDeltaTime); }
-        private void LateUpdate() { if (initialized && !IsDestroying && updateMode == UpdateMode.LATE_UPDATE) OnUpdate(Time.deltaTime); }
-        protected virtual void OnInitialized() { }
-        protected virtual void OnDelete() { }
-        protected virtual void OnUpdate(float delta) { }
+        private void Update()
+        {
+            if (initialized && !IsDestroying && updateMode == UpdateMode.UPDATE)
+            {
+                OnUpdate(Time.deltaTime);
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if (initialized && !IsDestroying && updateMode == UpdateMode.FIXED_UPDATE)
+            {
+                OnUpdate(Time.fixedDeltaTime);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (initialized && !IsDestroying && updateMode == UpdateMode.LATE_UPDATE)
+            {
+                OnUpdate(Time.deltaTime);
+            }
+        }
+
+        protected virtual void OnInitialized()
+        {
+        }
+
+        protected virtual void OnDelete()
+        {
+        }
+
+        protected virtual void OnUpdate(float delta)
+        {
+        }
     }
 }

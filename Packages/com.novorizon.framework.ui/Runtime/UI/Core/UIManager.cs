@@ -187,6 +187,7 @@ namespace UI
                 if (lifetimeOwner != null)
                 {
                     lifetimeOwner.Shutdown();
+                    lifetimeOwner.destroyed = false;
                     lifetimeOwner.loader = new ResourcesAssetLoader();
                     lifetimeOwner.explicitCamera = null;
                 }
@@ -219,6 +220,7 @@ namespace UI
                 // 允许通过 Instance 重复等待关闭；不能在关闭期间隐式重新初始化。
                 return;
             }
+
             Initialize();
         }
 
@@ -554,7 +556,7 @@ namespace UI
             return shutdownCompletion;
         }
 
-        protected override void OnDestroy()
+        protected override void OnExit()
         {
             destroyed = true;
             try
@@ -563,12 +565,10 @@ namespace UI
             }
             finally
             {
-                if (ReferenceEquals(lifetimeOwner, this))
+                if (IsDestroying && ReferenceEquals(lifetimeOwner, this))
                 {
                     lifetimeOwner = null;
                 }
-
-                base.OnDestroy();
             }
         }
 

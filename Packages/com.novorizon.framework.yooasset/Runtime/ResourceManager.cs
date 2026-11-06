@@ -71,7 +71,7 @@ namespace Game.Resource
             MainThread();
             if (shuttingDown)
             {
-                throw new InvalidOperationException("Resource manager is shutting down.");
+                return InitializeAfterShutdownAsync(shutdown);
             }
 
             if (initialized)
@@ -85,6 +85,12 @@ namespace Game.Resource
             }
 
             return initialization;
+        }
+
+        private async Task<bool> InitializeAfterShutdownAsync(Task previous)
+        {
+            await previous;
+            return await InitializeAsync();
         }
 
         public async Task InitializeAsync(Action<bool> callback)
@@ -412,7 +418,6 @@ namespace Game.Resource
                 if (load.Invalidated)
                 {
                     YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-
                     return;
                 }
 
@@ -432,7 +437,6 @@ namespace Game.Resource
                 }
 
                 YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-
                 load.Result.TrySetException(error);
             }
         }
@@ -570,6 +574,15 @@ namespace Game.Resource
             shutdown = null;
         }
 
+        /// <summary>入口退出时发起内部清理；不创建尚未使用的资源管理器。</summary>
+        public static void Release()
+        {
+            if (IsCreated)
+            {
+                Instance.ShutdownAsync().Forget();
+            }
+        }
+
         public Task ShutdownAsync()
         {
             MainThread();
@@ -578,7 +591,23 @@ namespace Game.Resource
                 return shutdown;
             }
 
-            return shutdown = ShutdownCoreAsync();
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            shutdown = completion.Task;
+            CompleteShutdownAsync(completion).Forget();
+            return shutdown;
+        }
+
+        private async Task CompleteShutdownAsync(TaskCompletionSource<bool> completion)
+        {
+            try
+            {
+                await ShutdownCoreAsync();
+                completion.TrySetResult(true);
+            }
+            catch (Exception error)
+            {
+                completion.TrySetException(error);
+            }
         }
 
         private static async Task RetireSceneHandleAsync(SceneHandle handle)
@@ -587,6 +616,7 @@ namespace Game.Resource
             {
                 return;
             }
+
             try
             {
                 await handle.Task;
@@ -594,6 +624,7 @@ namespace Game.Resource
             catch
             {
             }
+
             YooAssetSceneLoader.ReleaseIfSceneUnloaded(handle);
         }
 
@@ -653,13 +684,16 @@ namespace Game.Resource
                     try
                     {
                         ReleaseAllAssets();
-                        await ReleaseOwnedAssetsAsync();
+                        await ReleaseOwnedAssetsAsync(respectOwner: true);
                     }
                     finally
                     {
-                        initialized = false;
-                        initialization = null;
-                        shuttingDown = false;
+                        if (startedGeneration == generation)
+                        {
+                            initialized = false;
+                            initialization = null;
+                            shuttingDown = false;
+                        }
                     }
                 }
             }

@@ -5,13 +5,11 @@
   "importedFilesChecked": 820,
   "externalHistoricalFilesOmitted": 1818,
   "unchangedRuntimeAndAssetFiles": false,
-  "runtimeSymbolRenames": [
-    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs",
-    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs",
-    "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs"
-  ],
+  "runtimeSymbolRenames": [],
   "approvedSourceChanges": [
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs",
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs",
+    "Packages/com.novorizon.framework.hybridclr/Runtime/GameBootstrap.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
@@ -32,6 +30,7 @@
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",
+    "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs"
   ],
   "updatedDocumentation": [

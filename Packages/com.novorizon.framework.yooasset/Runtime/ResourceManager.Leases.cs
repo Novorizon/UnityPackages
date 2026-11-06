@@ -20,13 +20,15 @@ namespace Game.Resource
             internal Action InvalidateLease;
             internal Task ReleaseTask;
             internal bool Invalidated;
+            internal bool KeepAliveUntilDisposed;
+            internal readonly TaskCompletionSource<bool> OwnerReleased = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         private readonly HashSet<OwnedAsset> ownedAssets = new HashSet<OwnedAsset>();
         /// <summary>包含尚未结束的原生加载和等待释放的句柄。</summary>
         public int OwnedAssetCount => ownedAssets.Count;
 
-        public async Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default)
+        public async Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default, bool keepAliveUntilDisposed = false)
             where T : UnityEngine.Object
         {
             Ready();
@@ -36,7 +38,8 @@ namespace Game.Resource
             var owned = new OwnedAsset
             {
                 Handle = handle,
-                Loading = handle.Task
+                Loading = handle.Task,
+                KeepAliveUntilDisposed = keepAliveUntilDisposed
             };
             ownedAssets.Add(owned);
             try
@@ -77,6 +80,7 @@ namespace Game.Resource
 
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             owned.ReleaseTask = completion.Task;
+            owned.OwnerReleased.TrySetResult(true);
             _ = owned.ReleaseTask.ContinueWith(task =>
             {
                 _ = task.Exception;
@@ -121,13 +125,27 @@ namespace Game.Resource
             }
         }
 
-        private Task ReleaseOwnedAssetsAsync()
+        private async Task WaitForOwnedReleaseAsync(OwnedAsset owned, bool respectOwner)
+        {
+            // 原生实例仍在使用资源时，由持有者在实例销毁后归还租约。
+            if (respectOwner && owned.KeepAliveUntilDisposed && owned.InvalidateLease != null && owned.ReleaseTask == null)
+            {
+                await owned.OwnerReleased.Task;
+            }
+            else
+            {
+                ReleaseOwned(owned);
+            }
+
+            await owned.ReleaseTask;
+        }
+
+        private Task ReleaseOwnedAssetsAsync(bool respectOwner = false)
         {
             var releases = new List<Task>();
             foreach (var owned in new List<OwnedAsset>(ownedAssets))
             {
-                ReleaseOwned(owned);
-                releases.Add(owned.ReleaseTask);
+                releases.Add(WaitForOwnedReleaseAsync(owned, respectOwner));
             }
 
             return Task.WhenAll(releases);

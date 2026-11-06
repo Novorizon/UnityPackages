@@ -246,15 +246,15 @@ public sealed class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
         }
     }
 
-    protected override void OnDestroy()
+    protected override void OnExit()
     {
-        base.OnDestroy();
-        if (ReferenceEquals(lifetimeOwner, this))
+        if (IsDestroying && ReferenceEquals(lifetimeOwner, this))
         {
             lifetimeOwner = null;
         }
 
         registered.Clear();
+        initialized = false;
         // 事件回调中销毁 Manager 时，Tick 的 finally 会负责清理数组。
         if (!ticking)
         {

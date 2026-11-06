@@ -60,14 +60,16 @@ ConnectAsync(token) 的 token 仅取消该调用方的等待。多个调用方�
 
 ## GameEntry
 
-初始化顺序仍在 InitializeManagersAsync 中显式编写。初始化或取得本次拥有的服务时登记释放操作；资源初始化中途失败也获得清理机会。已由外部初始化的服务只借用，不由入口销毁。
+GameEntry 的 OnStart 按顺序直接初始化公共 Manager，OnExit 停止启动模块并逐项调用 Release。StartupModule 与 GameSession 保留；入口不再记录 Manager 所有权，不区分借用实例，不执行跨 Manager 的初始化失败回滚。
 
-关闭、模块初始化失败、公共 Manager 失败或模块 Tick 失败时：先停止并清理 StartupModule，再按相反顺序释放本入口拥有的网络、ECS、GPU、UI、配置、音频、场景、存储、数据和资源。某一步失败记录日志，继续后续清理。
+MonoSingleton 提供成对的 OnStart/OnExit，每次运行各调用一次。重复访问 Instance 不重复启动；Dispose、Release、原生销毁和退出回调共用同一清理钩子。重复清理、部分初始化资源清理和错误记录在组件内部处理。Release 只操作已有实例，退出时不创建新 Manager；ConfigurableSingleton.Release 保留既有退出保护。
 
-await GameEntry.ShutdownAsync() 可以等待完整清理。UI 与 ECS/GPU 原生对象销毁完成前保留依赖资源；新入口等待上一入口的异步清理，防止旧清理污染新资源。Framework 的线程、事件和时钟驱动由 Framework 持有，入口不重复创建或停止它们。
+GameEntry.ShutdownAsync 保留兼容入口，发起 OnExit 后返回；不再汇总等待所有 Manager 的异步清理。UI 的窗口销毁和 prefab 租约释放、ResourceManager 的迟到获取及句柄释放均在各包内部继续完成。资源管理器在关闭期间收到 InitializeAsync 时，内部等待上次关闭；业务入口不维护清理任务队列。需要显式等待某个服务完成时，使用它自己的 ShutdownAsync。
 
-主动退出游戏时，应先等待 ShutdownAsync，再调用 Application.Quit。Unity 的 OnDestroy/OnApplicationQuit 只能发起异步清理，不能阻塞等待后续帧；强制结束进程不能保证执行异步退出流程。
+Framework 的线程、事件和时钟驱动仍由 Framework 管理。
 
 本次改动涉及 AOT 公开接口；使用 HybridCLR 的已有游戏需要重新构建主包，不能只导出热更 DLL。原生 Unity 导入、实际场景/音频和 IL2CPP 仍需在目标工程验收。
 
 场景加载器解绑或 Play 重置不会提前释放仍被已加载场景使用的 YooAsset 句柄。YooAsset 自身按 sceneUnloaded 自动释放；关闭过程中迟到但成功的场景加载也遵守相同规则。解绑管理器不等于卸载场景，项目仍需显式管理场景切换。
+
+原生实例持有的资源可以通过 AcquireAsync<T>(..., keepAliveUntilDisposed: true) 声明：普通关闭会等待使用方 Dispose 租约后再释放句柄。GameStarter 的 UI 适配已使用此策略，窗口原生销毁之前 prefab 句柄保持有效。未完成获取会被正常取消，Play 重置仍可强制回收旧运行的租约。

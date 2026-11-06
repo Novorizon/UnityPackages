@@ -90,6 +90,96 @@ internal static class Program
             True(Service.Instance != null);
         });
         Check("NetworkManager uses the Framework configurable singleton", NetworkLifecycle);
+        Check("Release never creates a configurable service and preserves the quit guard", () =>
+        {
+            Service.Reset();
+            int created = Service.Created;
+            ConfigurableSingleton<Service>.Release();
+            Equal(created, Service.Created);
+            var value = Service.Instance;
+            ConfigurableSingleton<Service>.Release();
+            True(value.Disposed && !Service.IsCreated);
+            Service.Reset(stopping: true);
+            ConfigurableSingleton<Service>.Release();
+            Throws<InvalidOperationException>(() =>
+            {
+                _ = Service.Instance;
+            });
+            Service.Reset();
+        });
+        Check("MonoSingleton OnExit runs once across release and deferred native destruction", () =>
+        {
+            Object.ResetTestState();
+            ExitHook.Exits = 0;
+            ExitHook.Release();
+            Equal(0, Object.FindObjectsOfType<ExitHook>().Length);
+            var value = ExitHook.Instance;
+            Object.DeferGameObjectDestructionForTest = true;
+            ExitHook.Release();
+            Equal(1, ExitHook.Exits);
+            True(!ExitHook.TryGetInstance(out _));
+            value.Dispose();
+            Object.FlushDestroyQueueForTest();
+            Equal(1, ExitHook.Exits);
+            Object.DeferGameObjectDestructionForTest = false;
+        });
+        Check("MonoSingleton starts once per run even when Instance is accessed repeatedly", () =>
+        {
+            Object.ResetTestState();
+            ExitHook.Starts = 0;
+            var value = ExitHook.Instance;
+            for (int i = 0; i < 10; i++)
+            {
+                True(ReferenceEquals(value, ExitHook.Instance));
+            }
+
+            Equal(1, ExitHook.Starts);
+            value.Dispose();
+        });
+        Check("duplicate components cannot run the active singleton's exit hook", () =>
+        {
+            Object.ResetTestState();
+            ExitHook.Exits = 0;
+            var active = ExitHook.Instance;
+            new GameObject("duplicate").AddComponent<ExitHook>();
+            Equal(0, ExitHook.Exits);
+            True(ReferenceEquals(active, ExitHook.Instance));
+            active.Dispose();
+            Equal(1, ExitHook.Exits);
+        });
+        Check("quit and subsequent destruction share the same OnExit invocation", () =>
+        {
+            Object.ResetTestState();
+            ExitHook.Exits = 0;
+            var value = ExitHook.Instance;
+            typeof(ExitHook).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(value, null);
+            Equal(1, ExitHook.Exits);
+            True(ExitHook.Instance == null);
+            ExitHook.Release();
+            Equal(1, ExitHook.Exits);
+        });
+        Check("failed component startup cleans only its own lifetime inside the singleton", () =>
+        {
+            Object.ResetTestState();
+            FailingExitHook.Exits = 0;
+            Throws<Exception>(() =>
+            {
+                _ = FailingExitHook.Instance;
+            });
+            Equal(1, FailingExitHook.Exits);
+            True(!FailingExitHook.TryGetInstance(out _));
+        });
+        Check("ECS releases its initialized state through OnExit exactly once", () =>
+        {
+            Object.ResetTestState();
+            ECS.SingletonRuntimeState.IsQuitting = false;
+            EcsExitHook.Exits = 0;
+            var value = EcsExitHook.Instance;
+            EcsExitHook.Release();
+            value.Dispose();
+            Equal(1, EcsExitHook.Exits);
+            True(!EcsExitHook.TryGetInstance(out _));
+        });
         Check("network stop and restart reuse the generic lifecycle", () =>
         {
             ResetNetwork(true);
@@ -246,6 +336,27 @@ internal static class Program
 
     public sealed class Simple : Singleton<Simple>
     {
+    }
+
+    public sealed class ExitHook : MonoSingleton<ExitHook>
+    {
+        public static int Exits;
+        public static int Starts;
+        protected override void OnStart() => Starts++;
+        protected override void OnExit() => Exits++;
+    }
+
+    public sealed class FailingExitHook : MonoSingleton<FailingExitHook>
+    {
+        public static int Exits;
+        protected override void OnStart() => throw new InvalidOperationException("startup failed");
+        protected override void OnExit() => Exits++;
+    }
+
+    public sealed class EcsExitHook : ECS.SingletonBehaviour<EcsExitHook>
+    {
+        public static int Exits;
+        protected override void OnDelete() => Exits++;
     }
 
     private sealed class Service : ConfigurableSingleton<Service>, IDisposable
