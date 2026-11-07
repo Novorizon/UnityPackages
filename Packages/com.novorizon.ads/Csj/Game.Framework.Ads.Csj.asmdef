@@ -1,0 +1,15 @@
+{
+  "name": "Game.Framework.Ads.Csj",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Ads"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_CSJ"
+  ]
+}

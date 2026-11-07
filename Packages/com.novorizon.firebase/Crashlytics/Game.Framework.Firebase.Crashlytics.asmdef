@@ -1,0 +1,21 @@
+{
+  "name": "Game.Framework.Firebase.Crashlytics",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Firebase",
+    "Game.Framework.Firebase.App"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Firebase.App.dll",
+    "Firebase.Platform.dll",
+    "Firebase.Crashlytics.dll"
+  ],
+  "defineConstraints": [
+    "NOVORIZON_FIREBASE_APP",
+    "NOVORIZON_FIREBASE_CRASHLYTICS"
+  ]
+}

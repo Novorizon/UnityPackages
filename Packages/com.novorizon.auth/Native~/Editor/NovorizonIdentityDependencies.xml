@@ -1,0 +1,10 @@
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="androidx.credentials:credentials:1.5.0" />
+    <androidPackage spec="androidx.credentials:credentials-play-services-auth:1.5.0" />
+    <androidPackage spec="com.google.android.libraries.identity.googleid:googleid:1.1.1" />
+  </androidPackages>
+  <iosPods>
+    <iosPod name="GoogleSignIn" version="10.1.0" minTargetSdk="15.0" />
+  </iosPods>
+</dependencies>

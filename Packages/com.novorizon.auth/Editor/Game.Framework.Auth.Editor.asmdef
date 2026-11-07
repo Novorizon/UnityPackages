@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.Auth.Editor",
+  "rootNamespace": "Game.Framework",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

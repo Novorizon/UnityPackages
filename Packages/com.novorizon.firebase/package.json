@@ -1,0 +1,14 @@
+{
+  "name": "com.novorizon.firebase",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Firebase",
+  "description": "Optional Firebase Analytics, Crashlytics, Remote Config, Messaging and Auth adapters.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8",
+    "com.novorizon.auth": "0.1.0-preview.1"
+  }
+}

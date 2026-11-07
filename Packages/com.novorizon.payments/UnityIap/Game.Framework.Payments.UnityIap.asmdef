@@ -1,0 +1,23 @@
+{
+  "name": "Game.Framework.Payments.UnityIap",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Payments",
+    "Unity.Purchasing"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_UNITY_IAP_5"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.purchasing",
+      "expression": "[5.5.0,6.0.0)",
+      "define": "NOVORIZON_UNITY_IAP_5"
+    }
+  ]
+}

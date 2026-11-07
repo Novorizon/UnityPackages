@@ -1,0 +1,10 @@
+{
+  "name": "Novorizon.PlatformSdk.PlayMode",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Ads",
+    "Game.Framework.Ads.AppLovin",
+    "MaxSdk.Scripts"
+  ],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

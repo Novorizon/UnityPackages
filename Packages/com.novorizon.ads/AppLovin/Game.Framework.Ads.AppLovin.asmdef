@@ -1,0 +1,16 @@
+{
+  "name": "Game.Framework.Ads.AppLovin",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Ads",
+    "MaxSdk.Scripts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_MAX"
+  ]
+}

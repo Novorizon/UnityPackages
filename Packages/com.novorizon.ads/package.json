@@ -1,0 +1,14 @@
+{
+  "name": "com.novorizon.ads",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Ads",
+  "description": "Optional AppLovin MAX and domestic ByteDance CSJ rewarded/interstitial adapters.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8",
+    "com.unity.modules.androidjni": "1.0.0"
+  }
+}

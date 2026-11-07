@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.35`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.36`。
 
 ## 包与职责
 
@@ -21,6 +21,10 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 | com.novorizon.input | Input System、Map、设备、屏蔽与重绑定 |
 | com.novorizon.audio | 音源池、分组、渐变、音乐交叉渐变与 Mixer 路由 |
 | com.novorizon.data | Luban 生成、二进制表加载与查询 |
+| com.novorizon.auth | Apple / Google 原生身份、Facebook、登录与账号绑定契约 |
+| com.novorizon.payments | App Store / Google Play 内购，验单发货后确认订单 |
+| com.novorizon.ads | AppLovin MAX / 国内穿山甲，激励视频与全屏插屏 |
+| com.novorizon.firebase | 按需启用 Analytics、Crashlytics、Remote Config、FCM、Auth |
 | com.novorizon.framework.all | 全部包的聚合安装入口 |
 
 官方 HybridCLR、YooAsset、Luban 通过依赖声明和官方 Git 来源解析，不保存在本包仓库。Framework 不反向依赖这些功能包；ECS 与 Ability 独立。详见[架构](Documentation/Architecture.zh-CN.md)。
@@ -30,7 +34,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.35
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.36
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -41,6 +45,7 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 
 - [Demo 索引](Documentation/Samples.zh-CN.md)：每个示例的入口、前置资源和验收目标。
 - [游戏基础服务](Documentation/GameServices.zh-CN.md)：场景、音频、输入、Luban 和存储。
+- [平台服务接入](Documentation/PlatformServices.zh-CN.md)：内购、国内穿山甲 / MAX、Firebase、Apple / Google / Facebook 登录绑定。
 - [生命周期与资源所有权](Documentation/LifecycleAndOwnership.zh-CN.md)。
 - [Package 正确性与性能审查](Documentation/PackageAudit.zh-CN.md)：已修问题、量测结果和设备边界。
 - [静态字段恢复](Packages/com.novorizon.framework/Documentation~/StaticReset.md)。
@@ -60,6 +65,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.36
+
+- 新增四个可独立安装的平台服务包；外部商业 SDK 不随 all 自动导入。
+- 支付确认、广告奖励、账号绑定与取消后的原生弹窗所有权有独立行为验证。安装、SDK 版本和真机边界见[平台服务接入](Documentation/PlatformServices.zh-CN.md)。
+- 29 个平台核心行为用例、65 EditMode + 36 PlayMode 通过；另用官方 MAX Editor 验证迟到 / 重复 / 跨展示奖励。真实 SDK 的移动 C# 分支及 Android Java 桥接编译通过，Xcode / 真机 / 商店沙盒验收待项目配置。
 
 ## v0.1.0-preview.35
 

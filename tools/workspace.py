@@ -79,6 +79,7 @@ def validate():
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
         'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
         'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp', 'com.novorizon.story',
+        'com.novorizon.auth', 'com.novorizon.payments', 'com.novorizon.ads', 'com.novorizon.firebase',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -142,6 +143,10 @@ def validate():
         'Audio': 'com.novorizon.audio/Runtime/Game.Framework.Audio.asmdef',
         'Data': 'com.novorizon.data/Runtime/Game.Framework.Data.asmdef',
         'Input': 'com.novorizon.input/Runtime/Game.Framework.Input.asmdef',
+        'PlatformAuth': 'com.novorizon.auth/Runtime/Game.Framework.Auth.asmdef',
+        'PlatformPayments': 'com.novorizon.payments/Runtime/Game.Framework.Payments.asmdef',
+        'PlatformAds': 'com.novorizon.ads/Runtime/Game.Framework.Ads.asmdef',
+        'PlatformFirebase': 'com.novorizon.firebase/Runtime/Game.Framework.Firebase.asmdef',
         'Resources': 'com.novorizon.framework.yooasset/Runtime/Game.Framework.Resources.YooAsset.asmdef',
     }
     model_root = ROOT / 'tools/GameModulesVerification'
@@ -158,7 +163,8 @@ def validate():
         assert references == set(definition.get('references', [])), (project, 'Verification direct references differ from Unity asmdef')
 
     for model, asmdef in module_models.items():
-        check_assembly_model(model_root / model / (model + '.csproj'), asmdef)
+        project = (ROOT / 'tools/PlatformServicesVerification' / model[8:] / (model[8:] + '.csproj')) if model.startswith('Platform') else model_root / model / (model + '.csproj')
+        check_assembly_model(project, asmdef)
     hot_models = ROOT / 'tools/HotUpdateVerification'
     assert ET.parse(hot_models / 'Directory.Build.props').getroot().findtext('.//DisableTransitiveProjectReferences') == 'true'
     for model in ['Runtime', 'Editor']:
@@ -233,6 +239,7 @@ def verify(dotnet):
             ('FeatureVerification', 'FeatureVerification'),
             ('LocalizationSetupVerification', 'LocalizationSetupVerification'),
             ('StoryVerification', 'StoryVerification'),
+            ('PlatformServicesVerification', 'PlatformServicesVerification'),
             ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'),
             ('RTreeCorrectness', 'Correctness'),
             ('RTreeSpatialCorrectness', 'SpatialCorrectness'),

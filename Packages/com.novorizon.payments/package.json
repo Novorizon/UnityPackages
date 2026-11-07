@@ -1,0 +1,13 @@
+{
+  "name": "com.novorizon.payments",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Payments",
+  "description": "Apple App Store and Google Play IAP with server verification before confirmation.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8"
+  }
+}

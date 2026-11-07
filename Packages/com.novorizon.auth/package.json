@@ -1,0 +1,14 @@
+{
+  "name": "com.novorizon.auth",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Auth",
+  "description": "Native Apple/Google and optional Facebook identity adapters with account linking contracts.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8",
+    "com.unity.modules.androidjni": "1.0.0"
+  }
+}
