@@ -27,19 +27,17 @@ def main():
     for directory in [managed, managed / 'UnityEngine', cache]:
         for file in directory.glob('Unity*.dll'):
             references[file.stem] = file
-    core = ROOT / 'tools/FrameworkServicesVerification/Core/bin/Release/netstandard2.1/Game.Framework.Core.dll'
-    localization = ROOT / 'tools/FeatureVerification/Localization/bin/Release/netstandard2.1/Game.Framework.Localization.dll'
-    if not core.exists() or not localization.exists():
-        raise RuntimeError('Run workspace verification first to build Core and Localization.')
     modules = [
-        ('Game.Framework.Unity', 'com.novorizon.framework/Runtime/Unity', []),
-        ('Game.Framework.UI', 'com.novorizon.framework.ui/Runtime', ['Game.Framework.Unity']),
-        ('Game.Framework.Localization.UGUI', 'com.novorizon.localization/Runtime/UGUI', []),
+        ('Game.Framework.Core', 'com.novorizon.framework/Runtime/Core', []),
+        ('Game.Framework.Unity', 'com.novorizon.framework/Runtime/Unity', ['Game.Framework.Core']),
+        ('Game.Framework.UI', 'com.novorizon.framework.ui/Runtime', ['Game.Framework.Unity', 'Game.Framework.Core']),
+        ('Game.Framework.Localization', 'com.novorizon.localization/Runtime', ['Game.Framework.Core']),
+        ('Game.Framework.Localization.UGUI', 'com.novorizon.localization/Runtime/UGUI', ['Game.Framework.Localization', 'Game.Framework.Core']),
         ('Game.Framework.Data.Editor', 'com.novorizon.data/Editor', []),
         ('Game.Framework.Localization.Luban.Editor', 'com.novorizon.localization/Editor', ['Game.Framework.Data.Editor']),
         ('Game.Framework.Diagnostics.Editor', 'com.novorizon.diagnostics/Editor', []),
-        ('GpuAnimator', 'com.novorizon.gpuanimator/Runtime', ['Game.Framework.Unity']),
-        ('GpuAnimator.Editor', 'com.novorizon.gpuanimator/Editor', ['GpuAnimator', 'Game.Framework.Unity']),
+        ('GpuAnimator', 'com.novorizon.gpuanimator/Runtime', ['Game.Framework.Unity', 'Game.Framework.Core']),
+        ('GpuAnimator.Editor', 'com.novorizon.gpuanimator/Editor', ['GpuAnimator', 'Game.Framework.Unity', 'Game.Framework.Core']),
         ('Game.Framework.GpuAnimation.URP.Editor', 'com.novorizon.gpuanimator.urp/Editor', []),
         ('Game.Framework.All.Editor', 'com.novorizon.framework.all/Editor', []),
     ]
@@ -55,11 +53,12 @@ def main():
             for key, value in dict(TargetFramework='netstandard2.1', AssemblyName=name, EnableDefaultCompileItems='false', LangVersion='9.0', DefineConstants='UNITY_EDITOR;UNITY_2022_3_OR_NEWER', NuGetAudit='false', NoWarn='CS0067;CS0649').items():
                 ET.SubElement(properties, key).text = value
             items = ET.SubElement(project, 'ItemGroup')
-            for file in (ROOT / 'Packages' / folder).rglob('*.cs'):
+            source = ROOT / 'Packages' / folder
+            for file in source.rglob('*.cs'):
+                if any(list(parent.glob('*.asmdef')) for parent in file.parents if parent != source and source in parent.parents):
+                    continue
                 ET.SubElement(items, 'Compile', Include=str(file))
             selected = dict(references)
-            selected['Game.Framework.Core'] = core
-            selected['Game.Framework.Localization'] = localization
             selected.update({key: built[key] for key in dependencies})
             for key, file in selected.items():
                 ET.SubElement(ET.SubElement(items, 'Reference', Include=key), 'HintPath').text = str(file)
@@ -69,7 +68,7 @@ def main():
             ET.ElementTree(project).write(path, encoding='unicode')
             subprocess.run([args.dotnet, 'build', str(path), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], env=env, check=True)
             built[name] = directory / 'bin/Release/netstandard2.1' / (name + '.dll')
-        print('PASS 10 package assembly compiles against installed Unity and URP APIs; native Editor and shaders were not executed.')
+        print(f'PASS {len(modules)} package assembly compiles against installed Unity and URP APIs; native Editor and shaders were not executed.')
 
 if __name__ == '__main__':
     main()
