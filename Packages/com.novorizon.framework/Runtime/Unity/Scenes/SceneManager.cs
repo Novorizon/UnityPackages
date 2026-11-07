@@ -8,7 +8,7 @@ using NativeSceneManager = UnityEngine.SceneManagement.SceneManager;
 namespace Game.Framework.Scenes
 {
     /// <summary>串行协调场景操作。取消调用方的等待不会撤销已经开始的原生加载。</summary>
-    public sealed partial class SceneManager : ConfigurableSingleton<SceneManager>, IDisposable
+    public sealed partial class SceneManager : Singleton<SceneManager>, IDisposable
     {
         // 重置管理器也不能让新请求越过旧实例仍在执行的原生加载。
         private static readonly SemaphoreSlim operations = new SemaphoreSlim(1, 1);
@@ -16,7 +16,6 @@ namespace Game.Framework.Scenes
         private readonly Dictionary<int, Scene> loaded = new Dictionary<int, Scene>();
         private ISceneLoader loader;
         private bool disposed;
-        public static SceneManager Instance => GetOrCreateInstance(() => new SceneManager());
         public int LoadedCount => loaded.Count;
         public bool Initialized => loader != null && !disposed;
 

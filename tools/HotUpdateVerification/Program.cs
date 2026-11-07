@@ -156,7 +156,7 @@ internal static partial class Program
     {
         True(typeof(GameBuild).Assembly.GetName().Name == "Game.Framework.HotUpdate.Editor");
         True(typeof(HotUpdateManager).Assembly.GetName().Name == "Game.Framework.HotUpdate");
-        True(typeof(Game.Framework.ConfigurableSingleton<>).Assembly.GetName().Name == "Game.Framework.Core");
+        True(typeof(Game.Framework.Singleton<>).Assembly.GetName().Name == "Game.Framework.Core");
         True(typeof(GameBuild).Assembly != typeof(HotUpdateManager).Assembly);
         return Task.CompletedTask;
     }

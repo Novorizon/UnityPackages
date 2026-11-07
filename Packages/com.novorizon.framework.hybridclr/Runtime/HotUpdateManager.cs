@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
-    public sealed class HotUpdateManager : ConfigurableSingleton<HotUpdateManager>, IDisposable
+    public sealed class HotUpdateManager : Singleton<HotUpdateManager>, IDisposable
     {
         private CancellationTokenSource lifetime;
         private Task startupTask;
@@ -21,7 +21,6 @@ namespace Game.Framework.HotUpdate
         private bool startupClosed;
         private bool disposed;
         private string hotGameVersion;
-        public static HotUpdateManager Instance => GetOrCreateInstance(() => new HotUpdateManager());
         public string Status { get; private set; } = "Not started";
         public bool IsReady { get; private set; }
         public bool Failed { get; private set; }

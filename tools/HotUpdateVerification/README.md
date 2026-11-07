@@ -17,4 +17,4 @@ These tests use an explicit transport boundary and do not claim a real HTTP or n
 
 Run the repository's `python3 tools/workspace.py verify --dotnet /path/to/dotnet`.
 
-The Editor package must reference Game.Framework.Core directly when accessing the inherited ConfigurableSingleton API. A Runtime reference alone is insufficient in Unity. Unity engine/editor APIs remain explicit headless models; this does not claim native Unity compilation.
+The Editor package must reference Game.Framework.Core directly when accessing the inherited Singleton API. A Runtime reference alone is insufficient in Unity. Unity engine/editor APIs remain explicit headless models; this does not claim native Unity compilation.
