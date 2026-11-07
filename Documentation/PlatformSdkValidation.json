@@ -1,0 +1,197 @@
+{
+  "release": "v0.1.0-preview.36",
+  "unity": "2022.3.62f1",
+  "host": "Linux x86_64",
+  "sdkVersions": {
+    "UnityIAP": "5.5.0",
+    "AppLovinMAXUnity": "8.6.6",
+    "AppLovinNative": "13.6.4",
+    "FirebaseUnity": "14.1.0",
+    "FacebookUnity": "19.0.0",
+    "CsjAndroid": "7.8.1.4",
+    "CsjiOS": "7.8.1.1",
+    "GoogleSignIniOS": "10.1.0",
+    "AndroidXCredentials": "1.5.0",
+    "GoogleIdAndroid": "1.1.1"
+  },
+  "artifactSha256": {
+    "csj-aar.aar": "4bf7551684c845b846d4b44e72c5ade6bea33ba7d815239cf835ea2a00c47efa",
+    "csj-ios.zip": "18bf2933aac1fabbad11fa45af4db76a044ab1852d6af137c2da51d421396cb9",
+    "googleid.aar": "0299fc0e5218b5c76623ef8cbebb9fbd164d03ed4b487b418de9a34f2be98db9",
+    "credentials.aar": "00162f3d0244a42a8b9527f3cc6fb3bf36d655960c65b979bef250e5116f1453",
+    "facebook.zip": "43caf32733446b1b2ea719f00a4d1c9bd7b752cf50101f6491a1602a9cd82003",
+    "iap.tgz": "21fc05abdb7f3679a048cd4d42bfd343d3ff9641d668876b0a42b0ad3c7b1cde",
+    "firebase.zip": "51c0c42ce4c1fe2e9d2de92b84afeab91694b63faf699530b0c2ef97085d8799",
+    "max.unitypackage": "62f699916ee06e337e61573efd2255328c99ad2378b12de91c5a1be02f348eba"
+  },
+  "limits": [
+    "Native Objective-C++ was checked against official public headers, not compiled with Xcode.",
+    "No iOS/Android device or store sandbox transaction executed.",
+    "No live ad delivery, SSV, account linking, Firebase upload or push delivery executed.",
+    "Java compilation uses real Android/vendor APIs and a UnityPlayer messaging boundary fixture.",
+    "MAX integration-manager tooling and vendor native plugins are outside the SDK-present managed compilation project."
+  ],
+  "executedUtc": "2026-11-07T19:01:08.604475+00:00",
+  "sourceSha256": {
+    "Packages/com.novorizon.auth/Editor/Game.Framework.Auth.Editor.asmdef": "d71ee009c5d95fc2bdd7d157e2d53868df6183a6a97174fc99fe40d034dbd293",
+    "Packages/com.novorizon.auth/Editor/IdentityAndroidBuild.cs": "4c92431e074f58d6e40fea66d2dd1531f831238b1cb92d3c8037975e620407e4",
+    "Packages/com.novorizon.auth/Editor/IdentityIosBuild.cs": "331e8085f88ce7bae112783b544ac27430d3fed9b8db71ba85a23a1e8116bd86",
+    "Packages/com.novorizon.auth/Editor/IdentitySdkSetup.cs": "ffa9ede45a239b9b8efba21dc4fbb56da743bafdeffe4286e69a9504cb2a6180",
+    "Packages/com.novorizon.auth/Editor/NativeIdentitySettings.cs": "e2bdd97361fbee2ff6d9fb97b18cdfcac9e326e09e4f0dafc3efa11a8d258757",
+    "Packages/com.novorizon.auth/Facebook/FacebookIdentityProvider.cs": "85f9225296633d462cdb281fba491ccef9f0922fc672f15f48953862ea4aaf83",
+    "Packages/com.novorizon.auth/Facebook/Game.Framework.Auth.Facebook.asmdef": "8f3ba0e4055e8f3a8f155f6253af3ac3349fcdde6aaf15c856c53bf40f840b42",
+    "Packages/com.novorizon.auth/Native/Game.Framework.Auth.Native.asmdef": "a32a197b0db2db600651f934365a96d57b255a0b23e757e5d7bcab188c716187",
+    "Packages/com.novorizon.auth/Native/IdentityCallbackHost.cs": "d3bc37ae88db76cf95d699d6caa6673915741c03a8688e017d111ad0c77a1745",
+    "Packages/com.novorizon.auth/Native/NativeIdentityProvider.cs": "89592f3c999b6a29b57a59aa5d1b19361b346933454a987af51881bc099f64d2",
+    "Packages/com.novorizon.auth/Native/link.xml": "5f69d9a1c745c59809f2f0b8023305618b6dcd515704d0fe8798ba6a28bc00f4",
+    "Packages/com.novorizon.auth/Native~/Editor/NovorizonIdentityDependencies.xml": "c0a1143684c5d72315ca74d6a03ab297829ed95fe20fdd552ee125b223a4c4cf",
+    "Packages/com.novorizon.auth/Native~/Plugins/Android/NovorizonIdentity.androidlib/AndroidManifest.xml": "4592b46b817779c5f09a10395a9f887176de3bc48c9f7720e3ae5fc43e8173ac",
+    "Packages/com.novorizon.auth/Native~/Plugins/Android/NovorizonIdentity.androidlib/consumer-rules.pro": "fe78e16c7c4f22e550f7097e13b26d1dcdfc9b5416b1c1b82b4a9f4c4617ff06",
+    "Packages/com.novorizon.auth/Native~/Plugins/Android/NovorizonIdentity.androidlib/src/com/novorizon/auth/GoogleIdentityBridge.java": "6665817df6fe22cd7efc0f9a1617f99a357d89e3ff35ff8472d0712cf7fee812",
+    "Packages/com.novorizon.auth/Native~/Plugins/iOS/NovorizonIdentity.mm": "7903d5c71e4de637d4b9bbb07874c8c488693ced46afa96bc64775ccc456d3ac",
+    "Packages/com.novorizon.auth/Runtime/AuthClient.cs": "393785678b8476016c74bc2681f487763e3fa06593a8fd1096471e291d873a98",
+    "Packages/com.novorizon.auth/Runtime/AuthContracts.cs": "81aedb98abf64dcb6b51421a0abee5c90b21b24b6395fa493776a48c0a930e96",
+    "Packages/com.novorizon.auth/Runtime/Game.Framework.Auth.asmdef": "9db2213a7a46a6a32a8f1a3c0882bb966691fcaeff9b7d55f837642a17a12588",
+    "Packages/com.novorizon.auth/Runtime/IdentityNonce.cs": "06c04fbb3995972ade0c60a9eeadaeeb3248086f4f4cb98da8c5988b72a6cd86",
+    "Packages/com.novorizon.payments/Runtime/Game.Framework.Payments.asmdef": "4c31ab947fa2e6cfb0cea45dcbce1e64243c880f7527f91e7fac470c09d97b20",
+    "Packages/com.novorizon.payments/Runtime/PaymentClient.cs": "bd537540a7ee086458efdbeba73f79ae0c18276b90a6a4cbb3cd24f95cb512b7",
+    "Packages/com.novorizon.payments/Runtime/PaymentContracts.cs": "48161b5d0ce81bd50d2912da3853c3370232922ff227cf7bd4cbee20a3812937",
+    "Packages/com.novorizon.payments/UnityIap/Game.Framework.Payments.UnityIap.asmdef": "c4174e2a98d85b3a98ce013d9124dc906dc6c2941f08b8e9ae3598776f08deb8",
+    "Packages/com.novorizon.payments/UnityIap/UnityIapStore.cs": "af91f68055134a5892bb0c6585470154efadb60a2633ef65defc0af2da20c5c9",
+    "Packages/com.novorizon.ads/AppLovin/Game.Framework.Ads.AppLovin.asmdef": "87428486ed7fffbb5bde20673c09d93c9ff81fdfe2fff3851069a0d546d300c8",
+    "Packages/com.novorizon.ads/AppLovin/MaxAdProvider.cs": "0d549cd72b213af6eb92170e6dc2ef186e8b005ff8ef11802257dfbbdc9bca39",
+    "Packages/com.novorizon.ads/Csj/CsjAdProvider.cs": "70cde1a75ccb5dc888a323a6eb1982c2d0f913f5621f2ac3cc01672d580cdee1",
+    "Packages/com.novorizon.ads/Csj/CsjCallbackHost.cs": "d7ccc7bec5ecf3e40709236418f0e93513edb0fb288d0110cd9d050c035adbd9",
+    "Packages/com.novorizon.ads/Csj/Game.Framework.Ads.Csj.asmdef": "8f54a6c0020b471537a53f76ec67df6a1694f99ad0b415ad5bc0a4deafbbcfe4",
+    "Packages/com.novorizon.ads/Csj/link.xml": "ae85396a5b0e9c14c73f29cfb11ab0b5cd9ad016a1fa537f108667caee44bdd4",
+    "Packages/com.novorizon.ads/Editor/AdsAndroidBuild.cs": "9d22e159067c8f40f8d39bacc4ca8a69aeb5ca2b60fed2a7d9714332cecb92f9",
+    "Packages/com.novorizon.ads/Editor/AdsSdkSetup.cs": "b2b02f514a5f4635f575e1b58274380964b25639984882eacf1b5d3f6bf0f740",
+    "Packages/com.novorizon.ads/Editor/Game.Framework.Ads.Editor.asmdef": "13defc3961e239679e594db59c00ea39d419f428249c2f53d2f4fa8096b3f0be",
+    "Packages/com.novorizon.ads/Native~/Editor/NovorizonCsjDependencies.xml": "f9d0603dfab3885417fa8484d4f41c1a49512ecd32d54e387cc8570e03021724",
+    "Packages/com.novorizon.ads/Native~/Plugins/Android/NovorizonCsj.androidlib/AndroidManifest.xml": "ad684987add5bcbc1cde90dbc0c3bbab9b0879cd299851c4af35f4f3874edf2e",
+    "Packages/com.novorizon.ads/Native~/Plugins/Android/NovorizonCsj.androidlib/consumer-rules.pro": "9f2e75ba84800b11296022d0e5889c7400d068f90630c7cc705c556333753b0a",
+    "Packages/com.novorizon.ads/Native~/Plugins/Android/NovorizonCsj.androidlib/src/com/novorizon/ads/CsjBridge.java": "2583112a54cc41be0fd5b94953eb1bbe2c88ecb81591630422899461c1b783bd",
+    "Packages/com.novorizon.ads/Native~/Plugins/iOS/NovorizonCsj.mm": "46e258b59c70cc4fdd84b68dd312f305d6ada30eb57588eedf98dc05bdfcbf2a",
+    "Packages/com.novorizon.ads/Runtime/AdsClient.cs": "642ef1d046df2d3c7ff72457971cc71611f71aa867021032e5c5fe3fd3fa3ae7",
+    "Packages/com.novorizon.ads/Runtime/Game.Framework.Ads.asmdef": "4e0101b0c025e55b1f49a88eab95c08c0edd3dd5fe9fad71cb7eeb0263a009bb",
+    "Packages/com.novorizon.firebase/Analytics/FirebaseAnalyticsAdapter.cs": "0b37ac319eda034943058bddbac549438ccdc01eb9933542af0483198ac80fc8",
+    "Packages/com.novorizon.firebase/Analytics/Game.Framework.Firebase.Analytics.asmdef": "4e11c3b189ed706ceb79c0f7555f171195b9d656575e3d0dd80f6f4a4d54cfdf",
+    "Packages/com.novorizon.firebase/App/FirebaseRuntime.cs": "7faffdd13ad765fd74b4d77a77d08497f2dc5f3e69ca2cdcb27d85dff71a9926",
+    "Packages/com.novorizon.firebase/App/Game.Framework.Firebase.App.asmdef": "a996a945019c1e2a24e3a67088c560c2aa05c97ef64c3a9f5047b1ff460a394f",
+    "Packages/com.novorizon.firebase/Auth/FirebaseAuthBackend.cs": "9d888d68719909c780e5bf09ad2364d6d46a46068125f44d644eea983af233f1",
+    "Packages/com.novorizon.firebase/Auth/Game.Framework.Firebase.Auth.asmdef": "da56c0f0bb484d7d007a2ce7e7a53b628512c57a183f4253d4bb017cf2d0d577",
+    "Packages/com.novorizon.firebase/Crashlytics/FirebaseCrashReporter.cs": "5956d85b9af1a6013ffca22813eb9c574a29943733fe37ffb656d41d30bb79c7",
+    "Packages/com.novorizon.firebase/Crashlytics/Game.Framework.Firebase.Crashlytics.asmdef": "e2212fff46dfc4d71285c8179a840c691b24789930b7335c614f5f055420c9ec",
+    "Packages/com.novorizon.firebase/Editor/FirebaseSdkSetup.cs": "934499ed4cfd2c801faf1b609e9abe5dae46b1a4fcd136a6174a080bbc7ad80f",
+    "Packages/com.novorizon.firebase/Editor/Game.Framework.Firebase.Editor.asmdef": "21acb652c7d7d2908cb2a2c9b90fa75a2a658196ac307670aa20b7c0fd5656b1",
+    "Packages/com.novorizon.firebase/Messaging/FirebasePushMessaging.cs": "c9cd9c4b03973e7df1180a125f12ff8b0218ea088271518878f5fd8a159b99bb",
+    "Packages/com.novorizon.firebase/Messaging/Game.Framework.Firebase.Messaging.asmdef": "d4303b086f3676fa2b03e383d4afeec2cdd14740c71dbe916367a6ec815a9940",
+    "Packages/com.novorizon.firebase/RemoteConfig/FirebaseRemoteConfiguration.cs": "5c93aeb65b6df00291cd59ad7f147fe181c1376e0e4846134c8958fe33b66486",
+    "Packages/com.novorizon.firebase/RemoteConfig/Game.Framework.Firebase.RemoteConfig.asmdef": "fa1b67cda25d681eb4bd950e5db573b71e6ea706a244bb745dc309f7fd29d3af",
+    "Packages/com.novorizon.firebase/Runtime/FirebaseContracts.cs": "f7ecda8e38494773be524f23bfa81a9c0458621da57dbd4fd233cf7297f232b7",
+    "Packages/com.novorizon.firebase/Runtime/Game.Framework.Firebase.asmdef": "311ad12f9966cc9cc4ecd8b8fc2a7bd9f9207f8440ddac8312251d98df012f5f"
+  },
+  "sdkPresentUnityCompilation": {
+    "result": "Passed",
+    "platform": "Linux Editor",
+    "optionalAdapterAssemblies": [
+      "Game.Framework.Ads",
+      "Game.Framework.Ads.AppLovin",
+      "Game.Framework.Ads.Csj",
+      "Game.Framework.Ads.Editor",
+      "Game.Framework.Auth",
+      "Game.Framework.Auth.Editor",
+      "Game.Framework.Auth.Facebook",
+      "Game.Framework.Auth.Native",
+      "Game.Framework.Firebase",
+      "Game.Framework.Firebase.Analytics",
+      "Game.Framework.Firebase.App",
+      "Game.Framework.Firebase.Auth",
+      "Game.Framework.Firebase.Crashlytics",
+      "Game.Framework.Firebase.Editor",
+      "Game.Framework.Firebase.Messaging",
+      "Game.Framework.Firebase.RemoteConfig",
+      "Game.Framework.Payments",
+      "Game.Framework.Payments.UnityIap"
+    ],
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb",
+    "vendorNativeLibrariesInitialized": false,
+    "allAdapterAssembliesLoadWithoutReferenceErrors": true,
+    "facebookSettingsDependencyPresent": true
+  },
+  "mobileCsharpApiCompilation": [
+    {
+      "platform": "Android",
+      "csharpApiCompiled": true,
+      "nativeDeviceExecuted": false
+    },
+    {
+      "platform": "iOS",
+      "csharpApiCompiled": true,
+      "nativeDeviceExecuted": false
+    }
+  ],
+  "mobileCsharpApiLogSha256": "99bbf74be3ec321828ecc1696f07db881e7bed8a03730ed2d6ec3c9d2e54494d",
+  "nativeIosCompiled": false,
+  "deviceAcceptanceExecuted": false,
+  "nativeAndroidJavaCompilation": {
+    "result": "Passed",
+    "androidPlatform": {
+      "url": "https://dl.google.com/android/repository/platform-35_r02.zip",
+      "archiveSha256": "0988cacad01b38a18a47bac14a0695f246bc76c1b06c0eeb8eb0dc825ab0c8e0",
+      "jarSha256": "4566663c3876e022b4fa4ced8c8697c4ab1688267f090114fd92d027b32e619b"
+    },
+    "java": "OpenJDK 21 compiler, Android 35 API library",
+    "bridges": [
+      "GoogleIdentityBridge",
+      "CsjBridge"
+    ],
+    "vendorApiStubsUsed": false,
+    "unityPlayerBoundaryFixtureUsed": true,
+    "logSha256": "0fa0d812971166e363fa20ecc2d540e5fc347f02d0e767451b4afcadb18ca51b",
+    "warnings": [
+      "AndroidX annotation metadata is outside the minimal compiler classpath.",
+      "Pinned CSJ listener interface still requires deprecated callback overrides."
+    ]
+  },
+  "packageManifestSha256": {
+    "Packages/com.novorizon.payments/package.json": "4ad2f23fb30e65b0d36dd3d7324f6b121a207818c3e2abdb7d57a2a3e074e114",
+    "Packages/com.novorizon.auth/package.json": "7a2f789adffa3966be13d03c52f8f1d66cb08d4ca70f84eec60aedfac2f99300",
+    "Packages/com.novorizon.firebase/package.json": "c350e6deb781b25e3fefc9fe61c929984f6b59808a83d0089c3524b0b1eefde1",
+    "Packages/com.novorizon.ads/package.json": "be1a973d20ce850149deebd4bd5ce5914939011ce6f1f5d27800369918b13b5b"
+  },
+  "maxEditorCallbackRegression": {
+    "result": "Passed",
+    "total": 1,
+    "passed": 1,
+    "startedUtc": "2026-11-07 18:59:41Z",
+    "endedUtc": "2026-11-07 18:59:44Z",
+    "xmlSha256": "86367d4530c26a38497f513878c78cac299b0bc72595f9e1c2785397cdca1570",
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb",
+    "method": "Official MAX 8.6.6 Editor runtime/prefabs plus deliberately injected late and duplicate SDK callbacks; no native ad delivery."
+  },
+  "managedVerification": {
+    "result": "Passed",
+    "platformServiceBehaviorCases": 29,
+    "uiNUnitCases": 209,
+    "networkNUnitCases": 24,
+    "fullSuiteStagesPassed": true,
+    "note": "Initial UI test-host start was blocked by sandbox loopback socket permissions. UI/Network and remaining Ability checks passed with local socket access."
+  },
+  "facebookLimitedLoginNonceRegression": {
+    "result": "Passed",
+    "total": 1,
+    "passed": 1,
+    "method": "Actual Facebook SDK 19 AuthenticationToken class; SHA-256 challenge accepted, raw and foreign challenges rejected; proof retains original raw nonce for Firebase. No native sign-in.",
+    "reference": "https://firebase.google.com/docs/auth/ios/facebook-login",
+    "xmlSha256": "86367d4530c26a38497f513878c78cac299b0bc72595f9e1c2785397cdca1570",
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb"
+  },
+  "optionalSdkEditorSuite": {
+    "result": "Passed",
+    "total": 2,
+    "passed": 2,
+    "startedUtc": "2026-11-07 18:59:41Z",
+    "endedUtc": "2026-11-07 18:59:44Z"
+  }
+}

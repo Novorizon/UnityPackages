@@ -22,7 +22,12 @@
     "Game.Framework.Audio",
     "Game.Framework.Resources.YooAsset",
     "Game.Ability",
-    "YooAsset"
+    "YooAsset",
+    "Game.Framework.Auth",
+    "Game.Framework.Auth.Native",
+    "Game.Framework.Payments",
+    "Game.Framework.Ads",
+    "Game.Framework.Firebase"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

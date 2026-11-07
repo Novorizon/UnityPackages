@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>netstandard2.1</TargetFramework><AssemblyName>Game.Framework.Ads</AssemblyName></PropertyGroup><ItemGroup><ProjectReference Include="../../FrameworkServicesVerification/Core/Core.csproj" /><Compile Include="../../../Packages/com.novorizon.ads/Runtime/*.cs" /></ItemGroup></Project>

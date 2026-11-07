@@ -1,0 +1,17 @@
+{
+  "name": "Game.Framework.Auth.Facebook",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Auth"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Facebook.Unity.dll"
+  ],
+  "defineConstraints": [
+    "NOVORIZON_FACEBOOK"
+  ]
+}

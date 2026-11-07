@@ -1,6 +1,6 @@
 {
-  "packages": 16,
-  "ownedPackages": 16,
+  "packages": 20,
+  "ownedPackages": 20,
   "externalDependencyReferences": 3,
   "importedFilesChecked": 741,
   "externalHistoricalFilesOmitted": 1818,
@@ -138,7 +138,7 @@
     "Packages/com.novorizon.rtree/README.md",
     "Packages/com.novorizon.rtree/package.json"
   ],
-  "activeAssemblies": 37,
-  "activeGuids": 464,
+  "activeAssemblies": 55,
+  "activeGuids": 537,
   "nativeUnityExecuted": false
 }

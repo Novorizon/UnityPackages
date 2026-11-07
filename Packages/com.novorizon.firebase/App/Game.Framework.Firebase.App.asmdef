@@ -1,0 +1,18 @@
+{
+  "name": "Game.Framework.Firebase.App",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Firebase"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "Firebase.App.dll",
+    "Firebase.Platform.dll"
+  ],
+  "defineConstraints": [
+    "NOVORIZON_FIREBASE_APP"
+  ]
+}
