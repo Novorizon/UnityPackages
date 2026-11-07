@@ -28,6 +28,8 @@
 6. Facebook：导入官方 SDK 并完成 App ID / Client Token / Bundle ID / URL Scheme 设置，再执行 **Enable installed Facebook SDK**。不要把 Facebook App Secret 放进客户端。iOS 默认 Limited Login，不假设用户已授予 ATT。
 7. Firebase：只导入需要的 `FirebaseAnalytics.unitypackage`、`FirebaseCrashlytics.unitypackage`、`FirebaseRemoteConfig.unitypackage`、`FirebaseMessaging.unitypackage`、`FirebaseAuth.unitypackage`，放置项目自己的 `google-services.json` / `GoogleService-Info.plist`，Resolve 后执行 **Synchronize installed Firebase SDKs**。
 
+Apple / Facebook Limited Login 给身份平台传 `SHA-256(rawNonce)`，给 Firebase 凭据保留原始 nonce；两者不能混用。Facebook 适配器会核对返回的 nonce challenge。参见 [Firebase 官方 Limited Login 协议](https://firebase.google.com/docs/auth/ios/facebook-login)。
+
 菜单设置的是**当前构建目标组**的符号。切换 iOS / Android 时分别执行；移除 SDK 时删除相应符号并同步 Firebase。Firebase/FB 菜单识别标准 `Assets` 下的官方 DLL 安装；自定义 UPM 分发可按下表手动设置。游戏业务 asmdef 也须显式引用使用的适配程序集。
 
 | 编译符号 | 适配程序集 |
@@ -90,6 +92,7 @@ PaymentResult result = await payments.PurchaseAsync("coins");
 业务的“恢复购买”按钮调用 `RestoreAsync()`；Apple 会进入明确的 RestoreTransactions 流程。启动补单使用 `RecoverAsync()`，不会主动调用这个恢复 UI。
 
 - 服务端验证商店签名、应用 / 商品 / 环境、购买状态和归属，从已验证的收据中读取订单标识。Google 按 purchase token、Apple 按 transaction ID 等官方语义幂等；不要信任客户端传入的 ID 或仅依赖本地去重。用户归属由当前服务端会话验证，不能只信任请求里的 UID。
+- 发货实现与支付意图应绑定发起购买时的游戏用户。账号变化时停止新的购买；迟到订单按服务端原归属补单，不按此刻新登录的账号重新分配。
 - 网络失败、取消或发货失败不会确认订单；下次启动 / 恢复继续补单。重复验单必须返回原来的发货结果。已确认的非消耗品 / 订阅可重新校验权益，不再次确认；已完成消耗品不作为库存恢复。
 - Ask to Buy 等延迟订单返回 Deferred，不发货。订阅续期、退款、撤销、过期和跨设备状态以服务端商店通知及查单为准；本包没有把本地历史列表当作永久订阅权益。
 - Unity IAP 服务实例由 SDK 共享，不要再并行使用 Codeless IAP 或另一个脚本确认同一批订单。生产环境明确选择原生商店；Editor Fake Store 只能辅助交互，不代表真实购买通过。

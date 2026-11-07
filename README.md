@@ -70,7 +70,7 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 - 新增四个可独立安装的平台服务包；外部商业 SDK 不随 all 自动导入。
 - 支付确认、广告奖励、账号绑定与取消后的原生弹窗所有权有独立行为验证。安装、SDK 版本和真机边界见[平台服务接入](Documentation/PlatformServices.zh-CN.md)。
-- 29 个平台核心行为用例、65 EditMode + 36 PlayMode 通过；另用官方 MAX Editor 验证迟到 / 重复 / 跨展示奖励。真实 SDK 的移动 C# 分支及 Android Java 桥接编译通过，Xcode / 真机 / 商店沙盒验收待项目配置。
+- 29 个平台核心行为用例、65 EditMode + 36 PlayMode 通过；另用真实 SDK 验证 MAX 迟到 / 重复 / 跨展示奖励与 Facebook nonce 协议。真实 SDK 的移动 C# 分支及 Android Java 桥接编译通过，Xcode / 真机 / 商店沙盒验收待项目配置。
 
 ## v0.1.0-preview.35
 

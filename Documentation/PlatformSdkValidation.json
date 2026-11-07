@@ -31,14 +31,14 @@
     "Java compilation uses real Android/vendor APIs and a UnityPlayer messaging boundary fixture.",
     "MAX integration-manager tooling and vendor native plugins are outside the SDK-present managed compilation project."
   ],
-  "executedUtc": "2026-11-07T18:39:51.217044+00:00",
+  "executedUtc": "2026-11-07T19:01:08.604475+00:00",
   "sourceSha256": {
     "Packages/com.novorizon.auth/Editor/Game.Framework.Auth.Editor.asmdef": "d71ee009c5d95fc2bdd7d157e2d53868df6183a6a97174fc99fe40d034dbd293",
     "Packages/com.novorizon.auth/Editor/IdentityAndroidBuild.cs": "4c92431e074f58d6e40fea66d2dd1531f831238b1cb92d3c8037975e620407e4",
     "Packages/com.novorizon.auth/Editor/IdentityIosBuild.cs": "331e8085f88ce7bae112783b544ac27430d3fed9b8db71ba85a23a1e8116bd86",
     "Packages/com.novorizon.auth/Editor/IdentitySdkSetup.cs": "ffa9ede45a239b9b8efba21dc4fbb56da743bafdeffe4286e69a9504cb2a6180",
     "Packages/com.novorizon.auth/Editor/NativeIdentitySettings.cs": "e2bdd97361fbee2ff6d9fb97b18cdfcac9e326e09e4f0dafc3efa11a8d258757",
-    "Packages/com.novorizon.auth/Facebook/FacebookIdentityProvider.cs": "e11d16e150edeb428f14a12e0c23067145c2614247e4985d01d50af35de1a21e",
+    "Packages/com.novorizon.auth/Facebook/FacebookIdentityProvider.cs": "85f9225296633d462cdb281fba491ccef9f0922fc672f15f48953862ea4aaf83",
     "Packages/com.novorizon.auth/Facebook/Game.Framework.Auth.Facebook.asmdef": "8f3ba0e4055e8f3a8f155f6253af3ac3349fcdde6aaf15c856c53bf40f840b42",
     "Packages/com.novorizon.auth/Native/Game.Framework.Auth.Native.asmdef": "a32a197b0db2db600651f934365a96d57b255a0b23e757e5d7bcab188c716187",
     "Packages/com.novorizon.auth/Native/IdentityCallbackHost.cs": "d3bc37ae88db76cf95d699d6caa6673915741c03a8688e017d111ad0c77a1745",
@@ -114,7 +114,7 @@
       "Game.Framework.Payments",
       "Game.Framework.Payments.UnityIap"
     ],
-    "logSha256": "f3aa3b8f6f7bd32d67b6180e04714872207123ea51076da61f0ddcc0224f382c",
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb",
     "vendorNativeLibrariesInitialized": false,
     "allAdapterAssembliesLoadWithoutReferenceErrors": true,
     "facebookSettingsDependencyPresent": true
@@ -131,7 +131,7 @@
       "nativeDeviceExecuted": false
     }
   ],
-  "mobileCsharpApiLogSha256": "d1433a6961633625d9b39bbb18aa441388ee348bb8ff630eb2c101c17f3513f2",
+  "mobileCsharpApiLogSha256": "99bbf74be3ec321828ecc1696f07db881e7bed8a03730ed2d6ec3c9d2e54494d",
   "nativeIosCompiled": false,
   "deviceAcceptanceExecuted": false,
   "nativeAndroidJavaCompilation": {
@@ -164,10 +164,10 @@
     "result": "Passed",
     "total": 1,
     "passed": 1,
-    "startedUtc": "2026-11-07 18:36:05Z",
-    "endedUtc": "2026-11-07 18:36:07Z",
-    "xmlSha256": "bd4d074111d4a14b0a12d5cbeaeb29072bd305b5a25324c232f37d9d043ebfad",
-    "logSha256": "f3aa3b8f6f7bd32d67b6180e04714872207123ea51076da61f0ddcc0224f382c",
+    "startedUtc": "2026-11-07 18:59:41Z",
+    "endedUtc": "2026-11-07 18:59:44Z",
+    "xmlSha256": "86367d4530c26a38497f513878c78cac299b0bc72595f9e1c2785397cdca1570",
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb",
     "method": "Official MAX 8.6.6 Editor runtime/prefabs plus deliberately injected late and duplicate SDK callbacks; no native ad delivery."
   },
   "managedVerification": {
@@ -177,5 +177,21 @@
     "networkNUnitCases": 24,
     "fullSuiteStagesPassed": true,
     "note": "Initial UI test-host start was blocked by sandbox loopback socket permissions. UI/Network and remaining Ability checks passed with local socket access."
+  },
+  "facebookLimitedLoginNonceRegression": {
+    "result": "Passed",
+    "total": 1,
+    "passed": 1,
+    "method": "Actual Facebook SDK 19 AuthenticationToken class; SHA-256 challenge accepted, raw and foreign challenges rejected; proof retains original raw nonce for Firebase. No native sign-in.",
+    "reference": "https://firebase.google.com/docs/auth/ios/facebook-login",
+    "xmlSha256": "86367d4530c26a38497f513878c78cac299b0bc72595f9e1c2785397cdca1570",
+    "logSha256": "d8382a60b8085cb9d90763c2bb5e9b8b655321095c714a3b27c0b567a32dcaeb"
+  },
+  "optionalSdkEditorSuite": {
+    "result": "Passed",
+    "total": 2,
+    "passed": 2,
+    "startedUtc": "2026-11-07 18:59:41Z",
+    "endedUtc": "2026-11-07 18:59:44Z"
   }
 }

@@ -4,7 +4,11 @@
     "Game.Framework.Core",
     "Game.Framework.Ads",
     "Game.Framework.Ads.AppLovin",
+    "Game.Framework.Auth",
+    "Game.Framework.Auth.Facebook",
     "MaxSdk.Scripts"
   ],
-  "optionalUnityReferences": ["TestAssemblies"]
+  "optionalUnityReferences": ["TestAssemblies"],
+  "overrideReferences": true,
+  "precompiledReferences": ["Facebook.Unity.dll", "nunit.framework.dll"]
 }

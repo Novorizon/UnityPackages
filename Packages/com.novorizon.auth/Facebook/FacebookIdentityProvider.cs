@@ -40,10 +40,11 @@ namespace Game.Framework.Auth.Facebook
                 }
                 token.ThrowIfCancellationRequested();
                 string nonce = IdentityNonce.Create();
+                string challenge = IdentityNonce.Sha256(nonce);
                 var completion = new TaskCompletionSource<ILoginResult>();
                 if (Application.platform == RuntimePlatform.IPhonePlayer)
                 {
-                    FB.Mobile.LoginWithTrackingPreference(LoginTracking.LIMITED, new[] { "public_profile" }, nonce, value => completion.TrySetResult(value));
+                    FB.Mobile.LoginWithTrackingPreference(LoginTracking.LIMITED, new[] { "public_profile" }, challenge, value => completion.TrySetResult(value));
                 }
                 else
                 {
@@ -63,12 +64,7 @@ namespace Game.Framework.Auth.Facebook
                 }
                 if (Application.platform == RuntimePlatform.IPhonePlayer)
                 {
-                    var authentication = FB.Mobile.CurrentAuthenticationToken();
-                    if (authentication == null || authentication.Nonce != nonce)
-                    {
-                        throw new InvalidOperationException("Facebook returned a missing or mismatched nonce.");
-                    }
-                    return new IdentityProof(Provider, IdentityTokenKind.IdToken, authentication.TokenString, nonce);
+                    return LimitedProof(nonce, FB.Mobile.CurrentAuthenticationToken());
                 }
                 var access = AccessToken.CurrentAccessToken;
                 if (access == null)
@@ -90,6 +86,16 @@ namespace Game.Framework.Auth.Facebook
             {
                 throw new InvalidOperationException("Use Facebook identity on the initialized Unity main thread.");
             }
+        }
+
+        internal static IdentityProof LimitedProof(string rawNonce, AuthenticationToken authentication)
+        {
+            // Firebase expects the raw nonce and validates SHA-256(rawNonce) against the ID token.
+            if (authentication == null || authentication.Nonce != IdentityNonce.Sha256(rawNonce))
+            {
+                throw new InvalidOperationException("Facebook returned a missing or mismatched nonce.");
+            }
+            return new IdentityProof(IdentityProvider.Facebook, IdentityTokenKind.IdToken, authentication.TokenString, rawNonce);
         }
 
         public void Dispose()
