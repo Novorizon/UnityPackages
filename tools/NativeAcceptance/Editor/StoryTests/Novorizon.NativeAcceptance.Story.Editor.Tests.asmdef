@@ -1,0 +1,6 @@
+{
+  "name": "Novorizon.NativeAcceptance.Story.Editor.Tests",
+  "references": ["Game.Framework.Story", "Game.Framework.Story.Unity"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

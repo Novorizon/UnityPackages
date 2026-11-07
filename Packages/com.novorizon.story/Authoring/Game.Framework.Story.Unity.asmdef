@@ -1,0 +1,4 @@
+{
+  "name": "Game.Framework.Story.Unity",
+  "references": ["Game.Framework.Story", "Game.Framework.Core"]
+}

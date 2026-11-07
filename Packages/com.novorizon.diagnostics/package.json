@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.diagnostics",
-  "version": "0.1.0-preview.1",
+  "version": "0.2.0-preview.1",
   "displayName": "Novorizon diagnostics",
   "description": "Read-only Editor diagnostics for installed Novorizon services without creating singleton instances.",
   "unity": "2022.3",

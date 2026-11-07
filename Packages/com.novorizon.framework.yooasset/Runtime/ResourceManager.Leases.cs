@@ -14,6 +14,14 @@ namespace Game.Resource
     {
         private sealed class OwnedAsset
         {
+            internal long DiagnosticId;
+            internal string Location;
+            internal string AssetType;
+            internal string Owner;
+            internal long ScopeId;
+            internal int SceneHandle;
+            internal string SceneName;
+            internal string CreationStack;
             internal AssetHandle Handle;
             internal Task Loading;
             internal readonly CancellationTokenSource Lifetime = new CancellationTokenSource();
@@ -25,10 +33,109 @@ namespace Game.Resource
         }
 
         private readonly HashSet<OwnedAsset> ownedAssets = new HashSet<OwnedAsset>();
+        private readonly string diagnosticSessionId = Guid.NewGuid().ToString("N");
+        private long nextLeaseId, nextScopeId;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private bool captureLeaseCreationStacks;
+#endif
+
+        /// <summary>Opt-in for future acquisitions only. Shipping non-development players never capture stacks.</summary>
+        public bool CaptureLeaseCreationStacks
+        {
+            get
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                return captureLeaseCreationStacks;
+#else
+                return false;
+#endif
+            }
+            set
+            {
+                MainThread();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                captureLeaseCreationStacks = value;
+#endif
+            }
+        }
+
+        /// <summary>Allocates a read-only scalar snapshot only on request. Includes cancelled I/O awaiting native release.</summary>
+        public ResourceLeaseDiagnostic[] CaptureLeaseDiagnostics()
+        {
+            MainThread();
+            var snapshots = new ResourceLeaseDiagnostic[ownedAssets.Count];
+            int index = 0;
+            foreach (var owned in ownedAssets)
+            {
+                string state = owned.Invalidated ? "Releasing" : owned.Loading.IsCompleted &&
+                    owned.Handle.Status == EOperationStatus.Succeed ? "Active" : "Loading";
+                snapshots[index++] = new ResourceLeaseDiagnostic(
+                    diagnosticSessionId,
+                    owned.DiagnosticId,
+                    owned.Owner,
+                    owned.ScopeId,
+                    owned.SceneHandle,
+                    owned.SceneName,
+                    owned.Location,
+                    owned.AssetType,
+                    state,
+                    owned.CreationStack);
+            }
+            Array.Sort(snapshots, (left, right) => left.LeaseId.CompareTo(right.LeaseId));
+            return snapshots;
+        }
+
+        internal long NextResourceScopeId()
+        {
+            MainThread();
+            return ++nextScopeId;
+        }
+
+        private string CaptureCreationStack()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (captureLeaseCreationStacks)
+            {
+                try
+                {
+                    string stack = new System.Diagnostics.StackTrace(2, true).ToString();
+                    return stack.Length <= 8192 ? stack : stack.Substring(0, 8192);
+                }
+                catch (Exception)
+                {
+                    return "Creation stack unavailable";
+                }
+            }
+#endif
+            return null;
+        }
         /// <summary>包含尚未结束的原生加载和等待释放的句柄。</summary>
         public int OwnedAssetCount => ownedAssets.Count;
 
-        public async Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default, bool keepAliveUntilDisposed = false)
+        public Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default, bool keepAliveUntilDisposed = false)
+            where T : UnityEngine.Object
+        {
+            return AcquireOwnedAsync<T>(location, token, keepAliveUntilDisposed, null, 0, 0, null);
+        }
+
+        public Task<AssetLease<T>> AcquireOwnedAsync<T>(
+            string location,
+            string owner,
+            CancellationToken token = default,
+            bool keepAliveUntilDisposed = false)
+            where T : UnityEngine.Object
+        {
+            return AcquireOwnedAsync<T>(location, token, keepAliveUntilDisposed, owner, 0, 0, null);
+        }
+
+        internal async Task<AssetLease<T>> AcquireOwnedAsync<T>(
+            string location,
+            CancellationToken token,
+            bool keepAliveUntilDisposed,
+            string owner,
+            long scopeId,
+            int sceneHandle,
+            string sceneName)
             where T : UnityEngine.Object
         {
             Ready();
@@ -37,6 +144,14 @@ namespace Game.Resource
             var handle = package.LoadAssetAsync<T>(location);
             var owned = new OwnedAsset
             {
+                DiagnosticId = ++nextLeaseId,
+                Location = location,
+                AssetType = typeof(T).FullName,
+                Owner = string.IsNullOrEmpty(owner) ? "Unassigned" : owner,
+                ScopeId = scopeId,
+                SceneHandle = sceneHandle,
+                SceneName = sceneName,
+                CreationStack = CaptureCreationStack(),
                 Handle = handle,
                 Loading = handle.Task,
                 KeepAliveUntilDisposed = keepAliveUntilDisposed
@@ -153,12 +268,22 @@ namespace Game.Resource
 
         public ResourceScope CreateScope()
         {
+            return CreateScope(null);
+        }
+
+        public ResourceScope CreateScope(string owner)
+        {
             MainThread();
-            return new ResourceScope(this);
+            return new ResourceScope(this, null, owner);
         }
 
         /// <summary>场景卸载时取消未完成获取并释放此作用域的租约，不影响其他场景的租约。</summary>
         public ResourceScope CreateSceneScope(Scene scene)
+        {
+            return CreateSceneScope(scene, null);
+        }
+
+        public ResourceScope CreateSceneScope(Scene scene, string owner)
         {
             MainThread();
             if (!scene.IsValid() || !scene.isLoaded)
@@ -166,7 +291,7 @@ namespace Game.Resource
                 throw new ArgumentException("A loaded scene is required.", nameof(scene));
             }
 
-            return new ResourceScope(this, scene);
+            return new ResourceScope(this, scene, owner);
         }
     }
 }

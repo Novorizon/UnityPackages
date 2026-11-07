@@ -1,6 +1,6 @@
 # 仓库、包与工程
 
-UnityPackages 维护 15 个独立 UPM 包；GameStarter 是另一个仓库中的 Unity 工程。消费者通过 Git/UPM 安装，不依赖维护工作区的目录布局。
+UnityPackages 维护 16 个独立 UPM 包；GameStarter 是另一个仓库中的 Unity 工程。消费者通过 Git/UPM 安装，不依赖维护工作区的目录布局。
 
 ## 依赖方向
 
@@ -29,3 +29,5 @@ HybridCLR 官方原生安装器需要工程中的物理 Packages 路径，因此
 
 
 Localization 只依赖 Framework；生成的 Luban 表由项目适配，uGUI 和 Luban Editor 桥接按已安装包启用。Diagnostics 仅在 Editor 读取公开状态，不被运行时包反向引用。GpuAnimator.URP 是独立的 URP 14 适配包，聚合安装默认包含它；只安装基础 GPU 包时仍可显式使用 Built-in Shader。
+
+Story 是独立可选模块：核心只处理不可变序列和会话；Unity authoring、TMP 舞台及 VideoPlayer 分程序集。业务触发、任务奖励与存档迁移属于 GameStarter/游戏。all 的依赖目录包含该包；只装核心包不要求 UI/TMP/Video。

@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Story",
+  "rootNamespace": "Game.Framework.Story",
+  "references": [],
+  "noEngineReferences": true,
+  "autoReferenced": true
+}

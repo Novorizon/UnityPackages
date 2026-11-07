@@ -24,14 +24,17 @@ namespace Game.Framework.Localization
     public sealed class LocalizationCatalog
     {
         private readonly Dictionary<string, Dictionary<string, string>> languages;
+        private readonly HashSet<string> keys;
         public IReadOnlyList<string> Languages { get; }
-        public int KeyCount { get; }
+        public int KeyCount => Keys.Count;
+        public IReadOnlyList<string> Keys { get; }
 
-        private LocalizationCatalog(Dictionary<string, Dictionary<string, string>> languages, int keyCount)
+        private LocalizationCatalog(Dictionary<string, Dictionary<string, string>> languages, List<string> keys)
         {
             this.languages = languages;
             Languages = new List<string>(languages.Keys).AsReadOnly();
-            KeyCount = keyCount;
+            Keys = keys.AsReadOnly();
+            this.keys = new HashSet<string>(keys, StringComparer.Ordinal);
         }
 
         public static LocalizationCatalog FromRows<T>(IEnumerable<T> rows, Func<T, string> key, params TranslationColumn<T>[] columns)
@@ -58,6 +61,7 @@ namespace Game.Framework.Localization
             }
 
             var keys = new HashSet<string>(StringComparer.Ordinal);
+            var orderedKeys = new List<string>();
             foreach (var row in rows)
             {
                 string id = key(row);
@@ -66,6 +70,7 @@ namespace Game.Framework.Localization
                     throw new ArgumentException("Empty or duplicate translation key: " + id, nameof(rows));
                 }
 
+                orderedKeys.Add(id);
                 HashSet<int> expected = null;
                 foreach (var column in columns)
                 {
@@ -86,7 +91,7 @@ namespace Game.Framework.Localization
                 }
             }
 
-            return new LocalizationCatalog(result, keys.Count);
+            return new LocalizationCatalog(result, orderedKeys);
         }
 
         private sealed class FormatProbe : IFormattable
@@ -137,7 +142,27 @@ namespace Game.Framework.Localization
             return indices;
         }
 
-        internal bool ContainsLanguage(string language) => languages.ContainsKey(language);
+        public bool ContainsLanguage(string language) => languages.ContainsKey(CultureInfo.GetCultureInfo(language).Name);
+
+        public bool ContainsKey(string key)
+        {
+            return key != null && keys.Contains(key);
+        }
+
+        /// <summary>Read an exact authored cell without parent/fallback substitution; empty cells return false.</summary>
+        public bool TryGetExact(string key, string language, out string text)
+        {
+            if (key == null || language == null)
+            {
+                throw new ArgumentNullException(key == null ? nameof(key) : nameof(language));
+            }
+            if (languages.TryGetValue(CultureInfo.GetCultureInfo(language).Name, out var values))
+            {
+                return values.TryGetValue(key, out text);
+            }
+            text = null;
+            return false;
+        }
 
         internal bool TryGet(string key, CultureInfo culture, out string text)
         {

@@ -17,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--editor', type=Path, required=True, help='Installed Editor directory containing Data/Managed')
     parser.add_argument('--dotnet', required=True)
+    parser.add_argument('--project', type=Path, help='Compiled Unity project providing the real YooAsset DLL for adapter API validation')
     parser.add_argument('--include-tests', action='store_true', help='Also compile native GPU NUnit tests; restores NUnit 3.13.3 from NuGet')
     args = parser.parse_args()
     managed = args.editor / 'Data/Managed'
@@ -28,6 +29,11 @@ def main():
     for directory in [managed, managed / 'UnityEngine', cache]:
         for file in directory.glob('Unity*.dll'):
             references[file.stem] = file
+    if args.project:
+        yooasset = args.project / 'Library/ScriptAssemblies/YooAsset.dll'
+        if not yooasset.is_file():
+            raise RuntimeError('Compile the project with YooAsset installed before validating its adapter.')
+        references['YooAsset'] = yooasset
     modules = [
         ('Game.Framework.Core', 'com.novorizon.framework/Runtime/Core', []),
         ('Game.Framework.Unity', 'com.novorizon.framework/Runtime/Unity', ['Game.Framework.Core']),
@@ -35,7 +41,17 @@ def main():
         ('Game.Framework.UI.Demo', 'com.novorizon.framework.ui/Samples~/Demo/Runtime', ['Game.Framework.UI', 'Game.Framework.Unity', 'Game.Framework.Core']),
         ('Game.Framework.UI.Demo.Editor', 'com.novorizon.framework.ui/Samples~/Demo/Editor', ['Game.Framework.UI.Demo']),
         ('Game.Framework.Localization', 'com.novorizon.localization/Runtime', ['Game.Framework.Core']),
+        ('Game.Framework.Localization.Unity', 'com.novorizon.localization/Runtime/Unity', ['Game.Framework.Localization', 'Game.Framework.Core']),
         ('Game.Framework.Localization.UGUI', 'com.novorizon.localization/Runtime/UGUI', ['Game.Framework.Localization', 'Game.Framework.Core']),
+        ('Game.Framework.Localization.Editor', 'com.novorizon.localization/Editor/Authoring', ['Game.Framework.Localization', 'Game.Framework.Localization.Unity']),
+        ('Game.Framework.Localization.TMP.Editor', 'com.novorizon.localization/Editor/TMP', ['Game.Framework.Localization', 'Game.Framework.Localization.Unity', 'Game.Framework.Localization.UGUI']),
+        ('Game.Framework.Story', 'com.novorizon.story/Runtime', []),
+        ('Game.Framework.Story.Unity', 'com.novorizon.story/Authoring', ['Game.Framework.Story', 'Game.Framework.Core']),
+        ('Game.Framework.Story.UGUI', 'com.novorizon.story/UGUI', ['Game.Framework.Story', 'Game.Framework.Story.Unity', 'Game.Framework.Core', 'Game.Framework.UI', 'Game.Framework.Localization', 'Game.Framework.Localization.UGUI']),
+        ('Game.Framework.Story.Video', 'com.novorizon.story/Video', ['Game.Framework.Core', 'Game.Framework.Story.Unity']),
+        ('Game.Framework.Story.Editor', 'com.novorizon.story/Editor', ['Game.Framework.Story', 'Game.Framework.Story.Unity']),
+        ('Game.Framework.Story.Sample.Basic', 'com.novorizon.story/Samples~/BasicStory/Runtime', ['Game.Framework.Core', 'Game.Framework.Story', 'Game.Framework.Story.Unity', 'Game.Framework.Story.UGUI', 'Game.Framework.Story.Video', 'Game.Framework.Localization', 'Game.Framework.Localization.UGUI', 'Game.Framework.UI']),
+        ('Game.Framework.Story.Sample.Basic.Editor', 'com.novorizon.story/Samples~/BasicStory/Editor', ['Game.Framework.Story.Sample.Basic']),
         ('Game.Framework.Data.Editor', 'com.novorizon.data/Editor', []),
         ('Game.Framework.Localization.Luban.Editor', 'com.novorizon.localization/Editor', ['Game.Framework.Data.Editor']),
         ('Game.Framework.Diagnostics.Editor', 'com.novorizon.diagnostics/Editor', []),
@@ -44,6 +60,8 @@ def main():
         ('Game.Framework.GpuAnimation.URP.Editor', 'com.novorizon.gpuanimator.urp/Editor', []),
         ('Game.Framework.All.Editor', 'com.novorizon.framework.all/Editor', []),
     ]
+    if args.project:
+        modules.append(('Game.Framework.Resources.YooAsset', 'com.novorizon.framework.yooasset/Runtime', ['Game.Framework.Core', 'Game.Framework.Unity']))
     if args.include_tests:
         modules += [
             ('GpuAnimator.Editor.Tests', 'com.novorizon.gpuanimator/Tests/Editor', ['GpuAnimator', 'GpuAnimator.Editor']),

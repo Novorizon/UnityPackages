@@ -4,11 +4,17 @@
     "Game.Framework.Core",
     "Game.Framework.UI",
     "Game.Framework.Localization",
+    "Game.Framework.Localization.Unity",
     "Game.Framework.Localization.UGUI",
     "Unity.ugui",
     "Unity.TextMeshPro",
     "Game.Framework.UI.Demo",
-    "Game.Framework.Unity"
+    "Game.Framework.Unity",
+    "Game.Framework.Story",
+    "Game.Framework.Story.Unity",
+    "Game.Framework.Story.UGUI",
+    "Game.Framework.Story.Video",
+    "Game.Framework.Story.Sample.Basic"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

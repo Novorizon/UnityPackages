@@ -1,0 +1,10 @@
+{
+  "name": "Game.Framework.Story.UGUI",
+  "references": ["Game.Framework.Story", "Game.Framework.Story.Unity", "Game.Framework.Core", "Game.Framework.UI", "Game.Framework.Localization", "Game.Framework.Localization.UGUI", "Unity.ugui", "Unity.TextMeshPro"],
+  "defineConstraints": ["NOVORIZON_STORY_UI", "NOVORIZON_STORY_TMP", "NOVORIZON_STORY_LOCALIZATION"],
+  "versionDefines": [
+    {"name":"com.novorizon.framework.ui", "expression":"0.9.0", "define":"NOVORIZON_STORY_UI"},
+    {"name":"com.unity.textmeshpro", "expression":"3.0.6", "define":"NOVORIZON_STORY_TMP"},
+    {"name":"com.novorizon.localization", "expression":"0.1.0", "define":"NOVORIZON_STORY_LOCALIZATION"}
+  ]
+}

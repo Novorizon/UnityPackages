@@ -1,8 +1,6 @@
-# 剧情模块规划与 Cube 参考审查
+# 剧情模块架构与 Cube 参考审查
 
-本文是设计提案。尚未新增 `com.novorizon.story`，下述类型与 API 尚未实现；本次没有复制 Cube 的代码、Prefab、图片或第三方插件。
-
-建议把可复用的剧情播放能力做成**独立、可选模块**：流程核心负责播放会话，UI 适配负责立绘与对话表现，GameStarter 的业务接入负责触发条件、任务、存档和游戏行为。UI 包继续提供窗口、输入阻挡与生命周期等通用能力。
+`v0.1.0-preview.34` 已提供独立可选的 `com.novorizon.story`，使用说明见 [Story README](../Packages/com.novorizon.story/README.md)。它负责可复用的播放流程与默认表现；GameStarter/游戏负责触发、任务、奖励、存档和具体资源服务的接线。本次未复制 Cube 的代码、Prefab、图片或第三方插件。
 
 ## Cube 实际提供了什么
 
@@ -21,99 +19,36 @@
 
 Cube 根 [LICENSE](https://github.com/Novorizon/Cube/blob/25836cb62a462891add136a686ceebbb21621958/LICENSE)为 GPL-3.0。当前只参考职责与使用场景，不把其实现或第三方资源复制到 SDK；后续若计划直接复用，需要单独核实所选文件的权利和发布许可证。
 
-## 三层职责
+## 已实现的职责边界
 
-| 层 | 负责 | 对外边界 |
-| --- | --- | --- |
-| 可选剧情模块 | 会话、步骤推进、等待、取消、跳过、结果、稳定节点 ID、恢复检查点 | 输入规范化剧情数据与适配接口；输出完成结果、选择及业务动作请求 |
-| UI/媒体适配 | TMP 打字与立即显示全文、立绘槽位、背景、对话框、选项、音频句柄、视频播放面 | 使用 UI、Localization、Audio、资源租约和 Unity VideoPlayer；不判断任务、背包、奖励 |
-| GameStarter/游戏业务 | 何时触发、是否允许重复、剧情结束后的任务变化、存档持久化、游戏变量与自定义命令 | 提供数据/资源/媒体适配，处理结果；不重复编写通用播放循环 |
-
-首版只新增一个可选剧情包即可，按程序集隔离：
-
-| 建议程序集 | 依赖与职责 |
+| 程序集/层 | 负责 |
 | --- | --- |
-| Story.Runtime | 纯数据、会话和执行协议；不引用 UIView、TMP、VideoPlayer、Luban 生成表或具体资源管理器，可独立测试 |
-| Story.UGUI | 默认 TMP 对话/选项/立绘 Presenter，依赖已有 UI/TMP/Localization；缺少所需包时不启用 |
-| Story.Video | Unity VideoPlayer 的准备/播放/错误/取消适配，按 Video 模块及所需表现依赖启用；不加入核心程序集 |
+| Game.Framework.Story | 纯 C# 不可变序列、稳定节点 ID、分支、等待、命令端口、单会话 Busy、取消/跳过/超时、明确结果与检查点 |
+| Game.Framework.Story.Unity | ScriptableObject Sequence/Settings/Asset Library、本地资源租约、媒体接口；不引用 UI/VideoClip |
+| Game.Framework.Story.UGUI | TMP 打字/全文/推进、人物名、选项、立绘槽、背景、可选配音、语言切换 |
+| Game.Framework.Story.Video | Unity VideoPlayer 准备、首帧、错误、超时、跳过与取消，拥有并释放自身 RenderTexture/资源租约 |
+| GameStarter/游戏 | 何时播放、任务条件、自定义命令、奖励幂等、检查点持久化/迁移、资源及 UI 窗口适配 |
 
-样例明确列出各适配所需的 UI、TMP、本地化、音频、Video 依赖，由 GameStarter 一次组装。默认表现与 Prefab 放在 `Samples~/BasicStory`；多个游戏确实需要独立安装不同表现时，再拆适配包。首版不为每种动作建立一个 UPM 包或 Manager，也不把未完成的包加入 framework.all 默认依赖。
+核心不继承 UI Panel，也不创建全局 StoryManager。项目可把 StoryStage 放入现有 UIPanel，复用窗口与输入阻挡；关闭自己的窗口时取消自己的会话。UI 包继续提供通用布局、生命周期和安全区。
 
-已有 UI 包的 UIView、OpenToken、窗口句柄、遮罩和 SafeContent 继续复用。剧情播放器不继承 UIPanel；项目也无需创建另一个负责同一播放会话的 StoryManager 单例。
+## 最简单的使用方式
 
-## 业务怎样简单使用
+导入 Basic Story 示例并用菜单创建场景，可直接运行立绘对话、分支和切换语言；语音/视频使用项目指定的 AudioClip/VideoClip。正式内容在 Inspector 创建 Sequence、Asset Library 和 Settings，绑定 StoryLauncher/Stage；按钮的 UnityEvent 调用 Launcher.Play。业务需要结果时等待 PlayAsync，只在明确 Completed 时推进任务。
 
-目标使用流程：
+文本使用同一份 LocalizationTableAsset/CSV/Luban 的 key，不必在每句台词中调用 DataManager。默认表现全部使用 TMP；文字和按钮置于 UISafeArea 内，背景可铺满屏幕。目标语言字体、长文本及 iPhone 横竖屏仍需目标设备验收。
 
-1. 在项目创建 `StorySequence` 资产，配置对话、角色立绘、背景和视频步骤；每个节点有稳定字符串 ID。
-2. 在默认 StoryStage Prefab 上配置立绘槽位、TMP 对话框、视频 RawImage 和安全区布局，拖入一份项目 StorySettings。
-3. 项目入口一次性接好本地化、资源、音频和视频来源。配置型 Launcher 可按序列 ID 播放；按钮或任务只调用 Play，不读取生成表或资源句柄。
-4. 项目收到播放结果后，决定推进任务、写入完成状态或继续游戏。
+首版提供 Say、Choice、SetPortrait、SetBackground、PlayVideo、Wait、Command、End。Sequence 构建时检查重复 ID、未知目标、不可达节点及无交互/正时长等待的无条件循环。首版不包含节点图编辑器、条件表达式语言、Timeline、镜头编排、自动嘴型或引导系统；这些按实际业务再扩展。
 
-核心通过明确的端口连接外部能力，例如 IStoryPresenter、IStoryAssets、IStoryText、IStoryAudio、IStoryVideo 和 IStoryCommands。接口接收稳定 ID、规范化数据和取消令牌，返回带生命周期的结果；不把服务定位器或游戏管理器传进每个节点。接口名同样只是提案。
+## 会话、媒体与恢复
 
-首版内容源优先选一种：小型本地内容用 ScriptableObject；已有 Excel/Luban 流水线的项目用表适配器。两者都输出相同的只读序列模型，避免为每个来源维护一套执行器。Luban 的具体生成类型留在项目适配器，不成为 SDK 公共类型。
+StoryPlayer 每次只运行一个会话，清理期间仍 Busy。Completion 在 CloseAsync 和正在执行的推进回调结束后发布；关闭/加载/视频错误都不冒充 Completed。所有旧回调通过会话与步骤代际失效；资源租约按本次所有权归还，不清空全局缓存。
 
-建议的 API 形态如下，仅表示边界：
+适配器须响应取消。若忽略令牌，核心等待该操作真实结束，不允许旧副作用与新会话并行。超时请求取消并最终返回 Failed；不能强制中止任意项目任务。Unity 表现调用和资源释放在主线程执行。
 
-```csharp
-StorySession session = player.Play(sequence, cancellationToken);
-StoryResult result = await session.Completion;
-```
+检查点含 sequence ID/version、稳定 node ID 和选择历史，是当前节点执行前的不可变快照。它不保存画面状态、视频播放时间或业务事务，也不能直接用 JsonUtility 序列化属性。项目转换为自己的存档字段 DTO，再显式恢复；恢复节点可能重做该节点，项目需选择能重建舞台的安全边界并处理内容版本迁移。
 
-一个会话只代表一次播放。项目可调用 Advance、Skip 或 Cancel；不要求业务在每句台词之间手工开关 UI 或管理资源。播放结果包含 Completed、Skipped、Cancelled、Failed，并携带序列/节点 ID 与必要的选择结果。失败、视频加载失败、关闭与取消不能自动变成 Completed；是否把跳过算为“已看过”由项目明确决定。
+CommandInstanceId 标识序列/版本/节点的内容位置，不能代表每次播放或循环的业务发生次数。奖励幂等键由项目结合任务/逻辑运行 ID 决定；模块不自动发奖或宣称 exactly-once。
 
-同一播放器首版只允许一个活动会话，重复 Play 明确返回 Busy/拒绝，或由调用方先取消上一会话；不隐式叠加两个对话框，不自动丢弃旧会话。
+## 验证
 
-## 数据与步骤模型
-
-首版覆盖用户提出的对话、角色立绘和视频即可：
-
-| 步骤/数据 | 最小内容 |
-| --- | --- |
-| Say | speakerId、speakerNameKey、textKey、格式参数、可选 voiceId、点击/自动推进规则 |
-| Choice | choiceId、optionTextKey、目标 nodeId；首版提供直接选择，不先引入条件表达式 |
-| SetPortrait | slotId、characterId、portraitId/表情 ID、显示/隐藏与过渡参数 |
-| SetBackground | backgroundId、可选平移/缩放预设和时长 |
-| PlayVideo | mediaId、可否跳过、准备超时、结束/失败策略、后续节点 ID |
-| Wait | 秒数或明确的外部信号 ID，带取消与超时策略 |
-| Command | 稳定命令 ID 与受校验参数，交给项目业务处理 |
-| End | 结束结果 |
-
-正文、角色名、选项、继续/跳过按钮使用本地化 Key；资源使用稳定 ID，由项目映射到 Sprite、Texture、AudioClip、VideoClip 或受控 URL。立绘与背景分别建模：左/右/中槽位与表情切换是角色表现，整幅插画推拉是场景表现。
-
-首版提供简单 Choice 分支，导入时检查不存在的目标、重复 ID、不可达节点和无等待循环。无需状态机编辑器、任意脚本执行或复杂表达式语言。下一阶段按需求增加受限 Condition 与显式 Jump；业务事实由项目只读适配提供，副作用仍通过命令执行。
-
-## 播放与媒体生命周期
-
-每次播放持有独立取消源、代际 ID 和资源作用域；每一步再持有自己的等待/媒体句柄。推进、取消、跳过和场景退出都必须先使旧步骤失效，迟到的图片/语音/视频回调不能修改新步骤或新会话。
-
-默认表现规则：
-
-- 对话打字时点击第一次显示全文，再点击才推进；自动推进显式说明从显示全文、语音结束或延时哪一个条件开始计算。
-- 准备好本步骤需要的资源后再发布可见状态。失败保留可辨识的失败结果，不把空立绘/空视频静默当作正常播放结束。
-- 默认只使用 UI 的本次窗口句柄关闭自己，释放本次资源租约、输入屏蔽租约和音频句柄；不销毁共享 UIManager 或清空全局资源缓存。
-- 视频停止后解绑回调与目标 RenderTexture，再释放渲染目标/资源；仅取消等待时，尚在进行的原生准备操作仍需在完成后归还资源。
-- Unity 对象操作在主线程执行；数据规范化与纯流程校验可以与 Unity 无关。会话结束通知至多一次，清理异常不能让其余资源永远不归还。
-
-VideoPlayer 适配至少处理 prepareCompleted、loopPointReached、errorReceived、准备超时、取消和跳过；以不同结果返回会话。视频面保持宽高比，并按项目布局选择留黑边或裁切。视频解码/编码格式、暂停恢复、目标设备音画同步要原生验收。
-
-不要让子对话框暂时隐藏就取消整段剧情：切换到视频时文字面板可以隐藏，根 StoryStage/业务所有者仍持有会话。根表现被真正关闭或场景所有者退出时，才按显式策略取消。
-
-## 检查点与业务副作用
-
-检查点包含 sequenceId、内容版本、稳定 nodeId 和选择/变量的必要快照；不序列化 GameObject、回调、资源句柄或仅靠数组下标恢复。表增删顺序后，仍能定位原节点；节点被删除或版本不兼容时，项目选择指定安全节点、重新开始或放弃恢复，不能随意夹取数组下标。
-
-只在安全步骤边界恢复，未确认的文字节点可以重新显示，视频默认从该视频步骤重新开始。需要视频精确续播时再扩展明确的媒体检查点，不把任意时间轴状态混进首版通用存档。
-
-剧情模块发出业务命令请求，项目执行并返回结果；奖励、任务完成、消耗物品等不可重复副作用由项目用稳定命令实例 ID 做幂等处理。播放失败/取消不发任务完成事件。模块只产生检查点 DTO，由 LocalStorage 或项目存档系统决定写入时机与迁移规则。
-
-## 最小实施顺序
-
-1. **首版完整小流程**：SO 配置、只读序列、稳定 ID、会话结果与取消/跳过；TMP 对话、立绘/背景、简单选项、可选配音、VideoPlayer 准备/播放/错误/超时。交付“立绘对话 → 选项 → 配音/视频 → 立绘对话”的本地 Demo，业务入口不手工读取 DataManager。
-2. **业务适配与恢复**：可选 Luban 导入/适配、完成/失败/跳过结果接线、检查点和幂等命令；GameStarter 展示进入区域触发与保存恢复。
-3. **按需高级能力**：受限 Condition/Jump、GuideTarget 稳定 ID、批量校验与预览。复杂角色走位、镜头切换和时间轴演出使用可选 Timeline/Cinemachine 适配，由剧情流程等待其完成，不重建一套通用电影时间轴。
-
-建议的首轮验收：双击推进不重复执行、旧加载/旧视频回调不能覆盖新会话、加载失败不触发任务完成、关闭/取消/跳过时资源可归还、等待和准备有超时、检查点不依赖节点顺序、语言切换正确更新 TMP/字体、长文与横竖屏安全区正确、视频播放失败可观测。桌面测试通过后仍需 iPhone/Metal、视频解码与 IL2CPP 原生验收。
-
-GameStarter 的工作应是组装演示、制作 Prefab 和适配具体游戏规则；通用会话推进与媒体等待协议由可选剧情模块统一实现。该提案尚未实现，后续应围绕上述最小范围单独开发和验证。
+纯核心独立回归覆盖图/快照、分支、恢复、取消、跳过、超时和推进竞态。真实 Unity 验收覆盖 TMP、多语言、资源释放和自生成 VP8 视频解码，最终结果与平台边界见 [原生验收](../tools/NativeAcceptance/README.md)。iPhone/Metal、目标平台媒体编解码及 IL2CPP 仍需对应主机和真机执行。

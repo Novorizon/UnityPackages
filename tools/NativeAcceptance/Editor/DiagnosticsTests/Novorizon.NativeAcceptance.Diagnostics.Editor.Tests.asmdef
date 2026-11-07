@@ -1,0 +1,18 @@
+{
+  "name": "Novorizon.NativeAcceptance.Diagnostics.Editor.Tests",
+  "references": [
+    "Game.Framework.Diagnostics.Editor",
+    "Game.Framework.Core",
+    "Game.Framework.Unity",
+    "Game.Framework.Resources.YooAsset",
+    "Game.Framework.Localization",
+    "Game.Framework.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

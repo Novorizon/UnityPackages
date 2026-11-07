@@ -261,8 +261,8 @@
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
-      "sha256": "798e86e5e0f0eba2e1ad33d16322bb8a87152e85a95afc8ae43e0f25df4184f6",
-      "reason": "Pair OnStart/OnExit once per run and expose no-create Release; cleanup stays inside components."
+      "sha256": "9c543a7e0f64ea2c343a416d342c22703cd3906be06e56772d605d4a9e7faa5c",
+      "reason": "Add immutable resource ownership diagnostics and separately named owned acquisition while preserving original AcquireAsync API."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
       "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
@@ -511,6 +511,10 @@
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/Game.Framework.UI.Demo.asmdef": {
       "sha256": "fd8c340ee48a6b8fb8a1af9e0c09d9e4ccf3b3c016e5b22ed343cbd642520710",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs": {
+      "sha256": "aba81f2a9c598c05b068a063a6faad336e354eea2e9f2a6dd2b23c6b9005c0d4",
+      "reason": "Track optional owner, scope ID and scene labels in existing independent resource leases."
     }
   }
 }

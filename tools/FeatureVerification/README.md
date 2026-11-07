@@ -10,6 +10,8 @@ For managed API compatibility against installed Unity and URP template assemblie
 python3 tools/FeatureVerification/compile-native.py --editor /path/to/2022.3.62f1/Editor --dotnet /path/to/dotnet
 ```
 
+Add `--project /absolute/CompiledUnityProject` to include the resource adapter against that project's real YooAsset DLL. Run this while the project is closed so Unity does not rebuild/delete the DLL during compilation. The compiler also includes localization authoring/TMP inspectors, Story adapters and both shipped UI/Story samples.
+
 Add `--include-tests` to also compile both native GPU test assemblies (restores NUnit 3.13.3 from NuGet). This compiles C# only; it does not launch Unity or execute shaders. Real import/Shader/Play/IL2CPP acceptance requires a licensed Editor. GPU URP EditMode checks ship in the URP package; the generated standalone verification project lists both GPU packages as testable. Real fonts, layouts, rendering and target-device batching remain native checks.
 
 
