@@ -177,16 +177,35 @@ namespace YooAsset
         public Task AssetGate = Task.CompletedTask, SceneGate = Task.CompletedTask;
         public Task InitializeGate = Task.CompletedTask;
         public EOperationStatus InitializeStatus;
-        public bool FailNextAsset, FailNextScene;
-        public int InitializeCalls, VersionRequests;
+        public bool FailNextAsset, FailNextScene, FailNextInitialize;
+        public int InitializeCalls, VersionRequests, ManifestRequests, DownloaderCalls;
+        public InitializeParameters LastInitializeParameters;
         public string SelectedVersion;
         public ResourceDownloaderOperation Downloader = new ResourceDownloaderOperation();
-        public ResourceDownloaderOperation CreateResourceDownloader(int concurrency, int retries) => Downloader;
+        public ResourceDownloaderOperation CreateResourceDownloader(int concurrency, int retries)
+        {
+            DownloaderCalls++;
+            return Downloader;
+        }
+
         public Operation InitializeAsync(InitializeParameters parameters)
         {
             InitializeCalls++;
-            InitializeStatus = EOperationStatus.Succeed;
-            return new Operation { Task = InitializeGate };
+            LastInitializeParameters = parameters;
+            InitializeStatus = EOperationStatus.None;
+            bool fail = FailNextInitialize;
+            FailNextInitialize = false;
+            var operation = new Operation { Status = EOperationStatus.None };
+            operation.Task = CompleteInitializeAsync(operation, InitializeGate, fail);
+            return operation;
+        }
+
+        private async Task CompleteInitializeAsync(Operation operation, Task gate, bool fail)
+        {
+            await gate;
+            operation.Status = fail ? EOperationStatus.Failed : EOperationStatus.Succeed;
+            operation.Error = fail ? "test package initialization failure" : "";
+            InitializeStatus = operation.Status;
         }
 
         public Operation RequestPackageVersionAsync()
@@ -196,6 +215,7 @@ namespace YooAsset
         }
         public Operation UpdatePackageManifestAsync(string version)
         {
+            ManifestRequests++;
             SelectedVersion = version;
             return new Operation();
         }

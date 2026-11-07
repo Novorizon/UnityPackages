@@ -18,6 +18,8 @@ internal static partial class Program
         await Check("release signatures bind the resource version and package identity", ContentPolicy);
         await Check("failed update resources fall back with packaged DLLs and reject the complete pair", ReleasePairFallback);
         await Check("resource code shares completed downloads and restarts from manifest-only cache", () => RunReleasePair(ResourceCodeCase.Success));
+        await Check("packaged-only startup preserves healthy online releases and acceptance receipts", () => RunReleasePair(ResourceCodeCase.PackagedOnly));
+        await Check("packaged-only startup ignores remote configuration but validates local settings", PackagedOnlySettings);
         await Check("missing unified resources revert both code and content without raw downloads", () => RunReleasePair(ResourceCodeCase.MissingResources));
         await Check("resource DLL hash mismatch rejects the release before loading", () => RunReleasePair(ResourceCodeCase.CorruptDll));
         await Check("resource AOT metadata stays pinned and fails as a complete pair", () => RunReleasePair(ResourceCodeCase.CorruptMetadata));
@@ -25,6 +27,10 @@ internal static partial class Program
         await Check("resource-code baseline refuses silent standalone-download fallback", () => RunReleasePair(ResourceCodeCase.MissingProvider));
         await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
+        await Check("manager initialization only configures; explicit start runs once with the original context", ManagerInitializationOnlyConfigures);
+        await Check("manager start requires completed configuration", ManagerStartRequiresInitialization);
+        await Check("configured manager can stop without starting or preparing content", ManagerCanStopBeforeStarting);
+        await Check("cancellation between configuration and start prevents content preparation", ManagerCancellationBeforeStart);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
         await Check("startup context reaches the optional host without serialization", StartupContext);
         await Check("missing startup acknowledgement fails and closes the entry", MissingAcknowledgement);

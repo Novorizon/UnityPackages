@@ -209,8 +209,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "f634b33e98b5eaf3ccf1171ddac53bf777c5b3ecc35b255358fe67642f13b2c3",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "e32fb87c03217ce122d477aea0bad7096ae40fa012303affeae54af646903c0a",
+      "reason": "Separate filesystem initialization from exact content preparation, share uncancellable native initialization, and preserve generation-safe cancellation, shutdown and reset behavior."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
@@ -273,16 +273,16 @@
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
-      "sha256": "fa2c506f8c8f2445b48bf7e4598b87f31ca2d2aa6dfcaea3ecca82a39cd5d0ab",
-      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
+      "sha256": "701d711594fded1583c28e3864d2a9b213f51c517553e001e838783b4093c7fa",
+      "reason": "Retain resource-backed verified code loading and standalone transport compatibility; support explicit packaged-only startup before cache access so online releases, acceptance receipts and health records remain untouched."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
       "sha256": "2d204826300da891044e2cc04d9b920e6fd9f01bd4fff4452d8ea44f9f800115",
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
-      "sha256": "e220b87ea8d8adbff8488fe8e26c63d1d07e63dc70c4f38c1fc3ad124af31435",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "60fec1c77adacacdb24bcba0929cd6562057fc9e8a19830d297783e4ca03429a",
+      "reason": "Separate explicit configuration initialization from update execution while keeping InitializeAsync compatibility, verified release pairing and startup ownership."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
       "sha256": "7956b6cf08b2075ab8ca01ef6cea55da6ea57effe15ab0c1b706419eed30f5dc",
@@ -361,8 +361,8 @@
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "156bf6f8318db654124d8b7e47353c547ec95d04849f697ee548ca37dad5b5fd",
-      "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
+      "sha256": "9105742d6ca1af424d60f6b89ec658d34c9508153fced67939c91749ee1e2a59",
+      "reason": "Retain resource-backed verified code loading and standalone transport compatibility; support explicit packaged-only startup before cache access so online releases, acceptance receipts and health records remain untouched."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",

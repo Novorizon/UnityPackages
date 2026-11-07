@@ -14,6 +14,7 @@
     <ProjectReference Include="LubanEditor/LubanEditor.csproj" />
     <ProjectReference Include="LubanFixture/LubanFixture.csproj" />
     <Compile Include="Program.cs" />
+    <Compile Include="ResourcePackageScenarios.cs" />
     <Compile Include="InteractionScenarios.cs" />
     <Compile Include="TimerDriverScenarios.cs" />
   </ItemGroup>

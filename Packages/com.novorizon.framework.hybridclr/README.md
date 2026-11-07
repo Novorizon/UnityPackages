@@ -6,7 +6,7 @@
 
 完整工程使用 [GameStarter](https://github.com/Novorizon/GameStarter)。独立项目安装 framework.all 或同一发行标签的 Framework、本包及官方依赖。HybridCLR 原生安装器需要使用方工程中的可写 Embedded 包，由安装流程处理。
 
-运行时由自己的 GameEntry 显式调用：
+运行时由自己的 GameEntry 先等待资源文件系统初始化成功，再配置热更管理器：
 
 ```csharp
 var settings = new UpdateSettings
@@ -14,14 +14,21 @@ var settings = new UpdateSettings
     entryAssembly = "Game.HotUpdate",
     entryType = "Game.HotUpdate.HotGame"
 };
-await HotUpdateManager.Instance.InitializeAsync(settings, cancellationToken);
+var updates = HotUpdateManager.Instance;
+updates.Initialize(settings, startupContext, cancellationToken);
+// 配置成功后，由 GameHotUpdate 等项目模块显式执行更新。
+await updates.StartAsync();
 ```
 
-HotGame 是公开、无参构造的普通 C# 类，实现 IGameModule。HotUpdateManager 创建它并调用 InitializeAsync；启动完成时由入口调用 host.ReportReady。共享启动参数可通过 InitializeAsync(settings, startupContext, token) 传入，在热更侧读取 IGameContextHost.StartupContext。
+`Initialize(settings, startupContext, token)` 只校验并保存配置和启动上下文，不检查发行、不下载、不加载 DLL，也不创建 HotGame。`StartAsync()` 才执行这些步骤，重复调用共用同一任务；未初始化就调用会明确报错。已有 `InitializeAsync(settings, startupContext, token)` 仍兼容，作为配置初始化与实际更新的便捷组合。
+
+使用 YooAsset 时，可先调用 `ResourceManager.InitializePackageAsync(parameters, token)`，它只准备资源文件系统。清单版本与资源下载应在发行选定后由 `prepareContentAsync` 处理，不能把第一次资源初始化当作资源内容已经就绪。
+
+HotGame 是公开、无参构造的普通 C# 类，实现 IGameModule。热更流程创建它并调用 InitializeAsync；启动完成时由入口调用 host.ReportReady。共享启动参数在热更侧通过 IGameContextHost.StartupContext 读取。
 
 游戏逻辑和生成表放在 settings.hotUpdateRoot 下的 asmdef 中；AOT 程序集不能反向引用这些热更程序集。Editor 使用已编译的程序集，Player 使用验证后的 DLL；loadFromCompiledAssemblies 支持编译源入口。没有启动 JSON、场景引导组件或 RuntimeInitialize 自动创建的热更 GameObject。
 
-重复初始化共用任务。退出使用 HotUpdateManager.Release；普通服务的初始化和退出由 HotGame 组织，管理器内部处理自己的重复释放。可选 IGameApplicationEvents 接收宿主转发的暂停/焦点通知。
+重复配置同一个对象和上下文是幂等的，不能在本次运行中替换配置；重复开始更新共用任务。退出使用 HotUpdateManager.Release；普通服务的初始化和退出由 HotGame 组织，管理器内部处理自己的重复释放。可选 IGameApplicationEvents 接收宿主转发的暂停/焦点通知。
 
 ## 资源配对
 
@@ -30,6 +37,10 @@ ReleaseManifest.content 保存资源包名和精确版本，与 DLL 哈希、基
 资源准备失败时，加载器拒绝该更新并尝试配套的内置发行；项目回调必须同时切回内置资源。GameStarter 已接好 YooAsset 的精确版本下载，以及内置发行使用离线资源的回退。代码加载后不在当前进程切换版本。
 
 remoteBaseUrl 为清单根，remoteFilesBaseUrl 可单独指定 DLL 根；scopeRemoteByBaseline 按平台/渠道/基线划分路径。启用远程更新需要可信公钥和 HTTPS。
+
+`enableRemote = false` 只关闭远端检查，仍可选用以前下载并验证的发行。只允许内置内容的离线模式应另设 `usePackagedReleaseOnly = true`：先验证主包清单及应用、渠道、平台，再直接准备内置代码与资源，不打开、清理或修改 HybridCLR 发行缓存、接纳记录和启动健康记录。恢复在线后仍能使用原来的健康更新。
+
+`usePackagedReleaseOnly` 优先于 `enableRemote`，忽略远端 URL 和公钥配置；本地身份、入口、路径及通用执行限制仍需有效。`prepareContentAsync` 和 `loadCodeAsync` 仍会执行，项目必须让内置发行使用离线资源提供方；本开关不控制外部资源提供方自己的缓存。Editor 或 `loadFromCompiledAssemblies` 模式沿用编译程序集入口，不执行 Player 的发行选择。
 
 ### 由 YooAsset 等资源系统提供代码
 
