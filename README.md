@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.36`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.37`。
 
 ## 包与职责
 
@@ -25,6 +25,8 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 | com.novorizon.payments | App Store / Google Play 内购，验单发货后确认订单 |
 | com.novorizon.ads | AppLovin MAX / 国内穿山甲，激励视频与全屏插屏 |
 | com.novorizon.firebase | 按需启用 Analytics、Crashlytics、Remote Config、FCM、Auth |
+| com.novorizon.analytics | AnalyticsManager、数数 / GameAnalytics 与统一埋点 |
+| com.novorizon.attribution | AttributionManager、AppsFlyer / Adjust 与收入归因 |
 | com.novorizon.framework.all | 全部包的聚合安装入口 |
 
 官方 HybridCLR、YooAsset、Luban 通过依赖声明和官方 Git 来源解析，不保存在本包仓库。Framework 不反向依赖这些功能包；ECS 与 Ability 独立。详见[架构](Documentation/Architecture.zh-CN.md)。
@@ -34,7 +36,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.36
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.37
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -42,6 +44,8 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 需要可运行工程时使用独立的 [GameStarter](https://github.com/Novorizon/GameStarter)。本仓库不含 Unity 工程，不要求消费者使用本地 `file:` 路径。
 
 ## 文档与示例
+
+- **[SDK 用途与 Manager 清单](Documentation/SdkGuide.zh-CN.md)**：先看每个平台做什么、业务只用哪些入口，以及国内 / 海外最小推荐组合。
 
 - [Demo 索引](Documentation/Samples.zh-CN.md)：每个示例的入口、前置资源和验收目标。
 - [游戏基础服务](Documentation/GameServices.zh-CN.md)：场景、音频、输入、Luban 和存储。
@@ -65,6 +69,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.37
+
+- 对业务统一使用 IapManager / AdManager / AuthManager / AnalyticsManager / AttributionManager / FirebaseManager，旧 Client API 保持兼容。
+- 新增数数、GameAnalytics、AppsFlyer、Adjust 可选封装；行为统计与买量归因独立。新增 Firebase 统一统计桥接与 Inspector / UnityEvent 埋点组件。
+- 一次事件按配置分发，禁用期间不缓存业务事件；用户属性能力、归因事件 token、收入字段与本地提交结果有明确边界。SDK 对照与用法见[清单](Documentation/SdkGuide.zh-CN.md)。
 
 ## v0.1.0-preview.36
 

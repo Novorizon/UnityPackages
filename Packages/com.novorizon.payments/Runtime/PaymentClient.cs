@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Payments
 {
     /// <summary>Explicit main-thread owner; cancellation never implies a financial transaction was rolled back.</summary>
-    public sealed class PaymentClient : IDisposable
+    public class PaymentClient : IDisposable
     {
         private readonly IPaymentStore store;
         private readonly IPurchaseFulfillment fulfillment;

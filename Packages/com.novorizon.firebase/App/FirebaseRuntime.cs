@@ -6,7 +6,7 @@ using FirebaseApp = global::Firebase.FirebaseApp;
 namespace Game.Framework.Firebase.Unity
 {
     /// <summary>Explicit dependency setup. Firebase App remains project-owned; disposing a wrapper never deletes it.</summary>
-    public sealed class FirebaseRuntime
+    public class FirebaseRuntime
     {
         private Task<FirebaseApp> initialization;
         public bool IsInitialized => initialization != null && initialization.Status == TaskStatus.RanToCompletion;

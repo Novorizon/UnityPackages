@@ -1,6 +1,6 @@
 # 移动平台服务接入
 
-本次新增 Auth、Payments、Ads、Firebase 四个独立包。`all` 安装这些自有包，不下载广告、支付、社交或 Firebase 的原生 SDK，不初始化它们，不包含 AppID、广告位、商户凭据或 Firebase 项目配置。游戏启动层明确创建所需实例并负责生命周期；不增加全局 Manager。
+业务入口统一使用 Manager，先看 [SDK 用途与入口清单](SdkGuide.zh-CN.md)。Auth、Payments、Ads、Firebase 分别提供对应功能。`all` 安装这些自有包，不下载广告、支付、社交或 Firebase 的原生 SDK，不初始化它们，不包含 AppID、广告位、商户凭据或 Firebase 项目配置。游戏启动层明确创建所需实例并负责生命周期；不增加全局 Manager。
 
 ## 平台与 SDK 选择
 
@@ -54,9 +54,9 @@ Native~ 是待安装的项目模板，不会自动进入构建；修改过的模
 登录和绑定是不同的操作，绑定不会按邮箱自动合并两份存档：
 
 ```csharp
-var firebase = new FirebaseRuntime();
+var firebase = new FirebaseManager();
 await firebase.InitializeAsync();
-var auth = new AuthClient(
+var auth = new AuthManager(
     new FirebaseAuthBackend(firebase),
     new IIdentityProvider[]
     {
@@ -81,7 +81,7 @@ string sessionToken = await auth.GetSessionTokenAsync();      // 发给游戏服
 var store = new UnityIapStore(
     NativeStore.GooglePlay, // iOS 使用 Apple
     new[] { new StoreProduct("coins", "com.example.game.coins", StoreProductKind.Consumable) });
-var payments = new PaymentClient(store, verifiedGameBackend, ownsStore: true);
+var payments = new IapManager(store, verifiedGameBackend, ownsStore: true);
 await payments.InitializeAsync();
 await payments.RecoverAsync(); // 启动时查已知权益、补处理未确认订单
 PaymentResult result = await payments.PurchaseAsync("coins");
@@ -100,7 +100,7 @@ PaymentResult result = await payments.PurchaseAsync("coins");
 广告只选一个 provider，加载成功后展示；关广告不会直接加钱：
 
 ```csharp
-var ads = new AdsClient(new CsjAdProvider(csjAppId, privacyConsent: true, rewardUserId: user.Id), ownsProvider: true);
+var ads = new AdManager(new CsjAdProvider(csjAppId, privacyConsent: true, rewardUserId: user.Id), ownsProvider: true);
 // 海外可换成 new MaxAdProvider(hasUserConsent, user.Id)
 ads.RewardEarned += OnRewardEarned;
 await ads.InitializeAsync();

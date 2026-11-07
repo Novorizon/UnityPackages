@@ -1,0 +1,23 @@
+{
+  "name": "Game.Framework.Analytics.GameAnalytics",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics",
+    "GameAnalyticsSDK"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_GAMEANALYTICS"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.gameanalytics.sdk",
+      "expression": "[8.3.1,9.0.0)",
+      "define": "NOVORIZON_GAMEANALYTICS"
+    }
+  ]
+}

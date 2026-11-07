@@ -1,0 +1,13 @@
+{
+  "name": "com.novorizon.analytics",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Analytics",
+  "description": "Optional ThinkingData and GameAnalytics with portable event routing and user profiles.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8"
+  }
+}

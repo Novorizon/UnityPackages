@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Auth
 {
     /// <summary>Explicitly owned main-thread facade. Busy persists until the underlying SDK task ends.</summary>
-    public sealed class AuthClient : IDisposable
+    public class AuthClient : IDisposable
     {
         private readonly IAuthBackend backend;
         private readonly Dictionary<IdentityProvider, IIdentityProvider> providers = new Dictionary<IdentityProvider, IIdentityProvider>();

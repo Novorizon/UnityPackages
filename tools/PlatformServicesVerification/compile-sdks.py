@@ -35,6 +35,7 @@ def main():
         'payments': ['Runtime', 'UnityIap'],
         'ads': ['Runtime', 'AppLovin', 'Csj'],
         'firebase': ['Runtime', 'App', 'Analytics', 'Crashlytics', 'RemoteConfig', 'Messaging', 'Auth'],
+        'analytics': ['Runtime'],
     }.items():
         for folder in folders:
             sources += list((ROOT / f'Packages/com.novorizon.{package}' / folder).glob('*.cs'))

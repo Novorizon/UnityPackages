@@ -51,7 +51,7 @@ public sealed class PlatformServicesNativeTests
         UnityThread.Initialize();
         var source = new PendingIdentity();
         var backend = new NoBackend();
-        using (var client = new AuthClient(backend, new[] { source }, true))
+        using (var client = new AuthManager(backend, new[] { source }, true))
         using (var stop = new CancellationTokenSource())
         {
             var pending = client.SignInAsync(IdentityProvider.Google, stop.Token);

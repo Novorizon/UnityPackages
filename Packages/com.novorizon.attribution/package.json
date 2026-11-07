@@ -1,0 +1,14 @@
+{
+  "name": "com.novorizon.attribution",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon Attribution",
+  "description": "Optional AppsFlyer and Adjust mobile attribution and conversion reporting.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.8",
+    "com.novorizon.analytics": "0.1.0-preview.1"
+  }
+}

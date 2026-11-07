@@ -4,7 +4,8 @@
   "references": [
     "Game.Framework.Core",
     "Game.Framework.Firebase",
-    "Game.Framework.Firebase.App"
+    "Game.Framework.Firebase.App",
+    "Game.Framework.Analytics"
   ],
   "autoReferenced": true,
   "noEngineReferences": false,

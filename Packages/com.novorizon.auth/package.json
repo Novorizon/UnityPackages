@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.auth",
-  "version": "0.1.0-preview.1",
+  "version": "0.1.0-preview.2",
   "displayName": "Novorizon Auth",
   "description": "Native Apple/Google and optional Facebook identity adapters with account linking contracts.",
   "unity": "2022.3",
