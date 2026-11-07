@@ -61,7 +61,7 @@ Assets/Artworks/GpuRole/
 ## 单角色验收流程
 
 1. 先建立只含一个角色的源目录，按交付目录放入 FBX、主贴图和 `.anim`。
-2. 打开 **GpuSkinning > Baker**，设置源目录、独立的输出目录、Unlit/PBR 和最大动画纹理尺寸，默认上限为 `2048`。源目录与输出目录均须在本项目 `Assets/` 中，不能相同或互相包含。
+2. 打开 **GpuSkinning > Baker**，设置源目录、独立的输出目录、URPUnlit/URPLit（Built-in 使用 Unlit/PBR）和最大动画纹理尺寸，默认上限为 `2048`。源目录与输出目录均须在本项目 `Assets/` 中，不能相同或互相包含。
 3. 在非 Play 模式且导入、编译完成后执行 **Validate all roles**。它会完整采样和准备数据，但不会创建、覆盖或删除烘焙输出；根据窗口与 Console 中的角色报告修正错误后重新验证。
 4. 执行 **Bake all roles**，检查生成 prefab、Mesh、材质、`_Data.png` 和 `_Data.bytes`，按[快速开始](getting-started.md#首次播放)初始化播放器。
 5. 逐个播放实际 Clip 名称，检查首尾、帧率、脚底、扭转、PBR 光照和镜头边缘剔除。对一次性动作额外检查末帧与完成回调；再在目标平台检查纹理导入和批处理情况。

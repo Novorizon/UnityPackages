@@ -33,6 +33,34 @@ namespace Game.Framework.GpuAnimation.URP.Tests
         }
 
         [Test]
+        public void LitShaderProvidesLightingShadowDepthAndNormalPasses()
+        {
+            var shader = Shader.Find("Novorizon/GpuSkinning/URP Lit");
+            Assert.That(shader, Is.Not.Null);
+            Assert.That(ShaderUtil.ShaderHasError(shader), Is.False);
+            var material = new Material(shader);
+            try
+            {
+                foreach (string property in new[]
+                {
+                    "_MainTex", "_Mask", "_AnimationTex", "_AnimationTexSize", "_BoneNum", "_FrameIndex",
+                    "_BumpMap", "_BumpScale", "_Metallic", "_Smoothness"
+                })
+                {
+                    Assert.That(material.HasProperty(property), Is.True, property);
+                }
+                foreach (string pass in new[] { "ForwardLit", "ShadowCaster", "DepthOnly", "DepthNormals" })
+                {
+                    Assert.That(material.FindPass(pass), Is.GreaterThanOrEqualTo(0), pass);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(material);
+            }
+        }
+
+        [Test]
         public void ConfigurePreservesAnExistingGraphicsOrQualityPipeline()
         {
             var previousGraphics = GraphicsSettings.defaultRenderPipeline;

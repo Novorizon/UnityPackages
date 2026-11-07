@@ -67,6 +67,34 @@ namespace GpuAnimatorTests
             Assert.That(AssetDatabase.GetAssetPath(material.GetTexture("_AnimationTex")), Is.EqualTo(paths[3]));
         }
 
+        [TestCase("Novorizon/GpuSkinning/URP Lit", true)]
+        [TestCase("Novorizon/GpuSkinning/URP Unlit", false)]
+        public void UrpBakeSetsShadowPolicyAndPreparesTangents(string shaderName, bool lit)
+        {
+            if (Shader.Find(shaderName) == null)
+            {
+                Assert.Ignore("Optional URP adapter is not installed in this test project.");
+            }
+            GpuAnimationBakeRequest request = WriterRequest(Clip("Move", "m_LocalPosition.x", 2));
+            request.ShaderName = shaderName;
+            using (GpuAnimationBakeResult result = GpuSkinningGenerator.Bake(request))
+            {
+                GpuAnimationAssetWriter.Save(request, result);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(OutputPaths(request)[2]);
+                MeshRenderer renderer = prefab.GetComponent<MeshRenderer>();
+                Assert.That(renderer.receiveShadows, Is.EqualTo(lit));
+                Assert.That(renderer.shadowCastingMode, Is.EqualTo(lit
+                    ? UnityEngine.Rendering.ShadowCastingMode.On
+                    : UnityEngine.Rendering.ShadowCastingMode.Off));
+                Assert.That(renderer.sharedMaterial.shader.name, Is.EqualTo(shaderName));
+                if (lit)
+                {
+                    Mesh mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
+                    Assert.That(mesh.tangents.Length, Is.EqualTo(mesh.vertexCount));
+                }
+            }
+        }
+
         [Test]
         public void AnimationTextureKeepsExactDimensionsBytesAndLinearImportSettings()
         {

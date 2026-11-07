@@ -165,3 +165,33 @@ grid.ScrollTo(9999);
 ```
 
 每次 SetData/SetItemCount 重置滚动位置；ScrollTo 使用条目索引。RefreshItems 更新同数量内容。最后一行不足列数时隐藏剩余 Cell，maximumVisibleCells 限制可见及 overscan 行的总 Cell 数。列宽和间距由调用方配置，需使其适合 Viewport；不自动换列或处理动态高度。Content 同样不能挂 LayoutGroup/ContentSizeFitter。Prefab 所有权和原生销毁等待与虚拟列表一致。回收前调用 Unbind 清理旧异步请求和监听。
+
+
+## 动态高度虚拟列表
+
+`UIVirtualDynamicList` 面向聊天、公告、多语言图文等垂直列表。稳定且唯一的字符串 ID 用于高度缓存和滚动锚点；高度索引的定位和单项更新为 O(log n)，数据重设为 O(n)。可见行与 overscan 行使用有界实例池，实例数只按需要增长，Clear 时释放。Content 的层级、遮罩和 Prefab 租约要求与固定列表一致。
+
+```csharp
+dynamicList.Configure(scrollRect, cellPrefab, estimatedHeight: 64,
+    measureHeight: row => LayoutUtility.GetPreferredHeight((RectTransform)row.transform));
+dynamicList.SetData(messages, item => item.Id,
+    (row, item, index) => row.GetComponent<MessageCell>().Bind(item),
+    row => row.GetComponent<MessageCell>().Unbind());
+dynamicList.ScrollTo(100);
+```
+
+省略 `measureHeight` 时使用估计高度，由业务显式回报实测值。测量回调在 LateUpdate 读取当前可见行的首选高度，每帧批量修正一次；不强制重建 Canvas 布局，延迟布局可能在后续帧收敛。回调应返回内容首选高度，不应读取列表已分配的 rect.height。单元格可以有自己的布局组件，不能让它们与列表同时控制行根节点高度。
+
+异步图文完成后，在主线程调用 `ReportHeight(id, measuredHeight, capturedDataVersion)`。绑定时保存 ID 和 `DataVersion`，并在 Unbind 取消请求；数据重设、Clear、宽度变化或高度失效后，旧版本回报返回 false。不要在异步完成时重新读取当前版本并把旧测量当作新数据提交。
+
+```csharp
+// 绑定时捕获，随该条目的异步任务传递。
+string itemId = item.Id;
+int version = dynamicList.DataVersion;
+// 内容布局完成后，在主线程回报。
+dynamicList.ReportHeight(itemId, measuredHeight, version);
+```
+
+`SetData(..., resetPosition: false, retainHeights: true)` 在插删/重排后保留仍存在的 ID 高度及首个可见条目的像素偏移。内容改变而 ID 未改变时，使用默认的 retainHeights=false，或调用 `InvalidateHeights()`。宽度变化会自动重置估计高度、更新版本并重绑；语言/字体变化由项目调用 InvalidateHeights。锚点条目删除时保留原像素偏移并限制到有效范围；锚点变矮时限制行内偏移；靠近底部时 Content 边界优先。
+
+高度必须为有限正数，ID 不能重复/为空。默认 maxVisibleItems=512 保护可见及 overscan 行，估计过小或单元格过矮导致超限会明确抛错。测量回调应稳定收敛，避免按列表高度反推首选高度形成反馈循环。绑定异常会记录并隐藏该行，RefreshItems 可重试。滚动稳定后框架自身不分配，业务绑定与引擎原生布局成本需另行测量；拖拽、惯性、CanvasScaler 和真实字体排版仍需原生工程验收。

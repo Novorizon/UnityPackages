@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.30`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.31`。
 
 ## 包与职责
 
@@ -14,7 +14,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 | com.novorizon.ecs | 实体、组件、系统、ECS 专用池与生命周期 |
 | com.novorizon.rtree | 六种空间树，各自一个 Runtime 目录 |
 | com.novorizon.gpuanimator | GPU 动画烘焙、注入、统一调度与回收 |
-| com.novorizon.gpuanimator.urp | 默认 URP 14 Unlit、深度 Pass 与工程配置 |
+| com.novorizon.gpuanimator.urp | 默认 URP 14 Unlit/Lit、阴影/深度/法线 Pass 与工程配置 |
 | com.novorizon.localization | Luban 多语言表、回退、切换与 uGUI 绑定 |
 | com.novorizon.diagnostics | 只读 Editor 诊断计数与快照导出 |
 | com.novorizon.input | Input System、Map、设备、屏蔽与重绑定 |
@@ -29,7 +29,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.30
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.31
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -58,6 +58,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.31
+
+- UI 新增动态高度虚拟列表：稳定 ID、估计/实测高度、插删锚点、异步测量版本校验、宽度变化失效和有界单元格复用，详见 [业务功能用法](Packages/com.novorizon.framework.ui/Documentation~/Features.md)。
+- 新增 URP Lit 烘焙选项，支持 PBR 参数、法线贴图、实时阴影及共用骨骼变形的深度/法线 Pass；默认烘焙仍为 URP Unlit。
+- 托管回归、官方 Unity/URP C# API 编译与独立 DXC HLSL 变体编译分别验证；原生 Shader 导入、排版/拖拽和画面验收仍需要有效 Editor 许可证。
 
 ## v0.1.0-preview.30
 

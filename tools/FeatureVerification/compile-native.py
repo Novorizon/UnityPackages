@@ -17,6 +17,7 @@ def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--editor', type=Path, required=True, help='Installed Editor directory containing Data/Managed')
     parser.add_argument('--dotnet', required=True)
+    parser.add_argument('--include-tests', action='store_true', help='Also compile native GPU NUnit tests; restores NUnit 3.13.3 from NuGet')
     args = parser.parse_args()
     managed = args.editor / 'Data/Managed'
     caches = list((args.editor / 'Data/Resources/PackageManager/ProjectTemplates/libcache').glob('*/ScriptAssemblies'))
@@ -41,6 +42,11 @@ def main():
         ('Game.Framework.GpuAnimation.URP.Editor', 'com.novorizon.gpuanimator.urp/Editor', []),
         ('Game.Framework.All.Editor', 'com.novorizon.framework.all/Editor', []),
     ]
+    if args.include_tests:
+        modules += [
+            ('GpuAnimator.Editor.Tests', 'com.novorizon.gpuanimator/Tests/Editor', ['GpuAnimator', 'GpuAnimator.Editor']),
+            ('Game.Framework.GpuAnimation.URP.Tests', 'com.novorizon.gpuanimator.urp/Tests/Editor', ['Game.Framework.GpuAnimation.URP.Editor']),
+        ]
     env = os.environ.copy()
     env.setdefault('DOTNET_CLI_HOME', '/tmp/novorizon-native-dotnet-home')
     env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
@@ -53,6 +59,8 @@ def main():
             for key, value in dict(TargetFramework='netstandard2.1', AssemblyName=name, EnableDefaultCompileItems='false', LangVersion='9.0', DefineConstants='UNITY_EDITOR;UNITY_2022_3_OR_NEWER', NuGetAudit='false', NoWarn='CS0067;CS0649').items():
                 ET.SubElement(properties, key).text = value
             items = ET.SubElement(project, 'ItemGroup')
+            if name.endswith('.Tests'):
+                ET.SubElement(items, 'PackageReference', Include='NUnit', Version='3.13.3')
             source = ROOT / 'Packages' / folder
             for file in source.rglob('*.cs'):
                 if any(list(parent.glob('*.asmdef')) for parent in file.parents if parent != source and source in parent.parents):
