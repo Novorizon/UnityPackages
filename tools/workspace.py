@@ -270,7 +270,7 @@ def export(output):
     print('Exported', zip_path, 'and', aggregate, flush=True)
 
 
-def unity_project(output):
+def unity_project(output, include_acceptance_tests=False):
     output = output.resolve()
     if output == ROOT or ROOT in output.parents:
         raise ValueError('Generate the Unity test project outside the package repository.')
@@ -286,6 +286,9 @@ def unity_project(output):
     write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items())), testables=['com.novorizon.gpuanimator', 'com.novorizon.gpuanimator.urp']))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
     (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
+    if include_acceptance_tests:
+        import shutil
+        shutil.copytree(ROOT / 'tools/NativeAcceptance/PlayMode', output / 'Assets/Tests/PlayMode', dirs_exist_ok=True)
     print('Generated standalone Unity verification project:', output)
 
 
@@ -298,13 +301,14 @@ def main():
     v.add_argument('--dotnet', default='dotnet')
     u = sub.add_parser('unity-project')
     u.add_argument('--output', type=Path, required=True)
+    u.add_argument('--include-acceptance-tests', action='store_true')
     p = sub.add_parser('export')
     p.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.command == 'sync': sync()
     elif args.command == 'check': validate()
     elif args.command == 'verify': verify(args.dotnet)
-    elif args.command == 'unity-project': unity_project(args.output)
+    elif args.command == 'unity-project': unity_project(args.output, args.include_acceptance_tests)
     else: export(args.output.resolve())
 
 

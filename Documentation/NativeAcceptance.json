@@ -1,0 +1,60 @@
+{
+  "executedUtc": "2026-11-07",
+  "release": "v0.1.0-preview.32",
+  "nativeUnityExecuted": true,
+  "unity": "2022.3.62f1",
+  "urp": "14.0.12",
+  "host": "Linux x86_64",
+  "graphics": "Mesa llvmpipe OpenGL 4.5",
+  "baseline": "v0.1.0-preview.31",
+  "localPackageOverrides": [
+    "com.novorizon.framework.all",
+    "com.novorizon.gpuanimator",
+    "com.novorizon.gpuanimator.urp",
+    "com.novorizon.localization"
+  ],
+  "sourceSha256": {
+    "Packages/com.novorizon.localization/Runtime/UGUI/Game.Framework.Localization.UGUI.asmdef": "f50f82940dca2c7f1935b32f9bd9f15d036e2fdbcd83abb299c8db6391431546",
+    "Packages/com.novorizon.localization/Editor/Game.Framework.Localization.Luban.Editor.asmdef": "0398926d481ba2987c4fe5bcfc0d94e7974c756007f5fe748d60ec7b17000de8",
+    "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationAssetWriter.cs": "c7618b358eb2fa672e7df9bdbf8737a16b1b2117b4f8c27d9393baaeaf9e1baa",
+    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs": "affc074853af60fcd0ce3dcf933c3d855f7fec7b32e8d8b40b3c88e6a18a841f",
+    "tools/NativeAcceptance/PlayMode/NativeGpuPixelsTests.cs": "3e48adbd0fa8577a257d000c376201d494baeb17b931a3235df82ed1ad048a12",
+    "tools/NativeAcceptance/PlayMode/NativeUiAcceptanceTests.cs": "b6ffd8f95daacd1b4222a8220fcc4d72062dec1a178112bde89b4d1920317701",
+    "tools/NativeAcceptance/PlayMode/Novorizon.NativeAcceptance.PlayMode.asmdef": "2fbbc22b9c1ea3325f30b6fd24f955d89f2dd5bd6ceb0281881b159cd2a238b2"
+  },
+  "suites": [
+    {
+      "name": "EditMode",
+      "result": "Passed",
+      "total": 58,
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0,
+      "startedUtc": "2026-11-07 14:30:14Z",
+      "endedUtc": "2026-11-07 14:30:24Z",
+      "durationSeconds": 9.1436183,
+      "xmlSha256": "b00313d325bc0f568b2456bdda07322c973555b1dea6827acd9ff4e72ad12ad6",
+      "logSha256": "090b7541548359021c026aec08869e9b1d08c4e36a2255ab0da463b6d4197c0b",
+      "localResultsDirectory": "/workspace/UnityPackagesNativeValidation/ValidationResults"
+    },
+    {
+      "name": "PlayMode",
+      "result": "Passed",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "startedUtc": "2026-11-07 14:30:57Z",
+      "endedUtc": "2026-11-07 14:30:57Z",
+      "durationSeconds": 0.274445,
+      "xmlSha256": "8275970fe093519134c5cb3462dda4584824513564734bea4c1e6523d2c9b024",
+      "logSha256": "94f891ed970aa78edbe2a416eec4d9d0b0e797092f1aabe6f02f3c5cd5f0587b",
+      "localResultsDirectory": "/workspace/UnityPackagesNativeValidation/ValidationResults"
+    }
+  ],
+  "notValidated": [
+    "Full forward lighting/shadow visual acceptance",
+    "iOS/Metal and physical device behavior",
+    "IL2CPP builds and target-device performance"
+  ]
+}

@@ -35,7 +35,7 @@
 
 基础 Shader 使用 Built-in Render Pipeline，URP Unlit/Lit 由独立适配包提供；面向 Shader Model 3.5 对应能力。对目标设备检查纹理尺寸支持，并用 Frame Debugger/Profiler 验证 Instancing 与开销；Humanoid、重定向及 IK 需要项目内单独验收。
 
-保存器只对本次生成的 Mesh 和材质调用指定路径的 `ForceReserializeAssets`，避免保存项目中其他未提交的 dirty 资产。生成文件由烘焙器管理，自定义组件和结构应放在单独的包装 prefab 或 Variant 中。
+保存器只对本次生成的 Mesh 和材质调用 `SaveAssetIfDirty`，避免保存项目中其他未提交的 dirty 资产。生成文件由烘焙器管理，自定义组件和结构应放在单独的包装 prefab 或 Variant 中。
 
 如磁盘或导入错误同时导致自动恢复失败，错误报告会保留备份路径；备份位于项目 `Library/GpuAnimatorBakeBackup/` 下。按其中 `manifest.json` 的路径对应关系恢复本次涉及的文件与 `.meta`，再重新导入和验证；恢复前保留这份备份。
 

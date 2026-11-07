@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.gpuanimator.urp",
-  "version": "0.2.0-preview.1",
+  "version": "0.2.0-preview.2",
   "displayName": "Novorizon gpuanimator urp",
   "description": "Default URP 14 Unlit/Lit GPU animation with skinned shadow, depth and normal passes and project setup.",
   "unity": "2022.3",
@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.gpuanimator": "4.0.0-preview.15",
+    "com.novorizon.gpuanimator": "4.0.0-preview.16",
     "com.unity.render-pipelines.universal": "14.0.1"
   }
 }
