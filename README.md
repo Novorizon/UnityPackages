@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.32`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.33`。
 
 ## 包与职责
 
@@ -29,7 +29,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.32
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.33
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -58,6 +58,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.33
+
+- 运行时 UI Demo 与多语言绑定统一使用 TextMeshPro；UI/all 默认安装 TMP 3.0.6。字体覆盖使用 TMP_FontAsset，旧 Text/Font Prefab 需要显式迁移。
+- 原生验收包含官方 TMP 字体资源准备、真实多语言 TMP 绑定和 UI Demo/虚拟行字体网格检查；原有 GPU 回读和安全区用例继续运行。
+- 完成 [Cube 剧情审查与模块规划](Documentation/NarrativeArchitecture.zh-CN.md)：建议独立可选剧情包，UI 负责表现，业务负责触发/任务/存档；本版未新增剧情运行时。
 
 ## v0.1.0-preview.32
 

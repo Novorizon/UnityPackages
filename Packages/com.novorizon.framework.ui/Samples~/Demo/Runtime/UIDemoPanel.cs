@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +15,7 @@ namespace UI.Demo
             card.anchorMin = card.anchorMax = new Vector2(1, .5f);
             card.pivot = new Vector2(1, .5f);
             card.anchoredPosition = new Vector2(-24, 0);
-            Text label = UIDemoWidgets.Text("Message", card, "Non-modal panel\nIt is below modal popups and can be toggled independently.", 25);
+            TMP_Text label = UIDemoWidgets.Text("Message", card, "Non-modal panel\nIt is below modal popups and can be toggled independently.", 25);
             UIDemoWidgets.Top((RectTransform)label.transform, 26, 150);
             Button close = UIDemoWidgets.Button("Close", card, "Hide this panel", Close);
             UIDemoWidgets.Top((RectTransform)close.transform, 210, 60);

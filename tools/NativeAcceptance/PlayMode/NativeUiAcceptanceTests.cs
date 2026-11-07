@@ -6,6 +6,7 @@ using Game.Framework.Localization;
 using Game.Framework.Localization.UGUI;
 using NUnit.Framework;
 using UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -72,6 +73,9 @@ public sealed class NativeUiAcceptanceTests
     [UnityTest]
     public IEnumerator LocalizedTextRefreshesAcrossLanguageChangesAndCachedViewReactivation()
     {
+        Assert.That(TMP_Settings.instance, Is.Not.Null, "Import TMP Essential Resources before native acceptance.");
+        var font = TMP_Settings.defaultFontAsset;
+        Assert.That(font, Is.Not.Null, "Configure a default TMP font before native acceptance.");
         bool ownThreadHost = !UnityThread.IsInitialized;
         if (ownThreadHost)
         {
@@ -80,29 +84,31 @@ public sealed class NativeUiAcceptanceTests
         var service = new LocalizationManager();
         var root = new GameObject("Localized text", typeof(RectTransform));
         root.SetActive(false);
-        var text = root.AddComponent<Text>();
+        var text = root.AddComponent<TextMeshProUGUI>();
+        text.font = font;
         var binding = root.AddComponent<LocalizedText>();
         try
         {
-            var rows = new[] { new[] { "ui.start", "开始游戏", "Start Game" } };
+            var rows = new[] { new[] { "ui.start", "Start Game", "Jouer" } };
             service.Initialize(
                 LocalizationCatalog.FromRows(
                     rows,
                     row => row[0],
-                    new TranslationColumn<string[]>("zh-Hans", row => row[1]),
-                    new TranslationColumn<string[]>("en", row => row[2])),
-                "zh-Hans");
+                    new TranslationColumn<string[]>("en", row => row[1]),
+                    new TranslationColumn<string[]>("fr", row => row[2])),
+                "en");
             binding.Bind(service, "ui.start");
             root.SetActive(true);
             yield return null;
-            Assert.That(text.text, Is.EqualTo("开始游戏"));
-            service.SetLanguage("en");
             Assert.That(text.text, Is.EqualTo("Start Game"));
+            Assert.That(text.font, Is.SameAs(font));
+            service.SetLanguage("fr");
+            Assert.That(text.text, Is.EqualTo("Jouer"));
             root.SetActive(false);
-            service.SetLanguage("zh-Hans");
+            service.SetLanguage("en");
             root.SetActive(true);
             yield return null;
-            Assert.That(text.text, Is.EqualTo("开始游戏"));
+            Assert.That(text.text, Is.EqualTo("Start Game"));
         }
         finally
         {
@@ -114,6 +120,45 @@ public sealed class NativeUiAcceptanceTests
                 UnityThread.Reset();
             }
         }
+    }
+
+    [UnityTest]
+    public IEnumerator UiDemoBuildsTmpLabelsAndVirtualRowsWithTheActualFont()
+    {
+        Assert.That(TMP_Settings.defaultFontAsset, Is.Not.Null);
+        var root = new GameObject("TMP demo acceptance");
+        root.SetActive(false);
+        var launcher = root.AddComponent<UI.Demo.UIDemoLauncher>();
+        try
+        {
+            var start = launcher.StartDemoAsync();
+            while (!start.IsCompleted)
+            {
+                yield return null;
+            }
+            start.GetAwaiter().GetResult();
+            Assert.That(launcher.IsStarted, Is.True);
+            var inventory = launcher.ShowInventoryAsync();
+            while (!inventory.IsCompleted)
+            {
+                yield return null;
+            }
+            inventory.GetAwaiter().GetResult();
+            Canvas.ForceUpdateCanvases();
+            var labels = launcher.Root.GetComponentsInChildren<TMP_Text>(true);
+            Assert.That(labels.Length, Is.GreaterThan(5));
+            Assert.That(launcher.Root.GetComponentsInChildren<Text>(true), Is.Empty);
+            var visible = labels.First(label => label.gameObject.activeInHierarchy && !string.IsNullOrEmpty(label.text));
+            visible.ForceMeshUpdate();
+            Assert.That(visible.font, Is.SameAs(TMP_Settings.defaultFontAsset));
+            Assert.That(visible.textInfo.characterCount, Is.GreaterThan(0));
+        }
+        finally
+        {
+            launcher.StopDemo();
+            Object.Destroy(root);
+        }
+        yield return null;
     }
 
     [UnityTest]

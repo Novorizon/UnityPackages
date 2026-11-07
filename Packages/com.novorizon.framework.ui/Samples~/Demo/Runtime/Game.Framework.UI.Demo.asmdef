@@ -5,7 +5,8 @@
     "Game.Framework.Core",
     "Game.Framework.Unity",
     "Game.Framework.UI",
-    "Unity.ugui"
+    "Unity.ugui",
+    "Unity.TextMeshPro"
   ],
   "autoReferenced": true,
   "allowUnsafeCode": false

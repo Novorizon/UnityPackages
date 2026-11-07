@@ -1,0 +1,5 @@
+{
+  "name": "Novorizon.NativeAcceptance.Setup.Editor",
+  "references": ["Unity.TextMeshPro"],
+  "includePlatforms": ["Editor"]
+}

@@ -1,4 +1,5 @@
 #nullable enable
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ namespace UI.Demo
 {
     public sealed class UIDemoToast : UIToast
     {
-        Text? label;
+        TMP_Text? label;
         protected override void OnCreate()
         {
             RectTransform card = UIDemoWidgets.CenterCard(transform, "ToastCard", 720, 110);
@@ -16,7 +17,7 @@ namespace UI.Demo
             card.GetComponent<Image>().raycastTarget = false;
             label = UIDemoWidgets.Text("Message", card, string.Empty, 23);
             UIDemoWidgets.Stretch((RectTransform)label.transform);
-            label.alignment = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignmentOptions.Center;
         }
 
         protected override void OnOpen(object? args)

@@ -1,13 +1,15 @@
 # 可运行 UI Demo
 
-适用 Unity 2022.3，依赖 `com.novorizon.framework.ui`、Framework 与 uGUI。无需 YooAsset、Addressables、DOTween、外部 Prefab 或服务器。
+适用 Unity 2022.3，依赖 `com.novorizon.framework.ui`、Framework、uGUI 与 TextMeshPro。无需 YooAsset、Addressables、DOTween、外部 Prefab 或服务器。
 
 ## 开始
 
-1. 在 Package Manager 找到 **Novorizon Framework UI**，导入 **UI Demo** 样例。
+1. 在 Package Manager 找到 **Novorizon Framework UI**，导入 **UI Demo** 样例。UI 包会安装 TextMeshPro；新工程先使用 **Window > TextMeshPro > Import TMP Essential Resources** 导入标准资源，并确认项目的 TMP Settings 已指定默认 TMP Font Asset。
 2. 点击菜单 **Tools > Novorizon > Demos > Create UI Demo Scene**。编辑器会先询问如何处理当前未保存场景；取消保存流程就不会创建 Demo。每次使用新场景路径，不覆盖已有资源。
 3. 打开生成的 `Assets/NovorizonDemos/UIDemo*.unity`，进入 Play。脚本会创建全部布局、模板与输入系统。
 4. Game 视图建议先选 16:9 或手机竖屏。面板中的全部按钮都可直接操作。
+
+场景创建菜单和 launcher 都会预先检查 TMP 默认字体；缺少设置时显示明确错误，不创建部分 UI 或静默显示空白文字。示例文本使用项目的 `TMP_Settings.defaultFontAsset`，不加载 LegacyRuntime.ttf。默认标准字体适合本示例的英文文案，业务中的中文/日文等需使用覆盖相应字形的 TMP Font Asset，并配置 fallback。
 
 也可在自己的**空场景**创建一个 GameObject 并挂 `UIDemoLauncher`。已有 UIManager 或 EventSystem 时会拒绝启动并在 Console 说明原因；Demo 不会接管其他游戏的窗口或输入对象。不要把 launcher 挂到正式启动场景。
 
@@ -38,6 +40,8 @@
 - `UIDemoInventoryPage`：虚拟列表与异步关闭确认。
 - `UIDemoConfirmPopup`：`UIResultPopup<bool>` 与类型化结果。
 - `UIDemoWidgets`：手工创建的简化布局。业务项目可替换成美术制作的 Prefab。
+
+示例文字统一使用 `TextMeshProUGUI`，业务字段使用 `TMP_Text`；固定高度虚拟行关闭自动换行，超长文字使用省略号。旧版本示例中自己制作或修改的 Legacy Text Prefab 需要显式重建/替换文字组件，并为 TMP 指定 Font Asset；此升级不会把序列化的 Unity Font 自动转换为 TMP Font Asset。
 
 所有视图在自己的 OnCreate 中绑定本实例按钮，OnOpen 接收控制器。Demo 没有依赖“在模板上绑定运行时 UnityEvent 并让 Instantiate 复制监听”的行为，也不需要手工拖按钮引用。
 

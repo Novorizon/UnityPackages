@@ -214,6 +214,7 @@ namespace UnityEngine
 
             objects.Clear();
             Resources.ResetTestState();
+            TMPro.TMP_Settings.SetDefaultFontForTest(null);
             Debug.Exceptions.Clear();
             Application.ResetForTest();
             UnityEngine.SceneManagement.SceneManager.ResetForTest();
@@ -1532,6 +1533,67 @@ namespace UnityEngine.SceneManagement
             sceneLoaded = null;
             sceneUnloaded = null;
             activeSceneChanged = null;
+        }
+    }
+}
+
+
+// Finite TMP contracts for actual package/sample source compilation and binding lifecycle tests.
+// This model does not shape text, build glyph atlases, evaluate fallbacks, or perform layout/rendering.
+namespace TMPro
+{
+    public class TMP_FontAsset : UnityEngine.ScriptableObject
+    {
+    }
+
+    public enum TextAlignmentOptions
+    {
+        TopLeft = 257,
+        Center = 514,
+        Left = 513,
+        MidlineLeft = 4097
+    }
+
+    public enum TextOverflowModes
+    {
+        Overflow = 0,
+        Ellipsis = 1,
+        Masking = 2,
+        Truncate = 3,
+        ScrollRect = 4,
+        Page = 5,
+        Linked = 6
+    }
+
+    public abstract class TMP_Text : UnityEngine.UI.Graphic
+    {
+        public string text = string.Empty;
+        public TMP_FontAsset font;
+        public float fontSize;
+        public TextAlignmentOptions alignment;
+        public UnityEngine.Color color;
+        public bool enableWordWrapping = true;
+        public TextOverflowModes overflowMode;
+    }
+
+    public sealed class TextMeshProUGUI : TMP_Text
+    {
+    }
+
+    public sealed class TMP_Settings : UnityEngine.ScriptableObject
+    {
+        static TMP_FontAsset defaultFontForTest;
+        static TMP_Settings settingsForTest;
+
+        public static TMP_Settings instance => settingsForTest;
+        public static TMP_FontAsset defaultFontAsset => instance != null
+            ? defaultFontForTest
+            : throw new System.NullReferenceException("TMP Settings resource is not configured in this boundary model.");
+
+        public static void SetDefaultFontForTest(TMP_FontAsset value)
+        {
+            defaultFontForTest = value;
+            settingsForTest = value != null ? CreateInstance<TMP_Settings>() : null;
         }
     }
 }

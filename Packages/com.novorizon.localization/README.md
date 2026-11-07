@@ -46,11 +46,15 @@ PrepareProjectFontsAndImagesAsync 是项目方法：准备所需资源、持有�
 
 同步 SetLanguage 适用于资源已就绪的切换。所有服务访问在已初始化的 Unity 主线程执行；原生 Unity 自动安装 UnityThread。初始化翻译后再打开界面。退出时在 UnityThread 停止前 Release；旧服务引用不可重用。
 
-## uGUI 文字和字体
+## TMP 文字和字体
 
-安装 uGUI 后启用独立的 Game.Framework.Localization.UGUI 程序集。Text 上添加 LocalizedText，设置 Key 和语言字体；或由业务调用 `label.Bind(LocalizationManager.Instance, "item.count", count)`。绑定复制参数，启用时刷新/订阅，禁用时退订，缓存界面重新启用后使用当前语言。
+安装 TextMeshPro 3.0.6 后启用独立的 Game.Framework.Localization.UGUI 程序集。TextMeshProUGUI 上添加 LocalizedText，在 Inspector 设置 Key 和 TMP_FontAsset 语言字体；或由业务调用 `label.Bind(LocalizationManager.Instance, "item.count", count)`。绑定复制参数，启用时刷新/订阅，禁用时退订，缓存界面重新启用后使用当前语言。
 
-Font Overrides 按精确语言、父语言匹配，没有匹配时恢复该 Text 原字体。字体需已加载且由项目持有；组件不负责下载或释放字体。TMP、复杂复数/性别、RTL 排版和按语言分包不包含在本版。
+Font Overrides 按精确语言、父语言匹配，没有匹配时恢复该 TMP 文本的原字体资产。字体需已加载且由项目持有；组件不负责下载或释放字体。中文等语言需要项目提供覆盖所需字形的 TMP_FontAsset 和 fallback；默认拉丁字体不代表支持全部语言。复杂复数/性别、RTL 排版和按语言分包不包含在本版。
+
+Unity 工程先执行 `Window > TextMeshPro > Import TMP Essential Resources`，配置 TMP Settings 的默认字体和项目字体 fallback。业务只在入口统一加载 Catalog；静态文字直接在组件填写 Key，动态文字使用 Bind 传入参数，不需要每个窗口访问 DataManager。
+
+从旧版迁移：LocalizedText 类名、程序集和组件 GUID 保留；旧 UnityEngine.UI.Text 要替换为 TextMeshProUGUI，Font Overrides 重新指定 TMP_FontAsset。旧 Font 引用不能自动转换为 TMP 字体资产，业务 Prefab 和脚本字段需要显式迁移。
 
 ## 验证
 

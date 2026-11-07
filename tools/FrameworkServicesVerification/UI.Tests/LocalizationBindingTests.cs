@@ -2,7 +2,7 @@ using Game.Framework;
 using Game.Framework.Localization;
 using Game.Framework.Localization.UGUI;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 using Xunit;
 using Object = UnityEngine.Object;
 
@@ -32,7 +32,7 @@ public sealed class LocalizationBindingTests : IDisposable
     public void OpenBindingCopiesArgumentsAndRefreshesAfterAHiddenWindowIsReopened()
     {
         var root = new GameObject("Localized label");
-        var target = root.AddComponent<Text>();
+        var target = root.AddComponent<TextMeshProUGUI>();
         var binding = root.AddComponent<LocalizedText>();
         object[] arguments = { 7 };
         binding.Bind(manager, "key", arguments);
@@ -57,7 +57,7 @@ public sealed class LocalizationBindingTests : IDisposable
         var catalog = LocalizationCatalog.FromRows(new[] { "value" }, row => "key", new TranslationColumn<string>("en", row => row));
         next.Initialize(catalog, "en");
         var root = new GameObject("Label");
-        var target = root.AddComponent<Text>();
+        var target = root.AddComponent<TextMeshProUGUI>();
         var binding = root.AddComponent<LocalizedText>();
         binding.Bind(manager, "key", 1);
         binding.Bind(next, "key");
@@ -66,12 +66,34 @@ public sealed class LocalizationBindingTests : IDisposable
     }
 
     [Fact]
+    public void ParentLanguageTmpFontIsRestoredToTheAuthoredFontWhenSwitchingBack()
+    {
+        var root = new GameObject("TMP font fallback label");
+        var target = root.AddComponent<TextMeshProUGUI>();
+        var original = ScriptableObject.CreateInstance<TMP_FontAsset>();
+        var chinese = ScriptableObject.CreateInstance<TMP_FontAsset>();
+        target.font = original;
+        var binding = root.AddComponent<LocalizedText>();
+        typeof(LocalizedText).GetField("fonts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(binding, new[]
+        {
+            new LocalizedText.LanguageFont { language = "zh-Hans", font = chinese }
+        });
+        binding.Bind(manager, "key", 1);
+        manager.SetLanguage("zh-Hans-CN");
+        Assert.Same(chinese, target.font);
+        Assert.Equal("你好 1", target.text);
+        manager.SetLanguage("en");
+        Assert.Same(original, target.font);
+        Assert.Equal("Hello 1", target.text);
+    }
+
+    [Fact]
     public void ExactFontOverrideWinsEvenWhenItEqualsTheOriginalFont()
     {
         var root = new GameObject("Font label");
-        var target = root.AddComponent<Text>();
-        var original = new Font();
-        var parent = new Font();
+        var target = root.AddComponent<TextMeshProUGUI>();
+        var original = ScriptableObject.CreateInstance<TMP_FontAsset>();
+        var parent = ScriptableObject.CreateInstance<TMP_FontAsset>();
         target.font = original;
         var binding = root.AddComponent<LocalizedText>();
         typeof(LocalizedText).GetField("fonts", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(binding, new[]

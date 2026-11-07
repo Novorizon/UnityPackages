@@ -5,7 +5,7 @@
 Package Manager → Add package from git URL：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.32
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.33
 ```
 
 也可安装导出的单个 `com.novorizon.framework.all-<package.json 中的 version>.tgz`。聚合包只包含 Editor 安装器与依赖目录，不捆绑其他包源码、tarball 或 Payload~。安装需要 Git 和正常网络访问。

@@ -32,6 +32,8 @@ def main():
         ('Game.Framework.Core', 'com.novorizon.framework/Runtime/Core', []),
         ('Game.Framework.Unity', 'com.novorizon.framework/Runtime/Unity', ['Game.Framework.Core']),
         ('Game.Framework.UI', 'com.novorizon.framework.ui/Runtime', ['Game.Framework.Unity', 'Game.Framework.Core']),
+        ('Game.Framework.UI.Demo', 'com.novorizon.framework.ui/Samples~/Demo/Runtime', ['Game.Framework.UI', 'Game.Framework.Unity', 'Game.Framework.Core']),
+        ('Game.Framework.UI.Demo.Editor', 'com.novorizon.framework.ui/Samples~/Demo/Editor', ['Game.Framework.UI.Demo']),
         ('Game.Framework.Localization', 'com.novorizon.localization/Runtime', ['Game.Framework.Core']),
         ('Game.Framework.Localization.UGUI', 'com.novorizon.localization/Runtime/UGUI', ['Game.Framework.Localization', 'Game.Framework.Core']),
         ('Game.Framework.Data.Editor', 'com.novorizon.data/Editor', []),

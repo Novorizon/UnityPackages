@@ -189,8 +189,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "sha256": "4f854bffc9bbd57d0ba2ae9a8e64f87ea3c1c80e4975813052f602b9a060d2da",
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement."
+      "sha256": "69cff0a17a2fa12e65f659b5f82d915e0d029582d972af3cf25dc25b4919eb5f",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
       "sha256": "2d48380e25c37ffdfe3cc3a7ca949afa2e4555cb91d71b098c3751044a2c219f",
@@ -393,44 +393,44 @@
       "sha256": "6fb1041407ddebbfb2e3d862d640097dbc96346d219078bf9b5d93215bea83b3"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/UIDemoSceneMenu.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "5bdcd144555d46bfca79c74f7eab72835a20b18f88057faeafd130d3dcc7501d"
+      "sha256": "4085c39e54de8b0d285368293cd49163418f12c5cbd391ef5c87d90abe23b60e",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoAssetLoader.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
       "sha256": "f01fd2d6bcb8b913a8d2ddbcd6fc96ceda01c7da5b9237c8b7f4d908c23b09d9"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoConfirmPopup.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "751c0a9f284cec72f98af3ded1d2760e127b59741fe554659278f35b83c7645a"
+      "sha256": "59c9cc5b44d510fdf5a7ed637546e8444a322fff5955bdf686aa864c84bc0ef6",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "42afb0b5280f8723775b599c5a0ef8483a6ae2b5a26086bddfee2e80951e5096"
+      "sha256": "d5195c4e2d1e0d4c48d9581f53d22627df7853758ba1c03055a3b7532f1d7671",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "bcdde51078fe2a507748ca689d231f0cd1b8e1f32005f2df6a281cf5ff2b17a9"
+      "sha256": "fea9ff8cab8025906ea5ac5c60b8165829f2b9733a81c7344b9cf87c22976736",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "3a97f77abe3d5cc35380b132f1137051eb0347a423c3b97f7bb952fcf201e02b"
+      "sha256": "c43b71d73cdb8dd220c026a23fd2cdd0801e990e9fc1fe3eb50f5d3ccb9686db",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "d879475e92da8c1b95903ed5f6713dbb13091d383ee189f88e030f93a116e654"
+      "sha256": "7fd143a041f00d718b961892da39a879a9285d88cc2b42b6cd02ac89df83fa60",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "714abf2e7a68fc0f173427f2eb5998fbe16928401e6d011b108b0b8feeba12a9"
+      "sha256": "cf22eaed9ee140a927218a4fb0a1457b7f929e65a4e58d9354ece2f76d24a298",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoToast.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "a2ee2024aee66e373a29d30cc1c8eda74034115ab4dc6836d5551c06cd94b70e"
+      "sha256": "1e31efdcbd0695d411b305c58c68e5f67abec3774bd600699ceb301dc063757f",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoWidgets.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "565576af53074956462d8b70a859a1d06fd5ffaebf0dc0588d5dfcf4879c33b4"
+      "sha256": "147828339915ac6c773a5752ac17fd2d26ba13622417b0dd83c314b1f653955e",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
@@ -503,6 +503,14 @@
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs": {
       "sha256": "affc074853af60fcd0ce3dcf933c3d855f7fec7b32e8d8b40b3c88e6a18a841f",
       "reason": "Validate all native transform curves without assuming Unity emits one binding, and construct a fresh five-influence mesh layout rather than converting legacy skin attributes in place."
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/Game.Framework.UI.Demo.Editor.asmdef": {
+      "sha256": "335c75e854cf997724015a09911f8fbb9e04deda501ec94ec6f6d888a8614acd",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+    },
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/Game.Framework.UI.Demo.asmdef": {
+      "sha256": "fd8c340ee48a6b8fb8a1af9e0c09d9e4ccf3b3c016e5b22ed343cbd642520710",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     }
   }
 }

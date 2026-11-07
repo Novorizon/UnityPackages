@@ -4,13 +4,13 @@
 
 ## 安装与依赖
 
-目标版本为 Unity 2022.3 LTS，使用 uGUI，包名为 `com.novorizon.framework.ui`。在 Package Manager 选择 **Add package from disk**，打开本目录的 `package.json`；也可在项目的 `Packages/manifest.json` 添加本地包路径：
+目标版本为 Unity 2022.3 LTS，使用 uGUI + TextMeshPro 3.0.6，包名为 `com.novorizon.framework.ui`。在 Package Manager 选择 **Add package from disk**，打开本目录的 `package.json`；也可在项目的 `Packages/manifest.json` 添加本地包路径：
 
 ```json
-"com.novorizon.framework.ui": "file:/绝对路径/Framework/Framework/UI"
+"com.novorizon.framework.ui": "file:/绝对路径/UnityPackages/Packages/com.novorizon.framework.ui"
 ```
 
-Git UPM 安装使用仓库 URL 加 `?path=/Framework/UI#<版本或提交>`，其中仓库内路径区分大小写。已有项目若使用旧包名 `com.yourcompany.ui-framework-pro-skeleton`，应先移除旧 manifest 项再添加新包，避免同一组脚本被导入两次。运行时程序集为 `Game.Framework.UI`，业务命名空间继续使用 `UI`；自定义业务 asmdef 需显式引用该程序集及所用的 Game.Framework.Core / Game.Framework.Unity。此包独立发布，依赖匹配版本的 `com.novorizon.framework` 与 `com.unity.ugui`，复用单例和局部消息基础能力；不强制安装 YooAsset 或 TextMeshPro。可通过 `IUIAssetLoader` 接入项目自己的资源适配器。
+Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<版本或提交>`，其中仓库内路径区分大小写。已有项目若使用旧包名 `com.yourcompany.ui-framework-pro-skeleton`，应先移除旧 manifest 项再添加新包，避免同一组脚本被导入两次。运行时程序集为 `Game.Framework.UI`，业务命名空间继续使用 `UI`；自定义业务 asmdef 需显式引用该程序集及所用的 Game.Framework.Core / Game.Framework.Unity。此包独立发布，依赖匹配版本的 `com.novorizon.framework` 与 `com.unity.ugui`，复用单例和局部消息基础能力；不强制安装 YooAsset 或 TextMeshPro。可通过 `IUIAssetLoader` 接入项目自己的资源适配器。
 
 编辑器工具只编入 `Game.Framework.UI.Editor`，菜单位于 **Tools / Novorizon / UI**。安装包不会自动创建场景对象；需要时通过 `UIManager.Instance` 或场景中的 `UIBootstrap` 初始化。
 
@@ -134,3 +134,6 @@ PopupOptions/PanelOptions 的 DuplicatePolicy 支持 Refresh、Focus、Reject；
 
 
 动态高度垂直列表使用 `UIVirtualDynamicList`，提供稳定 ID、滚动锚点、高度缓存和异步测量版本校验；用法与失效规则见 [业务功能用法](Documentation~/Features.md)。
+
+
+运行时文字和 UI Demo 统一使用 TMP_Text / TextMeshProUGUI。首次导入 TMP Essential Resources，并设置默认字体；业务 Prefab 的文字也应使用 TextMeshProUGUI。旧 Text/Font 组件与引用需显式迁移，不能自动变成 TMP 字体资产。
