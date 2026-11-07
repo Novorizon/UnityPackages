@@ -1,6 +1,6 @@
 {
   "executedUtc": "2026-11-07",
-  "release": "v0.1.0-preview.32",
+  "release": "v0.1.0-preview.33",
   "nativeUnityExecuted": true,
   "unity": "2022.3.62f1",
   "urp": "14.0.12",
@@ -9,18 +9,34 @@
   "baseline": "v0.1.0-preview.31",
   "localPackageOverrides": [
     "com.novorizon.framework.all",
+    "com.novorizon.framework.ui",
     "com.novorizon.gpuanimator",
     "com.novorizon.gpuanimator.urp",
     "com.novorizon.localization"
   ],
   "sourceSha256": {
-    "Packages/com.novorizon.localization/Runtime/UGUI/Game.Framework.Localization.UGUI.asmdef": "f50f82940dca2c7f1935b32f9bd9f15d036e2fdbcd83abb299c8db6391431546",
-    "Packages/com.novorizon.localization/Editor/Game.Framework.Localization.Luban.Editor.asmdef": "0398926d481ba2987c4fe5bcfc0d94e7974c756007f5fe748d60ec7b17000de8",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/Game.Framework.UI.Demo.Editor.asmdef": "335c75e854cf997724015a09911f8fbb9e04deda501ec94ec6f6d888a8614acd",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/UIDemoSceneMenu.cs": "4085c39e54de8b0d285368293cd49163418f12c5cbd391ef5c87d90abe23b60e",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/Game.Framework.UI.Demo.asmdef": "fd8c340ee48a6b8fb8a1af9e0c09d9e4ccf3b3c016e5b22ed343cbd642520710",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoConfirmPopup.cs": "59c9cc5b44d510fdf5a7ed637546e8444a322fff5955bdf686aa864c84bc0ef6",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": "d5195c4e2d1e0d4c48d9581f53d22627df7853758ba1c03055a3b7532f1d7671",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": "fea9ff8cab8025906ea5ac5c60b8165829f2b9733a81c7344b9cf87c22976736",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": "69cff0a17a2fa12e65f659b5f82d915e0d029582d972af3cf25dc25b4919eb5f",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": "c43b71d73cdb8dd220c026a23fd2cdd0801e990e9fc1fe3eb50f5d3ccb9686db",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": "7fd143a041f00d718b961892da39a879a9285d88cc2b42b6cd02ac89df83fa60",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": "cf22eaed9ee140a927218a4fb0a1457b7f929e65a4e58d9354ece2f76d24a298",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoToast.cs": "1e31efdcbd0695d411b305c58c68e5f67abec3774bd600699ceb301dc063757f",
+    "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoWidgets.cs": "147828339915ac6c773a5752ac17fd2d26ba13622417b0dd83c314b1f653955e",
     "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationAssetWriter.cs": "c7618b358eb2fa672e7df9bdbf8737a16b1b2117b4f8c27d9393baaeaf9e1baa",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs": "affc074853af60fcd0ce3dcf933c3d855f7fec7b32e8d8b40b3c88e6a18a841f",
+    "Packages/com.novorizon.localization/Editor/Game.Framework.Localization.Luban.Editor.asmdef": "0398926d481ba2987c4fe5bcfc0d94e7974c756007f5fe748d60ec7b17000de8",
+    "Packages/com.novorizon.localization/Runtime/UGUI/Game.Framework.Localization.UGUI.asmdef": "ad01aee8902d2b5ee810b0d1837c9118b62c0d91dd9d42e90915f93bc4e03e25",
+    "Packages/com.novorizon.localization/Runtime/UGUI/LocalizedText.cs": "e76040dc267c4d106f9921b73de27b133dfab2964f04167f5d6ca1c970e0a1f9",
+    "tools/NativeAcceptance/Editor/NativeAcceptanceSetup.cs": "56456c845d56dffa02a7ec5381a02de7ce70f5e8781ed047fba044adf1c88a9e",
+    "tools/NativeAcceptance/Editor/Novorizon.NativeAcceptance.Setup.Editor.asmdef": "68f45cd5c9633c457cfffe0a8fa18bf985765a0505e1b8d52fcb2940e2030095",
     "tools/NativeAcceptance/PlayMode/NativeGpuPixelsTests.cs": "3e48adbd0fa8577a257d000c376201d494baeb17b931a3235df82ed1ad048a12",
-    "tools/NativeAcceptance/PlayMode/NativeUiAcceptanceTests.cs": "b6ffd8f95daacd1b4222a8220fcc4d72062dec1a178112bde89b4d1920317701",
-    "tools/NativeAcceptance/PlayMode/Novorizon.NativeAcceptance.PlayMode.asmdef": "2fbbc22b9c1ea3325f30b6fd24f955d89f2dd5bd6ceb0281881b159cd2a238b2"
+    "tools/NativeAcceptance/PlayMode/NativeUiAcceptanceTests.cs": "77238d957839043a192bcaba3cd106fa15e76f4fe6fdf8c074b6aef686c94dcf",
+    "tools/NativeAcceptance/PlayMode/Novorizon.NativeAcceptance.PlayMode.asmdef": "f1085e66349fe6b6de7e90699c0fe84ec814267ae5869cb7149dbc1f7310d8b2"
   },
   "suites": [
     {
@@ -30,25 +46,25 @@
       "passed": 58,
       "failed": 0,
       "skipped": 0,
-      "startedUtc": "2026-11-07 14:30:14Z",
-      "endedUtc": "2026-11-07 14:30:24Z",
-      "durationSeconds": 9.1436183,
-      "xmlSha256": "b00313d325bc0f568b2456bdda07322c973555b1dea6827acd9ff4e72ad12ad6",
-      "logSha256": "090b7541548359021c026aec08869e9b1d08c4e36a2255ab0da463b6d4197c0b",
+      "startedUtc": "2026-11-07 14:52:20Z",
+      "endedUtc": "2026-11-07 14:52:31Z",
+      "durationSeconds": 10.8039141,
+      "xmlSha256": "a9066851051115b0e47cb631715a3a73dafb846edd5e543ae33b56f77c264abe",
+      "logSha256": "c9f83eb699601216744f819d3ab47d67ff2169e0096b954da9c5b8602c96f3dd",
       "localResultsDirectory": "/workspace/UnityPackagesNativeValidation/ValidationResults"
     },
     {
       "name": "PlayMode",
       "result": "Passed",
-      "total": 4,
-      "passed": 4,
+      "total": 5,
+      "passed": 5,
       "failed": 0,
       "skipped": 0,
-      "startedUtc": "2026-11-07 14:30:57Z",
-      "endedUtc": "2026-11-07 14:30:57Z",
-      "durationSeconds": 0.274445,
-      "xmlSha256": "8275970fe093519134c5cb3462dda4584824513564734bea4c1e6523d2c9b024",
-      "logSha256": "94f891ed970aa78edbe2a416eec4d9d0b0e797092f1aabe6f02f3c5cd5f0587b",
+      "startedUtc": "2026-11-07 14:53:02Z",
+      "endedUtc": "2026-11-07 14:53:03Z",
+      "durationSeconds": 0.5627783,
+      "xmlSha256": "dc8543715c6ec6f0f92ac4ad36f2fd1ad4c4a2a31993728ad2d7099212390524",
+      "logSha256": "43859d41c276d57a5e41ca4e7e0531d6a37073d742768f19e71a8935624a11b1",
       "localResultsDirectory": "/workspace/UnityPackagesNativeValidation/ValidationResults"
     }
   ],
@@ -56,5 +72,8 @@
     "Full forward lighting/shadow visual acceptance",
     "iOS/Metal and physical device behavior",
     "IL2CPP builds and target-device performance"
-  ]
+  ],
+  "textmeshpro": "3.0.6",
+  "previousValidatedRelease": "v0.1.0-preview.32",
+  "tmpSetupLogSha256": "58bc75bd271d105a7d446d24cc1de01c7675e66d1a027601e0e7664927d8dcfe"
 }

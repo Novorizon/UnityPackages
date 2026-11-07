@@ -1,4 +1,6 @@
 #nullable enable
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,8 +9,18 @@ namespace UI.Demo
 {
     internal static class UIDemoWidgets
     {
-        static Font? font;
-        internal static Font Font => font != null ? font : font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        internal static TMP_FontAsset Font
+        {
+            get
+            {
+                if (TMP_Settings.instance == null || TMP_Settings.defaultFontAsset == null)
+                {
+                    throw new InvalidOperationException("UI Demo requires a TMP default font. Import Window > TextMeshPro > Import TMP Essential Resources, then assign a default font asset in TMP Settings before starting the demo.");
+                }
+
+                return TMP_Settings.defaultFontAsset;
+            }
+        }
 
         internal static readonly Color Background = new(.055f, .075f, .115f, 1);
         internal static readonly Color Card = new(.11f, .15f, .22f, 1);
@@ -57,13 +69,15 @@ namespace UI.Demo
             rect.offsetMax = new Vector2(-right, -top);
         }
 
-        internal static Text Text(string name, Transform parent, string message, int size = 22)
+        internal static TMP_Text Text(string name, Transform parent, string message, int size = 22)
         {
             RectTransform rect = Rect(name, parent);
-            var text = rect.gameObject.AddComponent<Text>();
+            var text = rect.gameObject.AddComponent<TextMeshProUGUI>();
             text.font = Font;
             text.fontSize = size;
-            text.alignment = TextAnchor.UpperLeft;
+            text.alignment = TextAlignmentOptions.TopLeft;
+            text.enableWordWrapping = true;
+            text.overflowMode = TextOverflowModes.Ellipsis;
             text.color = Color.white;
             text.text = message;
             text.raycastTarget = false;
@@ -78,9 +92,9 @@ namespace UI.Demo
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
             button.onClick.AddListener(action);
-            Text label = Text("Caption", rect, caption, 22);
+            TMP_Text label = Text("Caption", rect, caption, 22);
             Stretch((RectTransform)label.transform);
-            label.alignment = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignmentOptions.Center;
             return button;
         }
 

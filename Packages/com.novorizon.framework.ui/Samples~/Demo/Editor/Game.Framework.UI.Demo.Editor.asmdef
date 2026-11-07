@@ -2,7 +2,8 @@
   "name": "Game.Framework.UI.Demo.Editor",
   "rootNamespace": "UI.Demo.Editor",
   "references": [
-    "Game.Framework.UI.Demo"
+    "Game.Framework.UI.Demo",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"

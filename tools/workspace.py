@@ -289,6 +289,8 @@ def unity_project(output, include_acceptance_tests=False):
     if include_acceptance_tests:
         import shutil
         shutil.copytree(ROOT / 'tools/NativeAcceptance/PlayMode', output / 'Assets/Tests/PlayMode', dirs_exist_ok=True)
+        shutil.copytree(ROOT / 'tools/NativeAcceptance/Editor', output / 'Assets/Tests/Editor', dirs_exist_ok=True)
+        shutil.copytree(ROOT / 'Packages/com.novorizon.framework.ui/Samples~/Demo', output / 'Assets/Samples/UIDemo', dirs_exist_ok=True)
     print('Generated standalone Unity verification project:', output)
 
 

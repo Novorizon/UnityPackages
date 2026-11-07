@@ -1,8 +1,8 @@
 {
   "name": "com.novorizon.localization",
-  "version": "0.1.0-preview.2",
+  "version": "0.2.0-preview.1",
   "displayName": "Novorizon localization",
-  "description": "Validated Luban-friendly translations, transactional language switching and optional uGUI binding.",
+  "description": "Validated Luban-friendly translations, transactional language switching and optional TMP text/font binding.",
   "unity": "2022.3",
   "author": {
     "name": "Novorizon"

@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +11,7 @@ namespace UI.Demo
     public sealed class UIDemoHomePage : UIPage
     {
         UIDemoLauncher? owner;
-        Text? statusLabel, scopeLabel;
+        TMP_Text? statusLabel, scopeLabel;
         string previousStatus = string.Empty;
         int previousLeases = -1, received;
         protected override void OnCreate()

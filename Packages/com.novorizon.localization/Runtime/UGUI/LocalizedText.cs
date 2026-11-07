@@ -1,26 +1,26 @@
 using System;
 using System.Globalization;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 namespace Game.Framework.Localization.UGUI
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Text))]
+    [RequireComponent(typeof(TextMeshProUGUI))]
     public sealed class LocalizedText : MonoBehaviour
     {
         [Serializable]
         public sealed class LanguageFont
         {
             public string language;
-            public Font font;
+            public TMP_FontAsset font;
         }
 
         [SerializeField] private string key;
         [SerializeField] private LanguageFont[] fonts = Array.Empty<LanguageFont>();
         private LocalizationManager manager;
-        private Text target;
-        private Font originalFont;
+        private TMP_Text target;
+        private TMP_FontAsset originalFont;
         private bool capturedFont, subscribed;
         private object[] arguments;
 
@@ -43,7 +43,11 @@ namespace Game.Framework.Localization.UGUI
 
             if (target == null)
             {
-                target = GetComponent<Text>();
+                target = GetComponent<TMP_Text>();
+                if (target == null)
+                {
+                    throw new InvalidOperationException("LocalizedText requires a TMP text component. Replace legacy Text components and assign TMP font assets on existing prefabs.");
+                }
             }
 
             if (!capturedFont)
@@ -52,7 +56,7 @@ namespace Game.Framework.Localization.UGUI
                 capturedFont = true;
             }
 
-            Font selected = originalFont;
+            TMP_FontAsset selected = originalFont;
             bool matched = false;
             var culture = CultureInfo.GetCultureInfo(manager.Language);
             while (culture.Name.Length != 0)

@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,14 +12,14 @@ namespace UI.Demo
     {
         UIDemoLauncher? owner;
         UIVirtualList? list;
-        Text? details;
+        TMP_Text? details;
         bool dirty;
         int lastWindow = -1;
         protected override void OnCreate()
         {
             CloseGuard = ConfirmCloseAsync;
             RectTransform safe = UIDemoWidgets.SafeContent(transform);
-            Text title = UIDemoWidgets.Text("Title", safe, "Inventory: 10,000 logical rows", 30);
+            TMP_Text title = UIDemoWidgets.Text("Title", safe, "Inventory: 10,000 logical rows", 30);
             UIDemoWidgets.Top((RectTransform)title.transform, 20, 48);
             details = UIDemoWidgets.Text("Details", safe, string.Empty, 20);
             UIDemoWidgets.Top((RectTransform)details.transform, 76, 64);
@@ -44,11 +45,13 @@ namespace UI.Demo
             var rowPrefab = new GameObject("Demo Row Template", typeof(RectTransform));
             rowPrefab.SetActive(false);
             rowPrefab.transform.SetParent(transform, false);
-            var rowText = rowPrefab.AddComponent<Text>();
+            var rowText = rowPrefab.AddComponent<TextMeshProUGUI>();
             rowText.font = UIDemoWidgets.Font;
             rowText.fontSize = 24;
             rowText.color = Color.white;
-            rowText.alignment = TextAnchor.MiddleLeft;
+            rowText.alignment = TextAlignmentOptions.Left;
+            rowText.enableWordWrapping = false;
+            rowText.overflowMode = TextOverflowModes.Ellipsis;
             rowText.raycastTarget = false;
             list = viewport.gameObject.AddComponent<UIVirtualList>();
             list.Configure(scroll, rowPrefab, 48, overscan: 1);
@@ -66,7 +69,7 @@ namespace UI.Demo
 
         static void Bind(GameObject row, int index)
         {
-            Text text = row.GetComponent<Text>();
+            TMP_Text text = row.GetComponent<TMP_Text>();
             text.text = "  Item " + index.ToString("00000") + "   — recycled visible row";
             text.color = index % 2 == 0 ? Color.white : new Color(.55f, .8f, 1, 1);
         }

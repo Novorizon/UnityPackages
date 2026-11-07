@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +8,7 @@ namespace UI.Demo
 {
     public sealed class UIDemoConfirmPopup : UIResultPopup<bool>
     {
-        Text? message;
+        TMP_Text? message;
         public override bool CloseOnBlockerClick => true;
 
         protected override void OnCreate()

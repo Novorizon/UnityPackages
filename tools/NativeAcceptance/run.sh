@@ -12,6 +12,9 @@ if [ "$(uname -s)" = Linux ]; then
         runner=(xvfb-run -a -s '-screen 0 1280x800x24')
     fi
 fi
+"${runner[@]}" "$editor_bin" -batchmode "${graphics[@]}" -projectPath "$project_dir" \
+    -executeMethod NativeAcceptanceSetup.ImportTmpResources \
+    -logFile "$project_dir/ValidationResults/Setup.log"
 platforms=("$@")
 if [ "${#platforms[@]}" -eq 0 ]; then
     platforms=(EditMode PlayMode)

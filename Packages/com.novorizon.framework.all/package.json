@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework.all",
-  "version": "0.1.0-preview.32",
+  "version": "0.1.0-preview.33",
   "displayName": "Novorizon Framework All",
   "description": "Install the complete Novorizon Unity package suite and configure HybridCLR automatically.",
   "unity": "2022.3",
@@ -22,6 +22,7 @@
     "com.unity.modules.audio": "1.0.0",
     "com.unity.inputsystem": "1.11.2",
     "com.unity.ugui": "1.0.0",
-    "com.unity.render-pipelines.universal": "14.0.12"
+    "com.unity.render-pipelines.universal": "14.0.12",
+    "com.unity.textmeshpro": "3.0.6"
   }
 }

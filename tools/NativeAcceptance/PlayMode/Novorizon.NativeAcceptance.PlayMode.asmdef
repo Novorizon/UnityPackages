@@ -5,7 +5,12 @@
     "Game.Framework.UI",
     "Game.Framework.Localization",
     "Game.Framework.Localization.UGUI",
-    "Unity.ugui"
+    "Unity.ugui",
+    "Unity.TextMeshPro",
+    "Game.Framework.UI.Demo",
+    "Game.Framework.Unity"
   ],
-  "optionalUnityReferences": ["TestAssemblies"]
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
 }

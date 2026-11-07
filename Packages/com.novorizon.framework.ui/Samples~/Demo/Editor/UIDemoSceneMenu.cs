@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 #nullable enable
 using System;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,6 +16,11 @@ namespace UI.Demo.Editor
             if (EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 throw new InvalidOperationException("Create the demo scene outside Play mode.");
+            }
+
+            if (TMP_Settings.instance == null || TMP_Settings.defaultFontAsset == null)
+            {
+                throw new InvalidOperationException("UI Demo requires TMP Essential Resources and a default TMP font asset. Use Window > TextMeshPro > Import TMP Essential Resources, set the default font in TMP Settings, then create the demo scene again.");
             }
 
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())

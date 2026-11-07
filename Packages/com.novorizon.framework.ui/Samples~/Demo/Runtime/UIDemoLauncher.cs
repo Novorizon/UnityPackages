@@ -48,6 +48,8 @@ namespace UI.Demo
             starting = true;
             try
             {
+                // Validate resources before creating any owned input or UI objects.
+                _ = UIDemoWidgets.Font;
                 input = CreateInput();
                 root = UIManager.Instance;
                 settings = ScriptableObject.CreateInstance<UISettings>();

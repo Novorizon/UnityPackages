@@ -3,16 +3,17 @@
   "references": [
     "Game.Framework.Localization",
     "Game.Framework.Core",
-    "Unity.ugui"
+    "Unity.ugui",
+    "Unity.TextMeshPro"
   ],
   "defineConstraints": [
-    "NOVORIZON_LOCALIZATION_UGUI"
+    "NOVORIZON_LOCALIZATION_TMP"
   ],
   "versionDefines": [
     {
-      "name": "com.unity.ugui",
-      "expression": "1.0.0",
-      "define": "NOVORIZON_LOCALIZATION_UGUI"
+      "name": "com.unity.textmeshpro",
+      "expression": "3.0.6",
+      "define": "NOVORIZON_LOCALIZATION_TMP"
     }
   ]
 }
