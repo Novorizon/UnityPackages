@@ -62,10 +62,10 @@ internal static partial class Program
             });
             Object.ResetSingletonsForPlay();
         });
-        Check("configurable singleton owners release instances before quitting", () =>
+        Check("singleton owners release instances before quitting", () =>
         {
             var old = Service.Instance;
-            ConfigurableSingleton<Service>.Release();
+            Singleton<Service>.Release();
             True(old.Disposed && !Service.IsCreated);
             Object.MarkQuittingForTest();
             Throws<InvalidOperationException>(() =>
@@ -75,12 +75,12 @@ internal static partial class Program
             Object.ResetSingletonsForPlay();
             True(!ReferenceEquals(old, Service.Instance));
         });
-        Check("quit permits access to an existing configurable service but forbids recreation", () =>
+        Check("quit prevents service access and recreation", () =>
         {
             var current = Service.Instance;
             Object.MarkQuittingForTest();
-            True(ReferenceEquals(current, Service.Instance));
-            ConfigurableSingleton<Service>.Release();
+            Throws<InvalidOperationException>(() => _ = Service.Instance);
+            Singleton<Service>.Release();
             Throws<InvalidOperationException>(() => _ = Service.Instance);
             Object.ResetSingletonsForPlay();
         });
@@ -131,7 +131,7 @@ internal static partial class Program
             Object.ResetSingletonsForPlay();
             True(!ECS.Ecs.IsQuitting);
         });
-        Check("configurable singleton supports private constructors and concurrent acquisition", () =>
+        Check("singleton supports concurrent acquisition", () =>
         {
             Service.Reset();
             int created = Service.Created;
@@ -202,18 +202,18 @@ internal static partial class Program
             Throws<InvalidOperationException>(() => Service.ResetWith(_ => throw new InvalidOperationException("cleanup")));
             True(Service.Instance != null);
         });
-        Check("NetworkManager uses the Framework configurable singleton", NetworkLifecycle);
-        Check("Release never creates a configurable service and preserves the quit guard", () =>
+        Check("NetworkManager uses the Framework singleton", NetworkLifecycle);
+        Check("Release never creates a service and preserves the quit guard", () =>
         {
             Service.Reset();
             int created = Service.Created;
-            ConfigurableSingleton<Service>.Release();
+            Singleton<Service>.Release();
             Equal(created, Service.Created);
             var value = Service.Instance;
-            ConfigurableSingleton<Service>.Release();
+            Singleton<Service>.Release();
             True(value.Disposed && !Service.IsCreated);
             Service.Reset(stopping: true);
-            ConfigurableSingleton<Service>.Release();
+            Singleton<Service>.Release();
             Throws<InvalidOperationException>(() =>
             {
                 _ = Service.Instance;
@@ -510,7 +510,7 @@ internal static partial class Program
         protected override void OnDelete() => Exits++;
     }
 
-    private sealed partial class Service : ConfigurableSingleton<Service>, IDisposable
+    private sealed partial class Service : Singleton<Service>, IDisposable
     {
         public static int Created;
         public readonly string Name;
@@ -521,7 +521,9 @@ internal static partial class Program
             Interlocked.Increment(ref Created);
         }
 
-        public static Service Instance => GetOrCreateInstance(() => New("default"));
+        public Service() : this("default")
+        {
+        }
 
         public static Service New(string name) => new Service(name);
         public static void Configure(Func<Service> factory) => ConfigureInstance(factory);
@@ -543,7 +545,7 @@ internal static partial class Program
     private static void NetworkLifecycle()
     {
         ResetNetwork();
-        True(typeof(ConfigurableSingleton<NetworkManager>).IsAssignableFrom(typeof(NetworkManager)));
+        True(typeof(Singleton<NetworkManager>).IsAssignableFrom(typeof(NetworkManager)));
         True(!NetworkManager.TryGetInstance(out _));
         var transport = new Transport();
         NetworkManager.Configure(transport, new NetworkClientOptions { AutomaticDispatch = false });

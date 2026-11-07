@@ -9,7 +9,7 @@ using UnityEngine.InputSystem.Utilities;
 namespace Game.Framework.Input
 {
     /// <summary>管理独立的运行时 Action Asset 副本；所有控制 API 在 Unity 主线程调用。</summary>
-    public sealed class InputManager : ConfigurableSingleton<InputManager>, IDisposable
+    public sealed class InputManager : Singleton<InputManager>, IDisposable
     {
         private readonly HashSet<string> enabledMaps = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, int> mapBlocks = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -20,7 +20,6 @@ namespace Game.Framework.Input
         private int allBlocks;
         private int ownerThread;
         private bool disposed;
-        public static InputManager Instance => GetOrCreateInstance(() => new InputManager());
         public bool Initialized => actions != null && !disposed;
         public InputActionAsset Actions => Initialized ? actions : throw new InvalidOperationException("Initialize InputManager first.");
         public string CurrentControlScheme { get; private set; }

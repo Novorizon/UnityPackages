@@ -74,7 +74,7 @@ internal static partial class Program
         Run("input supports the common default entry and its typed parameter overload", () =>
         {
             using var defaults = new InputManager();
-            Game.Framework.ConfigurableSingleton<InputManager> common = defaults;
+            Game.Framework.Singleton<InputManager> common = defaults;
             common.Initialize();
             True(defaults.Initialized);
             using var configured = new InputManager();

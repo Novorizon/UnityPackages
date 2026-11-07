@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Game.Framework.Storage
 {
     /// <summary>小型本地文件存储。JSON 使用 Unity JsonUtility 的字段序列化规则。</summary>
-    public sealed class LocalStorageManager : ConfigurableSingleton<LocalStorageManager>, IDisposable
+    public sealed class LocalStorageManager : Singleton<LocalStorageManager>, IDisposable
     {
         [Serializable]
         private sealed class JsonRecord
@@ -18,7 +18,6 @@ namespace Game.Framework.Storage
         private readonly object gate = new object ();
         private string root;
         private bool disposed;
-        public static LocalStorageManager Instance => GetOrCreateInstance(() => new LocalStorageManager());
         public string RootDirectory => root;
 
         public static void Reset(bool stopping = false)

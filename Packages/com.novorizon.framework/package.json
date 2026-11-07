@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.framework",
-  "version": "0.18.0-preview.5",
+  "version": "0.18.0-preview.6",
   "displayName": "Novorizon Framework",
   "description": "Unity game foundation: shared services, events, timers, pools, scenes, local storage and networking.",
   "unity": "2022.3",

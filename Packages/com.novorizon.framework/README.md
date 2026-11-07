@@ -56,13 +56,13 @@ protected override void OnExit()
 }
 ```
 
-上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。ConfigurableSingleton<T> 同样提供 Release，内部清理 IDisposable 并保留退出保护。
+上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。
 
 初始化状态和重复释放由组件内部处理。GameStarter 在 OnStart 直接准备服务、在 OnExit 直接释放，不维护 Manager 所有权或跨服务初始化失败回滚。
 
 ## 自动单例重置
 
-Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 由项目入口集中调用 Release，普通对象实现 IDisposable，组件使用 OnExit；未使用单例不会为清理而创建实例。Player 不再保存全局清理回调或释放优先级。关闭 Domain Reload 时，基类通过已有 EditorStaticReset 清理旧实例和引用，再恢复生成的静态字段声明值。Framework 不依赖 ECS、UI 或资源适配包，模块依赖顺序由各模块协调。
+Singleton<T>、MonoSingleton<T> 由项目入口集中调用 Release，普通对象实现 IDisposable，组件使用 OnExit；未使用单例不会为清理而创建实例。Player 不再保存全局清理回调或释放优先级。关闭 Domain Reload 时，基类通过已有 EditorStaticReset 清理旧实例和引用，再恢复生成的静态字段声明值。Framework 不依赖 ECS、UI 或资源适配包，模块依赖顺序由各模块协调。
 
 Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加 partial，即可从字段声明生成重置代码，不需要 Attribute、手写 Reset 或 RuntimeInitializeOnLoadMethod。修改声明初值后，生成代码同步更新。
 

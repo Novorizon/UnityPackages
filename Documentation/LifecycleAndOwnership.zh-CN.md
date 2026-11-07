@@ -62,7 +62,7 @@ ConnectAsync(token) 的 token 仅取消该调用方的等待。多个调用方�
 
 GameEntry 默认先准备资源并加载热更，公共 Manager 由 HotGame.InitializeManagersAsync 直接初始化；编译源模式同样通过 HotGame 初始化。OnExit 停止启动模块和热更入口，对应入口逐项调用 Release。StartupModule 与 GameSession 保留；入口不再记录 Manager 所有权，不区分借用实例，不执行跨 Manager 的初始化失败回滚。
 
-MonoSingleton 提供成对的 OnStart/OnExit，每次运行各调用一次。重复访问 Instance 不重复启动；Dispose、Release、原生销毁和退出回调共用同一清理钩子。重复清理、部分初始化资源清理和错误记录在组件内部处理。Release 只操作已有实例，退出时不创建新 Manager；ConfigurableSingleton.Release 保留既有退出保护。
+MonoSingleton 提供成对的 OnStart/OnExit，每次运行各调用一次。重复访问 Instance 不重复启动；Dispose、Release、原生销毁和退出回调共用同一清理钩子。重复清理、部分初始化资源清理和错误记录在组件内部处理。Release 只操作已有实例，退出时不创建新 Manager。
 
 GameEntry.ShutdownAsync 保留兼容入口，发起 OnExit 后返回；不再汇总等待所有 Manager 的异步清理。UI 的窗口销毁和 prefab 租约释放、ResourceManager 的迟到获取及句柄释放均在各包内部继续完成。资源管理器在关闭期间收到 InitializeAsync 时，内部等待上次关闭；业务入口不维护清理任务队列。需要显式等待某个服务完成时，使用它自己的 ShutdownAsync。
 

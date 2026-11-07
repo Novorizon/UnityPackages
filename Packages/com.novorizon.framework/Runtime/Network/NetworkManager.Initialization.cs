@@ -5,7 +5,9 @@ namespace Game.Framework.Network
 {
     public sealed partial class NetworkManager
     {
-        private NetworkManager() { }
+        public NetworkManager()
+        {
+        }
 
         public bool IsInitialized => Volatile.Read(ref session) != null && Volatile.Read(ref disposed) == 0;
 
