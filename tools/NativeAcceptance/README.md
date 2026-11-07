@@ -5,9 +5,9 @@
 | 套件 | 结果 | 覆盖 |
 | --- | --- | --- |
 | GPU/URP/Story/Diagnostics EditMode | **65/65 通过，无跳过** | 烘焙、纹理编码/导入、源资源保持不变、重烘焙 GUID、保存失败恢复、URP Shader 导入/Pass、Lit 阴影标记与切线；剧情 SO 保存/卸载/重导入；诊断不创建单例/不读私有 getter 及真实 JSON 往返；严格元数据类型、混合骨骼逆转置 GPU 法线回读 |
-| NativeAcceptance PlayMode | **33/33 通过，无跳过** | 真实 Canvas/ScrollRect 的动态列表、延迟原生 Destroy、真实 TMP 文本/默认字体与多语言隐藏重开、UI Demo/虚拟行字形网格、安全区投影、实际 GPU 动画位置/法线像素回读；本地化 Settings/Bootstrap；剧情分支/立绘/语音/销毁；VP8 蓝色帧回读、准备超时与迟到资源；完整 Basic Story 示例；Grid/Input 重入；ECS/Ability/Audio/GPU 与热路径分配；真实 YooAsset 空下载器取消时序 |
+| NativeAcceptance PlayMode | **38/38 通过，无跳过** | 真实 Canvas/ScrollRect 的动态列表、延迟原生 Destroy、真实 TMP 文本/默认字体与多语言隐藏重开、UI Demo/虚拟行字形网格、安全区投影、实际 GPU 动画位置/法线像素回读；本地化 Settings/Bootstrap；剧情分支/立绘/语音/销毁；VP8 蓝色帧回读、准备超时与迟到资源；完整 Basic Story 示例；Grid/Input 重入；ECS/Ability/Audio/GPU 与热路径分配；真实 YooAsset 空下载器取消时序；账号回调生命周期、AnalyticsManager 的 Inspector 埋点与 AttributionManager 后台回调回主线程 |
 
-这是 v0.1.0-preview.34 基线加 preview.35 全部 16 个本地包覆盖的验收；结果记录于 [NativeAcceptance.json](../../Documentation/NativeAcceptance.json)，包括被测源码和本地 XML/日志摘要。原始记录位于执行环境的 `/workspace/UnityPackagesNativeValidation/ValidationResults`，不把账号/许可证日志提交到仓库。
+这是 v0.1.0-preview.36 基线加 preview.37 全部 22 个本地包覆盖的验收；结果记录于 [NativeAcceptance.json](../../Documentation/NativeAcceptance.json)，包括被测源码和本地 XML/日志摘要。原始记录位于执行环境的 `/workspace/UnityPackagesNativeValidation/ValidationResults`，不把账号/许可证日志提交到仓库。
 
 ## 复现
 

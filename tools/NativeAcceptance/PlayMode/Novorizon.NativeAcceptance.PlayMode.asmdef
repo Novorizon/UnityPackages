@@ -27,7 +27,10 @@
     "Game.Framework.Auth.Native",
     "Game.Framework.Payments",
     "Game.Framework.Ads",
-    "Game.Framework.Firebase"
+    "Game.Framework.Firebase",
+    "Game.Framework.Analytics",
+    "Game.Framework.Analytics.Unity",
+    "Game.Framework.Attribution"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

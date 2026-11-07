@@ -80,6 +80,7 @@ def validate():
         'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
         'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp', 'com.novorizon.story',
         'com.novorizon.auth', 'com.novorizon.payments', 'com.novorizon.ads', 'com.novorizon.firebase',
+        'com.novorizon.analytics', 'com.novorizon.attribution',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -147,6 +148,8 @@ def validate():
         'PlatformPayments': 'com.novorizon.payments/Runtime/Game.Framework.Payments.asmdef',
         'PlatformAds': 'com.novorizon.ads/Runtime/Game.Framework.Ads.asmdef',
         'PlatformFirebase': 'com.novorizon.firebase/Runtime/Game.Framework.Firebase.asmdef',
+        'AnalyticsCore': 'com.novorizon.analytics/Runtime/Game.Framework.Analytics.asmdef',
+        'AttributionCore': 'com.novorizon.attribution/Runtime/Game.Framework.Attribution.asmdef',
         'Resources': 'com.novorizon.framework.yooasset/Runtime/Game.Framework.Resources.YooAsset.asmdef',
     }
     model_root = ROOT / 'tools/GameModulesVerification'
@@ -163,7 +166,14 @@ def validate():
         assert references == set(definition.get('references', [])), (project, 'Verification direct references differ from Unity asmdef')
 
     for model, asmdef in module_models.items():
-        project = (ROOT / 'tools/PlatformServicesVerification' / model[8:] / (model[8:] + '.csproj')) if model.startswith('Platform') else model_root / model / (model + '.csproj')
+        if model.endswith('Core') and model != 'Core':
+            name = model[:-4]
+            project = ROOT / 'tools/AnalyticsVerification' / name / (name + '.csproj')
+        elif model.startswith('Platform'):
+            name = model[8:]
+            project = ROOT / 'tools/PlatformServicesVerification' / name / (name + '.csproj')
+        else:
+            project = model_root / model / (model + '.csproj')
         check_assembly_model(project, asmdef)
     hot_models = ROOT / 'tools/HotUpdateVerification'
     assert ET.parse(hot_models / 'Directory.Build.props').getroot().findtext('.//DisableTransitiveProjectReferences') == 'true'
@@ -240,6 +250,7 @@ def verify(dotnet):
             ('LocalizationSetupVerification', 'LocalizationSetupVerification'),
             ('StoryVerification', 'StoryVerification'),
             ('PlatformServicesVerification', 'PlatformServicesVerification'),
+            ('AnalyticsVerification', 'AnalyticsVerification'),
             ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'),
             ('RTreeCorrectness', 'Correctness'),
             ('RTreeSpatialCorrectness', 'SpatialCorrectness'),

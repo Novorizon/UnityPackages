@@ -30,7 +30,7 @@ internal static class Program
         {
             var backend = new Backend();
             var source = new Identity();
-            using var client = new AuthClient(backend, new[] { source });
+            using var client = new AuthManager(backend, new[] { source });
             Equal("guest", Done(client.LinkAsync(IdentityProvider.Google)).Id);
             Equal("guest", backend.LinkedUid);
             Throws<ObjectDisposedException>(() => _ = source.Last.Token);
@@ -39,7 +39,7 @@ internal static class Program
         {
             var backend = new Backend();
             var source = new Identity { Gate = Signal<IdentityProof>() };
-            using var client = new AuthClient(backend, new[] { source });
+            using var client = new AuthManager(backend, new[] { source });
             var pending = client.LinkAsync(IdentityProvider.Google);
             backend.User = new AuthUser("other", false, new[] { "google.com" });
             var proof = Proof();
@@ -52,14 +52,14 @@ internal static class Program
         {
             var source = new Identity { ResultProvider = IdentityProvider.Apple };
             var backend = new Backend();
-            using var client = new AuthClient(backend, new[] { source });
+            using var client = new AuthManager(backend, new[] { source });
             Fails<InvalidOperationException>(client.SignInAsync(IdentityProvider.Google));
             Equal(0, backend.SignIns);
         });
         Run("last sign-in provider cannot be unlinked", () =>
         {
             var backend = new Backend { User = new AuthUser("account", false, new[] { "apple.com" }) };
-            using var client = new AuthClient(backend, Array.Empty<IIdentityProvider>());
+            using var client = new AuthManager(backend, Array.Empty<IIdentityProvider>());
             Throws<InvalidOperationException>(() => client.UnlinkAsync("apple.com"));
             Equal(0, backend.Unlinks);
         });
@@ -67,7 +67,7 @@ internal static class Program
         {
             var backend = new Backend();
             var source = new Identity { Gate = Signal<IdentityProof>() };
-            using var client = new AuthClient(backend, new[] { source });
+            using var client = new AuthManager(backend, new[] { source });
             using var stop = new CancellationTokenSource();
             var pending = client.SignInAsync(IdentityProvider.Google, stop.Token);
             stop.Cancel();
@@ -82,7 +82,7 @@ internal static class Program
         {
             var backend = new Backend();
             var source = new Identity { Gate = Signal<IdentityProof>() };
-            var client = new AuthClient(backend, new[] { source }, true);
+            var client = new AuthManager(backend, new[] { source }, true);
             var pending = client.SignInAsync(IdentityProvider.Google);
             client.Dispose();
             Equal(0, source.Disposals);
@@ -96,7 +96,7 @@ internal static class Program
         Run("pre-cancelled auth never opens a popup", () =>
         {
             var source = new Identity();
-            using var client = new AuthClient(new Backend(), new[] { source });
+            using var client = new AuthManager(new Backend(), new[] { source });
             using var stop = new CancellationTokenSource();
             stop.Cancel();
             Throws<OperationCanceledException>(() => client.SignInAsync(IdentityProvider.Google, stop.Token));
@@ -105,14 +105,14 @@ internal static class Program
         Run("backend credential collision propagates without merging accounts", () =>
         {
             var backend = new Backend { RejectLink = true };
-            using var client = new AuthClient(backend, new[] { new Identity() });
+            using var client = new AuthManager(backend, new[] { new Identity() });
             Fails<InvalidOperationException>(client.LinkAsync(IdentityProvider.Google));
             Equal("guest", client.CurrentUser.Id);
         });
         Run("auth rejects worker-thread operations before calling SDK", () =>
         {
             var backend = new Backend();
-            using var client = new AuthClient(backend, new[] { new Identity() });
+            using var client = new AuthManager(backend, new[] { new Identity() });
             Fails<InvalidOperationException>(Task.Run(() => client.SignOut()));
             Equal(0, backend.SignOuts);
         });
@@ -318,13 +318,13 @@ internal static class Program
     private static AdPlacement Placement() => new AdPlacement("coins", "unit", AdFormat.Rewarded);
     private static PaymentClient Payment(Store store, Fulfillment fulfillment, bool owns = false)
     {
-        var client = new PaymentClient(store, fulfillment, owns);
+        var client = new IapManager(store, fulfillment, owns);
         Done(client.InitializeAsync());
         return client;
     }
     private static AdsClient Advertising(Ads provider, bool owns = false)
     {
-        var client = new AdsClient(provider, owns);
+        var client = new AdManager(provider, owns);
         Done(client.InitializeAsync());
         return client;
     }

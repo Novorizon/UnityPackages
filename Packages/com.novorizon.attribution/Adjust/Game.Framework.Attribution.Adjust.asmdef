@@ -1,0 +1,24 @@
+{
+  "name": "Game.Framework.Attribution.Adjust",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics",
+    "Game.Framework.Attribution",
+    "AdjustSdk.Scripts"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_ADJUST_5"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.adjust.sdk",
+      "expression": "[5.8.2,6.0.0)",
+      "define": "NOVORIZON_ADJUST_5"
+    }
+  ]
+}

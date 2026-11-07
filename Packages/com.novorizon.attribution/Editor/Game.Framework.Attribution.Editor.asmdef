@@ -1,0 +1,14 @@
+{
+  "name": "Game.Framework.Attribution.Editor",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Analytics.Editor"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

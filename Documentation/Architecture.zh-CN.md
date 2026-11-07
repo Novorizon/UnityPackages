@@ -1,6 +1,6 @@
 # 仓库、包与工程
 
-UnityPackages 维护 16 个独立 UPM 包；GameStarter 是另一个仓库中的 Unity 工程。消费者通过 Git/UPM 安装，不依赖维护工作区的目录布局。
+UnityPackages 维护 22 个独立 UPM 包；GameStarter 是另一个仓库中的 Unity 工程。消费者通过 Git/UPM 安装，不依赖维护工作区的目录布局。
 
 ## 依赖方向
 
@@ -31,3 +31,10 @@ HybridCLR 官方原生安装器需要工程中的物理 Packages 路径，因此
 Localization 只依赖 Framework；生成的 Luban 表由项目适配，uGUI 和 Luban Editor 桥接按已安装包启用。Diagnostics 仅在 Editor 读取公开状态，不被运行时包反向引用。GpuAnimator.URP 是独立的 URP 14 适配包，聚合安装默认包含它；只安装基础 GPU 包时仍可显式使用 Built-in Shader。
 
 Story 是独立可选模块：核心只处理不可变序列和会话；Unity authoring、TMP 舞台及 VideoPlayer 分程序集。业务触发、任务奖励与存档迁移属于 GameStarter/游戏。all 的依赖目录包含该包；只装核心包不要求 UI/TMP/Video。
+
+
+## 平台服务与业务入口
+
+业务统一通过 `IapManager`、`AdManager`、`AuthManager`、`AnalyticsManager`、`AttributionManager`、`FirebaseManager` 调用。Manager 的原 Client 基类保留兼容，启动层选择和注入 SDK adapter；不会新增自动初始化 SDK 的全局访问入口。
+
+Analytics 只依赖 Framework；Attribution 依赖 Framework / Analytics。Firebase 的统计 adapter 依赖 Analytics 核心，Analytics 不反向依赖 Firebase。统计与归因的可选程序集只有在安装对应外部 SDK 后才参与编译。SDK 版本、功能分工及推荐组合见 [SDK 清单](SdkGuide.zh-CN.md)。

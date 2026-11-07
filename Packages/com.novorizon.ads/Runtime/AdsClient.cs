@@ -68,7 +68,7 @@ namespace Game.Framework.Ads
     }
 
     /// <summary>Use one explicitly configured provider per client. Reward delivery is independent of closing.</summary>
-    public sealed class AdsClient : IDisposable
+    public class AdsClient : IDisposable
     {
         private readonly IAdProvider provider;
         private readonly bool ownsProvider;

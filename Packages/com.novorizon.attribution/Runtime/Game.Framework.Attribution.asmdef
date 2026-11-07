@@ -1,0 +1,12 @@
+{
+  "name": "Game.Framework.Attribution",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true,
+  "overrideReferences": true,
+  "precompiledReferences": []
+}

@@ -6,4 +6,6 @@
 
 Messaging 使用 14.1 的 Installation ID 注册接口，支持 Android 13+ 通知权限；需要原生标志、iOS APNs 配置。推送地址和账号登录凭据不同。
 
-完整配置、费用边界、符号表与业务示例见 [平台服务接入](../../Documentation/PlatformServices.zh-CN.md)，独立包可查看[同版在线文档](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.36/Documentation/PlatformServices.zh-CN.md)。实际云端收发 / 崩溃上传需要项目控制台与设备验收。
+完整配置、费用边界、符号表与业务示例见 [平台服务接入](../../Documentation/PlatformServices.zh-CN.md)，独立包可查看[同版在线文档](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.37/Documentation/PlatformServices.zh-CN.md)。实际云端收发 / 崩溃上传需要项目控制台与设备验收。
+
+业务从 `FirebaseManager` 初始化，按需 `CreateAnalytics` / `CreateAuthBackend` / `CreateCrashReporter` / `CreateRemoteConfig` / `CreateMessaging`；统计交给 `AnalyticsManager`，账号交给 `AuthManager`。详见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。

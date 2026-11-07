@@ -1,0 +1,11 @@
+{
+  "name": "Game.Framework.Analytics",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true,
+  "overrideReferences": true,
+  "precompiledReferences": []
+}

@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="Game.Framework.Attribution.AppsFlyer" ignoreIfMissing="1" ignoreIfUnreferenced="1">
+    <type fullname="Game.Framework.Attribution.AppsFlyer.AppsFlyerCallbackHost" preserve="all" />
+  </assembly>
+</linker>

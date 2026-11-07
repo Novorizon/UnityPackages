@@ -1,0 +1,15 @@
+{
+  "name": "Novorizon.AnalyticsSdk.Tests",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics",
+    "Game.Framework.Analytics.ThinkingData",
+    "Game.Framework.Analytics.GameAnalytics",
+    "Game.Framework.Attribution",
+    "Game.Framework.Attribution.AppsFlyer",
+    "Game.Framework.Attribution.Adjust",
+    "ThinkingAnalytics",
+    "AdjustSdk.Scripts"
+  ],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

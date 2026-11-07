@@ -1,0 +1,23 @@
+{
+  "name": "Game.Framework.Analytics.ThinkingData",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics",
+    "ThinkingAnalytics"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_THINKINGDATA"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.thinkingdata.analytics",
+      "expression": "[3.5.5,4.0.0)",
+      "define": "NOVORIZON_THINKINGDATA"
+    }
+  ]
+}

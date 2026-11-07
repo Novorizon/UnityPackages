@@ -1,0 +1,24 @@
+{
+  "name": "Game.Framework.Attribution.AppsFlyer",
+  "rootNamespace": "Game.Framework",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Analytics",
+    "Game.Framework.Attribution",
+    "AppsFlyer"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "defineConstraints": [
+    "NOVORIZON_APPSFLYER_6"
+  ],
+  "versionDefines": [
+    {
+      "name": "appsflyer-unity-plugin",
+      "expression": "[6.18.3,7.0.0)",
+      "define": "NOVORIZON_APPSFLYER_6"
+    }
+  ]
+}
