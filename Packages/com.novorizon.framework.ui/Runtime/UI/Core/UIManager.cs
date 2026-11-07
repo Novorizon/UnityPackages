@@ -175,6 +175,8 @@ namespace UI
         Task shutdownCompletion = Task.CompletedTask;
         readonly List<Task> retiredFactories = new();
         public bool IsInitialized => initialized && !destroyed && !shuttingDown;
+        public int ActiveViewCount => factory?.ActiveCount ?? 0;
+        public int CachedViewCount => factory?.CachedCount ?? 0;
 
         protected override void Awake()
         {

@@ -173,8 +173,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "9d97da5859dde0e1b0a6632803d85993d5ed353c9720f6d868ff8b657d0c4875",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "d88115cfd66221377425427d2f17aa2f1c2c69c2107b503b56a6a2bc2ef7d317",
+      "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -281,8 +281,8 @@
       "reason": "Use the shared Singleton implementation and explicit service initialization."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "7956b6cf08b2075ab8ca01ef6cea55da6ea57effe15ab0c1b706419eed30f5dc",
-      "reason": "Preserve corrupt install-state JSON until explicit retry and retain a recoverable failure state; bound registration polling after lost UPM request handles to once per half-second."
+      "sha256": "0f876be0e18833b850d9b93874dd397b783f33fefd4303761a49ed1123785b7a",
+      "reason": "Initialize the default URP project asset after installing all packages while preserving existing Graphics/Quality pipeline configuration."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
       "sha256": "a0349f48abf6b1409bb889358b710e9aefe59579a676db9a90832c38d1a4bcdd",
@@ -471,6 +471,22 @@
     "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs": {
       "sha256": "c052244876b7070dd39b4a56c74be1d80d2ae38e02a48b5a920b65be0a54e31c",
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs": {
+      "sha256": "f4d074dcf805e75313490f0f684b0fff35fbd790e5b2b5082c95380bc6c47ea7",
+      "reason": "Default new GPU animation bakes to URP Unlit while retaining explicit Built-in shader selections."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs": {
+      "sha256": "2fc9f8c0e7e8b3ea132e3398c2e2b2ec463709d13d3c91d821af0cf019de930d",
+      "reason": "Notify internal grid owners before row retirement, including never-activated and externally destroyed rows, while retaining existing list semantics."
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/GameObjectPool.cs": {
+      "sha256": "bdef00583c55339126618556ba279675619f744ca76571a92d297f971a08c057",
+      "reason": "Expose read-only aggregated counts from the existing pool registry for the diagnostics window without creating pools."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Pooling/ReferencePool.cs": {
+      "sha256": "f2b89bae0041d4185f9242e33aa625174ef6cee6f39802e85d55047d08ff5944",
+      "reason": "Expose the existing shared pool registry count without accessing lazy Shared pools."
     }
   }
 }

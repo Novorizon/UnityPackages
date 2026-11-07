@@ -8,7 +8,7 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 python3 tools/workspace.py export --output /tmp/UnityPackages-release
 ```
 
-导出工具分别生成 12 个自有包的 tarball。聚合 tarball 仅包含安装器和依赖元数据，没有其他包归档，也没有 Payload~。源码 ZIP 同样只含本仓库维护的自有包。
+导出工具分别生成 15 个自有包的 tarball。聚合 tarball 仅包含安装器和依赖元数据，没有其他包归档，也没有 Payload~。源码 ZIP 同样只含本仓库维护的自有包。
 
 实际 UPM 安装时第三方由官方 Git 源解析；HybridCLR 9.0.3 在使用方工程 Embed 后配置，以兼容其物理 Packages 路径需求。验证器的 Unity/UPM 为模型，真实导入、重编译、原生安装及 IL2CPP 需要在仓库外的 Unity 工程验收。
 

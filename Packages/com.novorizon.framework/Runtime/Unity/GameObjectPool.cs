@@ -39,6 +39,44 @@ namespace Game.Framework.Pooling
         public int MaximumRetained { get; }
         public int CountInactive { get { MainThread(); return inactive; } }
         public int CountActive { get { MainThread(); return active; } }
+        public static int PoolCount
+        {
+            get
+            {
+                MainThread();
+                return pools.Count;
+            }
+        }
+
+        public static long TotalActiveCount
+        {
+            get
+            {
+                MainThread();
+                long count = 0;
+                foreach (var pool in pools)
+                {
+                    count += pool.active;
+                }
+
+                return count;
+            }
+        }
+
+        public static long TotalInactiveCount
+        {
+            get
+            {
+                MainThread();
+                long count = 0;
+                foreach (var pool in pools)
+                {
+                    count += pool.inactive;
+                }
+
+                return count;
+            }
+        }
 
         public GameObjectPool(GameObject prefab, int maximumRetained = 64, int prewarm = 0)
         {

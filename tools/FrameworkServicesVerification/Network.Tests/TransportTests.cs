@@ -259,17 +259,23 @@ public sealed class TransportTests
         var options = peer.Options;
         options.MaxPacketBytes = 4 * 1024 * 1024;
         options.MaxPendingSendBytes = 12 * 1024 * 1024;
-        options.SendTimeoutMilliseconds = 2000;
+        options.SendTimeoutMilliseconds = 30_000;
         await using var client = new SimpleTcpClient(options);
         await client.ConnectAsync();
         using var socket = await peer.AcceptAsync();
         socket.ReceiveBufferSize = 1024;
         byte[] payload = new byte[options.MaxPacketBytes - 28];
         Task first = client.SendRawAsync(50, 1, payload);
+        Assert.False(first.IsCompleted);
         using var cancellation = new CancellationTokenSource();
         Task second = client.SendRawAsync(50, 2, payload, cancellation.Token);
         cancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => second.WaitAsync(TimeSpan.FromMilliseconds(500)));
+        // Check independence from the blocked writer, rather than a CI scheduler's
+        // ability to run two asynchronous continuations within 500 milliseconds.
+        // The guard is shorter than the write deadline, so waiting for that writer
+        // still fails; the postcondition also rules out cancellation via its exit.
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => second.WaitAsync(TimeSpan.FromSeconds(5)));
+        Assert.False(first.IsCompleted);
         await client.DisconnectAsync();
         await Record.ExceptionAsync(() => first);
     }

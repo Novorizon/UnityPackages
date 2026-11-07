@@ -42,6 +42,7 @@ namespace UI
         public int InstantiatedItemCount => cells.Count;
         public int FirstVisibleIndex { get; private set; } = -1;
         public int LastVisibleIndex { get; private set; } = -1;
+        internal event Action<GameObject>? CellRetiring;
 
         /// <summary>Configure before SetData/SetItemCount. The component does not load or release the prefab.</summary>
         public void Configure(ScrollRect scrollRect, GameObject itemPrefab, float itemExtent,
@@ -196,6 +197,7 @@ namespace UI
             for (int i = cells.Count - 1; i >= 0; i--)
             {
                 if (cells[i].Object != null) continue;
+                NotifyRetiring(cells[i].Object);
                 cells.RemoveAt(i);
                 force = true;
             }
@@ -282,9 +284,26 @@ namespace UI
                 if (operation != revision || destroyed) return;
             }
         }
-        static void DestroyCell(Cell cell)
+        void NotifyRetiring(GameObject instance)
         {
-            if (cell.Object == null) return;
+            try
+            {
+                CellRetiring?.Invoke(instance);
+            }
+            catch (Exception error)
+            {
+                Debug.LogException(error);
+            }
+        }
+
+        void DestroyCell(Cell cell)
+        {
+            if (cell.Object == null)
+            {
+                return;
+            }
+
+            NotifyRetiring(cell.Object);
             cell.Object.SetActive(false);
             Object.Destroy(cell.Object);
         }

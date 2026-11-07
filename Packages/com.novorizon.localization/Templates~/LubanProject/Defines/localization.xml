@@ -1,0 +1,8 @@
+<module name="">
+    <bean name="Translation">
+        <var name="key" type="string" />
+        <var name="zhHans" type="string" />
+        <var name="en" type="string" />
+    </bean>
+    <table name="TbTranslation" value="Translation" input="translations.xlsx" index="key" />
+</module>

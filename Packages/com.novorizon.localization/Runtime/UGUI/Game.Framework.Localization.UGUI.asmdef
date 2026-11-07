@@ -1,0 +1,18 @@
+{
+  "name": "Game.Framework.Localization.UGUI",
+  "references": [
+    "Game.Framework.Localization",
+    "Game.Framework.Core",
+    "Unity.ugui"
+  ],
+  "defineConstraints": [
+    "NOVORIZON_LOCALIZATION_UGUI"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.ugui",
+      "expression": "[1.0.0,)",
+      "define": "NOVORIZON_LOCALIZATION_UGUI"
+    }
+  ]
+}

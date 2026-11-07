@@ -16,6 +16,7 @@ namespace Game.Framework.All.Editor
     {
         internal const string PackageName = "com.novorizon.framework.all";
         private const string SetupType = "Game.Framework.HotUpdate.Editor.GameBuild";
+        private const string UrpSetupType = "Game.Framework.GpuAnimation.URP.Editor.UrpProjectSetup";
         private static PackageCatalog catalog;
         private static InstallState state;
         private static string packageRoot, projectRoot, release;
@@ -364,11 +365,12 @@ namespace Game.Framework.All.Editor
         private static void Configure()
         {
             var type = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(SetupType, false)).FirstOrDefault(t => t != null);
-            if (type == null)
+            var urpType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(UrpSetupType, false)).FirstOrDefault(t => t != null);
+            if (type == null || urpType == null)
             {
                 if (DateTime.UtcNow.Ticks > state.deadline)
                 {
-                    throw new TimeoutException("HybridCLR editor assembly did not load. Check Unity compilation errors.");
+                    throw new TimeoutException("HybridCLR or URP setup assembly did not load. Check Unity compilation errors.");
                 }
 
                 return;
@@ -379,6 +381,14 @@ namespace Game.Framework.All.Editor
             {
                 throw new MissingMethodException(SetupType, "Configure");
             }
+
+            var configureUrp = urpType.GetMethod("Configure", BindingFlags.Public | BindingFlags.Static, null, Type.EmptyTypes, null);
+            if (configureUrp == null)
+            {
+                throw new MissingMethodException(UrpSetupType, "Configure");
+            }
+
+            configureUrp.Invoke(null, null);
 
             configure.Invoke(null, null); // Idempotent: preserves user settings, hot code and scenes.
             Advance("Complete");

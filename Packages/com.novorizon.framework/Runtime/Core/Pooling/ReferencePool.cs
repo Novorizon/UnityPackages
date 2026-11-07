@@ -10,6 +10,16 @@ namespace Game.Framework.Pooling
     {
         private static readonly object gate = new object();
         private static readonly List<Action> sharedResets = new List<Action>();
+        public static int RegisteredSharedPoolCount
+        {
+            get
+            {
+                lock (gate)
+                {
+                    return sharedResets.Count;
+                }
+            }
+        }
         internal static ReferencePool<T> Register<T>(ReferencePool<T> pool) where T : class, IReferencePoolable, new()
         { lock (gate) sharedResets.Add(pool.Clear); return pool; }
         public static void ClearAll()

@@ -10,19 +10,24 @@ public sealed class GpuSkinningTools : EditorWindow
     public static readonly string DEFAULT_OUTPUT_PATH = "Assets/Main/Prefabs/GpuRole/";
     public static readonly string DEFAULT_PBR_SHADER_NAME = "Custom/GpuSkinningAnimationPBR";
     public static readonly string DEFAULT_SHADER_NAME = "Custom/GpuSkinningAnimation";
-    public static string DEFAULT_USE_SHADER_NAME = DEFAULT_SHADER_NAME;
+    public static string DEFAULT_USE_SHADER_NAME = "Novorizon/GpuSkinning/URP Unlit";
     public static readonly string DEFAULT_SAVE_MESH_NAME = "_Mesh.asset";
     public static readonly string DEFAULT_SAVE_PREFAB_NAME = "_DynPre.prefab";
     public static readonly string DEFAULT_SAVE_MATERIAL_NAME = "_DynMat.mat";
     public static readonly string DEFAULT_SAVE_DEFAULT_MATERIAL_NAME = "_Default_DynMat.mat";
 
-    private enum ShaderMode { Unlit, PBR }
+    private enum ShaderMode
+    {
+        Unlit,
+        PBR,
+        URPUnlit
+    }
     private static readonly int[] TextureSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384 };
     private static readonly string[] TextureSizeLabels = { "256", "512", "1024", "2048", "4096", "8192", "16384" };
 
     [SerializeField] private string sourceDirectory = DEFAULT_FBX_PATH;
     [SerializeField] private string outputDirectory = DEFAULT_OUTPUT_PATH;
-    [SerializeField] private ShaderMode shaderMode;
+    [SerializeField] private ShaderMode shaderMode = ShaderMode.URPUnlit;
     [SerializeField] private int maximumTextureSize = 2048;
     private readonly List<ReportEntry> report = new List<ReportEntry>();
     private Vector2 reportScroll;
@@ -49,6 +54,12 @@ public sealed class GpuSkinningTools : EditorWindow
 
     [MenuItem("GpuSkinning/PBR")]
     public static void GenGPUSkinningPBR() { BakeDefaults(ShaderMode.PBR); }
+
+    [MenuItem("GpuSkinning/URP Unlit")]
+    public static void GenGPUSkinningURP()
+    {
+        BakeDefaults(ShaderMode.URPUnlit);
+    }
 
     private static void BakeDefaults(ShaderMode mode)
     {
@@ -148,7 +159,13 @@ public sealed class GpuSkinningTools : EditorWindow
         string action = validateOnly ? "Validation" : "Bake";
         try
         {
-            string shaderName = shaderMode == ShaderMode.PBR ? DEFAULT_PBR_SHADER_NAME : DEFAULT_SHADER_NAME;
+            string shaderName = shaderMode == ShaderMode.URPUnlit
+                ? "Novorizon/GpuSkinning/URP Unlit"
+                : shaderMode == ShaderMode.PBR ? DEFAULT_PBR_SHADER_NAME : DEFAULT_SHADER_NAME;
+            if (shaderMode == ShaderMode.URPUnlit && Shader.Find(shaderName) == null)
+            {
+                throw new InvalidOperationException("Install com.novorizon.gpuanimator.urp (URP 14) before baking with URP Unlit.");
+            }
             candidates = GpuAnimationBakeDiscovery.Discover(sourceDirectory, outputDirectory, shaderName, maximumTextureSize);
             if (candidates.Count == 0)
             {

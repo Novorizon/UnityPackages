@@ -1,0 +1,6 @@
+{
+  "name": "Game.Framework.Localization",
+  "references": [
+    "Game.Framework.Core"
+  ]
+}

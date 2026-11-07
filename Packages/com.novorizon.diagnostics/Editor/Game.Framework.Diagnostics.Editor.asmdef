@@ -1,0 +1,7 @@
+{
+  "name": "Game.Framework.Diagnostics.Editor",
+  "references": [],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

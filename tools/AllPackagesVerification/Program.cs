@@ -22,6 +22,7 @@ internal static class Program
             Equal(1, Client.Adds.Count);
             Equal(c.packages.Length, Client.Adds[0].Length);
             Equal(1, Setup.Calls);
+            Equal(1, Game.Framework.GpuAnimation.URP.Editor.UrpProjectSetup.Calls);
         }));
         Check("matching installed versions skip add but still finish setup", () => InProject(c =>
         {
@@ -183,6 +184,7 @@ internal static class Program
         EditorApplication.timeSinceStartup = 0;
         PackageInfo.RegistrationQueries = 0;
         Setup.Calls = 0;
+        Game.Framework.GpuAnimation.URP.Editor.UrpProjectSetup.Calls = 0;
         Setup.Fail = false;
         Reload();
         foreach (var package in catalog.packages)

@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>netstandard2.1</TargetFramework><AssemblyName>Game.Framework.Localization</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems><TreatWarningsAsErrors>true</TreatWarningsAsErrors><LangVersion>9.0</LangVersion></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../FrameworkServicesVerification/Core/Core.csproj" /><Compile Include="../../../Packages/com.novorizon.localization/Runtime/*.cs" /></ItemGroup>
+</Project>

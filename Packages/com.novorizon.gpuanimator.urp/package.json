@@ -1,0 +1,14 @@
+{
+  "name": "com.novorizon.gpuanimator.urp",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon gpuanimator urp",
+  "description": "Default URP 14 Unlit rendering and project setup for the existing GPU animation bake format.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.gpuanimator": "4.0.0-preview.14",
+    "com.unity.render-pipelines.universal": "14.0.1"
+  }
+}
