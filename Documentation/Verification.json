@@ -1,13 +1,12 @@
 {
-  "packages": 15,
-  "ownedPackages": 15,
+  "packages": 12,
+  "ownedPackages": 12,
   "externalDependencyReferences": 3,
   "importedFilesChecked": 741,
   "externalHistoricalFilesOmitted": 1818,
   "unchangedRuntimeAndAssetFiles": false,
   "runtimeSymbolRenames": [],
   "approvedSourceChanges": [
-    "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs",
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs",
     "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs",
     "Packages/com.novorizon.gpuanimator/Samples~/FrameworkPool/GpuAnimatorPool.cs",
@@ -28,7 +27,6 @@
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs",
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs",
-    "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
@@ -56,7 +54,6 @@
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs",
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs",
-    "Packages/com.novorizon.framework/Runtime/Core/Pooling/ReferencePool.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs",
@@ -66,7 +63,6 @@
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs",
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs",
-    "Packages/com.novorizon.framework/Runtime/Unity/GameObjectPool.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs",
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs",
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs",
@@ -123,7 +119,7 @@
     "Packages/com.novorizon.rtree/README.md",
     "Packages/com.novorizon.rtree/package.json"
   ],
-  "activeAssemblies": 29,
-  "activeGuids": 417,
+  "activeAssemblies": 23,
+  "activeGuids": 383,
   "nativeUnityExecuted": false
 }

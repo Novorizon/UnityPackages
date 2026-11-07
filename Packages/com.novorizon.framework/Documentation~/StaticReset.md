@@ -14,7 +14,7 @@ public partial class ExampleManager : Singleton<ExampleManager>
 }
 ```
 
-生成器识别 Singleton<T>、ConfigurableSingleton<T>、MonoSingleton<T> 的直接和间接派生类。拥有静态状态的类型加 partial；嵌套类型的外层类型也需要 partial。没有自己的静态状态的派生类无需修改。每个已使用的闭合泛型类型单独登记，登记表跨 Play 保留；未使用类型无需提前初始化。
+生成器识别 Singleton<T>、MonoSingleton<T> 的直接和间接派生类。拥有静态状态的类型加 partial；嵌套类型的外层类型也需要 partial。没有自己的静态状态的派生类无需修改。每个已使用的闭合泛型类型单独登记，登记表跨 Play 保留；未使用类型无需提前初始化。
 
 ## 执行条件
 

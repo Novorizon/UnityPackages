@@ -3,15 +3,15 @@
     {
       "name": "com.novorizon.ability",
       "version": "0.3.0-preview.2",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.29",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ability#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": []
     },
     {
       "name": "com.novorizon.audio",
-      "version": "0.2.0-preview.11",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.audio#v0.1.0-preview.29",
+      "version": "0.2.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.audio#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -20,8 +20,8 @@
     },
     {
       "name": "com.novorizon.data",
-      "version": "0.2.0-preview.6",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.data#v0.1.0-preview.29",
+      "version": "0.2.0-preview.7",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.data#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -32,15 +32,15 @@
     {
       "name": "com.novorizon.diagnostics",
       "version": "0.1.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.diagnostics#v0.1.0-preview.29",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.diagnostics#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": []
     },
     {
       "name": "com.novorizon.ecs",
-      "version": "2.0.0-preview.17",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.29",
+      "version": "2.0.0-preview.18",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.ecs#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -49,16 +49,16 @@
     },
     {
       "name": "com.novorizon.framework",
-      "version": "0.18.0-preview.6",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.29",
+      "version": "0.18.0-preview.7",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": []
     },
     {
       "name": "com.novorizon.framework.hybridclr",
-      "version": "0.2.0-preview.7",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.29",
+      "version": "0.2.0-preview.8",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -68,8 +68,8 @@
     },
     {
       "name": "com.novorizon.framework.ui",
-      "version": "0.9.0-preview.10",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.29",
+      "version": "0.9.0-preview.11",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.ui#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -78,8 +78,8 @@
     },
     {
       "name": "com.novorizon.framework.yooasset",
-      "version": "0.16.0-preview.7",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.29",
+      "version": "0.16.0-preview.8",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -89,8 +89,8 @@
     },
     {
       "name": "com.novorizon.gpuanimator",
-      "version": "4.0.0-preview.13",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.29",
+      "version": "4.0.0-preview.14",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -100,7 +100,7 @@
     {
       "name": "com.novorizon.gpuanimator.urp",
       "version": "0.1.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator.urp#v0.1.0-preview.29",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator.urp#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -109,8 +109,8 @@
     },
     {
       "name": "com.novorizon.input",
-      "version": "0.1.0-preview.11",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.input#v0.1.0-preview.29",
+      "version": "0.1.0-preview.12",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.input#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -120,7 +120,7 @@
     {
       "name": "com.novorizon.localization",
       "version": "0.1.0-preview.1",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.localization#v0.1.0-preview.29",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.localization#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": [
@@ -130,7 +130,7 @@
     {
       "name": "com.novorizon.rtree",
       "version": "1.0.0-preview.3",
-      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.29",
+      "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.rtree#v0.1.0-preview.30",
       "external": false,
       "embed": false,
       "dependencies": []

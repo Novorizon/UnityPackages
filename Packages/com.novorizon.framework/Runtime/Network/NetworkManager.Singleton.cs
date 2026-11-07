@@ -8,7 +8,6 @@ namespace Game.Framework.Network
     public sealed partial class NetworkManager
     {
         // 通用实例同步、工厂创建和重置由 Framework 基类处理；网络配置仍由本类负责。
-        public static NetworkManager Instance => GetOrCreateInstance(() => new NetworkManager());
 
         public static void Configure(TcpClientOptions transportOptions, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null)
         {

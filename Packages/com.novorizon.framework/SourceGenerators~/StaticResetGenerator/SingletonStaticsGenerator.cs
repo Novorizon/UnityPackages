@@ -53,7 +53,7 @@ namespace Game.Framework.Generators
         private static bool IsBase(INamedTypeSymbol type)
         {
             string name = type.OriginalDefinition.ToDisplayString();
-            return name == "Game.Framework.Singleton<T>" || name == "Game.Framework.ConfigurableSingleton<T>" || name == "Game.Framework.MonoSingleton<T>";
+            return name == "Game.Framework.Singleton<T>" || name == "Game.Framework.MonoSingleton<T>";
         }
 
         private static bool IsSingleton(INamedTypeSymbol type)

@@ -8,6 +8,6 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.6"
+    "com.novorizon.framework": "0.18.0-preview.7"
   }
 }

@@ -82,11 +82,11 @@ internal static partial class Program
         Run("parameterless initialization dispatches through singleton bases to actual services", () =>
         {
             using var data = new DataManager();
-            ConfigurableSingleton<DataManager> commonData = data;
+            Singleton<DataManager> commonData = data;
             commonData.Initialize();
             True(data.Initialized);
             using var scenes = new Scenes();
-            ConfigurableSingleton<Scenes> commonScenes = scenes;
+            Singleton<Scenes> commonScenes = scenes;
             commonScenes.Initialize();
             True(scenes.Initialized);
         });

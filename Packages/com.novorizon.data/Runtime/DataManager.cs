@@ -24,7 +24,7 @@ namespace Game.Framework.Data
     }
 
     /// <summary>按 Luban Tables 构造函数加载完整快照；不需要预注册，不持有玩家动态数据。</summary>
-    public sealed class DataManager : ConfigurableSingleton<DataManager>, IDisposable
+    public sealed class DataManager : Singleton<DataManager>, IDisposable
     {
         private readonly Dictionary<Type, object> tables = new Dictionary<Type, object>();
         private readonly Dictionary<Type, long> requests = new Dictionary<Type, long>();
@@ -33,7 +33,6 @@ namespace Game.Framework.Data
         private Func<string, CancellationToken, Task<byte[]>> loadBytes;
         private long revision;
         private bool disposed;
-        public static DataManager Instance => GetOrCreateInstance(() => new DataManager());
         public int Count => tables.Count;
         public bool Initialized => loadBytes != null && !disposed;
 

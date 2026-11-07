@@ -51,7 +51,7 @@ public partial class Demo : Middle
     public static int Secret() => secret;
     public static int ListenerCount() => Changed?.GetInvocationList().Length ?? 0;
 }
-public partial class Generic<T> : ConfigurableSingleton<Generic<T>> where T : class, new()
+public partial class Generic<T> : Singleton<Generic<T>> where T : class, new()
 {
     public static int Value = 5;
 }

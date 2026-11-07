@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.gpuanimator": "4.0.0-preview.13",
+    "com.novorizon.gpuanimator": "4.0.0-preview.14",
     "com.unity.render-pipelines.universal": "14.0.1"
   }
 }

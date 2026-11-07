@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Localization
 {
     /// <summary>Main-thread service. Prepare fonts/assets before committing a language change.</summary>
-    public sealed class LocalizationManager : ConfigurableSingleton<LocalizationManager>, IDisposable
+    public sealed class LocalizationManager : Singleton<LocalizationManager>, IDisposable
     {
         private LocalizationCatalog catalog;
         private CultureInfo current, fallback;
@@ -201,15 +201,27 @@ namespace Game.Framework.Localization
 
         public void Dispose()
         {
+            if (disposed)
+            {
+                return;
+            }
+
             if (UnityThread.IsInitialized)
             {
                 MainThread();
             }
             disposed = true;
             revision++;
-            CancelPending();
-            LanguageChanged = null;
-            catalog = null;
+            try
+            {
+                CancelPending();
+            }
+            finally
+            {
+                LanguageChanged = null;
+                catalog = null;
+                ReleaseInstance(this);
+            }
         }
     }
 }
