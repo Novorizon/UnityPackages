@@ -112,7 +112,10 @@ namespace Game.Ability
             }
             else order.Target = null;
             if ((behavior & AbilityBehavior.Directional) == 0) order.Direction = Vector3.zero;
-            else order.Direction = order.Direction.normalized;
+            else
+            {
+                order.Direction = AbilityGeometry.Normalize(order.Direction);
+            }
             return order;
         }
 
@@ -138,7 +141,7 @@ namespace Game.Ability
                 Caster = ability.Owner,
                 Target = unitTarget ? order.Target : null,
                 TargetPosition = unitTarget ? order.Target.Position : pointTarget ? order.TargetPosition : ability.Owner.Position,
-                Direction = (behavior & AbilityBehavior.Directional) != 0 ? order.Direction.normalized : Vector3.zero,
+                Direction = (behavior & AbilityBehavior.Directional) != 0 ? AbilityGeometry.Normalize(order.Direction) : Vector3.zero,
                 Level = ability.Level
             };
             if (!IsFinite(context.TargetPosition)) return false;
@@ -202,7 +205,7 @@ namespace Game.Ability
 
         private static bool IsInRange(Vector3 from, Vector3 to, float range)
         {
-            return range <= 0f || (to - from).sqrMagnitude <= range * range;
+            return range <= 0f || AbilityGeometry.WithinDistance(from, to, range);
         }
     }
 }

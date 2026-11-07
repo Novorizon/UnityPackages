@@ -224,7 +224,28 @@ def verify(dotnet):
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
         from interaction_dependencies import prepare
         prepare(ROOT, dotnet, env)
-        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('FeatureVerification', 'FeatureVerification'), ('LocalizationSetupVerification', 'LocalizationSetupVerification'), ('StoryVerification', 'StoryVerification'), ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        verification_projects = [
+            ('StaticResetVerification', 'StaticResetVerification'),
+            ('HotUpdateVerification', 'HotUpdateVerification'),
+            ('AllPackagesVerification', 'AllPackagesVerification'),
+            ('FrameworkServicesVerification', 'FrameworkServicesVerification'),
+            ('GameModulesVerification', 'GameModulesVerification'),
+            ('FeatureVerification', 'FeatureVerification'),
+            ('LocalizationSetupVerification', 'LocalizationSetupVerification'),
+            ('StoryVerification', 'StoryVerification'),
+            ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'),
+            ('RTreeCorrectness', 'Correctness'),
+            ('RTreeSpatialCorrectness', 'SpatialCorrectness'),
+            ('FoundationAuditVerification', 'FoundationAuditVerification'),
+            ('UiAudioInputAuditVerification', 'UiAudioInputAuditVerification'),
+            ('AlgorithmsAuditVerification', 'AlgorithmsAuditVerification'),
+            ('IntegrationAuditVerification', 'IntegrationAuditVerification'),
+            ('IntegrationAuditVerification/ReleaseAudit', 'ReleaseAudit'),
+            ('IntegrationAuditVerification/InstallerAudit', 'InstallerAudit'),
+            ('GpuAuditVerification', 'GpuAuditVerification'),
+            ('ContentAuditVerification', 'ContentAuditVerification'),
+        ]
+        for folder, project_name in verification_projects:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
@@ -295,8 +316,14 @@ def unity_project(output, include_acceptance_tests=False):
         shutil.copytree(ROOT / 'tools/NativeAcceptance/PlayMode', output / 'Assets/Tests/PlayMode', dirs_exist_ok=True)
         shutil.copytree(ROOT / 'tools/NativeAcceptance/Editor', output / 'Assets/Tests/Editor', dirs_exist_ok=True)
         shutil.copytree(ROOT / 'tools/NativeAcceptance/Fixtures', output / 'Assets/Resources/NativeStory', dirs_exist_ok=True)
-        shutil.copytree(ROOT / 'Packages/com.novorizon.framework.ui/Samples~/Demo', output / 'Assets/Samples/UIDemo', dirs_exist_ok=True)
-        shutil.copytree(ROOT / 'Packages/com.novorizon.story/Samples~/BasicStory', output / 'Assets/Samples/BasicStory', dirs_exist_ok=True)
+        sample_locations = {
+            ('com.novorizon.framework.ui', 'Samples~/Demo'): 'UIDemo',
+            ('com.novorizon.story', 'Samples~/BasicStory'): 'BasicStory',
+        }
+        for name, metadata in packages.items():
+            for sample in metadata.get('samples', []):
+                location = sample_locations.get((name, sample['path']), name + '/' + Path(sample['path']).name)
+                shutil.copytree(ROOT / 'Packages' / name / sample['path'], output / 'Assets/Samples' / location, dirs_exist_ok=True)
     print('Generated standalone Unity verification project:', output)
 
 

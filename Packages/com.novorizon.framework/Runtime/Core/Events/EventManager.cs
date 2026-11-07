@@ -11,6 +11,7 @@ namespace Game.Framework.Event
         {
             internal Delegate Handler;
             internal Action<object> Invoke;
+            internal object TypedInvoke;
             internal Action Remove;
             internal int Active = 1;
             public void Dispose()
@@ -28,6 +29,7 @@ namespace Game.Framework.Event
                 {
                     Handler = null;
                     Volatile.Write(ref Invoke, null);
+                    Volatile.Write(ref TypedInvoke, null);
                 }
             }
 
@@ -36,6 +38,7 @@ namespace Game.Framework.Event
                 Interlocked.Exchange(ref Active, 0);
                 Handler = null;
                 Volatile.Write(ref Invoke, null);
+                Volatile.Write(ref TypedInvoke, null);
                 Interlocked.Exchange(ref Remove, null);
             }
         }
@@ -168,7 +171,7 @@ namespace Game.Framework.Event
             return topic;
         }
 
-        private ISubscription Register<TTopic>(TTopic value, Type payload, Delegate handler, Action<object> invoke)
+        private ISubscription Register<TTopic>(TTopic value, Type payload, Delegate handler, Action<object> invoke, object typedInvoke = null)
             where TTopic : Enum
         {
             if (handler == null)
@@ -188,7 +191,8 @@ namespace Game.Framework.Event
                 var entry = new Entry
                 {
                     Handler = handler,
-                    Invoke = invoke
+                    Invoke = invoke,
+                    TypedInvoke = typedInvoke
                 };
                 entry.Remove = () => RemoveEntry(group, topic, payload, binding, entry);
                 var previous = binding.Snapshot;

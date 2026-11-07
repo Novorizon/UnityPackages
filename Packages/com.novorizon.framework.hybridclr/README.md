@@ -62,3 +62,7 @@ GameStarter 默认将 DLL 与 AOT 补充元数据打进同一个 YooAsset 资源
 构建失败时不会把旧输出当作新补丁。客户端先验证 RSA-3072/SHA-256 签名，再核对基线、文件大小和 SHA-256。AOT 元数据来自主包；缓存分阶段提交，启动失败的更新会被隔离。已发布内容不能原地覆盖，回退使用更高发行版本号。
 
 GameStarter 提供资源构建、签名、公私钥管理与发布目录整理。详细操作、云端编译和原主包验证新表结构见 [Unity 验收说明](https://github.com/Novorizon/GameStarter/blob/main/Documentation/UnityValidation.zh-CN.md)。
+
+## 代码验证与准备成本
+
+内置、缓存和资源提供方返回的代码都在加载前验证尺寸与 SHA256。大块代码哈希在 CPU 工作线程执行；缓存读取返回的同一字节快照不重复哈希。Unity 资源操作与 Assembly.Load 继续沿调用上下文执行。准备取消或超时会在 CPU 工作完成及最终发布前重新检查，不能因最后一个加载器返回成功而越过取消边界。托管微基准与设备性能的区别见[集成审查验证](../../tools/IntegrationAuditVerification/README.md)。

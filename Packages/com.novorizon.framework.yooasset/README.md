@@ -2,11 +2,7 @@
 
 这是可选包 `com.novorizon.framework.yooasset`，适用于 Unity 2022.3 与官方 YooAsset **2.3.18**。依赖同版本主框架；主框架和 UI 包都不强制使用 YooAsset。
 
-在项目安装官方 YooAsset 2.3.18 后，再通过 Package Manager 添加：
-
-```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.25
-```
+通过根文档的[当前固定发行标签](../../README.md#安装)安装聚合包，或将单包 URL 的目录改为 `Packages/com.novorizon.framework.yooasset`，并显式安装同发行 Framework 与官方 YooAsset 2.3.18。所有自有包使用同一发行标签。
 
 已有项目可改用本地 `package.json` 或对应的 `.tgz`。不要将本包、另一份 Assets 源码和其他版本的 YooAsset 同时重复导入。
 
@@ -16,7 +12,7 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 | --- | --- |
 | 初始化、加载、场景、图集、Shader、释放规则 | [资源指南](Documentation~/Resources.md) |
 | 检查项目的 DefaultPackage 与缓存行为 | [Resource Demo](Samples~/Demo/README.md) |
-| 使用其他资源库或纯 Resources 驱动 UI | [UI 资源接口指南](https://github.com/Novorizon/Framework/blob/codex/framework-unity-foundation/Framework/UI/Documentation~/Features.md#资源加载接口) |
+| 使用其他资源库或纯 Resources 驱动 UI | [UI 资源接口指南](../com.novorizon.framework.ui/Documentation~/Features.md#资源加载接口) |
 
 Resource Demo 从 Package Manager Samples 按需导入，菜单 **Tools > Novorizon > Demos > Create Resource Demo Scene** 创建独立测试场景。Play 后界面先显示配置提示；只有点击按钮才初始化、加载或释放。它需要项目已有的 YooAsset 采集配置与资源，不自带 AssetBundle，也不会在导入时联网。
 
@@ -68,6 +64,10 @@ CreateScope 管理一组租约；UIView 中可 Track 此作用域到本次打开
 ## 精确版本初始化与下载
 
 InitializeAsync(ResourceInitializationOptions, token) 支持 Parameters、PackageVersion、DownloadAll、下载并发、重试及 IProgress<ResourceDownloadProgress>。指定 PackageVersion 时直接切换该清单，不查询远端 latest/version 文件；全部下载成功后才进入 Initialized。取消会取消下载器，失败不会发布就绪状态。
+
+初始化会复制选项中的版本、下载标志和限额，异步等待期间修改原选项不会改变正在准备的内容；Parameters 与 Progress 仍是调用方提供的引用。并发初始化可共享同一任务，但请求其他精确版本的调用方不会把当前版本当作成功。按需模式初始化不能静默满足后来要求 DownloadAll 的调用；改变版本或要求完整下载模式时先 ShutdownAsync，再以所需配置初始化。
+
+取消只及时结束调用方等待；内部仍持有初始化，直到 YooAsset 下载器实际终止。ShutdownAsync 和下一轮初始化不会跨过尚在进行的取消下载。取消可来自工作线程，实际下载器操作始终派发至 Unity 主线程。
 
 已有资源版本需要切换时先 ShutdownAsync；项目应在加载游戏代码及资源消费者之前选定版本。CreateHostPlayModeParameters(mainUrl, fallbackUrl) 可显式提供服务器，不必修改全局默认地址。
 

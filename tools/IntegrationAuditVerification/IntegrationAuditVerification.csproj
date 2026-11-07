@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0067;CS0649</NoWarn>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Core/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Unity/**/*.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/UnityModel.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/GpuModel.cs" />
+    <Compile Include="../GameModulesVerification/Engine/ModuleUnityModel.cs" />
+    <Compile Include="../GameModulesVerification/YooAsset/YooAssetModel.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework.yooasset/Runtime/*.cs" />
+  </ItemGroup>
+</Project>

@@ -188,7 +188,17 @@ namespace UI
                 }
             }
 
-            row.Unbind = unbind;
+            // An Unbind callback can refresh while this row is still being released.
+            // Drain its remaining old bindings before publishing a new binding generation.
+            if (row.IsReleasing)
+            {
+                row.ReleaseAll();
+                if (revision != operation || destroyed)
+                {
+                    return;
+                }
+            }
+            row.BeginBinding(unbind);
             for (int column = 0; column < columns; column++)
             {
                 var cell = row.Cells[column];

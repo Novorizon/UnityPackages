@@ -24,7 +24,7 @@ namespace Game.Framework.All.Editor
         private static AddAndRemoveRequest adding;
         private static EmbedRequest embedding;
         private static bool blocked, batch, verifyAfterAdd;
-        private static double nextRegistrationCheck;
+        private static double nextRegistrationCheck, listingDeadline;
         private static string StatePath => Path.Combine(projectRoot, "ProjectSettings/NovorizonFrameworkAll.install.json");
         private static string ReportPath => Path.Combine(projectRoot, "Library/NovorizonFrameworkAll/verification.json");
 
@@ -174,6 +174,10 @@ namespace Game.Framework.All.Editor
                 {
                     if (!adding.IsCompleted)
                     {
+                        if (DateTime.UtcNow.Ticks > state.deadline)
+                        {
+                            throw new TimeoutException("The UPM add operation did not finish. Wait for Package Manager before retrying installation.");
+                        }
                         return;
                     }
 
@@ -190,6 +194,10 @@ namespace Game.Framework.All.Editor
                 {
                     if (!embedding.IsCompleted)
                     {
+                        if (DateTime.UtcNow.Ticks > state.deadline)
+                        {
+                            throw new TimeoutException("The UPM embed operation did not finish. Wait for Package Manager before retrying installation.");
+                        }
                         return;
                     }
 
@@ -231,11 +239,16 @@ namespace Game.Framework.All.Editor
                 if (listing == null)
                 {
                     listing = Client.List(true, true);
+                    listingDeadline = EditorApplication.timeSinceStartup + 300;
                     return;
                 }
 
                 if (!listing.IsCompleted)
                 {
+                    if (EditorApplication.timeSinceStartup > listingDeadline)
+                    {
+                        throw new TimeoutException("The UPM list operation did not finish. Wait for Package Manager before retrying installation.");
+                    }
                     return;
                 }
 
@@ -271,9 +284,8 @@ namespace Game.Framework.All.Editor
 
                 state.error = exception.GetBaseException().Message;
                 state.phase = "Failed";
-                adding = null;
-                embedding = null;
-                listing = null;
+                // A deadline stops this installer, not the native UPM request. Retain its
+                // managed handle so RetryInstallation cannot start an overlapping operation.
                 Save();
                 Debug.LogError("[Novorizon All] 安装中止：" + state.error + "。修复原因后使用 Tools/Novorizon/All Packages/Retry Installation；已安装的包保留。");
                 ExitBatch(1);

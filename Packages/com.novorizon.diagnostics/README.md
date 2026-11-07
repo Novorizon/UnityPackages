@@ -1,6 +1,6 @@
 # Novorizon Diagnostics
 
-`Tools/Novorizon/Diagnostics` 打开只读 Editor 窗口，支持过滤、暂停、手动采样和 JSON 快照导出。窗口打开时每 0.5 秒采样，关闭后解除 update 订阅；Player 不编入这个包的代码。
+`Tools/Novorizon/Diagnostics` 打开只读 Editor 窗口，支持过滤、暂停、手动采样和 JSON 快照导出。窗口打开时每 0.5 秒采样，关闭后解除 update 订阅；Player 不编入这个包的代码。匹配结果按每页最多 100 条记录展示，用 Previous / Next 翻页并显示页数和总匹配数量。租约保留两行信息与创建栈悬停提示。采样、搜索、比较模式或基线改变时才重建匹配缓存，普通重绘和翻页只绘制当前页；大量快照的数据采样、过滤与差异计算仍与记录数有关。
 
 读取已加载包的公开 API，通过 TryGetInstance 取得现有服务，不调用 Instance，不启动或重建已释放服务。未安装、未加载、未创建或计数读取失败会显示状态，不中断其他计数。
 
@@ -25,6 +25,6 @@ var icon = await scope.AcquireAsync<Sprite>("icons/sword", token);
 
 scope 及 lease 仍由项目按现有规则 Dispose；面板不释放资源，不创建服务，也不保存拥有者对象引用。无标签的独立获取明确显示 Unassigned；空 scope 不会被当作仍占用资源。记录数量不是显存、字节数或 YooAsset 原生引用计数。
 
-用 Set baseline 保存当前快照，Compare baseline 查看 Added/Changed/Removed 变化，Clear baseline 清除比较。过滤可按 owner、场景、资源地址或状态搜索。Export JSON 同时导出当前、基线和差异；按 session + lease ID 区分管理器重建前后的获取，不会因同地址或复用 ID 混淆。
+用 Set baseline 保存当前快照，Compare baseline 查看 Added/Changed/Removed 变化，Clear baseline 清除比较。过滤可按 owner、场景、资源地址或状态搜索。Export JSON 同时导出完整的当前、基线和差异，不受过滤或当前页限制；按 session + lease ID 区分管理器重建前后的获取，不会因同地址或复用 ID 混淆。
 
 创建堆栈默认关闭。项目可在 Editor/Development Build 中、获取前设置 `resources.CaptureLeaseCreationStacks = true`，仅之后的获取捕获，单条最多 8192 字符；正式非开发 Player 不捕获。关闭时不创建 StackTrace；没有历史记录表，记录跟随现有 ownedAssets 移除。面板中悬停记录可查看已捕获堆栈，JSON 含完整快照值；堆栈可能带项目路径，导出分享范围由项目决定。

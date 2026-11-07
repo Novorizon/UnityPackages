@@ -47,7 +47,9 @@ public class AnimationData
     public static AnimationData FromBytes(byte[] bytes)
     {
         if (bytes == null)
+        {
             throw new ArgumentNullException(nameof(bytes));
+        }
 
         using (MemoryStream stream = new MemoryStream(bytes, false))
         {
@@ -57,7 +59,9 @@ public class AnimationData
             };
             AnimationData data = formatter.Deserialize(stream) as AnimationData;
             if (data == null)
+            {
                 throw new SerializationException("The asset does not contain GPU animation data.");
+            }
 
             return data;
         }
@@ -79,12 +83,13 @@ public class AnimationData
                 case "GpuSkinningAnimClip[]":
                 case "AnimationClipData[]":
                     return typeof(AnimationClipData[]);
+                case "System.Byte[]":
+                    return typeof(byte[]);
                 default:
-                    // Preserve the formatter's normal resolution for framework types such as byte[].
-                    string qualifiedName = string.IsNullOrEmpty(assemblyName)
-                        ? typeName
-                        : typeName + ", " + assemblyName;
-                    return Type.GetType(qualifiedName, throwOnError: true);
+                    // The legacy format consists only of these records, strings and
+                    // primitive fields. Never instantiate an arbitrary loaded application
+                    // type before discovering it is not animation data.
+                    throw new SerializationException("Unsupported GPU animation metadata type: " + typeName);
             }
         }
     }

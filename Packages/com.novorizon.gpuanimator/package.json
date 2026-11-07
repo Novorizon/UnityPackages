@@ -2,9 +2,9 @@
   "name": "com.novorizon.gpuanimator",
   "displayName": "Gpu Animator",
   "description": "Standalone GPU animation for GameObjects with caller-supplied assets",
-  "version": "4.0.0-preview.16",
+  "version": "4.0.0-preview.17",
   "unity": "2022.3",
-  "documentationUrl": "https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.32/Packages/com.novorizon.gpuanimator/Documentation~/index.md",
+  "documentationUrl": "https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.35/Packages/com.novorizon.gpuanimator/Documentation~/index.md",
   "license": "MIT",
   "author": {
     "name": "Novorizon",
@@ -13,12 +13,12 @@
   "samples": [
     {
       "displayName": "Basic Playback",
-      "description": "通过 Inspector 注入资源，演示循环、单次动作与完成回调。",
+      "description": "\u901a\u8fc7 Inspector \u6ce8\u5165\u8d44\u6e90\uff0c\u6f14\u793a\u5faa\u73af\u3001\u5355\u6b21\u52a8\u4f5c\u4e0e\u5b8c\u6210\u56de\u8c03\u3002",
       "path": "Samples~/BasicPlayback"
     },
     {
       "displayName": "Manual Crowd",
-      "description": "共享动画数据与材质，由一个更新入口手动驱动多个实例。",
+      "description": "\u5171\u4eab\u52a8\u753b\u6570\u636e\u4e0e\u6750\u8d28\uff0c\u7531\u4e00\u4e2a\u66f4\u65b0\u5165\u53e3\u624b\u52a8\u9a71\u52a8\u591a\u4e2a\u5b9e\u4f8b\u3002",
       "path": "Samples~/ManualCrowd"
     },
     {
@@ -28,6 +28,6 @@
     }
   ],
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.7"
+    "com.novorizon.framework": "0.18.0-preview.8"
   }
 }

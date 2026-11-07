@@ -9,13 +9,20 @@
   "approvedSourceChanges": [
     "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationAssetWriter.cs",
     "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs",
+    "Packages/com.novorizon.gpuanimator/Runtime/AnimationData.cs",
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs",
+    "Packages/com.novorizon.gpuanimator/Shaders/GpuSkinningAnimationPBR.shader",
     "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs",
     "Packages/com.novorizon.gpuanimator/Samples~/FrameworkPool/GpuAnimatorPool.cs",
     "Packages/com.novorizon.gpuanimator/Samples~/ManualCrowd/GpuAnimatorCrowdExample.cs",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimationAssetWriterTests.cs",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimatorPlaybackTests.cs",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs",
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Auras.cs",
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Casting.cs",
+    "Packages/com.novorizon.ability/Core/Projectile.cs",
+    "Packages/com.novorizon.ability/Core/RuntimeSnapshotPool.cs",
+    "Packages/com.novorizon.ability/Core/Targeting.cs",
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs",
     "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs",
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs",
@@ -61,6 +68,7 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs",
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs",
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs",
+    "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.Message.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Pooling/ReferencePool.cs",
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs",
@@ -131,6 +139,6 @@
     "Packages/com.novorizon.rtree/package.json"
   ],
   "activeAssemblies": 37,
-  "activeGuids": 458,
+  "activeGuids": 464,
   "nativeUnityExecuted": false
 }

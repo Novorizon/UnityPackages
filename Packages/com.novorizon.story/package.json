@@ -1,6 +1,6 @@
 {
   "name": "com.novorizon.story",
-  "version": "0.1.0-preview.1",
+  "version": "0.1.0-preview.2",
   "displayName": "Novorizon Story",
   "description": "Optional story sessions with stable nodes, TMP presentation, portraits, choices, voice and video adapters.",
   "unity": "2022.3",
@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.7",
+    "com.novorizon.framework": "0.18.0-preview.8",
     "com.unity.modules.audio": "1.0.0"
   },
   "samples": [

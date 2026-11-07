@@ -77,6 +77,7 @@ namespace Game.Framework.HotUpdate
                     await PrepareContent(release, token);
                 }
 
+                token.ThrowIfCancellationRequested();
                 if (release.Id != null)
                 {
                     try
@@ -93,6 +94,7 @@ namespace Game.Framework.HotUpdate
                     }
                 }
 
+                token.ThrowIfCancellationRequested();
                 return release;
             }
             catch
@@ -134,9 +136,7 @@ namespace Game.Framework.HotUpdate
         {
             byte[] bytes = await settings.loadCodeAsync(context, file, token);
             token.ThrowIfCancellationRequested();
-            ReleasePolicy.Require(bytes != null && bytes.LongLength == file.size && ReleasePolicy.Sha256(bytes) == file.sha256,
-                "Code resource failed verification: " + file.fileName);
-            return bytes;
+            return await VerifyCodeBytesAsync(bytes, file, "Code resource failed verification: " + file.fileName, token);
         }
 
         private async Task<PreparedRelease> PrepareInternal(CancellationToken token)
@@ -295,8 +295,8 @@ namespace Game.Framework.HotUpdate
                 var file = release.Manifest.assemblies[i];
                 byte[] bytes = release.Directory == null ? await ReadBuiltinVerified(file, token)
                     : await Task.Run(() => ReleasePolicy.ReadVerifiedFile(Path.Combine(release.Directory, file.fileName), file), token);
-                ReleasePolicy.Require(bytes.LongLength == file.size && ReleasePolicy.Sha256(bytes) == file.sha256,
-                    "Code changed after verification: " + file.fileName);
+                // Both branches verify this exact returned buffer. Rehashing it here would
+                // repeat up to 32 MiB of CPU work on the Unity continuation thread.
                 result[i] = bytes;
             }
             return result;
@@ -305,9 +305,20 @@ namespace Game.Framework.HotUpdate
         private async Task<byte[]> ReadBuiltinVerified(ReleaseFile file, CancellationToken token)
         {
             byte[] bytes = await transport.ReadBytes(BuiltinUrl(file.fileName), file.size, token);
-            ReleasePolicy.Require(bytes.LongLength == file.size && ReleasePolicy.Sha256(bytes) == file.sha256,
-                "Packaged content failed verification: " + file.fileName);
-            return bytes;
+            return await VerifyCodeBytesAsync(bytes, file, "Packaged content failed verification: " + file.fileName, token);
+        }
+
+        private static async Task<byte[]> VerifyCodeBytesAsync(byte[] bytes, ReleaseFile file, string message, CancellationToken token)
+        {
+            // Hashing is pure CPU work. Keep transport/resource acquisition and Assembly.Load
+            // on their caller context, but do not hash large code blobs on Unity's main thread.
+            byte[] verified = await Task.Run(() =>
+            {
+                ReleasePolicy.Require(bytes != null && bytes.LongLength == file.size && ReleasePolicy.Sha256(bytes) == file.sha256, message);
+                return bytes;
+            }, token);
+            token.ThrowIfCancellationRequested();
+            return verified;
         }
 
         private static void VerifyDirectory(string directory, ReleaseManifest manifest)

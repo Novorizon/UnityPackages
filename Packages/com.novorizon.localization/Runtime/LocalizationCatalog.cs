@@ -23,6 +23,7 @@ namespace Game.Framework.Localization
     /// <summary>An immutable copy of project-owned rows, including generated Luban rows.</summary>
     public sealed class LocalizationCatalog
     {
+        private static readonly object[] formatProbes = CreateFormatProbes();
         private readonly Dictionary<string, Dictionary<string, string>> languages;
         private readonly HashSet<string> keys;
         public IReadOnlyList<string> Languages { get; }
@@ -71,7 +72,7 @@ namespace Game.Framework.Localization
                 }
 
                 orderedKeys.Add(id);
-                HashSet<int> expected = null;
+                ulong? expected = null;
                 foreach (var column in columns)
                 {
                     string text = column.Read(row);
@@ -81,7 +82,7 @@ namespace Game.Framework.Localization
                     }
 
                     var arguments = Arguments(text);
-                    if (expected != null && !expected.SetEquals(arguments))
+                    if (expected.HasValue && expected.Value != arguments)
                     {
                         throw new FormatException("Placeholder mismatch for " + id + " / " + column.Language);
                     }
@@ -99,10 +100,20 @@ namespace Game.Framework.Localization
             public string ToString(string format, IFormatProvider provider) => string.Empty;
         }
 
-        private static HashSet<int> Arguments(string text)
+        private static object[] CreateFormatProbes()
         {
-            var indices = new HashSet<int>();
-            int maximum = -1;
+            var values = new object[64];
+            var probe = new FormatProbe();
+            for (int index = 0; index < values.Length; index++)
+            {
+                values[index] = probe;
+            }
+            return values;
+        }
+
+        private static ulong Arguments(string text)
+        {
+            ulong indices = 0;
             for (int i = 0; i < text.Length; i++)
             {
                 if (text[i] != '{')
@@ -127,18 +138,13 @@ namespace Game.Framework.Localization
                     throw new FormatException("Use indexed placeholders {0} through {63}.");
                 }
 
-                indices.Add(index);
-                maximum = Math.Max(maximum, index);
-            }
-
-            var probes = new object[maximum + 1];
-            for (int i = 0; i < probes.Length; i++)
-            {
-                probes[i] = new FormatProbe();
+                indices |= 1UL << index;
             }
 
             // Let the platform validate braces, alignment and composite-format syntax.
-            string.Format(CultureInfo.InvariantCulture, text, probes);
+            // Indexed placeholders are limited to 0..63 above. These private immutable
+            // probes avoid one array and up to 64 probe objects per translated cell.
+            string.Format(CultureInfo.InvariantCulture, text, formatProbes);
             return indices;
         }
 

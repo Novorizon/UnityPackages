@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>9.0</LangVersion>
+    <NuGetAudit>false</NuGetAudit>
+    <TieredCompilation>false</TieredCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Packages/com.novorizon.localization/Runtime/LocalizationCatalog.cs" />
+    <Compile Include="../../Packages/com.novorizon.localization/Runtime/LocalizationDelimitedText.cs" />
+    <Compile Include="../../Packages/com.novorizon.localization/Runtime/LocalizationTableData.cs" />
+    <Compile Include="../../Packages/com.novorizon.story/Runtime/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs" />
+    <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticDifference.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ResourceProbe.cs" />
+  </ItemGroup>
+</Project>

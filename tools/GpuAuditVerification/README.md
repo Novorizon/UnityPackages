@@ -1,0 +1,7 @@
+# GPU correctness and CPU scheduling audit
+
+`dotnet run --project tools/GpuAuditVerification/GpuAuditVerification.csproj -c Release` compiles the actual runtime and runs seven isolated scenarios: bulk unregister/survivors, paused registration churn, callback generation/order, manager retirement during Tick, warmed zero allocation, current/legacy metadata and rejection of unexpected formatter types before callbacks.
+
+`dotnet run --project tools/GpuAuditVerification/GpuAuditVerification.csproj -c Release -- --benchmark` measures five warmed batches at 2,000 / 4,000 / 8,000 players and reports median/max elapsed time and managed allocation. Setup, collection, assertions and logging are outside the measured region. This uses the finite Unity API model and .NET 8; it measures CPU scheduling/removal complexity, not native rendering, draw calls, graphics memory or device performance.
+
+Native Unity coverage adds two scheduler tests in `tools/NativeAcceptance/PlayMode/GpuSchedulerAuditNativeTests.cs`; its PlayMode asmdef must reference `GpuAnimator`. The warmed scheduler test measures native MaterialPropertyBlock calls for 128 players × 256 ticks and requires zero managed allocation. The GPU package adds current/legacy metadata tests and an actual float RenderTexture readback of the same normal-transform HLSL helper used by its Built-in PBR shader. The helper probe covers blended nonorthogonal matrices, signed scale, small scale and collapse; it does not validate complete Built-in forward lighting.

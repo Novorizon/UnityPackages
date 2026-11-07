@@ -209,12 +209,12 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "e32fb87c03217ce122d477aea0bad7096ae40fa012303affeae54af646903c0a",
-      "reason": "Separate filesystem initialization from exact content preparation, share uncancellable native initialization, and preserve generation-safe cancellation, shutdown and reset behavior."
+      "sha256": "ce2f2d303a3456e523fdead09c2e58c7f91dc2a85ca1c2ecffeef4f0ac389b43",
+      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
-      "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
-      "reason": "Isolate connect-wait cancellation, report states and guarantee timeout and shutdown cleanup"
+      "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
+      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs": {
       "sha256": "130e2964a0397d6e750fee1a32180c491c82f54097273373d195453ebdcc43c5",
@@ -257,8 +257,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
-      "sha256": "71406c517c11e1479fb589cd2859fe0506f5f0693cb6dec183049fe104624456",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
+      "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
       "sha256": "9c543a7e0f64ea2c343a416d342c22703cd3906be06e56772d605d4a9e7faa5c",
@@ -281,8 +281,8 @@
       "reason": "Use the shared Singleton implementation and explicit service initialization."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "0f876be0e18833b850d9b93874dd397b783f33fefd4303761a49ed1123785b7a",
-      "reason": "Initialize the default URP project asset after installing all packages while preserving existing Graphics/Quality pipeline configuration."
+      "sha256": "9dfc76506c22f567295a54d762bd254541fd84753d1b749c0683400095a025f2",
+      "reason": "Enforce operation deadlines without overlapping outstanding native UPM requests."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
       "sha256": "a0349f48abf6b1409bb889358b710e9aefe59579a676db9a90832c38d1a4bcdd",
@@ -297,8 +297,8 @@
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs": {
-      "sha256": "2b6bae61a3d56725f89b02185fc7274f5728d17db6035524580c9d48481b499a",
-      "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
+      "sha256": "4744a9fa946aaa1e2e8c9fe584909f8d00291bdce78705194789855813e6a109",
+      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
       "sha256": "04b7961dd2c1288b5a14c453c46520ab6cb160c57d5cc73c3e3ce8ca3bd22632",
@@ -313,8 +313,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
-      "sha256": "fdd2a9c8254beca41e84783399062152a562f33eec714ce3ed9acc06d343b83b",
-      "reason": "Use the shared Singleton implementation and explicit service initialization."
+      "sha256": "a803867ff98827f2fb89ff5608d3cfa031c35c36096984173d54af8f67330d80",
+      "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
       "sha256": "abec211bf7367ef1cce0a25bd8345bc6d4a7c86733341e843aaef3505516ef5c",
@@ -357,8 +357,8 @@
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "9105742d6ca1af424d60f6b89ec658d34c9508153fced67939c91749ee1e2a59",
-      "reason": "Retain resource-backed verified code loading and standalone transport compatibility; support explicit packaged-only startup before cache access so online releases, acceptance receipts and health records remain untouched."
+      "sha256": "0ce4d9ba88089a588fb3b32072aad9d2ea0168809ad8e1403d4d89b9d601acba",
+      "reason": "Avoid redundant assembly hashes and move pure integrity work off the caller thread while preserving cancellation/publication checks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
       "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
@@ -515,6 +515,70 @@
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs": {
       "sha256": "aba81f2a9c598c05b068a063a6faad336e354eea2e9f2a6dd2b23c6b9005c0d4",
       "reason": "Track optional owner, scope ID and scene labels in existing independent resource leases."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Auras.cs": {
+      "sha256": "a1a3912f2cf3642473322374d6415c64acf49b99142e750790a2acfba57d43b3",
+      "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Casting.cs": {
+      "sha256": "71103267b00dba523c336b2c4c635fbc0090eff308162ac23a8e1c7e4ba695f0",
+      "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
+    },
+    "Packages/com.novorizon.ability/Core/Projectile.cs": {
+      "sha256": "9fd477cfcc91d9fb87548a69fef7cdc4a5eddf66a782415ff7df48da66369388",
+      "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
+    },
+    "Packages/com.novorizon.ability/Core/RuntimeSnapshotPool.cs": {
+      "sha256": "4cd51f5edcda1490735ebb64e69cbea16f9d98257934af1a515981c32c721b52",
+      "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
+    },
+    "Packages/com.novorizon.ability/Core/Targeting.cs": {
+      "sha256": "581b913a772aa6fc592050b672c9f45424fd92109fd76059d7b5e116bb0b9c50",
+      "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
+    },
+    "Packages/com.novorizon.audio/Runtime/AudioManager.Fades.cs": {
+      "sha256": "70b05ecd6a39cb6690da4270353b8fed7af1516f61f28bbecc87de1c55bbc87e",
+      "reason": "Validate contiguous fade curves without enum boxing."
+    },
+    "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {
+      "sha256": "4b703204752701ab99d054c77d73294e06a86c89335b4e3df3c0e9a98f0f4927",
+      "reason": "Read public getters only and reuse row-type ownership accessors."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGrid.cs": {
+      "sha256": "e213f381d80cc0c62582e12ca0bc20c1997786e908cad816ec5d40591f2ae382",
+      "reason": "Fence pooled row binding generations across reentrant unbind callbacks."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGridRow.cs": {
+      "sha256": "950f203ea13ba9df38bb23b10a0bdc4310ffce96ba851cfba65fe609824ff4d0",
+      "reason": "Fence pooled row binding generations across reentrant unbind callbacks."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.Message.cs": {
+      "sha256": "d20cfc432f8c5c87bd08dc1a1e45f13529d365b614dccd43189ceda54b8921f4",
+      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
+    },
+    "Packages/com.novorizon.gpuanimator.urp/Shaders/GpuSkinningAnimationURP.shader": {
+      "sha256": "e5fda2d94f02080133038964eee9e7e46678d9ee6be0240019374bcb51b5551c",
+      "reason": "Declare every per-instance frame property written by the GPU player."
+    },
+    "Packages/com.novorizon.gpuanimator.urp/Shaders/GpuSkinningAnimationURPLit.shader": {
+      "sha256": "e4797678c4504a8a1d503a10ad6f616b17d9f5fa55261e785e286eb6da265a1c",
+      "reason": "Declare every per-instance frame property written by the GPU player."
+    },
+    "Packages/com.novorizon.gpuanimator/Runtime/AnimationData.cs": {
+      "sha256": "13577aad9bf91e1ec30695f5400d76ebea2619157868c42505b18a08b47216da",
+      "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
+    },
+    "Packages/com.novorizon.gpuanimator/Shaders/GpuSkinningAnimationPBR.shader": {
+      "sha256": "097e5a4d95710f6fb9928cba01227bee82b181ad6911b27436858ab7c71583e5",
+      "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
+    },
+    "Packages/com.novorizon.localization/Runtime/LocalizationCatalog.cs": {
+      "sha256": "35bd7ca3d3f9a37433407c8de2136271a0a183131ec20d386e8745ddc1fbf68c",
+      "reason": "Validate format indices with a 64-bit mask and shared stateless probes."
+    },
+    "Packages/com.novorizon.diagnostics/Editor/DiagnosticsWindow.cs": {
+      "sha256": "fde35bd478785769f5ece8761a3dd7a7d6a5fa10c3dfce7dee4e2aeccbc068d2",
+      "reason": "Cache matched diagnostic rows, remove params-array filtering and bound each IMGUI event to 100 records while exporting full snapshots."
     }
   }
 }

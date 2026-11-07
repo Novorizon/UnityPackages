@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.34`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.35`。
 
 ## 包与职责
 
@@ -30,7 +30,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.34
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.35
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -42,6 +42,7 @@ https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.fram
 - [Demo 索引](Documentation/Samples.zh-CN.md)：每个示例的入口、前置资源和验收目标。
 - [游戏基础服务](Documentation/GameServices.zh-CN.md)：场景、音频、输入、Luban 和存储。
 - [生命周期与资源所有权](Documentation/LifecycleAndOwnership.zh-CN.md)。
+- [Package 正确性与性能审查](Documentation/PackageAudit.zh-CN.md)：已修问题、量测结果和设备边界。
 - [静态字段恢复](Packages/com.novorizon.framework/Documentation~/StaticReset.md)。
 - [Unity 云端编译与验收](https://github.com/Novorizon/GameStarter/blob/main/Documentation/UnityValidation.zh-CN.md)：从 GitHub 获取工程、编译全部 Demo、Play、IL2CPP 和补丁验收。
 
@@ -59,6 +60,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.35
+
+- 完成 16 个包的正确性/性能审查；修复网络等待挂起、资源初始化/取消/关停、UPM 超时、Grid/Input 重入、技能数值边界、元数据类型及 Built-in 法线等问题。
+- 消除指定热路径的事件/音频装箱与大规模技能更新分配；减少多语言表构建分配和重复热更哈希，GPU 批量注销不再逐次全表扫描。
+- 全部包与 9 个示例原生编译，65 EditMode + 33 PlayMode 全过；提供真实 Mono 分配/操作计时和独立 .NET 前后对比。范围与限制见[审查报告](Documentation/PackageAudit.zh-CN.md)。
 
 ## v0.1.0-preview.34
 
