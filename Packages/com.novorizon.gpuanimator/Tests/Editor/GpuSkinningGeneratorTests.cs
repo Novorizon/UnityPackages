@@ -56,8 +56,8 @@ namespace GpuAnimatorTests
             Quaternion rootRotation = Model.transform.rotation;
             Vector3 rest = Bone.localPosition;
             Vector3[] vertices = SourceMesh.vertices;
-            EditorCurveBinding binding = AnimationUtility.GetCurveBindings(clip).Single();
-            Keyframe[] originalKeys = AnimationUtility.GetEditorCurve(clip, binding).keys;
+            EditorCurveBinding[] bindings = AnimationUtility.GetCurveBindings(clip);
+            Keyframe[][] originalKeys = bindings.Select(binding => AnimationUtility.GetEditorCurve(clip, binding).keys).ToArray();
             int previewScenes = EditorSceneManager.previewSceneCount;
             using (GpuAnimationBakeResult result = GpuSkinningGenerator.Bake(Request(clip)))
                 Assert.That(result.Mesh, Is.Not.SameAs(SourceMesh));
@@ -65,7 +65,11 @@ namespace GpuAnimatorTests
             Assert.That(Model.transform.rotation, Is.EqualTo(rootRotation));
             Assert.That(Bone.localPosition, Is.EqualTo(rest));
             CollectionAssert.AreEqual(vertices, SourceMesh.vertices);
-            CollectionAssert.AreEqual(originalKeys, AnimationUtility.GetEditorCurve(clip, binding).keys);
+            CollectionAssert.AreEquivalent(bindings, AnimationUtility.GetCurveBindings(clip));
+            for (int index = 0; index < bindings.Length; index++)
+            {
+                CollectionAssert.AreEqual(originalKeys[index], AnimationUtility.GetEditorCurve(clip, bindings[index]).keys);
+            }
             Assert.That(EditorSceneManager.previewSceneCount, Is.EqualTo(previewScenes));
         }
 
@@ -135,7 +139,18 @@ namespace GpuAnimatorTests
                 bones[i].SetParent(Model.transform, false);
             }
             Model.GetComponent<SkinnedMeshRenderer>().bones = bones;
-            SourceMesh.bindposes = bones.Select(b => b.worldToLocalMatrix * Model.transform.localToWorldMatrix).ToArray();
+            // SetBoneWeights needs a fresh skinning layout: converting the legacy four-slot
+            // vertex attributes in place logs a native format-conversion error in Unity 2022.
+            SourceMesh = Own(new Mesh
+            {
+                vertices = SourceMesh.vertices,
+                normals = SourceMesh.normals,
+                uv = SourceMesh.uv,
+                triangles = SourceMesh.triangles,
+                bindposes = bones.Select(b => b.worldToLocalMatrix * Model.transform.localToWorldMatrix).ToArray()
+            });
+            Model.GetComponent<SkinnedMeshRenderer>().sharedMesh = SourceMesh;
+            SourceMesh.RecalculateBounds();
             NativeArray<byte> counts = new NativeArray<byte>(new byte[] { 5, 5, 5 }, Allocator.Temp);
             NativeArray<BoneWeight1> weights = new NativeArray<BoneWeight1>(15, Allocator.Temp);
             try
@@ -144,6 +159,19 @@ namespace GpuAnimatorTests
                     for (int bone = 0; bone < 5; bone++)
                         weights[vertex * 5 + bone] = new BoneWeight1 { boneIndex = bone, weight = 0.2f };
                 SourceMesh.SetBoneWeights(counts, weights);
+                var actual = SourceMesh.GetBonesPerVertex();
+                try
+                {
+                    Assert.That(actual.Length, Is.EqualTo(3));
+                    for (int vertex = 0; vertex < actual.Length; vertex++)
+                    {
+                        Assert.That(actual[vertex], Is.EqualTo(5));
+                    }
+                }
+                finally
+                {
+                    actual.Dispose();
+                }
             }
             finally
             {

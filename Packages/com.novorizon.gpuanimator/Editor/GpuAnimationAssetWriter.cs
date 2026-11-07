@@ -67,9 +67,10 @@ internal static class GpuAnimationAssetWriter
                 plan.Material.SetTexture("_AnimationTex", animationTexture);
                 Observe(beforeWriteAsset, plan.MaterialPath);
                 Material material = SaveNativeAsset(plan.Material, plan.MaterialPath);
-                // Flush only generated native assets; SaveAssets would also save unrelated dirty source assets.
-                AssetDatabase.ForceReserializeAssets(new[] { plan.MeshPath, plan.MaterialPath },
-                    ForceReserializeAssetsOptions.ReserializeAssets);
+                // Persist only owned assets. ForceReserializeAssets can leave an updated native
+                // object dirty; SaveAssetIfDirty writes its pending changes without saving sources.
+                AssetDatabase.SaveAssetIfDirty(mesh);
+                AssetDatabase.SaveAssetIfDirty(material);
                 if (EditorUtility.IsDirty(mesh) || EditorUtility.IsDirty(material) ||
                     !File.Exists(AbsolutePath(plan.MeshPath)) || !File.Exists(AbsolutePath(plan.MaterialPath)))
                     throw new IOException("生成网格或材质未能写入磁盘，请检查输出文件是否可写。");

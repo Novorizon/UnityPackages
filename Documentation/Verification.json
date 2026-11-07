@@ -15,6 +15,7 @@
     "Packages/com.novorizon.gpuanimator/Samples~/ManualCrowd/GpuAnimatorCrowdExample.cs",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimationAssetWriterTests.cs",
     "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimatorPlaybackTests.cs",
+    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs",
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs",
     "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs",
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs",

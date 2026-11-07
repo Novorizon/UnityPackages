@@ -32,4 +32,4 @@
 通过 .NET 回归不能替代 Unity 导入、Shader/烘焙、原生 Destroy、输入音频或 IL2CPP。原生结果以该环境生成的日志、测试 XML 和报告为准。
 
 
-本轮新增多语言真实 Luban Excel/生成代码/二进制回归、语言切换事务和诊断只读探针；UI 回归新增固定网格与多语言订阅/复用。另提供 compile-native.py，将新编辑器和运行时代码与安装的 Unity/URP DLL 编译核对。原生 Unity 启动因许可证缺失失败，URP Shader 导入、实际渲染与设备行为尚未验收；包内 URP EditMode 用例供有许可证的工程运行。
+本轮新增多语言真实 Luban Excel/生成代码/二进制回归、语言切换事务和诊断只读探针；UI 回归新增固定网格与多语言订阅/复用。另提供 compile-native.py，将新编辑器和运行时代码与安装的 Unity/URP DLL 编译核对。首次准备时缺少许可证；现已激活并执行 Linux Editor 验收，58 个 EditMode 和 4 个 PlayMode 用例通过，含原生 Shader 导入、重烘焙保存、UI 生命周期与实际 GPU 位置/法线回读。详情与边界见 [原生验收](../tools/NativeAcceptance/README.md) 和 NativeAcceptance.json；完整灯光/阴影画面、iPhone/Metal 与 IL2CPP 尚未验收。Verification.json 仍只记录独立仓库/托管检查。

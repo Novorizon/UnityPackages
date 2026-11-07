@@ -28,7 +28,7 @@ Lit 烘焙输出开启 MeshRenderer 投射/接收阴影，缺少切线时重建�
 
 独立 DXC 可对实际 HLSL 入口及代表性变体做语法编译，命令见 [验证工具](../../tools/FeatureVerification/README.md)。这不能代替 Unity Shader 导入、平台变体裁剪和画面验收。
 
-当前云环境没有有效 Editor 许可证，尚未执行 Shader 原生导入或画面验收。C# 编辑器代码已与安装的 Unity/URP 官方 DLL 编译核对；这不等于 Shader 或渲染通过。
+Linux Unity 2022.3.62f1 / URP 14.0.12 已通过原生 Shader 导入、烘焙和 Pass 检查，并用实际 GPU 像素回读验证切帧后的 Lit 位置/法线输出。图形设备为 Mesa llvmpipe OpenGL 4.5；这不代表 iOS Metal、目标设备批处理或完整光照/阴影画面已验收。结果与复现见 [原生验收](../../tools/NativeAcceptance/README.md)。
 
 
 ## URP 版本解析

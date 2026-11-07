@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.31`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.32`。
 
 ## 包与职责
 
@@ -29,7 +29,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.31
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.32
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -58,6 +58,12 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.32
+
+- 修复多语言可选程序集在 Unity 2022 的版本条件，使 uGUI 绑定和 Luban 菜单实际启用。
+- 修复 GPU 重烘焙 Mesh/Material 的定向保存，保留资产 GUID、失败恢复与无关脏资源。
+- Linux Unity 2022.3.62f1 原生验收通过：58 个 EditMode、4 个 PlayMode 用例，含真实 GPU 位置/法线像素回读。复现方法与范围见 [原生验收](tools/NativeAcceptance/README.md)。
 
 ## v0.1.0-preview.31
 
