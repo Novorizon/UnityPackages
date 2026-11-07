@@ -473,8 +473,8 @@
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
     },
     "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs": {
-      "sha256": "f4d074dcf805e75313490f0f684b0fff35fbd790e5b2b5082c95380bc6c47ea7",
-      "reason": "Default new GPU animation bakes to URP Unlit while retaining explicit Built-in shader selections."
+      "sha256": "0c555ee6a864fca89b54babe2e0e42afde09ee302717315c98ea2b88926dc4b1",
+      "reason": "Add an explicit URP Lit bake option while keeping the existing default URP Unlit mode."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs": {
       "sha256": "2fc9f8c0e7e8b3ea132e3398c2e2b2ec463709d13d3c91d821af0cf019de930d",
@@ -487,6 +487,18 @@
     "Packages/com.novorizon.framework/Runtime/Core/Pooling/ReferencePool.cs": {
       "sha256": "f2b89bae0041d4185f9242e33aa625174ef6cee6f39802e85d55047d08ff5944",
       "reason": "Expose the existing shared pool registry count without accessing lazy Shared pools."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationAssetWriter.cs": {
+      "sha256": "10639664211ffac9813ffe50e6df8fa7034609e29bb9211cf49ed49f179c3477",
+      "reason": "Prepare missing mesh tangents and enable cast/receive shadows for URP Lit outputs while preserving existing asset identities."
+    },
+    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimationAssetWriterTests.cs": {
+      "sha256": "87e6116daaf83edba4f6507fafed64430e49bbe67453e3879750e3bf83e6a3d8",
+      "reason": "Add native asset-writer regression coverage for URP Lit shadow policy and mesh tangent preparation."
+    },
+    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimatorPlaybackTests.cs": {
+      "sha256": "7dd47cfab40b5bfa197a06b5532346141efd3543dac2b98f10e2457a6a89614b",
+      "reason": "Exercise asset publication and playback with Built-in and installed URP shaders without requiring or modifying the project active render pipeline."
     }
   }
 }

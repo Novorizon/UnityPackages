@@ -4,7 +4,7 @@
 
 先确认所有自有包使用同一发行标签，且没有重复导入旧程序集。`main` 的运行时不引用 PureMVCFramework；若仍报相关类型缺失，检查项目内是否残留旧源码。使用 asmdef 的业务程序集需要引用 `GpuAnimator`，Editor 工具由独立的 `GpuAnimator.Editor` 程序集编译。
 
-包声明的最低 Unity 版本是 2022.3。附带 Shader 使用 Built-in Render Pipeline 和 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP/HDRP 出现粉色材质时，需要移植对应 Shader，不能只更换播放脚本解决。
+包声明的最低 Unity 版本是 2022.3。附带 Shader 使用 Built-in Render Pipeline 和 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP 工程安装 com.novorizon.gpuanimator.urp 并选择匹配的 URPUnlit/URPLit 烘焙选项；HDRP 仍需自行适配 Shader。不能只更换播放脚本解决管线不匹配。
 
 
 ## 烘焙数量为零或没有输出
@@ -21,7 +21,7 @@
 
 生成器要求整个模型层级中恰好一个 SMR，包括未激活节点；网格需要单个三角形 submesh。多个 SMR 或多 submesh 会验证失败，不会默默取最后一个。需要先在制作流程中合并或分别交付，不会自动合并身体、头发和装备。
 
-工具配置生成 Shader、主贴图、可选遮罩、动画纹理、骨骼数和动画纹理尺寸。它不复制输入材质；重新烘焙会保留已有输出材质上工具未管理的属性。使用 PBR 时仍需按项目配置 LUT 等设置。生成 prefab 默认关闭投射和接收阴影。
+工具配置生成 Shader、主贴图、可选遮罩、动画纹理、骨骼数和动画纹理尺寸。它不复制输入材质；重新烘焙会保留已有输出材质上工具未管理的属性。使用 PBR 时仍需按项目配置 LUT 等设置。URPLit 生成 prefab 开启投射和接收阴影，并补齐缺失切线；其他模式关闭。旧 prefab 手动换为 Lit 材质时还需自行开启 Renderer 阴影选项并确认切线，灯光和 URP Asset 也需启用阴影。
 
 ## 重新烘焙、失败或取消后有哪些资源会改变
 

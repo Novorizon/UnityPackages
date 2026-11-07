@@ -3,16 +3,22 @@ using System.IO;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace GpuAnimatorTests
 {
     public sealed class GpuAnimatorPlaybackTests : GpuAnimationTestFixture
     {
-        [Test]
-        public void BuiltinBakeSaveDecodeInjectPlayAndClear()
+        [TestCase("Custom/GpuSkinningAnimation")]
+        [TestCase("Novorizon/GpuSkinning/URP Unlit")]
+        [TestCase("Novorizon/GpuSkinning/URP Lit")]
+        public void BakeSaveDecodeInjectPlayAndClear(string shaderName)
         {
-            Assert.That(GraphicsSettings.currentRenderPipeline, Is.Null, "This acceptance fixture targets the Built-in Render Pipeline.");
+            if (Shader.Find(shaderName) == null)
+            {
+                Assert.Ignore("The optional shader adapter is not installed in this test project.");
+            }
+            // This exercises asset publication and playback, not rendering. It can run under
+            // either active pipeline without changing the project's Graphics/Quality settings.
             string root = "Assets/__GpuAnimatorPlaybackTests_" + Guid.NewGuid().ToString("N");
             GameObject instance = null;
             try
@@ -23,6 +29,7 @@ namespace GpuAnimatorTests
                 AssetDatabase.ImportAsset(texturePath, ImportAssetOptions.ForceSynchronousImport);
                 MainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
                 var request = Request(Clip("Move", "m_LocalPosition.x", 2));
+                request.ShaderName = shaderName;
                 request.OutputDirectory = root + "/Baked";
                 string prefabPath;
                 using (var result = GpuSkinningGenerator.Bake(request)) prefabPath = GpuAnimationAssetWriter.Save(request, result);

@@ -185,6 +185,11 @@ internal static class GpuAnimationAssetWriter
 
             plan.Mesh = Object.Instantiate(result.Mesh);
             plan.Mesh.hideFlags = HideFlags.None;
+            bool lit = shader.name == "Novorizon/GpuSkinning/URP Lit";
+            if (lit && plan.Mesh.tangents.Length != plan.Mesh.vertexCount)
+            {
+                plan.Mesh.RecalculateTangents();
+            }
             plan.Mesh.name = Path.GetFileNameWithoutExtension(plan.MeshPath);
 
             plan.PreviewScene = EditorSceneManager.NewPreviewScene();
@@ -196,8 +201,10 @@ internal static class GpuAnimationAssetWriter
             plan.Prefab.AddComponent<MeshFilter>().sharedMesh = plan.Mesh;
             MeshRenderer renderer = plan.Prefab.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = plan.Material;
-            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
+            renderer.shadowCastingMode = lit
+                ? UnityEngine.Rendering.ShadowCastingMode.On
+                : UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = lit;
             plan.Prefab.AddComponent<GpuAnimator>();
 
             plan.AssetPaths.Add(plan.MainTexturePath);

@@ -20,7 +20,8 @@ public sealed class GpuSkinningTools : EditorWindow
     {
         Unlit,
         PBR,
-        URPUnlit
+        URPUnlit,
+        URPLit
     }
     private static readonly int[] TextureSizes = { 256, 512, 1024, 2048, 4096, 8192, 16384 };
     private static readonly string[] TextureSizeLabels = { "256", "512", "1024", "2048", "4096", "8192", "16384" };
@@ -59,6 +60,12 @@ public sealed class GpuSkinningTools : EditorWindow
     public static void GenGPUSkinningURP()
     {
         BakeDefaults(ShaderMode.URPUnlit);
+    }
+
+    [MenuItem("GpuSkinning/URP Lit")]
+    public static void GenGPUSkinningURPLit()
+    {
+        BakeDefaults(ShaderMode.URPLit);
     }
 
     private static void BakeDefaults(ShaderMode mode)
@@ -159,12 +166,13 @@ public sealed class GpuSkinningTools : EditorWindow
         string action = validateOnly ? "Validation" : "Bake";
         try
         {
-            string shaderName = shaderMode == ShaderMode.URPUnlit
-                ? "Novorizon/GpuSkinning/URP Unlit"
+            string shaderName = shaderMode == ShaderMode.URPLit
+                ? "Novorizon/GpuSkinning/URP Lit"
+                : shaderMode == ShaderMode.URPUnlit ? "Novorizon/GpuSkinning/URP Unlit"
                 : shaderMode == ShaderMode.PBR ? DEFAULT_PBR_SHADER_NAME : DEFAULT_SHADER_NAME;
-            if (shaderMode == ShaderMode.URPUnlit && Shader.Find(shaderName) == null)
+            if ((shaderMode == ShaderMode.URPUnlit || shaderMode == ShaderMode.URPLit) && Shader.Find(shaderName) == null)
             {
-                throw new InvalidOperationException("Install com.novorizon.gpuanimator.urp (URP 14) before baking with URP Unlit.");
+                throw new InvalidOperationException("Install com.novorizon.gpuanimator.urp (URP 14) before baking with a URP shader.");
             }
             candidates = GpuAnimationBakeDiscovery.Discover(sourceDirectory, outputDirectory, shaderName, maximumTextureSize);
             if (candidates.Count == 0)

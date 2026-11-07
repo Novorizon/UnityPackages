@@ -131,3 +131,6 @@ UI 的 .NET 生命周期回归位于仓库 tools/FrameworkServicesVerification/U
 PopupOptions/PanelOptions 的 DuplicatePolicy 支持 Refresh、Focus、Reject；PageNavigator.PushAsync 的 repeatPolicy 支持 Allow、ReuseTop、RefreshTop、RejectTop。默认保持原有行为。单例按 Kind/Layer/Path 区分，聚焦弹窗同步调整返回顺序与遮罩。
 
 加载器可实现 ICancellableUIAssetLoader 传递逐调用取消；旧加载器仍兼容。ShutdownAsync 等待当前和已替换工厂的未完成获取及原生销毁后的 prefab 租约释放，再关闭资源系统。
+
+
+动态高度垂直列表使用 `UIVirtualDynamicList`，提供稳定 ID、滚动锚点、高度缓存和异步测量版本校验；用法与失效规则见 [业务功能用法](Documentation~/Features.md)。
