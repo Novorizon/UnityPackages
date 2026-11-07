@@ -133,6 +133,13 @@ namespace Game.Framework.Network
                     // Publish before calling the transport, so concurrent callers join the same attempt.
                     runTask = run.Task;
                 }
+                else if (ready.Task.Status == TaskStatus.RanToCompletion)
+                {
+                    // Transport closure can precede the asynchronous disconnect/heartbeat
+                    // cleanup that normally rotates readiness. A new waiter must await the
+                    // replacement connection instead of the successful, retired generation.
+                    ready = NewReady();
+                }
 
                 wait = ready.Task;
             }
@@ -154,6 +161,14 @@ namespace Game.Framework.Network
             }
             catch (Exception error)
             {
+                // Host dispatch can fail while RunAsync publishes its terminal state.
+                // That must also fail current ConnectAsync waiters, even if RunAsync's
+                // own finally could not reach its normal ready completion path.
+                lock (sync)
+                {
+                    ready?.TrySetException(error);
+                }
+
                 completion.TrySetException(error);
             }
         }

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0649</NoWarn>
+    <LangVersion>9.0</LangVersion>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Packages/com.novorizon.ability/**/*.cs" Exclude="../../Packages/com.novorizon.ability/Editor/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.rtree/Runtime/**/*.cs" />
+    <Compile Include="../AbilityVerification/Core/Unity.cs" />
+  </ItemGroup>
+</Project>

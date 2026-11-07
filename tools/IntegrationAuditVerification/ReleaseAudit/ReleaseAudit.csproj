@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0067;CS0649</NoWarn>
+    <DefineConstants>UNITY_STANDALONE_WIN</DefineConstants>
+    <NuGetAudit>false</NuGetAudit>
+    <CoordinatorSource Condition="'$(CoordinatorSource)' == ''">../../../Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs</CoordinatorSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="$(CoordinatorSource)" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/UpdateTransport.cs" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/IUpdateTransport.cs" />
+    <Compile Include="../../../Packages/com.novorizon.framework.hybridclr/Runtime/Release/*.cs" />
+    <Compile Include="../../HotUpdateVerification/UnityApiModel.cs" />
+  </ItemGroup>
+</Project>

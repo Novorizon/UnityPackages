@@ -52,7 +52,10 @@ namespace Game.Ability
                             frame.Queries.Add(source, query);
                         }
                         float radius = source.Definition.AuraRadius;
-                        if (!CombatSnapshots.IsFinite(radius) || radius < 0f || !IsFinite(source.Parent.Position) || !IsFinite(child.Parent.Position) || (child.Parent.Position - source.Parent.Position).sqrMagnitude > radius * radius || !query.IsValid(child.Parent)) continue;
+                        if (!CombatSnapshots.IsFinite(radius) || radius < 0f || !IsFinite(source.Parent.Position) || !IsFinite(child.Parent.Position) || !AbilityGeometry.WithinDistance(source.Parent.Position, child.Parent.Position, radius) || !query.IsValid(child.Parent))
+                        {
+                            continue;
+                        }
                         if (frame.Generation != RuntimeGeneration || !IsModifierRegistered(child) || !IsAuraSourceValid(source)) continue;
                         frame.Covered.Add(child);
                         child.RenewAuraLease();

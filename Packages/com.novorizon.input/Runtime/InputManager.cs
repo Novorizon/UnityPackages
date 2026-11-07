@@ -186,7 +186,7 @@ namespace Game.Framework.Input
         public void LoadBindingOverrides(string json)
         {
             Ready();
-            if (rebinding != null)
+            if (rebindingAction != null)
             {
                 throw new InvalidOperationException("Cannot replace bindings during an interactive rebind.");
             }
@@ -198,7 +198,7 @@ namespace Game.Framework.Input
         {
             Ready();
             token.ThrowIfCancellationRequested();
-            if (rebinding != null)
+            if (rebindingAction != null)
             {
                 throw new InvalidOperationException("An interactive rebind is already active.");
             }
@@ -210,11 +210,18 @@ namespace Game.Framework.Input
             }
 
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            action.Disable();
+            // Disabling an in-progress action invokes project cancellation callbacks.
+            // Reserve this slot first so those callbacks cannot start a second rebind.
             rebindingAction = action;
             InputActionRebindingExtensions.RebindingOperation operation = null;
             try
             {
+                action.Disable();
+                token.ThrowIfCancellationRequested();
+                if (disposed)
+                {
+                    throw new ObjectDisposedException(nameof(InputManager));
+                }
                 operation = action.PerformInteractiveRebinding(bindingIndex);
                 rebinding = operation;
                 operation.WithCancelingThrough("<Keyboard>/escape").WithControlsExcluding("<Mouse>/position").WithControlsExcluding("<Mouse>/delta").OnComplete(_ => completion.TrySetResult(true)).OnCancel(_ => completion.TrySetCanceled());

@@ -137,7 +137,7 @@ public class AnimationData
 }
 ```
 
-`FromBytes` 只解码调用方已经加载的字节，不接受资源路径、不执行加载或缓存。它沿用烘焙工具的 BinaryFormatter 格式：传 `null` 抛出 `ArgumentNullException`，反序列化结果不是该类型时抛出 `SerializationException`；损坏或不兼容的内容也可能抛出反序列化异常。使用本工具生成的 `.bytes`，并在资源加载边界处理解码失败。
+`FromBytes` 只解码调用方已经加载的字节，不接受资源路径、不执行加载或缓存。它沿用烘焙工具的 BinaryFormatter 格式：传 `null` 抛出 `ArgumentNullException`，反序列化结果不是该类型时抛出 `SerializationException`；损坏或不兼容的内容也可能抛出反序列化异常。解析器只允许本格式的数据/Clip 记录、Clip 数组和 byte 数组，在其他类型的反序列化回调执行前拒绝该类型。此旧格式用于可信的本项目烘焙资产；类型限制不改变 BinaryFormatter 的内存和兼容性限制。使用本工具生成的 `.bytes`，并在资源加载边界处理解码失败。
 
 `FromBytes` 不验证各字段的业务正确性。它成功返回也不表示可以播放任意 Clip。当前 PNG 导出流程没有用 `texBytes` 内嵌纹理；实际骨骼数据仍由材质绑定的动画 PNG 提供。
 

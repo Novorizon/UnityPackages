@@ -91,24 +91,21 @@ namespace Game.Framework.Diagnostics.Editor
                     Add(metrics, "Resource ownership", "Adapter does not provide lease diagnostics");
                     return Array.Empty<DiagnosticLease>();
                 }
-                var leases = new List<DiagnosticLease>();
-                if (capture.Invoke(arguments[0], null) is IEnumerable records)
+                object captured = capture.Invoke(arguments[0], null);
+                var leases = new List<DiagnosticLease>(captured is ICollection collection ? collection.Count : 0);
+                if (captured is IEnumerable records)
                 {
+                    Type recordType = null;
+                    LeaseReader reader = null;
                     foreach (object record in records)
                     {
-                        leases.Add(new DiagnosticLease
+                        Type typeOfRecord = record.GetType();
+                        if (recordType != typeOfRecord)
                         {
-                            sessionId = ReadProperty<string>(record, "SessionId"),
-                            leaseId = ReadProperty<long>(record, "LeaseId"),
-                            owner = ReadProperty<string>(record, "Owner"),
-                            scopeId = ReadProperty<long>(record, "ScopeId"),
-                            sceneHandle = ReadProperty<int>(record, "SceneHandle"),
-                            sceneName = ReadProperty<string>(record, "SceneName"),
-                            location = ReadProperty<string>(record, "Location"),
-                            assetType = ReadProperty<string>(record, "AssetType"),
-                            state = ReadProperty<string>(record, "State"),
-                            creationStack = ReadProperty<string>(record, "CreationStack")
-                        });
+                            recordType = typeOfRecord;
+                            reader = new LeaseReader(recordType);
+                        }
+                        leases.Add(reader.Read(record));
                     }
                 }
                 Add(metrics, "Resource ownership", "Independent acquisitions only; not native refcounts or memory bytes");
@@ -121,14 +118,48 @@ namespace Game.Framework.Diagnostics.Editor
             }
         }
 
-        private static T ReadProperty<T>(object instance, string name)
+        private sealed class LeaseReader
         {
-            var property = instance.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
-            if (property == null || !property.CanRead || property.GetIndexParameters().Length != 0)
+            private static readonly string[] names =
             {
-                throw new MissingMemberException(instance.GetType().Name, name);
+                "SessionId", "LeaseId", "Owner", "ScopeId", "SceneHandle", "SceneName", "Location", "AssetType", "State", "CreationStack"
+            };
+            private readonly PropertyInfo[] properties = new PropertyInfo[names.Length];
+
+            internal LeaseReader(Type type)
+            {
+                for (int index = 0; index < properties.Length; index++)
+                {
+                    properties[index] = ReadableProperty(type, names[index], BindingFlags.Public | BindingFlags.Instance);
+                }
             }
-            return (T)property.GetValue(instance);
+
+            internal DiagnosticLease Read(object record)
+            {
+                return new DiagnosticLease
+                {
+                    sessionId = (string)properties[0].GetValue(record),
+                    leaseId = (long)properties[1].GetValue(record),
+                    owner = (string)properties[2].GetValue(record),
+                    scopeId = (long)properties[3].GetValue(record),
+                    sceneHandle = (int)properties[4].GetValue(record),
+                    sceneName = (string)properties[5].GetValue(record),
+                    location = (string)properties[6].GetValue(record),
+                    assetType = (string)properties[7].GetValue(record),
+                    state = (string)properties[8].GetValue(record),
+                    creationStack = (string)properties[9].GetValue(record)
+                };
+            }
+        }
+
+        private static PropertyInfo ReadableProperty(Type type, string name, BindingFlags flags)
+        {
+            var property = type.GetProperty(name, flags);
+            if (property == null || property.GetGetMethod(false) == null || property.GetIndexParameters().Length != 0)
+            {
+                throw new MissingMemberException(type.Name, name);
+            }
+            return property;
         }
 
         private static Type FindType(string typeName)
@@ -214,11 +245,7 @@ namespace Game.Framework.Diagnostics.Editor
                     bool isStatic = !singleton;
                     foreach (string part in path.Split('.'))
                     {
-                        var property = owner.GetProperty(part, isStatic ? PublicStatic : BindingFlags.Public | BindingFlags.Instance);
-                        if (property == null || !property.CanRead || property.GetIndexParameters().Length != 0)
-                        {
-                            throw new MissingMemberException(owner.Name, part);
-                        }
+                        var property = ReadableProperty(owner, part, isStatic ? PublicStatic : BindingFlags.Public | BindingFlags.Instance);
 
                         value = property.GetValue(value);
                         if (value == null)

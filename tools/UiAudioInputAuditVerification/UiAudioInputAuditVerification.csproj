@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <LangVersion>12.0</LangVersion>
+    <NuGetAudit>false</NuGetAudit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>CS0067;CS0649;CS8632</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Core/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Unity/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework.ui/Runtime/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.audio/Runtime/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.input/Runtime/**/*.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/UnityModel.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/GpuModel.cs" />
+    <Compile Include="../GameModulesVerification/Engine/ModuleUnityModel.cs" />
+    <Compile Include="../GameModulesVerification/InputSystem/InputSystemModel.cs" />
+  </ItemGroup>
+</Project>

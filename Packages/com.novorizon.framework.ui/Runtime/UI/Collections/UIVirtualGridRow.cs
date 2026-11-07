@@ -11,6 +11,16 @@ namespace UI
         internal GameObject[] Cells = Array.Empty<GameObject>();
         internal int[] Indices = Array.Empty<int>();
         internal Action<GameObject> Unbind;
+        private int bindingVersion;
+        private int releaseDepth;
+
+        internal bool IsReleasing => releaseDepth != 0;
+
+        internal void BeginBinding(Action<GameObject> callback)
+        {
+            bindingVersion++;
+            Unbind = callback;
+        }
 
         internal void Release(int column)
         {
@@ -37,9 +47,22 @@ namespace UI
 
         internal void ReleaseAll()
         {
-            for (int column = 0; column < Indices.Length; column++)
+            int version = bindingVersion;
+            releaseDepth++;
+            try
             {
-                Release(column);
+                for (int column = 0; column < Indices.Length; column++)
+                {
+                    if (version != bindingVersion)
+                    {
+                        break;
+                    }
+                    Release(column);
+                }
+            }
+            finally
+            {
+                releaseDepth--;
             }
         }
 

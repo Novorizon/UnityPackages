@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <NoWarn>CS0067;CS0649;SYSLIB0011</NoWarn>
+    <NuGetAudit>false</NuGetAudit>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Core/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs" />
+    <Compile Include="../../Packages/com.novorizon.gpuanimator/Runtime/*.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/UnityModel.cs" />
+    <Compile Include="../FrameworkServicesVerification/Engine/GpuModel.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+</Project>

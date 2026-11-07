@@ -14,7 +14,15 @@
     "Game.Framework.Story.Unity",
     "Game.Framework.Story.UGUI",
     "Game.Framework.Story.Video",
-    "Game.Framework.Story.Sample.Basic"
+    "Game.Framework.Story.Sample.Basic",
+    "Game.Framework.Input",
+    "Unity.InputSystem",
+    "ECS",
+    "GpuAnimator",
+    "Game.Framework.Audio",
+    "Game.Framework.Resources.YooAsset",
+    "Game.Ability",
+    "YooAsset"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

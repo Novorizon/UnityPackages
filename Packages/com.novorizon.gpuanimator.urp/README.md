@@ -14,7 +14,7 @@ Unlit 为 Universal Renderer 的不透明材质，支持队伍颜色遮罩、雾
 
 Lit 烘焙输出开启 MeshRenderer 投射/接收阴影，缺少切线时重建；已有 Unlit 模式保持关闭。只手动替换旧材质 Shader 时，还需自己开启 Renderer 的投射/接收阴影，并确认网格有可用切线；法线贴图使用 Normal map 导入设置。项目还需在 URP Asset 和灯光上启用阴影/附加光及足够的阴影距离。
 
-本版不包含透明/裁剪、MotionVectors、2D Renderer、Light Layers、Light Cookies、烘焙 Lightmap 或 Meta Pass；UV1/UV2 保留给骨骼索引/权重。SH 和环境反射使用 URP 默认路径，不承诺与内置 URP/Lit 的全部功能对齐。Blend 属性保留名称兼容，不表示已经实现动画混合。MaterialPropertyBlock 与 SRP Batcher 的实际表现需通过 Frame Debugger 测量，不承诺同时获得所有批处理收益。
+本版不包含透明/裁剪、MotionVectors、2D Renderer、Light Layers、Light Cookies、烘焙 Lightmap 或 Meta Pass；UV1/UV2 保留给骨骼索引/权重。SH 和环境反射使用 URP 默认路径，不承诺与内置 URP/Lit 的全部功能对齐。Blend 属性保留名称兼容，不表示已经实现动画混合；Frame/Blend 字段均声明为实例属性，与播放器写入的 MaterialPropertyBlock 保持一致。MaterialPropertyBlock 与 SRP Batcher 的实际表现需通过 Frame Debugger 测量，不承诺同时获得所有批处理收益。
 
 ## 原生验收
 

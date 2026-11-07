@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>9.0</LangVersion>
+    <NoWarn>CS0649</NoWarn>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Core/**/*.cs" />
+    <Compile Include="../../Packages/com.novorizon.framework/Runtime/Network/**/*.cs" />
+    <Compile Include="Program.cs" />
+    <Reference Include="Google.Protobuf"><HintPath>../../Packages/com.novorizon.framework/Runtime/Plugins/Google.Protobuf.dll</HintPath></Reference>
+    <Reference Include="BouncyCastle.Cryptography"><HintPath>../../Packages/com.novorizon.framework/Runtime/Plugins/BouncyCastle.Cryptography.dll</HintPath></Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe"><HintPath>../../Packages/com.novorizon.framework/Runtime/Plugins/System.Runtime.CompilerServices.Unsafe.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

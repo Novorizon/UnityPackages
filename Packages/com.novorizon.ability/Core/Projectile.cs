@@ -38,7 +38,7 @@ namespace Game.Ability
             Source = request.Source;
             Target = request.Target;
             Position = request.Origin;
-            Direction = request.Direction.sqrMagnitude > 0.0001f ? request.Direction.normalized : Vector3.forward;
+            Direction = request.Direction.sqrMagnitude > 0.0001f ? AbilityGeometry.Normalize(request.Direction) : Vector3.forward;
             Tracking = request.Tracking;
             maximumLifetime = IsFinite(Definition.MaxLifetime) && Definition.MaxLifetime > 0f ? Definition.MaxLifetime : 10f;
         }
@@ -144,12 +144,15 @@ namespace Game.Ability
 
             Vector3 targetPosition = Target.Position;
             if (!IsFinite(targetPosition)) { Destroy(); return; }
-            Vector3 toTarget = targetPosition - Position;
+            double x = (double)targetPosition.x - Position.x;
+            double y = (double)targetPosition.y - Position.y;
+            double z = (double)targetPosition.z - Position.z;
+            double distance = Math.Sqrt(x * x + y * y + z * z);
             float remainingDistance = RemainingDistance();
             float step = Mathf.Min(SafeNonnegative(Definition.Speed) * deltaTime, remainingDistance);
-            if (toTarget.sqrMagnitude <= step * step)
+            if (distance <= step)
             {
-                traveledDistance += (float)Math.Sqrt(toTarget.sqrMagnitude);
+                traveledDistance += (float)distance;
                 SetPosition(targetPosition);
                 Hit(engine, Target, query);
                 // DeleteOnHit controls piercing linear projectiles. Tracking arrival is terminal.
@@ -157,7 +160,11 @@ namespace Game.Ability
                 return;
             }
 
-            SetPosition(Position + toTarget.normalized * step);
+            double fraction = step / distance;
+            SetPosition(new Vector3(
+                (float)(Position.x + x * fraction),
+                (float)(Position.y + y * fraction),
+                (float)(Position.z + z * fraction)));
             if (Destroyed) return;
             traveledDistance += step;
             if (RemainingDistance() <= 0f)
@@ -273,24 +280,38 @@ namespace Game.Ability
 
         private static bool TryIntersect(Vector3 origin, Vector3 direction, float length, Vector3 center, float radius, out float distance)
         {
-            Vector3 offset = origin - center;
-            float outside = offset.sqrMagnitude - radius * radius;
-            if (outside <= 0f)
+            double x = (double)origin.x - center.x;
+            double y = (double)origin.y - center.y;
+            double z = (double)origin.z - center.z;
+            double radiusSquared = (double)radius * radius;
+            if (x * x + y * y + z * z <= radiusSquared)
             {
                 distance = 0f;
                 return true;
             }
 
-            float along = offset.x * direction.x + offset.y * direction.y + offset.z * direction.z;
-            float discriminant = along * along - outside;
-            if (discriminant < 0f)
+            double directionSquared = (double)direction.x * direction.x + (double)direction.y * direction.y + (double)direction.z * direction.z;
+            if (directionSquared == 0)
+            {
+                distance = 0;
+                return false;
+            }
+            double crossX = y * direction.z - z * direction.y;
+            double crossY = z * direction.x - x * direction.z;
+            double crossZ = x * direction.y - y * direction.x;
+            // Perpendicular distance avoids subtracting two nearly equal squared
+            // distances, which can turn a long off-axis miss into a false hit.
+            double perpendicularSquared = (crossX * crossX + crossY * crossY + crossZ * crossZ) / directionSquared;
+            if (perpendicularSquared > radiusSquared)
             {
                 distance = 0f;
                 return false;
             }
 
-            distance = -along - (float)Math.Sqrt(discriminant);
-            return distance >= 0f && distance <= length;
+            double along = -(x * direction.x + y * direction.y + z * direction.z) / directionSquared;
+            double hitDistance = along - Math.Sqrt((radiusSquared - perpendicularSquared) / directionSquared);
+            distance = (float)hitDistance;
+            return hitDistance >= 0 && hitDistance <= length;
         }
 
         private static int CompareHits(SweptHit left, SweptHit right)

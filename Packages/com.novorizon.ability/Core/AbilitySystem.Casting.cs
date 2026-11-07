@@ -160,25 +160,53 @@ namespace Game.Ability
 
         internal void TickQueuedOrders()
         {
-            long generation = RuntimeGeneration;
-            int[] owners = new int[queuedCasts.Count];
-            queuedCasts.Keys.CopyTo(owners, 0);
-            for (int i = 0; i < owners.Length; i++)
+            if (queuedCasts.Count == 0)
             {
-                if (generation != RuntimeGeneration) return;
-                if (!queuedCasts.TryGetValue(owners[i], out Queue<PendingCast> queue) || queue.Count == 0) continue;
-                PendingCast pending = queue.Peek();
-                if (HasOrdinaryCast(pending.Order.Caster)) continue;
-                queue.Dequeue();
-                if (queue.Count == 0) queuedCasts.Remove(owners[i]);
-                if (!TryConsumeExecutionBudget("QueuedOrder"))
+                return;
+            }
+            long generation = RuntimeGeneration;
+            List<int> owners = RuntimeSnapshotPool<int>.Rent();
+            try
+            {
+                owners.AddRange(queuedCasts.Keys);
+                for (int i = 0; i < owners.Count; i++)
                 {
-                    FailOrder(pending.Ability, pending.Order, pending.CastId, CastFailureReason.CustomRejected);
-                    continue;
+                    if (generation != RuntimeGeneration)
+                    {
+                        return;
+                    }
+                    if (!queuedCasts.TryGetValue(owners[i], out Queue<PendingCast> queue) || queue.Count == 0)
+                    {
+                        continue;
+                    }
+                    PendingCast pending = queue.Peek();
+                    if (HasOrdinaryCast(pending.Order.Caster))
+                    {
+                        continue;
+                    }
+                    queue.Dequeue();
+                    if (queue.Count == 0)
+                    {
+                        queuedCasts.Remove(owners[i]);
+                    }
+                    if (!TryConsumeExecutionBudget("QueuedOrder"))
+                    {
+                        FailOrder(pending.Ability, pending.Order, pending.CastId, CastFailureReason.CustomRejected);
+                        continue;
+                    }
+                    if (!IsRuntimeAvailable || IsUnitRemoving(pending.Order.Caster) || !ContainsAbility(pending.Ability))
+                    {
+                        FailOrder(pending.Ability, pending.Order, pending.CastId, CastFailureReason.RuntimeUnavailable);
+                    }
+                    else
+                    {
+                        pending.Ability.BeginOrder(pending.Order, pending.CastId);
+                    }
                 }
-                if (!IsRuntimeAvailable || IsUnitRemoving(pending.Order.Caster) || !ContainsAbility(pending.Ability))
-                    FailOrder(pending.Ability, pending.Order, pending.CastId, CastFailureReason.RuntimeUnavailable);
-                else pending.Ability.BeginOrder(pending.Order, pending.CastId);
+            }
+            finally
+            {
+                RuntimeSnapshotPool<int>.Release(owners);
             }
         }
 

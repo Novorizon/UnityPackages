@@ -36,3 +36,5 @@
 
 
 本轮新增多语言真实 Luban Excel/生成代码/二进制回归、语言切换事务和诊断只读探针；UI 回归新增固定网格与多语言订阅/复用。另提供 compile-native.py，将新编辑器和运行时代码与安装的 Unity/URP DLL 编译核对。首次准备时缺少许可证；现已激活并执行 Linux Editor 验收，61 个 EditMode 和 17 个 PlayMode 用例通过，含原生 Shader 导入、重烘焙保存、TMP 多语言与 UI Demo 字形网格、UI 生命周期与实际 GPU 位置/法线回读；新增配置型多语言、剧情资产重导入、完整立绘/选项/媒体示例、真实 VP8 像素、视频超时/销毁清理和诊断原生 JSON 往返。详情与边界见 [原生验收](../tools/NativeAcceptance/README.md) 和 NativeAcceptance.json；完整灯光/阴影画面、iPhone/Metal 与 IL2CPP 尚未验收。Verification.json 仍只记录独立仓库/托管检查。
+
+2026-11-08 完成 16 包审查：全量托管回归扩展了网络/事件、UI/输入/音频、技能几何、资源/发布/安装器与 GPU 的隔离回归；真实 Editor 最终 65 EditMode + 33 PlayMode 全通过。全部 9 个 Samples 已导入编译，指定热路径使用真实 Mono 记录预热分配与操作计时，详见 [审查报告](PackageAudit.zh-CN.md)。

@@ -236,7 +236,7 @@ namespace Game.Framework.Audio
                 throw new ArgumentOutOfRangeException(nameof(seconds));
             }
 
-            if (!Enum.IsDefined(typeof(AudioFadeCurve), curve))
+            if ((uint)curve > (uint)AudioFadeCurve.EqualPower)
             {
                 throw new ArgumentOutOfRangeException(nameof(curve));
             }

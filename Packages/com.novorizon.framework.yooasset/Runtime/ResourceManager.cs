@@ -47,7 +47,7 @@ namespace Game.Resource
 
         private ResourcePackage package;
         private int generation;
-        private bool initialized, packageInitialized, atlasRegistered, shuttingDown;
+        private bool initialized, packageInitialized, atlasRegistered, shuttingDown, contentFullyDownloaded;
         private Task shutdown;
         private Task<bool> initialization;
         private Task<bool> packageInitialization;
@@ -154,7 +154,7 @@ namespace Game.Resource
             MainThread();
             if (shuttingDown)
             {
-                return InitializeAfterShutdownAsync(shutdown);
+                return InitializeAfterShutdownAsync(shutdown, generation);
             }
 
             if (initialized)
@@ -190,16 +190,34 @@ namespace Game.Resource
                 throw new ArgumentOutOfRangeException(nameof(options));
             }
 
+            // Options are caller-owned and mutable. Keep the requested content stable across
+            // native awaits; the provider/progress references themselves remain caller-owned.
+            options = new ResourceInitializationOptions
+            {
+                Parameters = options.Parameters,
+                PackageVersion = string.IsNullOrWhiteSpace(options.PackageVersion) ? null : options.PackageVersion,
+                DownloadAll = options.DownloadAll,
+                ConcurrentDownloads = options.ConcurrentDownloads,
+                FailedTryAgain = options.FailedTryAgain,
+                Progress = options.Progress
+            };
             token.ThrowIfCancellationRequested();
+            int requestedGeneration = generation;
             if (shuttingDown)
             {
                 await TaskUtil.WaitAsync(shutdown, token);
+            }
+
+            if (requestedGeneration != generation)
+            {
+                return false;
             }
 
             if (initialized)
             {
                 if (string.IsNullOrEmpty(options.PackageVersion) || PackageVersion == options.PackageVersion)
                 {
+                    RequireDownloadMode(options);
                     return true;
                 }
 
@@ -211,12 +229,35 @@ namespace Game.Resource
                 initialization = InitializeCoreAsync(options, token);
             }
 
-            return await TaskUtil.WaitAsync(initialization, token);
+            bool ready = await TaskUtil.WaitAsync(initialization, token);
+            if (ready && options.PackageVersion != null && PackageVersion != options.PackageVersion)
+            {
+                throw new InvalidOperationException("Another content version was prepared by the shared initialization. Release resources before selecting another package version.");
+            }
+
+            if (ready)
+            {
+                RequireDownloadMode(options);
+            }
+
+            return ready;
         }
 
-        private async Task<bool> InitializeAfterShutdownAsync(Task previous)
+        private void RequireDownloadMode(ResourceInitializationOptions options)
+        {
+            if (options.DownloadAll && !contentFullyDownloaded)
+            {
+                throw new InvalidOperationException("Content was initialized for on-demand loading. Release resources before requiring a full download.");
+            }
+        }
+
+        private async Task<bool> InitializeAfterShutdownAsync(Task previous, int requestedGeneration)
         {
             await previous;
+            if (requestedGeneration != generation)
+            {
+                return false;
+            }
             return await InitializeAsync();
         }
 
@@ -327,11 +368,7 @@ namespace Game.Resource
                 var downloader = resourcePackage.CreateResourceDownloader(options.ConcurrentDownloads, options.FailedTryAgain);
                 downloader.DownloadUpdateCallback = value => Report(options.Progress,
                     new ResourceDownloadProgress(value.TotalDownloadCount, value.CurrentDownloadCount, value.TotalDownloadBytes, value.CurrentDownloadBytes));
-                using (token.Register(downloader.CancelDownload))
-                {
-                    downloader.BeginDownload();
-                    await TaskUtil.WaitAsync(downloader.Task, token);
-                }
+                await RunDownloadAsync(downloader, token);
 
                 token.ThrowIfCancellationRequested();
                 if (downloader.Status != EOperationStatus.Succeed)
@@ -350,7 +387,44 @@ namespace Game.Resource
             }
 
             PackageVersion = version;
+            contentFullyDownloaded = options?.DownloadAll == true;
             return true;
+        }
+
+        private static async Task RunDownloadAsync(ResourceDownloaderOperation downloader, CancellationToken token)
+        {
+            Task nativeDownload = downloader.Task;
+            // YooAsset must enter OperationSystem before cancellation can mark it Done.
+            // Cancel-before-Begin prevents registration and leaves the captured Task unfinished.
+            downloader.BeginDownload();
+            using (token.Register(() => UnityThread.RunAsync(() =>
+            {
+                if (!nativeDownload.IsCompleted)
+                {
+                    downloader.CancelDownload();
+                }
+            }).Forget()))
+            {
+                try
+                {
+                    await TaskUtil.WaitAsync(nativeDownload, token);
+                }
+                catch (OperationCanceledException) when (token.IsCancellationRequested)
+                {
+                    // The public waiter can already return cancellation. Retain the shared
+                    // initialization until YooAsset acknowledges it so shutdown/retry cannot
+                    // replace the manifest while the previous native download is still active.
+                    try
+                    {
+                        await nativeDownload;
+                    }
+                    catch
+                    {
+                        // The caller cancellation remains the result; the native task is observed.
+                    }
+                    throw;
+                }
+            }
         }
 
         private static void Report(IProgress<ResourceDownloadProgress> progress, ResourceDownloadProgress value)
@@ -782,6 +856,7 @@ namespace Game.Resource
             initialized = false;
             packageInitialized = false;
             PackageVersion = null;
+            contentFullyDownloaded = false;
             shuttingDown = false;
             initialization = null;
             shutdown = null;
@@ -913,6 +988,7 @@ namespace Game.Resource
                             initialized = false;
                             packageInitialized = false;
                             PackageVersion = null;
+                            contentFullyDownloaded = false;
                             initialization = null;
                             packageInitialization = null;
                             shuttingDown = false;

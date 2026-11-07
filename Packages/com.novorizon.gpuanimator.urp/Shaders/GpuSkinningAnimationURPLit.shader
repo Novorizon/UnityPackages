@@ -45,6 +45,10 @@ Shader "Novorizon/GpuSkinning/URP Lit"
 
         UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(int, _FrameIndex)
+            // Runtime property blocks also publish the previous frame. Keep reserved
+            // blend properties instanced so their presence does not prevent batching.
+            UNITY_DEFINE_INSTANCED_PROP(int, _BlendFrameIndex)
+            UNITY_DEFINE_INSTANCED_PROP(float, _BlendProgress)
         UNITY_INSTANCING_BUFFER_END(Props)
         #include "GpuSkinningURP.hlsl"
 

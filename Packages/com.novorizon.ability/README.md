@@ -104,11 +104,10 @@ AutoCast、独立层到期、投射物视野尚未实现，相关配置明确拒
 
 ## 验证材料
 
-仓库 `Data/AbilityJsonSources/Validation` 提供多种真实JSON技能、跨来源引用和外部脚本样例。`Assets/Tests/EditMode/Ability` 测试从这些文件加载并检查实际结算。它们是业务和测试资料，不是包运行依赖。
+当前仓库使用 `tools/AbilityVerification` 检查公开 API、编辑器 Codec/Workspace/Sandbox，以及缺少 Odin 时的编译边界。`tools/AlgorithmsAuditVerification` 编译实际 Ability/RTree 源码，覆盖有限极大/极小射程、投射物扫掠、光环范围、追踪移动和有界快照池；`--measure` 输出预热 Update/查询的耗时及每次分配。这些离线工具使用 Unity API 模型，不能代替原生引擎。
 
+`tools/NativeAcceptance/PlayMode/AlgorithmAuditTests.cs` 在真实 Unity 中验证稳定技能 Update 的分配，以及 ECS 的结构屏障和资源生命周期。原生验收范围见仓库 `tools/NativeAcceptance/README.md`；IL2CPP 和目标设备 Profiler 仍需对应平台执行。
 
-`Tools/AbilityVerification/PackageSmoke/run.sh` 只把本目录复制到空临时项目，以另一个程序集自建全部接口和脚本，验证无需项目源码也可使用包。Core/Business 离线检查和性能基准在同一验证目录。
-
-离线测试使用 Unity/NUnit 兼容层；正式发布仍需要 Unity 2022.3 EditMode/PlayMode、IL2CPP 和目标设备 Profiler 验证。
+快照池按每线程、每元素类型最多 8 个列表和总容量 32768 个元素保留空缓冲；活动借用独占，归还时清空引用。总容量预算与原先 8×4096 的上限相同，允许常见的 4097～10000 元素更新复用较大的单个缓冲；超过总预算、冷启动或扩容仍可能分配。零分配结论只针对已预热的稳定更新，不包括创建、施法事件、运行时快照导出、业务回调或任意规模。
 
 编辑器使用见[编辑器指南](Documentation~/Editor/README.md)。测试夹具位于仓库 tools/AbilityVerification/Fixtures，不随运行时发布。

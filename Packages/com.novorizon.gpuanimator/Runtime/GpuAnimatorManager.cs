@@ -12,10 +12,17 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         internal long Version;
     }
 
+    private struct Registration
+    {
+        internal long Version;
+        internal int Index;
+    }
+
     private readonly List<Entry> entries = new List<Entry>();
-    private readonly Dictionary<GpuAnimator, long> registered = new Dictionary<GpuAnimator, long>();
+    private readonly Dictionary<GpuAnimator, Registration> registered = new Dictionary<GpuAnimator, Registration>();
     private long nextVersion;
     private bool ticking;
+    private bool hasStaleEntries;
     private float playbackSpeed = 1;
     private bool initialized;
     public int Count => registered.Count;
@@ -72,8 +79,15 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
             return false;
         }
 
+        // A paused or manually driven manager may never Tick. Keep churn bounded while
+        // amortizing compaction; removing one player must not scan the whole crowd.
+        if (!ticking && hasStaleEntries && entries.Count - registered.Count >= Math.Max(64, registered.Count))
+        {
+            Compact();
+        }
+
         long version = ++nextVersion;
-        registered.Add(player, version);
+        registered.Add(player, new Registration { Version = version, Index = entries.Count });
         entries.Add(new Entry { Player = player, Version = version });
         return true;
     }
@@ -85,13 +99,23 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
             return false;
         }
 
-        bool removed = registered.Remove(player);
-        if (removed && !ticking)
+        if (!registered.TryGetValue(player, out Registration registration))
         {
-            Compact();
+            return false;
         }
 
-        return removed;
+        registered.Remove(player);
+        // Clear the reference immediately, including while paused. The generation still
+        // protects a re-registration made from a completion callback during this Tick.
+        entries[registration.Index] = default;
+        hasStaleEntries = true;
+        if (!ticking && registered.Count == 0)
+        {
+            entries.Clear();
+            hasStaleEntries = false;
+        }
+
+        return true;
     }
 
     /// <summary>项目显式驱动时应关闭本 Manager 的 AutomaticUpdate。</summary>
@@ -115,6 +139,11 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
             for (int i = 0; i < limit && !IsDestroying; i++)
             {
                 Entry entry = entries[i];
+                if (entry.Player == null)
+                {
+                    Unregister(entry.Player);
+                    continue;
+                }
                 if (!IsCurrent(entry))
                 {
                     continue;
@@ -122,7 +151,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
 
                 if (!entry.Player.isActiveAndEnabled || !entry.Player.AutomaticUpdate || !entry.Player.IsPlaying)
                 {
-                    registered.Remove(entry.Player);
+                    Unregister(entry.Player);
                     continue;
                 }
 
@@ -139,13 +168,16 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         finally
         {
             ticking = false;
-            Compact();
+            if (hasStaleEntries)
+            {
+                Compact();
+            }
         }
     }
 
     private bool IsCurrent(Entry entry)
     {
-        return entry.Player != null && registered.TryGetValue(entry.Player, out long current) && current == entry.Version;
+        return entry.Player != null && registered.TryGetValue(entry.Player, out Registration current) && current.Version == entry.Version;
     }
 
     private void Compact()
@@ -164,8 +196,10 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
                 continue;
             }
 
-            if (IsCurrent(entry))
+            if (registered.TryGetValue(entry.Player, out Registration registration) && registration.Version == entry.Version)
             {
+                registration.Index = count;
+                registered[entry.Player] = registration;
                 entries[count++] = entry;
             }
         }
@@ -174,6 +208,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         {
             entries.RemoveRange(count, entries.Count - count);
         }
+        hasStaleEntries = false;
     }
 
     private void Update()
@@ -227,10 +262,12 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
     {
         registered.Clear();
         initialized = false;
+        hasStaleEntries = true;
         // 事件回调中销毁 Manager 时，Tick 的 finally 会负责清理数组。
         if (!ticking)
         {
             entries.Clear();
+            hasStaleEntries = false;
         }
 
         AnimationChanged = null;

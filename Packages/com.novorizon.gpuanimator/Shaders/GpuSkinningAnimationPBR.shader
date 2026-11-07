@@ -40,6 +40,7 @@ Shader "Custom/GpuSkinningAnimationPBR"
             #pragma multi_compile_instancing
             #include "UnityCG.cginc"
             #include "UnityPBSLighting.cginc"
+            #include "GpuSkinningNormals.hlsl"
 
             
             sampler2D _MainTex;
@@ -339,10 +340,11 @@ Shader "Custom/GpuSkinningAnimationPBR"
                 mul(bone2_matrix, v.vertex) * boneWeights[2] +
                 mul(bone3_matrix, v.vertex) * boneWeights[3];
 
-                float3 normal = mul((float3x3)bone0_matrix, v.normal) * boneWeights[0] +
-                mul((float3x3)bone1_matrix, v.normal) * boneWeights[1] +
-                mul((float3x3)bone2_matrix, v.normal) * boneWeights[2] +
-                mul((float3x3)bone3_matrix, v.normal) * boneWeights[3];
+                float3x3 skin = (float3x3)bone0_matrix * boneWeights[0] +
+                (float3x3)bone1_matrix * boneWeights[1] +
+                (float3x3)bone2_matrix * boneWeights[2] +
+                (float3x3)bone3_matrix * boneWeights[3];
+                float3 normal = NovorizonSkinNormal(v.normal, skin);
 
                 //////////////////////////
 
