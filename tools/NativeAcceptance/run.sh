@@ -21,7 +21,7 @@ if [ "${#platforms[@]}" -eq 0 ]; then
 fi
 for platform in "${platforms[@]}"; do
     case "$platform" in
-        EditMode) assemblies='GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests' ;;
+        EditMode) assemblies='GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests;Novorizon.NativeAcceptance.Story.Editor.Tests;Novorizon.NativeAcceptance.Diagnostics.Editor.Tests' ;;
         PlayMode) assemblies='Novorizon.NativeAcceptance.PlayMode' ;;
         *) echo "Unsupported platform: $platform" >&2; exit 2 ;;
     esac

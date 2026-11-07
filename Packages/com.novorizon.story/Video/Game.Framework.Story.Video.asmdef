@@ -1,0 +1,13 @@
+{
+  "name": "Game.Framework.Story.Video",
+  "references": [
+    "Game.Framework.Core",
+    "Game.Framework.Story.Unity",
+    "Unity.ugui"
+  ],
+  "defineConstraints": ["NOVORIZON_STORY_VIDEO", "NOVORIZON_STORY_VIDEO_UGUI"],
+  "versionDefines": [
+    { "name": "com.unity.modules.video", "expression": "1.0.0", "define": "NOVORIZON_STORY_VIDEO" },
+    { "name": "com.unity.ugui", "expression": "1.0.0", "define": "NOVORIZON_STORY_VIDEO_UGUI" }
+  ]
+}

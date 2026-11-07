@@ -78,7 +78,7 @@ def validate():
         'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
         'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
-        'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp',
+        'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp', 'com.novorizon.story',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -224,10 +224,14 @@ def verify(dotnet):
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
         from interaction_dependencies import prepare
         prepare(ROOT, dotnet, env)
-        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('FeatureVerification', 'FeatureVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('FeatureVerification', 'FeatureVerification'), ('LocalizationSetupVerification', 'LocalizationSetupVerification'), ('StoryVerification', 'StoryVerification'), ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
+        ownership_project = ROOT / 'tools/DiagnosticsOwnershipVerification/DiagnosticsOwnershipVerification.csproj'
+        subprocess.run([dotnet, 'build', str(ownership_project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo', '-p:OwnershipDevelopment=false'], cwd=temp, env=env, check=True)
+        subprocess.run([dotnet, str(ownership_project.parent / 'bin/Release/net8.0/DiagnosticsOwnershipVerification.dll')], cwd=ROOT, env=env, check=True)
+        subprocess.run([dotnet, 'build', str(ROOT / 'tools/StoryVerification/Compatibility/RuntimeCompatibility.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         subprocess.run([dotnet, 'build', str(ROOT / 'tools/HotUpdateVerification/PlayerCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         # Compile and execute actual runtime sources with UNITY_EDITOR and the shipped analyzer.
         for folder, project_name in [('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification')]:
@@ -290,7 +294,9 @@ def unity_project(output, include_acceptance_tests=False):
         import shutil
         shutil.copytree(ROOT / 'tools/NativeAcceptance/PlayMode', output / 'Assets/Tests/PlayMode', dirs_exist_ok=True)
         shutil.copytree(ROOT / 'tools/NativeAcceptance/Editor', output / 'Assets/Tests/Editor', dirs_exist_ok=True)
+        shutil.copytree(ROOT / 'tools/NativeAcceptance/Fixtures', output / 'Assets/Resources/NativeStory', dirs_exist_ok=True)
         shutil.copytree(ROOT / 'Packages/com.novorizon.framework.ui/Samples~/Demo', output / 'Assets/Samples/UIDemo', dirs_exist_ok=True)
+        shutil.copytree(ROOT / 'Packages/com.novorizon.story/Samples~/BasicStory', output / 'Assets/Samples/BasicStory', dirs_exist_ok=True)
     print('Generated standalone Unity verification project:', output)
 
 

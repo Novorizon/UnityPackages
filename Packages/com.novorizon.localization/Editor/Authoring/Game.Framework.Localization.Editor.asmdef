@@ -1,0 +1,5 @@
+{
+  "name": "Game.Framework.Localization.Editor",
+  "references": ["Game.Framework.Localization", "Game.Framework.Localization.Unity"],
+  "includePlatforms": ["Editor"]
+}

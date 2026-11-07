@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.33`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.34`。
 
 ## 包与职责
 
@@ -15,8 +15,9 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 | com.novorizon.rtree | 六种空间树，各自一个 Runtime 目录 |
 | com.novorizon.gpuanimator | GPU 动画烘焙、注入、统一调度与回收 |
 | com.novorizon.gpuanimator.urp | 默认 URP 14 Unlit/Lit、阴影/深度/法线 Pass 与工程配置 |
-| com.novorizon.localization | Luban 多语言表、回退、切换与 uGUI 绑定 |
-| com.novorizon.diagnostics | 只读 Editor 诊断计数与快照导出 |
+| com.novorizon.localization | 本地语言表、CSV/TSV 导入、Inspector Key、TMP 字体与语言切换 |
+| com.novorizon.story | 独立剧情会话、TMP 对话/选项/立绘、可选视频与业务命令 |
+| com.novorizon.diagnostics | 只读计数、资源租约归属、快照对比与导出 |
 | com.novorizon.input | Input System、Map、设备、屏蔽与重绑定 |
 | com.novorizon.audio | 音源池、分组、渐变、音乐交叉渐变与 Mixer 路由 |
 | com.novorizon.data | Luban 生成、二进制表加载与查询 |
@@ -29,7 +30,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 在自己的 Unity 工程中通过 Package Manager 安装聚合包：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.33
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.all#v0.1.0-preview.34
 ```
 
 单独安装时将路径替换为上表对应的包名。UPM 不支持 Git 传递依赖，单包安装需在工程 manifest 中同时声明其依赖来源；聚合安装器会处理完整集合。所有自有包使用同一发行标签。固定标签不会自动升级，已发布标签不移动。
@@ -58,6 +59,13 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
+
+## v0.1.0-preview.34
+
+- 多语言提供本地表资产、CSV/TSV 导入、统一 Settings/Bootstrap，以及 TMP Inspector 的 Key 搜索、预览和字形检查；静态界面无需逐个编写 DataManager 接线。
+- 新增独立 [Story](Packages/com.novorizon.story/README.md) 包及 Basic Story 示例：TMP 对话、选项、立绘/背景、语音、视频、取消和检查点；业务只处理触发、命令和持久化。
+- 诊断增加资源租约的 owner/scope/scene、可选开发栈、基线差异和 JSON 导出；原有 AcquireAsync 调用保持兼容。
+- Linux 原生验收 61 项 EditMode、17 项 PlayMode 全通过，包含完整剧情示例和真实视频像素回读；iPhone/Metal 和 IL2CPP 仍待目标环境验收。
 
 ## v0.1.0-preview.33
 

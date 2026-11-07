@@ -1,0 +1,5 @@
+{
+  "name": "Game.Framework.Story.Editor",
+  "references": ["Game.Framework.Story", "Game.Framework.Story.Unity"],
+  "includePlatforms": ["Editor"]
+}

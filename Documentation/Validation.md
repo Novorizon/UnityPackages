@@ -15,6 +15,9 @@
 | 聚合安装 | 依赖排序、版本核对、UPM 请求恢复、超时后重试、Embed 和默认配置 | UPM API 使用模型 |
 | 通用服务 | 网络、UI、GPU 调度、场景、存储、输入、音频、资源租约 | 网络含真实 loopback；引擎 API 使用模型 |
 | Luban | 官方 CLI 的 Excel → C# → bytes → Tables、失败保留、并发与取消 | 不执行 Unity 资源导入 |
+| 多语言配置 | CSV/TSV 引号/多行/占位符与表校验 | Unity Inspector 与实际字体另验 |
+| 剧情核心 | 不可变图、分支/恢复、Busy、取消/超时/跳过与回调竞态 | 不模拟原生视频解码 |
+| 诊断归属 | 独立租约/作用域、取消后迟到加载、快照对比与非开发构建栈关闭 | YooAsset/Unity API 使用模型 |
 | RTree | 随机/差分查询、变更与节点不变量 | 不代表目标设备性能 |
 | Ability | 公开 API、编辑器 Codec/Workspace/Sandbox、缺少 Odin 的编译 | Unity 编辑器交互使用模型 |
 
@@ -32,4 +35,4 @@
 通过 .NET 回归不能替代 Unity 导入、Shader/烘焙、原生 Destroy、输入音频或 IL2CPP。原生结果以该环境生成的日志、测试 XML 和报告为准。
 
 
-本轮新增多语言真实 Luban Excel/生成代码/二进制回归、语言切换事务和诊断只读探针；UI 回归新增固定网格与多语言订阅/复用。另提供 compile-native.py，将新编辑器和运行时代码与安装的 Unity/URP DLL 编译核对。首次准备时缺少许可证；现已激活并执行 Linux Editor 验收，58 个 EditMode 和 5 个 PlayMode 用例通过，含原生 Shader 导入、重烘焙保存、TMP 多语言与 UI Demo 字形网格、UI 生命周期与实际 GPU 位置/法线回读。详情与边界见 [原生验收](../tools/NativeAcceptance/README.md) 和 NativeAcceptance.json；完整灯光/阴影画面、iPhone/Metal 与 IL2CPP 尚未验收。Verification.json 仍只记录独立仓库/托管检查。
+本轮新增多语言真实 Luban Excel/生成代码/二进制回归、语言切换事务和诊断只读探针；UI 回归新增固定网格与多语言订阅/复用。另提供 compile-native.py，将新编辑器和运行时代码与安装的 Unity/URP DLL 编译核对。首次准备时缺少许可证；现已激活并执行 Linux Editor 验收，61 个 EditMode 和 17 个 PlayMode 用例通过，含原生 Shader 导入、重烘焙保存、TMP 多语言与 UI Demo 字形网格、UI 生命周期与实际 GPU 位置/法线回读；新增配置型多语言、剧情资产重导入、完整立绘/选项/媒体示例、真实 VP8 像素、视频超时/销毁清理和诊断原生 JSON 往返。详情与边界见 [原生验收](../tools/NativeAcceptance/README.md) 和 NativeAcceptance.json；完整灯光/阴影画面、iPhone/Metal 与 IL2CPP 尚未验收。Verification.json 仍只记录独立仓库/托管检查。

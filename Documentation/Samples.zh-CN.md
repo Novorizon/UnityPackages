@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | [Framework Demo](../Packages/com.novorizon.framework/Samples~/Demo/README.md) | Tools → Novorizon → Demos → Create Core Demo Scene；事件、时钟、池、线程、Task 与单例 | 无服务器、外部 Prefab 或资源包 |
 | [UI Demo](../Packages/com.novorizon.framework.ui/Samples~/Demo/README.md) | Create UI Demo Scene；窗口层级、返回、确认、Toast 和虚拟列表 | uGUI；布局与模板由脚本创建 |
+| [Basic Story](../Packages/com.novorizon.story/Samples~/BasicStory/README.md) | Novorizon → Story → Create Basic Story Sample；TMP 立绘对话、选项和语言切换 | UI、TMP、Localization；语音/视频可在组件中指定项目素材 |
 | [Resource Demo](../Packages/com.novorizon.framework.yooasset/Samples~/Demo/README.md) | Create Resource Demo Scene；显式初始化、独立 TextAsset 租约与释放 | 项目配置 DefaultPackage 和一个 TextAsset 地址 |
 | [ECS QuickStart](../Packages/com.novorizon.ecs/Samples~/QuickStart/README.md) | 空对象挂 QuickStartDemo；移动、暂停、恢复与重建 | Framework、Mathematics；Cube 自动创建 |
 | [Spatial Queries](../Packages/com.novorizon.rtree/Samples~/SpatialQueries/README.md) | 空对象挂 SpatialQueryExample，使用组件菜单 | 不需要角色或场景资源 |

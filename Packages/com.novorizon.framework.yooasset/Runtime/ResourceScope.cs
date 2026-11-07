@@ -15,16 +15,22 @@ namespace Game.Resource
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
         private readonly CancellationToken token;
         private readonly int sceneHandle;
+        private readonly string sceneName;
+        public long DiagnosticId { get; }
+        public string Owner { get; }
         private bool disposed;
         public CancellationToken Token => token;
 
-        internal ResourceScope(ResourceManager resources, Scene? scene = null)
+        internal ResourceScope(ResourceManager resources, Scene? scene = null, string owner = null)
         {
             this.resources = resources;
+            DiagnosticId = resources.NextResourceScopeId();
+            Owner = string.IsNullOrEmpty(owner) ? "ResourceScope" : owner;
             token = lifetime.Token;
             if (scene.HasValue)
             {
                 sceneHandle = scene.Value.handle;
+                sceneName = scene.Value.name;
                 SceneManager.sceneUnloaded += OnSceneUnloaded;
             }
         }
@@ -39,7 +45,14 @@ namespace Game.Resource
 
             using (var cancellation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token))
             {
-                var lease = await resources.AcquireAsync<T>(location, cancellation.Token);
+                var lease = await resources.AcquireOwnedAsync<T>(
+                    location,
+                    cancellation.Token,
+                    false,
+                    Owner,
+                    DiagnosticId,
+                    sceneHandle,
+                    sceneName);
                 if (disposed || cancellation.IsCancellationRequested)
                 {
                     lease.Dispose();

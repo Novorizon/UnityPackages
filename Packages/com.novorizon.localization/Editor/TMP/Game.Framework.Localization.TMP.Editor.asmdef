@@ -1,0 +1,13 @@
+{
+  "name": "Game.Framework.Localization.TMP.Editor",
+  "references": [
+    "Game.Framework.Localization",
+    "Game.Framework.Localization.Unity",
+    "Game.Framework.Localization.UGUI",
+    "Unity.TextMeshPro",
+    "Unity.ugui"
+  ],
+  "includePlatforms": ["Editor"],
+  "defineConstraints": ["NOVORIZON_LOCALIZATION_TMP"],
+  "versionDefines": [{"name":"com.unity.textmeshpro","expression":"3.0.6","define":"NOVORIZON_LOCALIZATION_TMP"}]
+}
