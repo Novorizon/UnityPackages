@@ -12,6 +12,7 @@ namespace Game.Framework.Localization
         private CultureInfo current, fallback;
         private CancellationTokenSource pending;
         private long revision;
+        private long publication;
         private bool disposed;
 
         public bool IsInitialized => catalog != null && !disposed;
@@ -127,6 +128,7 @@ namespace Game.Framework.Localization
             }
 
             current = selected;
+            long notification = ++publication;
             var handlers = LanguageChanged;
             if (handlers == null)
             {
@@ -135,6 +137,11 @@ namespace Game.Framework.Localization
 
             foreach (Action<string> handler in handlers.GetInvocationList())
             {
+                if (disposed || publication != notification)
+                {
+                    break;
+                }
+
                 try
                 {
                     handler(selected.Name);

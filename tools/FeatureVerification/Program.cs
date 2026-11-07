@@ -133,6 +133,22 @@ internal static class Program
                 Equal(1, notified);
                 Equal("你好", manager.Get("key"));
             });
+            Check("reentrant language publication suppresses stale outer notifications", () =>
+            {
+                using var manager = Service();
+                var observed = new List<string>();
+                manager.LanguageChanged += language =>
+                {
+                    if (language == "zh-Hans")
+                    {
+                        manager.SetLanguage("fr-FR");
+                    }
+                };
+                manager.LanguageChanged += language => observed.Add(language);
+                manager.SetLanguage("zh-Hans");
+                Equal("fr-FR", manager.Language);
+                Equal("fr-FR", string.Join(",", observed));
+            });
             Check("diagnostics never touches Instance or constructs uncreated services", () =>
             {
                 ProbeService.Created = false;
