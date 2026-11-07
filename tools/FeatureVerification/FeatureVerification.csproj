@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><OutputType>Exe</OutputType><EnableDefaultCompileItems>false</EnableDefaultCompileItems><TreatWarningsAsErrors>true</TreatWarningsAsErrors><LangVersion>9.0</LangVersion><NuGetAudit>false</NuGetAudit></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="Localization/Localization.csproj" />
+    <ProjectReference Include="../FrameworkServicesVerification/Core/Core.csproj" />
+    <ProjectReference Include="../GameModulesVerification/LubanRuntime/LubanRuntime.csproj" />
+    <ProjectReference Include="LubanFixture/LubanFixture.csproj" />
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs" />
+    <Compile Include="../../Packages/com.novorizon.gpuanimator.urp/Editor/UrpCompatibility.cs" />
+  </ItemGroup>
+</Project>

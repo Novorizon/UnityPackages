@@ -1,0 +1,11 @@
+{
+  "name": "Game.Framework.GpuAnimation.URP.Editor",
+  "references": [
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Core.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

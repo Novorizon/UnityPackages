@@ -1,0 +1,13 @@
+{
+  "name": "com.novorizon.localization",
+  "version": "0.1.0-preview.1",
+  "displayName": "Novorizon localization",
+  "description": "Validated Luban-friendly translations, transactional language switching and optional uGUI binding.",
+  "unity": "2022.3",
+  "author": {
+    "name": "Novorizon"
+  },
+  "dependencies": {
+    "com.novorizon.framework": "0.18.0-preview.6"
+  }
+}

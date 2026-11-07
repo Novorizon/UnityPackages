@@ -248,6 +248,18 @@ namespace UnityEditor.PackageManager.Requests
     }
 }
 
+namespace Game.Framework.GpuAnimation.URP.Editor
+{
+    public static class UrpProjectSetup
+    {
+        public static int Calls;
+        public static void Configure()
+        {
+            Calls++;
+        }
+    }
+}
+
 namespace Game.Framework.HotUpdate.Editor
 {
     public static class GameBuild

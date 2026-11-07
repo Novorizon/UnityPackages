@@ -151,3 +151,17 @@ list.Clear();
 Prefab 租约由项目持有，直到列表停止使用且所有行真正销毁。Clear/重新 Configure/OnDestroy 只是提交 Destroy，不能在调用后立刻卸载 Prefab。将行 Prefab 作为界面 Prefab 的序列化依赖时，可随外层界面的资源租约一起管理。
 
 业务绑定中的字符串格式化、图标读取等仍可能分配；虚拟列表的稳定窗口复用与这些业务成本分别测量。
+
+
+## 固定尺寸虚拟网格
+
+UIVirtualGrid 提供固定列数的垂直网格，复用 UIVirtualList 的行窗口；行内复用项目传入的 Cell Prefab。
+
+```csharp
+grid.Configure(scrollRect, cellPrefab, new Vector2(100, 80), columnCount: 4);
+grid.SetData(items, (cell, item, index) => cell.GetComponent<ItemView>().Bind(item),
+    cell => cell.GetComponent<ItemView>().Unbind());
+grid.ScrollTo(9999);
+```
+
+每次 SetData/SetItemCount 重置滚动位置；ScrollTo 使用条目索引。RefreshItems 更新同数量内容。最后一行不足列数时隐藏剩余 Cell，maximumVisibleCells 限制可见及 overscan 行的总 Cell 数。列宽和间距由调用方配置，需使其适合 Viewport；不自动换列或处理动态高度。Content 同样不能挂 LayoutGroup/ContentSizeFitter。Prefab 所有权和原生销毁等待与虚拟列表一致。回收前调用 Unbind 清理旧异步请求和监听。

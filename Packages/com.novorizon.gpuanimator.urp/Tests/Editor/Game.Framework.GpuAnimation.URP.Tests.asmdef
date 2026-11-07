@@ -1,0 +1,14 @@
+{
+  "name": "Game.Framework.GpuAnimation.URP.Tests",
+  "references": [
+    "Game.Framework.GpuAnimation.URP.Editor",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

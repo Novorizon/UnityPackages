@@ -78,6 +78,7 @@ def validate():
         'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
         'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
+        'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp',
     }
     assert not set(packages) & OFFICIAL
     external = config['externalPackages']
@@ -223,7 +224,7 @@ def verify(dotnet):
         env.setdefault('DOTNET_PROCESSOR_COUNT', '2')
         from interaction_dependencies import prepare
         prepare(ROOT, dotnet, env)
-        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
+        for folder, project_name in [('StaticResetVerification', 'StaticResetVerification'), ('HotUpdateVerification', 'HotUpdateVerification'), ('AllPackagesVerification', 'AllPackagesVerification'), ('FrameworkServicesVerification', 'FrameworkServicesVerification'), ('GameModulesVerification', 'GameModulesVerification'), ('FeatureVerification', 'FeatureVerification'), ('RTreeCorrectness', 'Correctness'), ('RTreeSpatialCorrectness', 'SpatialCorrectness')]:
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
@@ -282,7 +283,7 @@ def unity_project(output):
         deps[name] = metadata['git']
     (output / 'Assets').mkdir(parents=True, exist_ok=True)
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
-    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))
+    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items())), testables=['com.novorizon.gpuanimator', 'com.novorizon.gpuanimator.urp']))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
     (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
     print('Generated standalone Unity verification project:', output)

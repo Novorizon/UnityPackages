@@ -32,6 +32,9 @@ def prepare(root, dotnet, env):
     fixture = cache / 'fixture'
     subprocess.run([dotnet, str(cli), '-t', 'client', '-c', 'cs-bin', '-d', 'bin', '--conf', str(root / 'Packages/com.novorizon.data/Templates~/LubanProject/luban.conf'), '-x', 'outputCodeDir=' + str(fixture / 'code'), '-x', 'outputDataDir=' + str(fixture / 'data')], env=env, check=True)
     env.update(LubanPackageRoot=str(runtime), LubanFixtureRoot=str(fixture), LUBAN_CLI=str(cli), NOVORIZON_DOTNET=dotnet)
+    localization = cache / 'localization-fixture'
+    subprocess.run([dotnet, str(cli), '-t', 'client', '-c', 'cs-bin', '-d', 'bin', '--conf', str(root / 'Packages/com.novorizon.localization/Templates~/LubanProject/luban.conf'), '-x', 'outputCodeDir=' + str(localization / 'code'), '-x', 'outputDataDir=' + str(localization / 'data')], env=env, check=True)
+    env['LocalizationFixtureRoot'] = str(localization)
 
 
 if __name__ == '__main__':

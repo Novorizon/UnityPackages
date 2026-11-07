@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><AssemblyName>Game.Localization.Generated</AssemblyName><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../GameModulesVerification/LubanRuntime/LubanRuntime.csproj" /><Compile Include="$(LocalizationFixtureRoot)/code/**/*.cs" /></ItemGroup>
+</Project>

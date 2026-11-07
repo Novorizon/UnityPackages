@@ -1,0 +1,19 @@
+{
+  "name": "Game.Framework.Localization.Luban.Editor",
+  "references": [
+    "Game.Framework.Data.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "defineConstraints": [
+    "NOVORIZON_LOCALIZATION_LUBAN"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.novorizon.data",
+      "expression": "[0.1.0,)",
+      "define": "NOVORIZON_LOCALIZATION_LUBAN"
+    }
+  ]
+}

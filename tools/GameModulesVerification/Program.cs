@@ -579,6 +579,7 @@ internal static partial class Program
             NativeScenes.UnloadSceneAsync(scene);
             Equal(1, YooAssets.Package.Scenes[0].ReleaseCount);
         });
+        PoolDiagnosticScenarios();
         InteractionScenarios();
         TimerDriverScenarios();
         Console.WriteLine($"PASS {passed} service regression scenarios (actual Luban CLI/runtime; Unity/Input System/YooAsset API models; not native Unity).");

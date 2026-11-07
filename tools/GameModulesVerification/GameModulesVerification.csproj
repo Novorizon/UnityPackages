@@ -17,5 +17,6 @@
     <Compile Include="ResourcePackageScenarios.cs" />
     <Compile Include="InteractionScenarios.cs" />
     <Compile Include="TimerDriverScenarios.cs" />
+    <Compile Include="PoolDiagnosticScenarios.cs" />
   </ItemGroup>
 </Project>
