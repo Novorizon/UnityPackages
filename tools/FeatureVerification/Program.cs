@@ -170,6 +170,19 @@ internal static class Program
                 Equal(0, ProbeService.InstanceCalls);
                 Equal("No read-only singleton accessor", PackageDiagnostics.Read(typeof(NoAccessor), true, "Count").Single().value);
             });
+            Check("direct disposal clears only its own unified singleton instance", () =>
+            {
+                var first = LocalizationManager.Instance;
+                first.Initialize(Catalog(new[] { new[] { "key", "你好", "Hello" } }), "en");
+                first.Dispose();
+                Equal(false, LocalizationManager.IsCreated);
+                var next = LocalizationManager.Instance;
+                Equal(false, ReferenceEquals(first, next));
+                first.Dispose();
+                Equal(true, ReferenceEquals(next, LocalizationManager.Instance));
+                LocalizationManager.Release();
+                Equal(false, LocalizationManager.IsCreated);
+            });
             Console.WriteLine("PASS " + passed + " localization/Luban/diagnostic scenarios; engine APIs and rendering are verified separately.");
         }
         finally
