@@ -209,8 +209,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "f634b33e98b5eaf3ccf1171ddac53bf777c5b3ecc35b255358fe67642f13b2c3",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "e32fb87c03217ce122d477aea0bad7096ae40fa012303affeae54af646903c0a",
+      "reason": "Separate filesystem initialization from exact content preparation, share uncancellable native initialization, and preserve generation-safe cancellation, shutdown and reset behavior."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "3eeae0ffcfd806659999d0dd5e44903f05c902a96fbbb02a0fc4289c99d9cc32",
@@ -281,8 +281,8 @@
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
-      "sha256": "e220b87ea8d8adbff8488fe8e26c63d1d07e63dc70c4f38c1fc3ad124af31435",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "60fec1c77adacacdb24bcba0929cd6562057fc9e8a19830d297783e4ca03429a",
+      "reason": "Separate explicit configuration initialization from update execution while keeping InitializeAsync compatibility, verified release pairing and startup ownership."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
       "sha256": "7956b6cf08b2075ab8ca01ef6cea55da6ea57effe15ab0c1b706419eed30f5dc",

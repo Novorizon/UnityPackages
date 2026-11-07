@@ -25,6 +25,7 @@ internal static partial class Program
     private static Pump context;
     private static void Main()
     {
+        ResourcePackageScenarios();
         Run("pinned resource versions skip latest lookup and complete downloads before readiness", () =>
         {
             var resources = ResourceManager.Instance;

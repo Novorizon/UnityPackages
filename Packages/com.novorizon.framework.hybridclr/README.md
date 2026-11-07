@@ -6,7 +6,7 @@
 
 完整工程使用 [GameStarter](https://github.com/Novorizon/GameStarter)。独立项目安装 framework.all 或同一发行标签的 Framework、本包及官方依赖。HybridCLR 原生安装器需要使用方工程中的可写 Embedded 包，由安装流程处理。
 
-运行时由自己的 GameEntry 显式调用：
+运行时由自己的 GameEntry 先等待资源文件系统初始化成功，再配置热更管理器：
 
 ```csharp
 var settings = new UpdateSettings
@@ -14,14 +14,21 @@ var settings = new UpdateSettings
     entryAssembly = "Game.HotUpdate",
     entryType = "Game.HotUpdate.HotGame"
 };
-await HotUpdateManager.Instance.InitializeAsync(settings, cancellationToken);
+var updates = HotUpdateManager.Instance;
+updates.Initialize(settings, startupContext, cancellationToken);
+// 配置成功后，由 GameHotUpdate 等项目模块显式执行更新。
+await updates.StartAsync();
 ```
 
-HotGame 是公开、无参构造的普通 C# 类，实现 IGameModule。HotUpdateManager 创建它并调用 InitializeAsync；启动完成时由入口调用 host.ReportReady。共享启动参数可通过 InitializeAsync(settings, startupContext, token) 传入，在热更侧读取 IGameContextHost.StartupContext。
+`Initialize(settings, startupContext, token)` 只校验并保存配置和启动上下文，不检查发行、不下载、不加载 DLL，也不创建 HotGame。`StartAsync()` 才执行这些步骤，重复调用共用同一任务；未初始化就调用会明确报错。已有 `InitializeAsync(settings, startupContext, token)` 仍兼容，作为配置初始化与实际更新的便捷组合。
+
+使用 YooAsset 时，可先调用 `ResourceManager.InitializePackageAsync(parameters, token)`，它只准备资源文件系统。清单版本与资源下载应在发行选定后由 `prepareContentAsync` 处理，不能把第一次资源初始化当作资源内容已经就绪。
+
+HotGame 是公开、无参构造的普通 C# 类，实现 IGameModule。热更流程创建它并调用 InitializeAsync；启动完成时由入口调用 host.ReportReady。共享启动参数在热更侧通过 IGameContextHost.StartupContext 读取。
 
 游戏逻辑和生成表放在 settings.hotUpdateRoot 下的 asmdef 中；AOT 程序集不能反向引用这些热更程序集。Editor 使用已编译的程序集，Player 使用验证后的 DLL；loadFromCompiledAssemblies 支持编译源入口。没有启动 JSON、场景引导组件或 RuntimeInitialize 自动创建的热更 GameObject。
 
-重复初始化共用任务。退出使用 HotUpdateManager.Release；普通服务的初始化和退出由 HotGame 组织，管理器内部处理自己的重复释放。可选 IGameApplicationEvents 接收宿主转发的暂停/焦点通知。
+重复配置同一个对象和上下文是幂等的，不能在本次运行中替换配置；重复开始更新共用任务。退出使用 HotUpdateManager.Release；普通服务的初始化和退出由 HotGame 组织，管理器内部处理自己的重复释放。可选 IGameApplicationEvents 接收宿主转发的暂停/焦点通知。
 
 ## 资源配对
 

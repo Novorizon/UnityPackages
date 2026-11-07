@@ -12,6 +12,8 @@ namespace Game.Framework.HotUpdate
     {
         private CancellationTokenSource lifetime;
         private Task startupTask;
+        private UpdateSettings settings;
+        private object startupContext;
         private IGameModule hotGame;
         private bool hotGameStopped;
         private bool ready;
@@ -24,13 +26,70 @@ namespace Game.Framework.HotUpdate
         public bool IsReady { get; private set; }
         public bool Failed { get; private set; }
 
-        /// <summary>此服务需要异步加载，调用方应等待 InitializeAsync 完成。</summary>
+        /// <summary>初始化时显式传入配置；实际更新由 StartAsync 执行。</summary>
         public override void Initialize()
         {
-            throw new InvalidOperationException("Use and await InitializeAsync to initialize HotUpdateManager.");
+            throw new InvalidOperationException("Pass UpdateSettings to Initialize, then await StartAsync.");
         }
 
-        /// <summary>由 GameEntry 显式调用；加载程序集后进入 HotGame.InitializeAsync，不自动创建 GameObject。</summary>
+        public static string GetPlatformId() => UpdateCoordinator.PlatformId();
+
+        /// <summary>只保存配置和本次启动上下文，不检查更新、不下载或加载代码。</summary>
+        public void Initialize(UpdateSettings settings, object startupContext = null, CancellationToken token = default)
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(HotUpdateManager));
+            }
+
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
+            if (this.settings != null)
+            {
+                if (!ReferenceEquals(this.settings, settings) || !ReferenceEquals(this.startupContext, startupContext))
+                {
+                    throw new InvalidOperationException("HotUpdateManager is already initialized with another configuration.");
+                }
+
+                return;
+            }
+
+            settings.Validate();
+            token.ThrowIfCancellationRequested();
+            this.settings = settings;
+            this.startupContext = startupContext;
+            lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
+            Status = "Initialized";
+        }
+
+        /// <summary>显式执行更新、代码加载和 HotGame 启动；重复调用返回同一任务。</summary>
+        public Task StartAsync()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(nameof(HotUpdateManager));
+            }
+
+            if (settings == null)
+            {
+                throw new InvalidOperationException("Initialize HotUpdateManager before starting updates.");
+            }
+
+            if (startupTask != null)
+            {
+                return startupTask;
+            }
+
+            lifetime.Token.ThrowIfCancellationRequested();
+            Status = "Starting";
+            startupTask = RunAsync(settings, startupContext, lifetime);
+            return startupTask;
+        }
+
+        /// <summary>兼容入口：依次执行配置初始化与实际更新。</summary>
         public Task InitializeAsync(UpdateSettings settings = null, CancellationToken token = default)
         {
             return InitializeAsync(settings, null, token);
@@ -49,16 +108,23 @@ namespace Game.Framework.HotUpdate
                 return startupTask;
             }
 
-            settings = settings ?? new UpdateSettings();
-            settings.Validate();
-            token.ThrowIfCancellationRequested();
-            lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
-            Status = "Starting";
-            startupTask = StartAsync(settings, startupContext, lifetime);
-            return startupTask;
+            if (this.settings == null)
+            {
+                Initialize(settings ?? new UpdateSettings(), startupContext, token);
+            }
+            else if (settings != null)
+            {
+                Initialize(settings, startupContext, token);
+            }
+            else if (startupContext != null && !ReferenceEquals(this.startupContext, startupContext))
+            {
+                throw new InvalidOperationException("HotUpdateManager is already initialized with another startup context.");
+            }
+
+            return StartAsync();
         }
 
-        private async Task StartAsync(UpdateSettings settings, object startupContext, CancellationTokenSource session)
+        private async Task RunAsync(UpdateSettings settings, object startupContext, CancellationTokenSource session)
         {
             CancellationToken stopToken = session.Token;
             PreparedRelease release = null;
@@ -321,6 +387,8 @@ namespace Game.Framework.HotUpdate
             {
                 lifetime?.Dispose();
                 lifetime = null;
+                settings = null;
+                startupContext = null;
                 ReleaseInstance(this);
             }
         }

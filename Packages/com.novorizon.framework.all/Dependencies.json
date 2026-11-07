@@ -70,7 +70,7 @@
     },
     {
       "name": "com.novorizon.framework.yooasset",
-      "version": "0.16.0-preview.5",
+      "version": "0.16.0-preview.6",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.yooasset#v0.1.0-preview.28",
       "external": false,
       "embed": false,

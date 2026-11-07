@@ -31,7 +31,9 @@ async System.Threading.Tasks.Task ReadTextAsync(string location)
 {
     var resources = ResourceManager.Instance;
     if (!await resources.InitializeAsync())
+    {
         throw new InvalidOperationException("DefaultPackage initialization failed.");
+    }
 
     TextAsset text = await resources.LoadTextAssetAsync(location);
     Debug.Log(text.text);
@@ -68,3 +70,30 @@ CreateScope 管理一组租约；UIView 中可 Track 此作用域到本次打开
 InitializeAsync(ResourceInitializationOptions, token) 支持 Parameters、PackageVersion、DownloadAll、下载并发、重试及 IProgress<ResourceDownloadProgress>。指定 PackageVersion 时直接切换该清单，不查询远端 latest/version 文件；全部下载成功后才进入 Initialized。取消会取消下载器，失败不会发布就绪状态。
 
 已有资源版本需要切换时先 ShutdownAsync；项目应在加载游戏代码及资源消费者之前选定版本。CreateHostPlayModeParameters(mainUrl, fallbackUrl) 可显式提供服务器，不必修改全局默认地址。
+
+## 先初始化文件系统，再准备发行资源
+
+需要由 GameEntry 明确控制初始化顺序时，先等待 `InitializePackageAsync(parameters, token)`。此阶段只初始化 DefaultPackage 的文件系统，不请求版本、不读取资源清单、不下载资源。成功后 `PackageInitialized` 为 true，`Initialized` 仍为 false，资源加载和场景加载接口尚不可使用。
+
+资源系统初始化成功后，GameEntry 可以配置 HotUpdateManager；再由项目热更模块选择发行，调用原来的精确版本接口准备内容：
+
+```csharp
+var resources = ResourceManager.Instance;
+if (!await resources.InitializePackageAsync(parameters, cancellationToken))
+{
+    throw new InvalidOperationException("Resource filesystem initialization failed.");
+}
+
+// 选定配套发行后，在热更模块中准备它的精确资源版本。
+var options = new ResourceInitializationOptions
+{
+    Parameters = parameters,
+    PackageVersion = selectedVersion,
+    DownloadAll = true
+};
+bool contentReady = await resources.PrepareContentAsync(options, cancellationToken);
+```
+
+第二阶段复用已初始化的文件系统；清单和下载成功后才发布 `Initialized`。原来的 `InitializeAsync()` 与 `InitializeAsync(options, token)` 仍保留完整初始化流程，不要求所有使用者改成两阶段。取消文件系统初始化只取消当前调用者的等待，共享的原生初始化仍受管理；ShutdownAsync 等它结束后再清理，避免并发销毁。
+
+`PrepareContentAsync(options, token)` 明确表示精确版本的清单准备和缺失资源下载；旧 `InitializeAsync(options, token)` 作为兼容入口转发到同一流程。

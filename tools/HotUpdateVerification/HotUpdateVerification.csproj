@@ -13,5 +13,6 @@
     <ProjectReference Include="HybridRuntime/HybridRuntime.csproj" />
     <Compile Include="Program.cs" />
     <Compile Include="ReleasePairScenario.cs" />
+    <Compile Include="ManagerInitializationScenario.cs" />
   </ItemGroup>
 </Project>

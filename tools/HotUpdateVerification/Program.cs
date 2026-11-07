@@ -27,6 +27,10 @@ internal static partial class Program
         await Check("resource-code baseline refuses silent standalone-download fallback", () => RunReleasePair(ResourceCodeCase.MissingProvider));
         await Check("Runtime and Editor retain separate Unity assembly identities", AssemblyBoundaries);
         await Check("loading starts only after an explicit call", ExplicitStartup);
+        await Check("manager initialization only configures; explicit start runs once with the original context", ManagerInitializationOnlyConfigures);
+        await Check("manager start requires completed configuration", ManagerStartRequiresInitialization);
+        await Check("configured manager can stop without starting or preparing content", ManagerCanStopBeforeStarting);
+        await Check("cancellation between configuration and start prevents content preparation", ManagerCancellationBeforeStart);
         await Check("repeated initialization shares one task and one hot entry", InitializeOnce);
         await Check("startup context reaches the optional host without serialization", StartupContext);
         await Check("missing startup acknowledgement fails and closes the entry", MissingAcknowledgement);
