@@ -31,6 +31,10 @@ ReleaseManifest.content 保存资源包名和精确版本，与 DLL 哈希、基
 
 remoteBaseUrl 为清单根，remoteFilesBaseUrl 可单独指定 DLL 根；scopeRemoteByBaseline 按平台/渠道/基线划分路径。启用远程更新需要可信公钥和 HTTPS。
 
+`enableRemote = false` 只关闭远端检查，仍可选用以前下载并验证的发行。只允许内置内容的离线模式应另设 `usePackagedReleaseOnly = true`：先验证主包清单及应用、渠道、平台，再直接准备内置代码与资源，不打开、清理或修改 HybridCLR 发行缓存、接纳记录和启动健康记录。恢复在线后仍能使用原来的健康更新。
+
+`usePackagedReleaseOnly` 优先于 `enableRemote`，忽略远端 URL 和公钥配置；本地身份、入口、路径及通用执行限制仍需有效。`prepareContentAsync` 和 `loadCodeAsync` 仍会执行，项目必须让内置发行使用离线资源提供方；本开关不控制外部资源提供方自己的缓存。Editor 或 `loadFromCompiledAssemblies` 模式沿用编译程序集入口，不执行 Player 的发行选择。
+
 ### 由 YooAsset 等资源系统提供代码
 
 GameStarter 默认将 DLL 与 AOT 补充元数据打进同一个 YooAsset 资源版本：prepareContentAsync 先完成该版本全部缺失资源的下载，loadCodeAsync 再按 ReleaseContentContext.CodeLocation(file) 读取字节。封装会继续校验签名清单中的大小和 SHA256，验证全部代码后才加载元数据和程序集。资源下载、缓存与租约仍由 ResourceManager 负责；HotUpdateManager 负责发行和代码加载，不接管日常资源管理。

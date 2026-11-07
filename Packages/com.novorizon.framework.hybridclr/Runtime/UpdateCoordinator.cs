@@ -147,6 +147,12 @@ namespace Game.Framework.HotUpdate
                 "This player requires a resource code provider; standalone DLL downloads are disabled.");
             ReleasePolicy.Require(baseline.appId == settings.appId && baseline.channel == settings.channel
                 && baseline.platform == PlatformId(), "Packaged baseline does not match application configuration.");
+            if (settings.usePackagedReleaseOnly)
+            {
+                log("Selected packaged release without reading the update cache.");
+                return await PreparePackaged(token);
+            }
+
             try
             {
                 cache = new ReleaseCache(Path.Combine(Application.persistentDataPath, "HotUpdate", baseline.platform,

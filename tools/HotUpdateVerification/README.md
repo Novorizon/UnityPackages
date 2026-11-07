@@ -9,6 +9,12 @@ code-based build configuration. `PlayerCompile.csproj` compiles the non-Editor l
 it does not execute a native HybridCLR player. Official sources are fetched into a temporary
 verification cache, outside the repository and exported packages.
 
+`ReleasePairScenario.cs` also exercises the maintained release selector with signed manifests:
+after accepting an online release, packaged-only startup must use builtin code/resources without
+remote requests or any cache/receipt/health changes, even while the cache lease is occupied.
+Switching online again with the manifest server unavailable must retain the accepted release.
+These tests use an explicit transport boundary and do not claim a real HTTP or native Player run.
+
 Run the repository's `python3 tools/workspace.py verify --dotnet /path/to/dotnet`.
 
 The Editor package must reference Game.Framework.Core directly when accessing the inherited ConfigurableSingleton API. A Runtime reference alone is insufficient in Unity. Unity engine/editor APIs remain explicit headless models; this does not claim native Unity compilation.

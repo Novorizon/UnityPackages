@@ -13,6 +13,8 @@ namespace Game.Framework.HotUpdate
         public string entryAssembly = "Game.HotUpdate";
         public string entryType = "Game.HotUpdate.HotGame";
         public bool enableRemote;
+        /// <summary>仅使用内置发行；忽略远端配置，不读取或修改已下载发行与健康记录。</summary>
+        public bool usePackagedReleaseOnly;
         public string appId = Application.identifier;
         public string channel = "development";
         public string remoteBaseUrl = "";
@@ -37,7 +39,7 @@ namespace Game.Framework.HotUpdate
             ReleasePolicy.Require(System.Text.RegularExpressions.Regex.IsMatch(entryAssembly ?? "", @"\A[A-Za-z0-9][A-Za-z0-9_.-]{0,100}\z") && !entryAssembly.Contains("..") && System.Text.RegularExpressions.Regex.IsMatch(entryType ?? "", @"\A[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+\z"), "Invalid hot update entry.");
             ReleasePolicy.Require(hotUpdateRoot != null && hotUpdateRoot.StartsWith("Assets/", StringComparison.Ordinal) && !hotUpdateRoot.Contains("\\") && !hotUpdateRoot.Split('/').Any(p => p == ".." || p == "." || p == ""), "Hot update root must be a folder beneath Assets.");
             ReleasePolicy.Require(requestTimeoutSeconds >= 5 && requestTimeoutSeconds <= 120 && requestAttempts >= 1 && requestAttempts <= 3 && maxCachedReleases >= 3 && maxCachedReleases <= 16 && prepareTimeoutSeconds >= 10 && prepareTimeoutSeconds <= 600 && startupTimeoutSeconds >= 5 && startupTimeoutSeconds <= 300, "Invalid update limits.");
-            if (!enableRemote)
+            if (usePackagedReleaseOnly || !enableRemote)
             {
                 return;
             }
