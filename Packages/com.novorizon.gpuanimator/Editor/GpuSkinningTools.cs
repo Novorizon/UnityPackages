@@ -172,7 +172,7 @@ public sealed class GpuSkinningTools : EditorWindow
                 : shaderMode == ShaderMode.PBR ? DEFAULT_PBR_SHADER_NAME : DEFAULT_SHADER_NAME;
             if ((shaderMode == ShaderMode.URPUnlit || shaderMode == ShaderMode.URPLit) && Shader.Find(shaderName) == null)
             {
-                throw new InvalidOperationException("Install com.novorizon.gpuanimator.urp (URP 14) before baking with a URP shader.");
+                throw new InvalidOperationException("The GPU Animator URP shader was not imported. Check the URP 14 dependency and shader import errors.");
             }
             candidates = GpuAnimationBakeDiscovery.Discover(sourceDirectory, outputDirectory, shaderName, maximumTextureSize);
             if (candidates.Count == 0)

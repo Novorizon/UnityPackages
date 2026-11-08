@@ -8,7 +8,7 @@
 https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.35
 ```
 
-完整安装默认使用 URP 14，并安装 `com.novorizon.gpuanimator.urp` 适配包；Built-in 工程可显式选择基础包中的 Unlit/PBR。包内 Shader 使用 `#pragma target 3.5`，目标图形 API 和 GPU 需支持相应的整数运算和实例化能力。包内运行时和 Editor 代码已有独立程序集；`main` 不需要 PureMVCFramework。若调用代码自身使用 asmdef，请为它添加对 `GpuAnimator` 程序集的引用。
+GPU 动画包包含 URP 14 和 Built-in Shader；Built-in 工程可显式选择 Unlit/PBR。包内 Shader 使用 `#pragma target 3.5`，目标图形 API 和 GPU 需支持相应的整数运算和实例化能力。包内运行时和 Editor 代码已有独立程序集；`main` 不需要 PureMVCFramework。若调用代码自身使用 asmdef，请为它添加对 `GpuAnimator` 程序集的引用。
 
 ECS 项目也可复用此播放组件，由业务适配实体与 GameObject 的关系；不需要切换到另一条源码分支。
 
@@ -35,7 +35,7 @@ Assets/Artworks/GpuRole/
 
 建议通过 **GpuSkinning > Baker** 执行：
 
-1. 设置位于本项目 `Assets/` 内的源目录和输出目录，二者不能相同或互相包含；源目录需存在，输出目录可以尚未创建。默认选择 URPUnlit；需要光照和实时阴影时选择 URPLit（需 URP 适配包），Built-in 工程显式选择 Unlit/PBR。最大动画纹理尺寸默认 `2048`，可选 `256` 到 `16384` 的二次幂；需结合目标平台能力设置。
+1. 设置位于本项目 `Assets/` 内的源目录和输出目录，二者不能相同或互相包含；源目录需存在，输出目录可以尚未创建。默认选择 URPUnlit；需要光照和实时阴影时选择 URPLit，Built-in 工程显式选择 Unlit/PBR。最大动画纹理尺寸默认 `2048`，可选 `256` 到 `16384` 的二次幂；需结合目标平台能力设置。
 2. 退出 Play 模式，等待资源导入和脚本编译结束，再执行 **Validate all roles**。工具会扫描全部角色、完整采样并预检输出文件、PNG、Shader 和材质属性，但不保存烘焙输出；逐角色查看结果，修正输入错误。
 3. 执行 **Bake all roles**。角色失败时报告原因并继续其他角色；取消批处理会保留已成功保存的角色。窗口显示逐角色结果与汇总，并同步输出到 Console；不会另外生成报告文件。
 

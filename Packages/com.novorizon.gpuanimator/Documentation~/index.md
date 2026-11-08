@@ -1,6 +1,6 @@
 # GpuAnimator 使用说明
 
-面向 Unity 2022.3，依赖 Framework。基础包提供 Built-in Shader；聚合安装默认包含 [URP 14 适配](../../com.novorizon.gpuanimator.urp/README.md)，支持 Unlit 与 Lit/实时阴影。HDRP 尚未适配，目标设备仍需支持 Shader Model 3.5 对应能力。
+面向 Unity 2022.3，依赖 Framework。同一包提供 Built-in Shader 和 [URP 14 支持](urp.md)，支持 Unlit 与 Lit/实时阴影。HDRP 尚未适配，目标设备仍需支持 Shader Model 3.5 对应能力。
 
 | 文档 | 内容 |
 | --- | --- |

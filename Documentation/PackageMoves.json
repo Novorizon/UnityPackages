@@ -146,7 +146,8 @@
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
-    "Packages/com.novorizon.gpuanimator/Tools~/package.py"
+    "Packages/com.novorizon.gpuanimator/Tools~/package.py",
+    "Packages/com.novorizon.gpuanimator/Tools~/run-unity-tests.py"
   ],
   "externalizedPackages": [
     "com.code-philosophy.hybridclr",
@@ -473,8 +474,8 @@
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
     },
     "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs": {
-      "sha256": "0c555ee6a864fca89b54babe2e0e42afde09ee302717315c98ea2b88926dc4b1",
-      "reason": "Add an explicit URP Lit bake option while keeping the existing default URP Unlit mode."
+      "sha256": "feedeb8532c71a5dc6558444073a30d65594c7ecda06e60082d1acfc7ad715ac",
+      "reason": "Add an explicit URP Lit bake option while keeping the existing default URP Unlit mode. Report URP shader import failures from the merged package."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs": {
       "sha256": "2fc9f8c0e7e8b3ea132e3398c2e2b2ec463709d13d3c91d821af0cf019de930d",
@@ -556,11 +557,11 @@
       "sha256": "d20cfc432f8c5c87bd08dc1a1e45f13529d365b614dccd43189ceda54b8921f4",
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
-    "Packages/com.novorizon.gpuanimator.urp/Shaders/GpuSkinningAnimationURP.shader": {
+    "Packages/com.novorizon.gpuanimator/Shaders/URP/GpuSkinningAnimationURP.shader": {
       "sha256": "e5fda2d94f02080133038964eee9e7e46678d9ee6be0240019374bcb51b5551c",
       "reason": "Declare every per-instance frame property written by the GPU player."
     },
-    "Packages/com.novorizon.gpuanimator.urp/Shaders/GpuSkinningAnimationURPLit.shader": {
+    "Packages/com.novorizon.gpuanimator/Shaders/URP/GpuSkinningAnimationURPLit.shader": {
       "sha256": "e4797678c4504a8a1d503a10ad6f616b17d9f5fa55261e785e286eb6da265a1c",
       "reason": "Declare every per-instance frame property written by the GPU player."
     },

@@ -1,6 +1,6 @@
 # UnityPackages
 
-Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.37`。
+Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** 名称，各功能独立为 UPM package，共用代码仓库和发行标签。当前发行：`v0.1.0-preview.37`。主线准备 `v0.1.0-preview.38`，合并了 GPU 动画包。
 
 ## 包与职责
 
@@ -13,8 +13,7 @@ Novorizon 的 Unity 2022.3 多包仓库。基础组件库保留 **Framework** �
 | com.novorizon.ability | 技能运行时与 Odin 编辑器，同一个包 |
 | com.novorizon.ecs | 实体、组件、系统、ECS 专用池与生命周期 |
 | com.novorizon.rtree | 六种空间树，各自一个 Runtime 目录 |
-| com.novorizon.gpuanimator | GPU 动画烘焙、注入、统一调度与回收 |
-| com.novorizon.gpuanimator.urp | 默认 URP 14 Unlit/Lit、阴影/深度/法线 Pass 与工程配置 |
+| com.novorizon.gpuanimator | GPU 动画烘焙、播放与统一调度，包含 Built-in 和 URP 14 Unlit/Lit Shader、阴影/深度/法线 Pass 与 URP 工程配置 |
 | com.novorizon.localization | 本地语言表、CSV/TSV 导入、Inspector Key、TMP 字体与语言切换 |
 | com.novorizon.story | 独立剧情会话、TMP 对话/选项/立绘、可选视频与业务命令 |
 | com.novorizon.diagnostics | 只读计数、资源租约归属、快照对比与导出 |
@@ -70,6 +69,10 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 [ORIGINS.json](ORIGINS.json) 和导入基线记录来源；各包保留原许可证，RTree 使用 LGPL-2.1-or-later。
 
 
+## v0.1.0-preview.38（准备中）
+
+- 将 `com.novorizon.gpuanimator.urp` 并入 `com.novorizon.gpuanimator`，保留原 Shader 名称、GUID 和程序集。旧项目可按 [迁移步骤](Packages/com.novorizon.gpuanimator/Documentation~/urp.md#从独立-urp-包迁移) 更新。
+
 ## v0.1.0-preview.37
 
 - 对业务统一使用 IapManager / AdManager / AuthManager / AnalyticsManager / AttributionManager / FirebaseManager，旧 Client API 保持兼容。
@@ -119,4 +122,4 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 - 新增 [Localization](Packages/com.novorizon.localization/README.md)：Luban Excel 模板、语言回退、占位符校验、可取消切换和可选 uGUI 绑定。
 - 新增 [Diagnostics](Packages/com.novorizon.diagnostics/README.md)：只读 Editor 计数、过滤和快照导出，不创建单例。
 - UI 增加固定列虚拟网格；动态图文列表和更详细的诊断归属在后续阶段实现。
-- [URP 适配](Packages/com.novorizon.gpuanimator.urp/README.md)首版为 Unlit + DepthOnly；Lit 与阴影不在本版。原生 Shader/渲染验收尚受当前 Editor 许可证缺失阻塞。
+- 当时独立发行的 URP 适配包首版为 Unlit + DepthOnly；Lit 与阴影不在本版。原生 Shader/渲染验收尚受当前 Editor 许可证缺失阻塞。

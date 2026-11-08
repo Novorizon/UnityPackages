@@ -4,13 +4,13 @@ Unity 2022.3 的 GPU 骨骼动画包。烘焙器将动画写入纹理；每个 G
 
 ## 安装与首次播放
 
-先安装同一发行标签的 Framework，或直接使用 framework.all。独立包地址：
+先安装同一发行标签的 Framework，或直接使用 framework.all。合并后的独立包地址（preview.38 发布后可用）：
 
 ```text
-https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.35
+https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.38
 ```
 
-聚合安装默认包含 [URP 适配](../com.novorizon.gpuanimator.urp/README.md)，目标 Unity 2022.3.62f1 / URP 14.0.12，Baker 默认 URPUnlit；URPLit 选项支持实时光照、法线贴图和投射/接收阴影。单独安装基础包并使用 Built-in 时，显式选择 Unlit/PBR。
+本包同时包含 Built-in Shader 和 [URP 14 支持](Documentation~/urp.md)。推荐 Unity 2022.3.62f1 / URP 14.0.12。Baker 默认 URPUnlit；URPLit 支持实时光照、法线贴图和投射/接收阴影。Built-in 工程显式选择 Unlit/PBR。
 
 在 GpuSkinning → Baker 执行 Validate 再 Bake。加载同一套 prefab、Mesh、材质、动画纹理和 bytes，解析数据后注入：
 
@@ -51,4 +51,4 @@ Manager 和播放器提供 Started、Changed、Completed、Stopped 通知；播�
 - [Manual Crowd](Samples~/ManualCrowd/README.md)：共享资源与手动推进。
 - [Framework Pool](Samples~/FrameworkPool/README.md)：池化与回收。
 
-示例需项目提供匹配的烘焙资源。基础 Shader 使用 Built-in、Shader Model 3.5；URP 由独立适配包提供，HDRP 未适配。真实烘焙、渲染和设备结果以 Unity 验收为准。
+示例需项目提供匹配的烘焙资源。Built-in Shader 使用 Shader Model 3.5；HDRP 工程需要项目提供兼容 Shader。真实烘焙、渲染和设备结果以 Unity 验收为准。

@@ -57,7 +57,7 @@ def main():
         ('Game.Framework.Diagnostics.Editor', 'com.novorizon.diagnostics/Editor', []),
         ('GpuAnimator', 'com.novorizon.gpuanimator/Runtime', ['Game.Framework.Unity', 'Game.Framework.Core']),
         ('GpuAnimator.Editor', 'com.novorizon.gpuanimator/Editor', ['GpuAnimator', 'Game.Framework.Unity', 'Game.Framework.Core']),
-        ('Game.Framework.GpuAnimation.URP.Editor', 'com.novorizon.gpuanimator.urp/Editor', []),
+        ('Game.Framework.GpuAnimation.URP.Editor', 'com.novorizon.gpuanimator/Editor/URP', []),
         ('Game.Framework.All.Editor', 'com.novorizon.framework.all/Editor', []),
     ]
     if args.project:
@@ -65,7 +65,7 @@ def main():
     if args.include_tests:
         modules += [
             ('GpuAnimator.Editor.Tests', 'com.novorizon.gpuanimator/Tests/Editor', ['GpuAnimator', 'GpuAnimator.Editor']),
-            ('Game.Framework.GpuAnimation.URP.Tests', 'com.novorizon.gpuanimator.urp/Tests/Editor', ['Game.Framework.GpuAnimation.URP.Editor']),
+            ('Game.Framework.GpuAnimation.URP.Tests', 'com.novorizon.gpuanimator/Tests/Editor/URP', ['Game.Framework.GpuAnimation.URP.Editor']),
         ]
     env = os.environ.copy()
     env.setdefault('DOTNET_CLI_HOME', '/tmp/novorizon-native-dotnet-home')

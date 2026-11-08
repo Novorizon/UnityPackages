@@ -6,7 +6,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--unity',required
 if not a.unity.is_file():p.error('Unity Editor executable was not found')
 if a.output.exists():p.error('Output must be a new directory')
 a.output.mkdir(parents=True);xml=a.output.resolve()/'results.xml';log=a.output.resolve()/'editor.log'
-command=[str(a.unity.resolve()),'-batchmode','-nographics','-projectPath',str(a.project.resolve()),'-runTests','-testPlatform','editmode','-testFilter','GpuAnimatorTests','-testResults',str(xml),'-logFile',str(log)]
+command=[str(a.unity.resolve()),'-batchmode','-projectPath',str(a.project.resolve()),'-runTests','-testPlatform','editmode','-assemblyNames','GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests','-testResults',str(xml),'-logFile',str(log)]
 result=subprocess.run(command,timeout=a.timeout,check=False)
 if result.returncode!=0 or not xml.is_file():raise SystemExit('Native Unity test run failed; inspect '+str(log))
 root=ET.parse(xml).getroot();total=int(root.get('total','0'));passed=int(root.get('passed','0'));failed=int(root.get('failed','0'))

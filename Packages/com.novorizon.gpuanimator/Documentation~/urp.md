@@ -1,6 +1,12 @@
-# Novorizon GPU Animator URP
+# GPU Animator 的 URP 14 支持
 
-默认面向 Unity 2022.3.62f1 / URP 14.0.12，随 framework.all 安装。提供 URP Unlit、Lit 和相同骨骼变形的阴影、深度与法线 Pass，复用 GpuAnimator 现有 Mesh、RGBA32 动画纹理、bytes 和播放器。
+URP 支持随 `com.novorizon.gpuanimator` 安装，推荐 Unity 2022.3.62f1 / URP 14.0.12。提供 URP Unlit、Lit 和相同骨骼变形的阴影、深度与法线 Pass，复用 GpuAnimator 现有 Mesh、RGBA32 动画纹理、bytes 和播放器。
+
+## 从独立 URP 包迁移
+
+使用 `framework.all` 的项目可通过新发行的聚合安装器在同一次 UPM 操作中升级 GPU 动画包并移除旧包。手动安装的项目应在同一次 manifest 修改中升级 `com.novorizon.gpuanimator`、移除 `com.novorizon.gpuanimator.urp`，并从 `testables` 移除旧包名（如果存在）。如果旧包以 Embedded 方式安装，先将它移出项目，再运行聚合安装。
+
+URP Shader 的名称和 GUID 保持一致，已有材质和 Prefab 可继续通过 GUID 引用。若自定义 Shader 或工具硬编码旧包路径，将 `Packages/com.novorizon.gpuanimator.urp/Shaders/` 替换为 `Packages/com.novorizon.gpuanimator/Shaders/URP/`。
 
 ## 工程和烘焙
 
@@ -21,20 +27,20 @@ Lit 烘焙输出开启 MeshRenderer 投射/接收阴影，缺少切线时重建�
 在独立 Unity 验收工程的 manifest 添加：
 
 ```json
-"testables": ["com.novorizon.gpuanimator", "com.novorizon.gpuanimator.urp"]
+"testables": ["com.novorizon.gpuanimator"]
 ```
 
 用 Unity Test Runner 的 EditMode 测试运行本包 Tests，检查 Shader 导入、动画属性、全部渲染 Pass、Lit 烘焙阴影策略和保留已有管线。再用 Basic Playback/Manual Crowd 验证首尾帧、多个实例独立播放、深度纹理与目标设备 Frame Debugger。Lit 场景添加地面、方向光和投射阴影的点光/聚光：检查动画首尾帧、不同实例帧索引、接收与投射阴影、级联边界、相机深度/法线纹理及 SSAO；同时检查法线贴图、镜像/缩放模型、Forward/Forward+ 与 Deferred 模式。
 
-独立 DXC 可对实际 HLSL 入口及代表性变体做语法编译，命令见 [验证工具](../../tools/FeatureVerification/README.md)。这不能代替 Unity Shader 导入、平台变体裁剪和画面验收。
+独立 DXC 可对实际 HLSL 入口及代表性变体做语法编译，命令见 [验证工具](../../../tools/FeatureVerification/README.md)。这不能代替 Unity Shader 导入、平台变体裁剪和画面验收。
 
-Linux Unity 2022.3.62f1 / URP 14.0.12 已通过原生 Shader 导入、烘焙和 Pass 检查，并用实际 GPU 像素回读验证切帧后的 Lit 位置/法线输出。图形设备为 Mesa llvmpipe OpenGL 4.5；这不代表 iOS Metal、目标设备批处理或完整光照/阴影画面已验收。结果与复现见 [原生验收](../../tools/NativeAcceptance/README.md)。
+合并前的 Linux Unity 2022.3.62f1 / URP 14.0.12 基线已通过原生 Shader 导入、烘焙和 Pass 检查，并用实际 GPU 像素回读验证切帧后的 Lit 位置/法线输出。图形设备为 Mesa llvmpipe OpenGL 4.5；这不代表 iOS Metal、目标设备批处理或完整光照/阴影画面已验收。结果与复现见 [原生验收](../../../tools/NativeAcceptance/README.md)。
 
 
 ## URP 版本解析
 
-适配包声明的 URP 依赖下限为 14.0.1，稳定的 14.x 通过版本预检；推荐/已核对 C# API 的版本为 Unity 2022.3.62f1 自带的 14.0.12。其他补丁版本的 Shader 与设备行为仍需工程验收，不把版本号预检当作渲染验证。
+GPU 动画包声明的 URP 依赖为 14.0.1，稳定的 14.x 通过版本预检；推荐/已核对 C# API 的版本为 Unity 2022.3.62f1 自带的 14.0.12。其他补丁版本的 Shader 与设备行为仍需工程验收，不把版本号预检当作渲染验证。
 
-项目 manifest 直接指定的 URP 版本优先于适配包的间接依赖。例如工程直接选择 14.0.5、GPU 包声明 14.0.1 时，UPM 保留工程选择，不并排安装两份 URP。只有缓存或旧 lock 记录时，仍按当前依赖图重新解析。all 为新工程推荐 14.0.12；已有工程如需固定其他 14.x，应在自己的 manifest 明确指定。
+项目 manifest 直接指定的 URP 版本优先于 GPU 动画包的间接依赖。例如工程直接选择 14.0.5、GPU 包声明 14.0.1 时，UPM 保留工程选择，不并排安装两份 URP。只有缓存或旧 lock 记录时，仍按当前依赖图重新解析。all 为新工程推荐 14.0.12；已有工程如需固定其他 14.x，应在自己的 manifest 明确指定。
 
-初始化入口只检查已解析的 URP，不写 manifest，不主动升级/降级包。低于 14.0.1、预发行版本或其他主版本会明确报错，保留项目的选择，由项目决定升级或使用匹配适配包。UPM 不支持在 package.json 里用 npm 的 ^14 或 >=14 等范围代替实际版本。
+初始化入口只检查已解析的 URP，不写 manifest，不主动升级/降级包。低于 14.0.1、预发行版本或其他主版本会明确报错，保留项目的选择，由项目决定升级或使用匹配的 GPU 动画包发行。UPM 不支持在 package.json 里用 npm 的 ^14 或 >=14 等范围代替实际版本。
