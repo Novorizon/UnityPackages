@@ -8,6 +8,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs" />
     <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticDifference.cs" />
-    <Compile Include="../../Packages/com.novorizon.gpuanimator.urp/Editor/UrpCompatibility.cs" />
+    <Compile Include="../../Packages/com.novorizon.gpuanimator/Editor/URP/UrpCompatibility.cs" />
   </ItemGroup>
 </Project>

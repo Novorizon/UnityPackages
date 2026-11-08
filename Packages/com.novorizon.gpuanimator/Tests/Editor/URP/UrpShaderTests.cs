@@ -14,6 +14,7 @@ namespace Game.Framework.GpuAnimation.URP.Tests
         {
             var shader = Shader.Find("Novorizon/GpuSkinning/URP Unlit");
             Assert.That(shader, Is.Not.Null);
+            Assert.That(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(shader)), Is.EqualTo("ed13610c79034b3ea6851d0b62028f89"));
             Assert.That(ShaderUtil.ShaderHasError(shader), Is.False);
             var material = new Material(shader);
             try
@@ -37,6 +38,7 @@ namespace Game.Framework.GpuAnimation.URP.Tests
         {
             var shader = Shader.Find("Novorizon/GpuSkinning/URP Lit");
             Assert.That(shader, Is.Not.Null);
+            Assert.That(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(shader)), Is.EqualTo("b7e92c006a1d4383adde59ab0d613c56"));
             Assert.That(ShaderUtil.ShaderHasError(shader), Is.False);
             var material = new Material(shader);
             try

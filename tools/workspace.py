@@ -78,7 +78,7 @@ def validate():
         'com.novorizon.framework.yooasset', 'com.novorizon.framework.hybridclr', ALL,
         'com.novorizon.ecs', 'com.novorizon.ability', 'com.novorizon.rtree',
         'com.novorizon.gpuanimator', 'com.novorizon.audio', 'com.novorizon.data', 'com.novorizon.input',
-        'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.gpuanimator.urp', 'com.novorizon.story',
+        'com.novorizon.localization', 'com.novorizon.diagnostics', 'com.novorizon.story',
         'com.novorizon.auth', 'com.novorizon.payments', 'com.novorizon.ads', 'com.novorizon.firebase',
         'com.novorizon.analytics', 'com.novorizon.attribution',
     }
@@ -326,7 +326,7 @@ def unity_project(output, include_acceptance_tests=False):
         deps[name] = metadata['git']
     (output / 'Assets').mkdir(parents=True, exist_ok=True)
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
-    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items())), testables=['com.novorizon.gpuanimator', 'com.novorizon.gpuanimator.urp']))
+    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items())), testables=['com.novorizon.gpuanimator']))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
     (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
     if include_acceptance_tests:

@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-SHADERS = ROOT / 'Packages/com.novorizon.gpuanimator.urp/Shaders'
+SHADERS = ROOT / 'Packages/com.novorizon.gpuanimator/Shaders/URP'
 
 
 def passes(source):

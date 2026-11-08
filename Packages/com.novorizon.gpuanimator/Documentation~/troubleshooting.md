@@ -4,7 +4,7 @@
 
 先确认所有自有包使用同一发行标签，且没有重复导入旧程序集。`main` 的运行时不引用 PureMVCFramework；若仍报相关类型缺失，检查项目内是否残留旧源码。使用 asmdef 的业务程序集需要引用 `GpuAnimator`，Editor 工具由独立的 `GpuAnimator.Editor` 程序集编译。
 
-包声明的最低 Unity 版本是 2022.3。附带 Shader 使用 Built-in Render Pipeline 和 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP 工程安装 com.novorizon.gpuanimator.urp 并选择匹配的 URPUnlit/URPLit 烘焙选项；HDRP 仍需自行适配 Shader。不能只更换播放脚本解决管线不匹配。
+包声明的最低 Unity 版本是 2022.3。Built-in Shader 使用 `#pragma target 3.5`；目标图形 API 与 GPU 需要相应的整数运算和实例化能力。URP 工程选择匹配的 URPUnlit/URPLit 烘焙选项；HDRP 仍需自行适配 Shader。不能只更换播放脚本解决管线不匹配。
 
 
 ## 烘焙数量为零或没有输出

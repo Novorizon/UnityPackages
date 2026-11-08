@@ -405,6 +405,7 @@ internal static class Program
     });
     private static void LegacyPackages() => InProject(c =>
     {
+        True(c.obsoletePackages.Contains("com.novorizon.gpuanimator.urp"));
         foreach (string name in c.obsoletePackages)
         {
             Client.Installed[name] = new PackageInfo
@@ -416,6 +417,7 @@ internal static class Program
 
         Drain();
         Equal("Complete", Phase());
+        True(Client.Installed.ContainsKey("com.novorizon.gpuanimator"));
         True(c.obsoletePackages.All(name => !Client.Installed.ContainsKey(name)));
         True(Client.Removes.Single().OrderBy(n => n).SequenceEqual(c.obsoletePackages.OrderBy(n => n)));
     });

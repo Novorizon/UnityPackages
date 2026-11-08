@@ -28,7 +28,7 @@ GameStarter 的 GameEntry 选择发行并准备资源，再调用 HotUpdateManag
 HybridCLR 官方原生安装器需要工程中的物理 Packages 路径，因此使用方通过 UPM Embed 后安装原生运行时。这个可写副本属于使用方工程，不属于 UnityPackages 的发布内容。
 
 
-Localization 只依赖 Framework；生成的 Luban 表由项目适配，uGUI 和 Luban Editor 桥接按已安装包启用。Diagnostics 仅在 Editor 读取公开状态，不被运行时包反向引用。GpuAnimator.URP 是独立的 URP 14 适配包，聚合安装默认包含它；只安装基础 GPU 包时仍可显式使用 Built-in Shader。
+Localization 只依赖 Framework；生成的 Luban 表由项目适配，uGUI 和 Luban Editor 桥接按已安装包启用。Diagnostics 仅在 Editor 读取公开状态，不被运行时包反向引用。GpuAnimator 包含 Built-in Shader 和 URP 14 适配。URP 依赖由 UPM 解析，Built-in 工程可继续选择 Built-in Shader。
 
 Story 是独立可选模块：核心只处理不可变序列和会话；Unity authoring、TMP 舞台及 VideoPlayer 分程序集。业务触发、任务奖励与存档迁移属于 GameStarter/游戏。all 的依赖目录包含该包；只装核心包不要求 UI/TMP/Video。
 

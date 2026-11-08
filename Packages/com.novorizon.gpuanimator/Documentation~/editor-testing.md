@@ -9,12 +9,11 @@
 
 ```json
 "testables": [
-  "com.novorizon.gpuanimator",
-  "com.novorizon.gpuanimator.urp"
+  "com.novorizon.gpuanimator"
 ]
 ```
 
-3. 打开 **Window > General > Test Runner**，选择 **EditMode**，运行 `GpuAnimator.Editor.Tests` 下的测试。
+3. 打开 **Window > General > Test Runner**，选择 **EditMode**，运行 `GpuAnimator.Editor.Tests` 和 `Game.Framework.GpuAnimation.URP.Tests`。
 
 测试程序集仅用于 Editor，并以 `UNITY_INCLUDE_TESTS` 和 `TestAssemblies` 标记隔离；正常运行时不需要 NUnit 或测试框架。测试会生成自己的临时模型及唯一的 `Assets/__GpuAnimatorWriterTests_*` 目录，并在结束时清理自己创建的资产，不使用项目中的角色输出目录。
 
@@ -33,7 +32,7 @@
 
 按[美术交付清单](art-guidelines.md#单角色验收流程)准备单个角色，验证后执行一次实际 Bake，逐个播放动作并检查末帧、回调时机、法线、镜头边缘剔除和材质。随后重烘焙，确认场景及包装 prefab 的引用仍有效。
 
-基础 Shader 使用 Built-in Render Pipeline，URP Unlit/Lit 由独立适配包提供；面向 Shader Model 3.5 对应能力。对目标设备检查纹理尺寸支持，并用 Frame Debugger/Profiler 验证 Instancing 与开销；Humanoid、重定向及 IK 需要项目内单独验收。
+本包包含 Built-in Shader 与 URP Unlit/Lit Shader；目标设备需支持相应的 Shader 能力。对目标设备检查纹理尺寸支持，并用 Frame Debugger/Profiler 验证 Instancing 与开销；Humanoid、重定向及 IK 需要项目内单独验收。
 
 保存器只对本次生成的 Mesh 和材质调用 `SaveAssetIfDirty`，避免保存项目中其他未提交的 dirty 资产。生成文件由烘焙器管理，自定义组件和结构应放在单独的包装 prefab 或 Variant 中。
 
@@ -41,10 +40,10 @@
 
 ## 自动化执行
 
-在安装 Unity Test Framework 并配置 testables 的工程中运行。资产/播放用例不要求当前管线为 Built-in；未安装的可选 URP Shader 用例会标记跳过。URP Shader 合同测试还需运行适配包的测试程序集：
+在安装 Unity Test Framework 并配置 testables 的工程中运行。资产/播放用例可在 Built-in 或 URP 工程运行。URP Shader 合同测试与基础测试都随包安装：
 
 ```sh
-Unity -batchmode -nographics -projectPath /path/to/GameStarter -runTests -testPlatform EditMode -assemblyNames "GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests" -testResults /path/to/results/gpu.xml -logFile /path/to/results/gpu.log
+Unity -batchmode -projectPath /path/to/GameStarter -runTests -testPlatform EditMode -assemblyNames "GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests" -testResults /path/to/results/gpu.xml -logFile /path/to/results/gpu.log
 ```
 
 报告必须包含非零且全部通过的测试；保留 XML 与完整日志。原生测试和图形/设备验收分开记录。云端编译步骤见 [GameStarter 验收说明](https://github.com/Novorizon/GameStarter/blob/main/Documentation/UnityValidation.zh-CN.md)。
