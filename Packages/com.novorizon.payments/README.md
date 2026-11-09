@@ -6,4 +6,4 @@ Apple App Store / Google Play Billing 数字商品内购，基于 Unity IAP 5.5.
 
 这不是 Apple Pay / Google Pay 钱包封装。详细安装和业务示例见 [平台服务接入](../../Documentation/PlatformServices.zh-CN.md)，独立包可查看[同版在线文档](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.37/Documentation/PlatformServices.zh-CN.md)。沙盒商店与服务端闭环需项目真机验收。
 
-业务优先使用 `IapManager`；原 `PaymentClient` API 继续兼容。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。
+`IapManager` 直接实现支付流程。从支付包 `0.1.0-preview.3` 起，原 `PaymentClient` 类型移除。直接构造或声明 `PaymentClient` 的项目需改为 `IapManager` 并重新编译；构造参数和支付方法签名一致。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。

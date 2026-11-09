@@ -13,7 +13,7 @@
 | `AuthManager` | 游客、第三方登录、绑定、会话 token | `await auth.LinkAsync(IdentityProvider.Apple)` |
 | `FirebaseManager` | 初始化 Firebase，并按需创建具体 Firebase 产品 | `await firebase.InitializeAsync()` |
 
-这些是显式创建、由启动层持有的 Manager 实例，不会因为读取一个全局属性就初始化外部 SDK。原有 `PaymentClient`、`AdsClient`、`AuthClient`、`FirebaseRuntime` 保留兼容；新业务统一使用上表命名。名称不同不代表重复安装了一套 SDK。
+这些是显式创建、由启动层持有的 Manager 实例，不会因为读取一个全局属性就初始化外部 SDK。支付包自 `0.1.0-preview.3` 起统一使用 `IapManager`，原 `PaymentClient` 类型移除。`AdsClient`、`AuthClient`、`FirebaseRuntime` 保留兼容；新业务统一使用上表命名。名称不同不代表重复安装了一套 SDK。
 
 ## 各 SDK 到底干什么
 

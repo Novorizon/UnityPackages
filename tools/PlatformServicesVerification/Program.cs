@@ -316,7 +316,7 @@ internal static class Program
     private static IdentityProof Proof(IdentityProvider provider = IdentityProvider.Google) => new IdentityProof(provider, IdentityTokenKind.IdToken, "secret-token", "nonce");
     private static PurchaseReceipt Receipt() => new PurchaseReceipt("GooglePlay", "coins", "transaction", "signed-receipt");
     private static AdPlacement Placement() => new AdPlacement("coins", "unit", AdFormat.Rewarded);
-    private static PaymentClient Payment(Store store, Fulfillment fulfillment, bool owns = false)
+    private static IapManager Payment(Store store, Fulfillment fulfillment, bool owns = false)
     {
         var client = new IapManager(store, fulfillment, owns);
         Done(client.InitializeAsync());
