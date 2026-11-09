@@ -19,7 +19,7 @@ export UNITY_EDITOR_PATH=/path/to/2022.3.62f1/Editor/Unity
 tools/NativeAcceptance/run.sh /absolute/NativeValidation
 ```
 
-脚本先在独立 batch-mode Editor 中导入官方 TMP Essential Resources，并等待导入完成、验证默认字体后再执行测试；不通过直接复制第三方资源到 SDK 来提供字体。生成工程导入全部 9 个已声明 Samples（包括 UI Demo 和 Basic Story），并复制自生成 VP8/WAV 测试素材，原生编译默认依赖下的样例程序集。
+脚本先在独立 batch-mode Editor 中导入官方 TMP Essential Resources，并等待导入完成、验证默认字体后再执行测试；不通过直接复制第三方资源到 SDK 来提供字体。使用 `--include-acceptance-tests` 时，生成工程从本目录复制 EditMode、PlayMode 和 GPU 测试，再导入全部 9 个已声明 Samples（包括 UI Demo 和 Basic Story）及自生成的 VP8/WAV 测试素材。
 
 生成工程使用 workspace.json 的固定发行标签，通过 Git/注册表安装正式依赖，不依赖开发机器的 SDK 源码路径。开发修复时可在该独立工程 manifest 显式覆盖待测包为本地路径；必须记录基线和覆盖列表。不要同时开启同一工程的多个 Editor。
 

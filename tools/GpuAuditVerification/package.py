@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse,gzip,json,pathlib,re,tarfile,uuid
-r=pathlib.Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--output',type=pathlib.Path);p.add_argument('--write-metas',action='store_true');a=p.parse_args()
+r = pathlib.Path(__file__).resolve().parents[2] / 'Packages/com.novorizon.gpuanimator'
+p=argparse.ArgumentParser();p.add_argument('--output',type=pathlib.Path);p.add_argument('--write-metas',action='store_true');a=p.parse_args()
 info=json.loads((r/'package.json').read_text());guids={}
 for path in r.rglob('*.meta'):
     if any(part in ('bin','obj','.git','Verification~') for part in path.relative_to(r).parts):continue
@@ -21,7 +22,12 @@ assert b'#pragma target 3.5' in (r/'Shaders/GpuSkinningAnimation.shader').read_b
 assert 'Game.Framework.Pooling' in (r/'Samples~/FrameworkPool/GpuAnimatorPool.cs').read_text()
 if a.output:
     a.output.parent.mkdir(parents=True,exist_ok=True)
-    selected=['Runtime','Runtime.meta','Editor','Editor.meta','Shaders','Shaders.meta','GpuAnimator.asmdef','GpuAnimator.asmdef.meta','Samples~','Tests','Tests.meta','Documentation~','Tools~','package.json','package.json.meta','README.md','README.md.meta','LICENSE','LICENSE.meta','CHANGELOG.md','CHANGELOG.md.meta']
+    selected = [
+        'Runtime', 'Runtime.meta', 'Editor', 'Editor.meta', 'Shaders', 'Shaders.meta',
+        'GpuAnimator.asmdef', 'GpuAnimator.asmdef.meta', 'Samples~', 'Documentation~',
+        'package.json', 'package.json.meta', 'README.md', 'README.md.meta',
+        'LICENSE', 'LICENSE.meta', 'CHANGELOG.md', 'CHANGELOG.md.meta',
+    ]
     with a.output.open('wb') as target,gzip.GzipFile(fileobj=target,mode='wb',filename='',mtime=0) as compressed,tarfile.open(fileobj=compressed,mode='w') as tar:
         for name in selected:
             base=r/name
