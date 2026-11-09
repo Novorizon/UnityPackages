@@ -72,6 +72,7 @@ python3 tools/workspace.py verify --dotnet /path/to/dotnet
 ## v0.1.0-preview.38（准备中）
 
 - 将 `com.novorizon.gpuanimator.urp` 并入 `com.novorizon.gpuanimator`，保留原 Shader 名称、GUID 和程序集。旧项目可按 [迁移步骤](Packages/com.novorizon.gpuanimator/Documentation~/urp.md#从独立-urp-包迁移) 更新。
+- 支付流程由 `IapManager` 直接实现，支付包升至 `0.1.0-preview.3`。原 `PaymentClient` 类型移除，调用方可改用相同构造参数和方法签名的 `IapManager`。
 
 ## v0.1.0-preview.37
 

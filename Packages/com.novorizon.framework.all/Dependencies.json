@@ -172,7 +172,7 @@
     },
     {
       "name": "com.novorizon.payments",
-      "version": "0.1.0-preview.2",
+      "version": "0.1.0-preview.3",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.payments#v0.1.0-preview.38",
       "external": false,
       "embed": false,
