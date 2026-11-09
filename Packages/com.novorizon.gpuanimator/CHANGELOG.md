@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.0-preview.19
+
+- 将 GPU 动画 EditMode 测试、夹具、测试 Shader 和验收脚本移到 SDK 仓库的独立验收工具目录。
+
 ## 4.0.0-preview.1 — 2026-11-05
 
 - 使用 Framework 单例提供 GpuAnimatorManager，自动模式由一个 Update 集中推进，播放器删除单独 Update。

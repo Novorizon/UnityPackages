@@ -63,9 +63,10 @@ def main():
     if args.project:
         modules.append(('Game.Framework.Resources.YooAsset', 'com.novorizon.framework.yooasset/Runtime', ['Game.Framework.Core', 'Game.Framework.Unity']))
     if args.include_tests:
+        gpu_tests = ROOT / 'tools/NativeAcceptance/Editor/GpuAnimator'
         modules += [
-            ('GpuAnimator.Editor.Tests', 'com.novorizon.gpuanimator/Tests/Editor', ['GpuAnimator', 'GpuAnimator.Editor']),
-            ('Game.Framework.GpuAnimation.URP.Tests', 'com.novorizon.gpuanimator/Tests/Editor/URP', ['Game.Framework.GpuAnimation.URP.Editor']),
+            ('GpuAnimator.Editor.Tests', gpu_tests, ['GpuAnimator', 'GpuAnimator.Editor']),
+            ('Game.Framework.GpuAnimation.URP.Tests', gpu_tests / 'URP', ['Game.Framework.GpuAnimation.URP.Editor']),
         ]
     env = os.environ.copy()
     env.setdefault('DOTNET_CLI_HOME', '/tmp/novorizon-native-dotnet-home')
@@ -81,7 +82,9 @@ def main():
             items = ET.SubElement(project, 'ItemGroup')
             if name.endswith('.Tests'):
                 ET.SubElement(items, 'PackageReference', Include='NUnit', Version='3.13.3')
-            source = ROOT / 'Packages' / folder
+            source = Path(folder)
+            if not source.is_absolute():
+                source = ROOT / 'Packages' / source
             for file in source.rglob('*.cs'):
                 if any(list(parent.glob('*.asmdef')) for parent in file.parents if parent != source and source in parent.parents):
                     continue

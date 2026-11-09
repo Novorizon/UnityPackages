@@ -121,7 +121,9 @@ def validate():
         if not package.is_dir():
             continue
         for file in package.rglob('*'):
-            if any(part.startswith('.') or part.endswith('~') for part in file.relative_to(package).parts):
+            parts = file.relative_to(package).parts
+            assert not any(part.rstrip('~').lower() in {'tests', 'testfixtures'} for part in parts), ('Keep verification assets under tools', file)
+            if any(part.startswith('.') or part.endswith('~') for part in parts):
                 continue
             if file.suffix != '.meta':
                 assert Path(str(file) + '.meta').is_file(), ('Missing Unity asset metadata', file)
@@ -129,6 +131,7 @@ def validate():
                 continue
             if file.suffix == '.asmdef':
                 definition = read(file)
+                assert 'TestAssemblies' not in definition.get('optionalUnityReferences', []), ('Keep test assemblies under tools', file)
                 assert definition['name'] not in asmdefs, ('Duplicate assembly', file, asmdefs.get(definition['name']))
                 asmdefs[definition['name']] = file
             if file.suffix == '.meta':
@@ -319,14 +322,15 @@ def unity_project(output, include_acceptance_tests=False):
         raise ValueError('Generate the Unity test project outside the package repository.')
     config, packages = read(ROOT / 'workspace.json'), definitions()
     deps = dict(packages[ALL].get('dependencies', {}))
-    deps['com.unity.test-framework'] = '1.1.33'
+    if include_acceptance_tests:
+        deps['com.unity.test-framework'] = '1.1.33'
     for name in packages:
         deps[name] = f'{config["repository"]}?path=/Packages/{name}#{config["release"]}'
     for name, metadata in config['externalPackages'].items():
         deps[name] = metadata['git']
     (output / 'Assets').mkdir(parents=True, exist_ok=True)
     (output / 'ProjectSettings').mkdir(parents=True, exist_ok=True)
-    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items())), testables=['com.novorizon.gpuanimator']))
+    write(output / 'Packages/manifest.json', dict(dependencies=dict(sorted(deps.items()))))
     (output / 'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: ' + config['unity'] + '\n')
     (output / 'ProjectSettings/ProjectSettings.asset').write_text('%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!129 &1\nPlayerSettings:\n  m_ObjectHideFlags: 0\n  serializedVersion: 26\n  activeInputHandler: 2\n')
     if include_acceptance_tests:

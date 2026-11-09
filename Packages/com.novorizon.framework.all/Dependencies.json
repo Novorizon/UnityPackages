@@ -142,7 +142,7 @@
     },
     {
       "name": "com.novorizon.gpuanimator",
-      "version": "4.0.0-preview.18",
+      "version": "4.0.0-preview.19",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.gpuanimator#v0.1.0-preview.38",
       "external": false,
       "embed": false,

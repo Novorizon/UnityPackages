@@ -24,13 +24,7 @@ Lit 烘焙输出开启 MeshRenderer 投射/接收阴影，缺少切线时重建�
 
 ## 原生验收
 
-在独立 Unity 验收工程的 manifest 添加：
-
-```json
-"testables": ["com.novorizon.gpuanimator"]
-```
-
-用 Unity Test Runner 的 EditMode 测试运行本包 Tests，检查 Shader 导入、动画属性、全部渲染 Pass、Lit 烘焙阴影策略和保留已有管线。再用 Basic Playback/Manual Crowd 验证首尾帧、多个实例独立播放、深度纹理与目标设备 Frame Debugger。Lit 场景添加地面、方向光和投射阴影的点光/聚光：检查动画首尾帧、不同实例帧索引、接收与投射阴影、级联边界、相机深度/法线纹理及 SSAO；同时检查法线贴图、镜像/缩放模型、Forward/Forward+ 与 Deferred 模式。
+按[编辑器测试](editor-testing.md)生成独立验收工程，再用 Unity Test Runner 的 EditMode 运行 GPU 动画和 URP 测试，检查 Shader 导入、动画属性、全部渲染 Pass、Lit 烘焙阴影策略和保留已有管线。再用 Basic Playback/Manual Crowd 验证首尾帧、多个实例独立播放、深度纹理与目标设备 Frame Debugger。Lit 场景添加地面、方向光和投射阴影的点光/聚光：检查动画首尾帧、不同实例帧索引、接收与投射阴影、级联边界、相机深度/法线纹理及 SSAO；同时检查法线贴图、镜像/缩放模型、Forward/Forward+ 与 Deferred 模式。
 
 独立 DXC 可对实际 HLSL 入口及代表性变体做语法编译，命令见 [验证工具](../../../tools/FeatureVerification/README.md)。这不能代替 Unity Shader 导入、平台变体裁剪和画面验收。
 

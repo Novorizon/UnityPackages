@@ -10,6 +10,9 @@
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS/": "Packages/com.novorizon.ecs/Runtime/",
     "Packages/com.novorizon.ecsframework/ECS-Framework/ECS.meta": "Packages/com.novorizon.ecs/Runtime.meta",
     "Packages/com.guanjinbiao.gpuanimator/GpuAnimator/": "Packages/com.novorizon.gpuanimator/",
+    "Packages/com.guanjinbiao.gpuanimator/Tests/Editor": "tools/NativeAcceptance/Editor/GpuAnimator",
+    "Packages/com.guanjinbiao.gpuanimator/Tests/Editor.meta": "tools/NativeAcceptance/Editor/GpuAnimator.meta",
+    "Packages/com.guanjinbiao.gpuanimator/Tools~": "tools/GpuAuditVerification",
     "Packages/com.guanjinbiao.gpuanimator/": "Packages/com.novorizon.gpuanimator/",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs",
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIRoot.cs.meta": "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs.meta",
@@ -146,8 +149,8 @@
   ],
   "reason": "Ability editor belongs to Ability; ECS uses ecs; all maintained packages use the com.novorizon prefix.",
   "packagingToolChanges": [
-    "Packages/com.novorizon.gpuanimator/Tools~/package.py",
-    "Packages/com.novorizon.gpuanimator/Tools~/run-unity-tests.py"
+    "tools/GpuAuditVerification/package.py",
+    "tools/GpuAuditVerification/run-unity-tests.py"
   ],
   "externalizedPackages": [
     "com.code-philosophy.hybridclr",
@@ -493,15 +496,15 @@
       "sha256": "c7618b358eb2fa672e7df9bdbf8737a16b1b2117b4f8c27d9393baaeaf9e1baa",
       "reason": "Save only generated mesh/material dirty assets through SaveAssetIfDirty so native Unity rebakes persist changes and preserve GUIDs without saving unrelated sources."
     },
-    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimationAssetWriterTests.cs": {
-      "sha256": "87e6116daaf83edba4f6507fafed64430e49bbe67453e3879750e3bf83e6a3d8",
-      "reason": "Add native asset-writer regression coverage for URP Lit shadow policy and mesh tangent preparation."
+    "tools/NativeAcceptance/Editor/GpuAnimator/GpuAnimationAssetWriterTests.cs": {
+      "sha256": "c7f388bf394cbce43f9bd0352231d89d5784f67a1195b7036d8bc223ca303256",
+      "reason": "Add native asset-writer regression coverage for URP Lit shadow policy and mesh tangent preparation, and explicitly persist the customized material before rebaking."
     },
-    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuAnimatorPlaybackTests.cs": {
+    "tools/NativeAcceptance/Editor/GpuAnimator/GpuAnimatorPlaybackTests.cs": {
       "sha256": "7dd47cfab40b5bfa197a06b5532346141efd3543dac2b98f10e2457a6a89614b",
       "reason": "Exercise asset publication and playback with Built-in and installed URP shaders without requiring or modifying the project active render pipeline."
     },
-    "Packages/com.novorizon.gpuanimator/Tests/Editor/GpuSkinningGeneratorTests.cs": {
+    "tools/NativeAcceptance/Editor/GpuAnimator/GpuSkinningGeneratorTests.cs": {
       "sha256": "affc074853af60fcd0ce3dcf933c3d855f7fec7b32e8d8b40b3c88e6a18a841f",
       "reason": "Validate all native transform curves without assuming Unity emits one binding, and construct a fresh five-influence mesh layout rather than converting legacy skin attributes in place."
     },

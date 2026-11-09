@@ -48,7 +48,7 @@ namespace GpuAnimatorTests
             Color userColor = new Color(0.2f, 0.4f, 0.6f, 0.8f);
             originalMaterial.SetColor("_Color", userColor);
             EditorUtility.SetDirty(originalMaterial);
-            AssetDatabase.ForceReserializeAssets(new[] { paths[1] }, ForceReserializeAssetsOptions.ReserializeAssets);
+            AssetDatabase.SaveAssetIfDirty(originalMaterial);
 
             request.Clips = new[] { Clip("Move", "m_LocalPosition.x", 5) };
             using (GpuAnimationBakeResult result = GpuSkinningGenerator.Bake(request))

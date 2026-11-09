@@ -4,16 +4,13 @@
 
 ## 启用包测试
 
-1. 在项目中通过 Package Manager 安装与当前 Unity 版本匹配的 **Unity Test Framework**。
-2. 在项目的 `Packages/manifest.json` 顶层 `testables` 数组中加入本包，保留原有其他项目配置：
+从 SDK 仓库生成全新的[独立验收工程](https://github.com/Novorizon/UnityPackages/tree/main/tools/NativeAcceptance)。生成器只在启用验收时安装 Unity Test Framework，并把 `tools/NativeAcceptance/Editor/GpuAnimator` 中的测试复制到验收工程的 `Assets/Tests/Editor` 下。
 
-```json
-"testables": [
-  "com.novorizon.gpuanimator"
-]
+```sh
+python3 tools/workspace.py unity-project --output /path/to/GpuValidation --include-acceptance-tests
 ```
 
-3. 打开 **Window > General > Test Runner**，选择 **EditMode**，运行 `GpuAnimator.Editor.Tests` 和 `Game.Framework.GpuAnimation.URP.Tests`。
+打开该工程的 **Window > General > Test Runner**，选择 **EditMode**，运行 `GpuAnimator.Editor.Tests` 和 `Game.Framework.GpuAnimation.URP.Tests`。
 
 测试程序集仅用于 Editor，并以 `UNITY_INCLUDE_TESTS` 和 `TestAssemblies` 标记隔离；正常运行时不需要 NUnit 或测试框架。测试会生成自己的临时模型及唯一的 `Assets/__GpuAnimatorWriterTests_*` 目录，并在结束时清理自己创建的资产，不使用项目中的角色输出目录。
 
@@ -40,10 +37,10 @@
 
 ## 自动化执行
 
-在安装 Unity Test Framework 并配置 testables 的工程中运行。资产/播放用例可在 Built-in 或 URP 工程运行。URP Shader 合同测试与基础测试都随包安装：
+在生成的独立验收工程中运行。资产和播放用例可在 Built-in 或 URP 工程执行：
 
 ```sh
-Unity -batchmode -projectPath /path/to/GameStarter -runTests -testPlatform EditMode -assemblyNames "GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests" -testResults /path/to/results/gpu.xml -logFile /path/to/results/gpu.log
+Unity -batchmode -projectPath /path/to/GpuValidation -runTests -testPlatform EditMode -assemblyNames "GpuAnimator.Editor.Tests;Game.Framework.GpuAnimation.URP.Tests" -testResults /path/to/results/gpu.xml -logFile /path/to/results/gpu.log
 ```
 
 报告必须包含非零且全部通过的测试；保留 XML 与完整日志。原生测试和图形/设备验收分开记录。云端编译步骤见 [GameStarter 验收说明](https://github.com/Novorizon/GameStarter/blob/main/Documentation/UnityValidation.zh-CN.md)。
