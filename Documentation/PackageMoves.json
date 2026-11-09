@@ -497,8 +497,8 @@
       "reason": "Save only generated mesh/material dirty assets through SaveAssetIfDirty so native Unity rebakes persist changes and preserve GUIDs without saving unrelated sources."
     },
     "tools/NativeAcceptance/Editor/GpuAnimator/GpuAnimationAssetWriterTests.cs": {
-      "sha256": "87e6116daaf83edba4f6507fafed64430e49bbe67453e3879750e3bf83e6a3d8",
-      "reason": "Add native asset-writer regression coverage for URP Lit shadow policy and mesh tangent preparation."
+      "sha256": "c7f388bf394cbce43f9bd0352231d89d5784f67a1195b7036d8bc223ca303256",
+      "reason": "Add native asset-writer regression coverage for URP Lit shadow policy and mesh tangent preparation, and explicitly persist the customized material before rebaking."
     },
     "tools/NativeAcceptance/Editor/GpuAnimator/GpuAnimatorPlaybackTests.cs": {
       "sha256": "7dd47cfab40b5bfa197a06b5532346141efd3543dac2b98f10e2457a6a89614b",
