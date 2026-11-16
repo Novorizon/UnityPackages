@@ -47,7 +47,10 @@ internal static partial class Program
 
     private static async Task Check(string name, Func<Task> test)
     {
-        HotUpdateManager.Release();
+        if (HotUpdateManager.TryGetInstance(out var current1))
+        {
+            current1.Dispose();
+        }
         Verification.FixtureHotGame.Reset();
         try
         {
@@ -57,7 +60,10 @@ internal static partial class Program
         }
         finally
         {
-            HotUpdateManager.Release();
+            if (HotUpdateManager.TryGetInstance(out var current2))
+            {
+                current2.Dispose();
+            }
         }
     }
 
@@ -163,7 +169,7 @@ internal static partial class Program
 
     private static Task ExplicitStartup()
     {
-        True(!HotUpdateManager.IsCreated);
+        True(!HotUpdateManager.TryGetInstance(out _));
         True(!typeof(MonoBehaviour).IsAssignableFrom(typeof(HotUpdateManager)));
         True(!typeof(HotUpdateManager).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Any(method => method.GetCustomAttributes<RuntimeInitializeOnLoadMethodAttribute>().Any()));
         var manager = HotUpdateManager.Instance;
@@ -195,8 +201,11 @@ internal static partial class Program
         True(manager.IsReady && !manager.Failed);
         True(Verification.FixtureHotGame.Created == 1 && Verification.FixtureHotGame.Started == 1);
         manager.Dispose();
-        HotUpdateManager.Release();
-        True(Verification.FixtureHotGame.Stopped == 1 && !HotUpdateManager.IsCreated);
+        if (HotUpdateManager.TryGetInstance(out var current3))
+        {
+            current3.Dispose();
+        }
+        True(Verification.FixtureHotGame.Stopped == 1 && !HotUpdateManager.TryGetInstance(out _));
     }
 
     private static async Task MissingAcknowledgement()
@@ -275,7 +284,7 @@ internal static partial class Program
         await manager.InitializeAsync(Settings());
         Verification.FixtureHotGame.Stop = () => throw new InvalidOperationException("cleanup failure");
         manager.Dispose();
-        True(!HotUpdateManager.IsCreated && !manager.IsReady);
+        True(!HotUpdateManager.TryGetInstance(out _) && !manager.IsReady);
         True(!ReferenceEquals(manager, HotUpdateManager.Instance));
         True(Verification.FixtureHotGame.Stopped == 1);
     }

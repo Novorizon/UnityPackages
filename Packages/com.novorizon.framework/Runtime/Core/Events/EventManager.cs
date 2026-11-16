@@ -6,7 +6,11 @@ namespace Game.Framework.Event
 {
     public partial class EventManager : Singleton<EventManager>, IDisposable
     {
-        public void Dispose() => Clear();
+        public override void Dispose()
+        {
+            base.Release();
+            Clear();
+        }
         private sealed class Entry : ISubscription
         {
             internal Delegate Handler;

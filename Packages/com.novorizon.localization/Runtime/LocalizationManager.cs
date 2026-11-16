@@ -199,7 +199,7 @@ namespace Game.Framework.Localization
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (disposed)
             {
@@ -220,7 +220,7 @@ namespace Game.Framework.Localization
             {
                 LanguageChanged = null;
                 catalog = null;
-                ClearInstanceIfCurrent(this);
+                base.Release();
             }
         }
     }

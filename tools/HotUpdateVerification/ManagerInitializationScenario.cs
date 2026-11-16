@@ -76,7 +76,7 @@ internal static partial class Program
         RequireSynchronousException<ObjectDisposedException>(() => manager.StartAsync());
         RequireSynchronousException<ObjectDisposedException>(() => manager.Initialize(settings));
         True(preparations == 0 && Verification.FixtureHotGame.Created == 0 && Verification.FixtureHotGame.Stopped == 0);
-        True(!manager.IsReady && !HotUpdateManager.IsCreated);
+        True(!manager.IsReady && !HotUpdateManager.TryGetInstance(out _));
         return Task.CompletedTask;
     }
 

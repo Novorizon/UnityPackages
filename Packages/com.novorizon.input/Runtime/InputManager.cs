@@ -297,7 +297,7 @@ namespace Game.Framework.Input
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (disposed)
             {
@@ -323,7 +323,7 @@ namespace Game.Framework.Input
                 actions = null;
             }
 
-            ClearInstanceIfCurrent(this);
+            base.Release();
         }
 
         private sealed class BlockLease : IDisposable

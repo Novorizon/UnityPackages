@@ -182,7 +182,7 @@ internal static partial class Program
             True(!ReferenceEquals(input, next) && !next.Initialized);
             next.Initialize();
             InputManager.Reset();
-            True(!InputManager.IsCreated);
+            True(!InputManager.TryGetInstance(out _));
         });
         Run("audio fade uses unified time and respects every pause source", () =>
         {
@@ -426,7 +426,7 @@ internal static partial class Program
             var previous = DataManager.Instance;
             previous.Initialize();
             DataManager.Reset();
-            True(!DataManager.IsCreated);
+            True(!DataManager.TryGetInstance(out _));
             True(!ReferenceEquals(previous, DataManager.Instance));
             Equal(0, DataManager.Instance.Count);
         });

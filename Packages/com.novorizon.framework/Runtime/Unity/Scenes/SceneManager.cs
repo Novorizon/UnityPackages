@@ -204,7 +204,7 @@ namespace Game.Framework.Scenes
         }
 
         /// <summary>停止接收请求和发送通知；不擅自卸载当前游戏场景，也不强行取消 Unity 的原生操作。</summary>
-        public void Dispose()
+        public override void Dispose()
         {
             if (disposed)
             {
@@ -225,7 +225,7 @@ namespace Game.Framework.Scenes
             finally
             {
                 lifetime.Dispose();
-                ClearInstanceIfCurrent(this);
+                base.Release();
             }
         }
     }

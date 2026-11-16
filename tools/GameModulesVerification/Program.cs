@@ -497,7 +497,10 @@ internal static partial class Program
             var loading = Gate<bool>();
             YooAssets.Package.AssetGate = loading.Task;
             var late = resources.AcquireAsync<TextAsset>("late release");
-            ResourceManager.Release();
+            if (ResourceManager.TryGetInstance(out var current1))
+            {
+                current1.Dispose();
+            }
             var restarting = resources.InitializeAsync();
             True(!restarting.IsCompleted);
             Fails<OperationCanceledException>(late);
@@ -599,15 +602,24 @@ internal static partial class Program
         var operations = (SemaphoreSlim)typeof(Scenes).GetField("operations", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
         context.Until(() => operations.CurrentCount == 1);
         // This harness owns the services it creates, just as the game entry does.
-        InputManager.Release();
-        DataManager.Release();
+        if (InputManager.TryGetInstance(out var current2))
+        {
+            current2.Dispose();
+        }
+        if (DataManager.TryGetInstance(out var current3))
+        {
+            current3.Dispose();
+        }
         Scenes.Release();
         if (ResourceManager.TryGetInstance(out var resources))
         {
             Complete(resources.ShutdownAsync());
         }
 
-        Singleton<ResourceManager>.Release();
+        if (Singleton<ResourceManager>.TryGetInstance(out var current4))
+        {
+            current4.Dispose();
+        }
         passed++;
         Console.WriteLine("PASS " + name);
     }

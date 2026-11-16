@@ -12,21 +12,24 @@ internal static partial class Program
     {
         RunTimerDriver("Unity driver install/update never creates an unused or released timer service", driver =>
         {
-            True(!TimerManager.IsCreated);
+            True(!TimerManager.TryGetInstance(out _));
             TickTimerDriver(driver);
-            True(!TimerManager.IsCreated);
+            True(!TimerManager.TryGetInstance(out _));
             var timer = TimerManager.Instance;
             int fired = 0;
             var pending = timer.Schedule(1, () => fired++);
             TickTimerDriver(driver);
-            TimerManager.Release();
-            True(!pending.IsActive && !TimerManager.IsCreated);
+            if (TimerManager.TryGetInstance(out var current1))
+            {
+                current1.Dispose();
+            }
+            True(!pending.IsActive && !TimerManager.TryGetInstance(out _));
             for (int i = 0; i < 3; i++)
             {
                 Time.timeAsDouble += 2;
                 Time.realtimeSinceStartupAsDouble += 2;
                 TickTimerDriver(driver);
-                True(!TimerManager.IsCreated);
+                True(!TimerManager.TryGetInstance(out _));
             }
 
             Equal(0, fired);
@@ -35,7 +38,10 @@ internal static partial class Program
         {
             var original = TimerManager.Instance;
             TickTimerDriver(driver);
-            TimerManager.Release();
+            if (TimerManager.TryGetInstance(out var current2))
+            {
+                current2.Dispose();
+            }
             var replacement = TimerManager.Instance;
             True(!ReferenceEquals(original, replacement));
             int fired = 0;
@@ -120,7 +126,10 @@ internal static partial class Program
     {
         Run(name, () =>
         {
-            TimerManager.Release();
+            if (TimerManager.TryGetInstance(out var current3))
+            {
+                current3.Dispose();
+            }
             Time.timeAsDouble = 100;
             Time.realtimeSinceStartupAsDouble = 1000;
             var type = typeof(MonoSingleton<>).Assembly.GetType("Game.Framework.FrameworkUpdateDriver", true);
@@ -133,7 +142,10 @@ internal static partial class Program
             finally
             {
                 type.GetMethod("Stop", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, null);
-                TimerManager.Release();
+                if (TimerManager.TryGetInstance(out var current4))
+                {
+                    current4.Dispose();
+                }
             }
         });
     }

@@ -31,29 +31,40 @@ internal static partial class Program
 #endif
         Check("legacy lazy singletons remain compatible", () =>
         {
-            True(!Simple.IsCreated);
+            True(!Simple.TryGetInstance(out _));
             True(ReferenceEquals(Simple.Instance, Simple.Instance));
         });
         Check("ordinary singletons explicitly release without creating and can be reused", () =>
         {
             var first = Resettable.Instance;
-            Resettable.Release();
+            if (Resettable.TryGetInstance(out var current1))
+            {
+                current1.Dispose();
+            }
             Equal(1, first.Disposals);
-            True(!Resettable.IsCreated);
+            True(!Resettable.TryGetInstance(out _));
             var second = Resettable.Instance;
             True(!ReferenceEquals(first, second));
-            Resettable.Release();
+            if (Resettable.TryGetInstance(out var current2))
+            {
+                current2.Dispose();
+            }
             Equal(1, second.Disposals);
-            True(!Resettable.IsCreated);
+            True(!Resettable.TryGetInstance(out _));
             var third = Resettable.Instance;
-            Resettable.Release();
-            Resettable.Release();
+            if (Resettable.TryGetInstance(out var current3))
+            {
+                current3.Dispose();
+            }
+            if (Resettable.TryGetInstance(out var current4))
+            {
+                current4.Dispose();
+            }
             Equal(1, third.Disposals);
         });
         Check("Release does not create an unused singleton and application quit blocks creation", () =>
         {
-            True(!NeverCreated.IsCreated);
-            NeverCreated.Release();
+            True(!NeverCreated.TryGetInstance(out _));
             Object.MarkQuittingForTest();
             Equal(0, NeverCreated.Created);
             Throws<InvalidOperationException>(() =>
@@ -65,8 +76,11 @@ internal static partial class Program
         Check("singleton owners release instances before quitting", () =>
         {
             var old = Service.Instance;
-            Singleton<Service>.Release();
-            True(old.Disposed && !Service.IsCreated);
+            if (Singleton<Service>.TryGetInstance(out var current5))
+            {
+                current5.Dispose();
+            }
+            True(old.Disposed && !Service.TryGetInstance(out _));
             Object.MarkQuittingForTest();
             Throws<InvalidOperationException>(() =>
             {
@@ -80,7 +94,10 @@ internal static partial class Program
             var current = Service.Instance;
             Object.MarkQuittingForTest();
             Throws<InvalidOperationException>(() => _ = Service.Instance);
-            Singleton<Service>.Release();
+            if (Singleton<Service>.TryGetInstance(out var current6))
+            {
+                current6.Dispose();
+            }
             Throws<InvalidOperationException>(() => _ = Service.Instance);
             Object.ResetSingletonsForPlay();
         });
@@ -89,11 +106,14 @@ internal static partial class Program
             var old = ThrowingReset.Instance;
             var next = Resettable.Instance;
             Object.MarkQuittingForTest();
-            ThrowingReset.Release();
-            Resettable.Release();
-            True(old.Attempted && !ThrowingReset.IsCreated);
+            Throws<InvalidOperationException>(old.Dispose);
+            if (Resettable.TryGetInstance(out var current7))
+            {
+                current7.Dispose();
+            }
+            True(old.Attempted && !ThrowingReset.TryGetInstance(out _));
             Equal(1, next.Disposals);
-            True(!NeverCreated.IsCreated);
+            True(!NeverCreated.TryGetInstance(out _));
             Object.ResetSingletonsForPlay();
         });
 #if UNITY_EDITOR
@@ -133,7 +153,10 @@ internal static partial class Program
         });
         Check("singleton supports concurrent acquisition", () =>
         {
-            Service.Release();
+            if (Service.TryGetInstance(out var current8))
+            {
+                current8.Dispose();
+            }
             int created = Service.Created;
             var values = new Service[64];
             Parallel.For(0, values.Length, i => values[i] = Service.Instance);
@@ -146,28 +169,25 @@ internal static partial class Program
         });
         Check("releasing an unused singleton does not create it", () =>
         {
-            Service.Release();
+            if (Service.TryGetInstance(out var current9))
+            {
+                current9.Dispose();
+            }
             int created = Service.Created;
             True(!Service.TryGetInstance(out _));
-            Service.Release();
+            if (Service.TryGetInstance(out var current10))
+            {
+                current10.Dispose();
+            }
             Equal(created, Service.Created);
         });
-        Check("release disposes outside the lock and blocks creation during cleanup", () =>
+        Check("instance release clears the shared reference without doing service cleanup", () =>
         {
             var old = Service.Instance;
-            bool observed = false;
-            old.OnDispose = () =>
-            {
-                observed = Task.Run(() => !Service.IsCreated).Wait(2000);
-                Throws<InvalidOperationException>(() =>
-                {
-                    _ = Service.Instance;
-                });
-                observed &= !Service.TryGetInstance(out _);
-            };
-            Service.Release();
-            True(observed && old.Disposed);
-            True(!ReferenceEquals(old, Service.Instance));
+            old.Release();
+            True(!Service.TryGetInstance(out _) && !old.Disposed);
+            old.Dispose();
+            True(old.Disposed && !ReferenceEquals(old, Service.Instance));
         });
         Check("a stale dispose cannot clear a newer service", () =>
         {
@@ -180,8 +200,8 @@ internal static partial class Program
         Check("cleanup exceptions release the guard", () =>
         {
             Service.Instance.OnDispose = () => throw new InvalidOperationException("cleanup");
-            Service.Release();
-            True(!Service.IsCreated);
+            Throws<InvalidOperationException>(Service.Instance.Dispose);
+            True(!Service.TryGetInstance(out _));
             True(Service.Instance != null);
         });
         Check("NetworkManager owns its configured instance", NetworkLifecycle);
@@ -200,7 +220,10 @@ internal static partial class Program
             Object.MarkQuittingForTest();
             try
             {
-                Service.Release();
+                if (Service.TryGetInstance(out var current11))
+                {
+                    current11.Dispose();
+                }
                 NetworkManager.Release();
                 Throws<InvalidOperationException>(() => _ = Service.Instance);
                 Throws<InvalidOperationException>(() => _ = NetworkManager.Instance);
@@ -439,7 +462,11 @@ internal static partial class Program
     public sealed partial class Resettable : Singleton<Resettable>, IDisposable
     {
         public int Disposals;
-        public void Dispose() => Disposals++;
+        public override void Dispose()
+        {
+            base.Release();
+            Disposals++;
+        }
     }
 
     public sealed partial class NeverCreated : Singleton<NeverCreated>
@@ -454,8 +481,9 @@ internal static partial class Program
     public sealed partial class ThrowingReset : Singleton<ThrowingReset>, IDisposable
     {
         public bool Attempted;
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Release();
             Attempted = true;
             Throws<InvalidOperationException>(() =>
             {
@@ -501,10 +529,10 @@ internal static partial class Program
             Interlocked.Increment(ref Created);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             Disposed = true;
-            ClearInstanceIfCurrent(this);
+            base.Release();
             OnDispose?.Invoke();
         }
     }

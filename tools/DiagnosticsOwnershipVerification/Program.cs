@@ -151,7 +151,10 @@ internal static class Program
             var old = first.CaptureLeaseDiagnostics().Single();
             lease.Dispose();
             Done(first.ShutdownAsync());
-            Singleton<ResourceManager>.Release();
+            if (Singleton<ResourceManager>.TryGetInstance(out var current1))
+            {
+                current1.Dispose();
+            }
             YooAssets.Package = new ResourcePackage();
             var replacement = Ready();
             var next = Done(replacement.AcquireAsync<TextAsset>("asset"));
@@ -206,7 +209,10 @@ internal static class Program
             {
                 Done(resources.ShutdownAsync());
             }
-            Singleton<ResourceManager>.Release();
+            if (Singleton<ResourceManager>.TryGetInstance(out var current2))
+            {
+                current2.Dispose();
+            }
             UnityThread.Reset();
             Object.ResetTestState();
         }

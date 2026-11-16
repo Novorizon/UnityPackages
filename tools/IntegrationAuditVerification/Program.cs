@@ -240,7 +240,10 @@ internal static class Program
             {
                 Done(resources.ShutdownAsync());
             }
-            Singleton<ResourceManager>.Release();
+            if (Singleton<ResourceManager>.TryGetInstance(out var current1))
+            {
+                current1.Dispose();
+            }
             UnityThread.Reset();
             Object.ResetTestState();
         }

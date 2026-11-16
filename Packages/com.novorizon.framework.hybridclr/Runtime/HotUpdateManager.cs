@@ -366,7 +366,7 @@ namespace Game.Framework.HotUpdate
         }
 
         /// <summary>取消加载并清理热更入口；重复调用安全，不卸载已经加载的 DLL。</summary>
-        public void Dispose()
+        public override void Dispose()
         {
             if (disposed)
             {
@@ -388,7 +388,7 @@ namespace Game.Framework.HotUpdate
                 lifetime = null;
                 settings = null;
                 startupContext = null;
-                ClearInstanceIfCurrent(this);
+                base.Release();
             }
         }
 

@@ -31,7 +31,11 @@ namespace Game.Framework.Timing
     // Two indexed min-heaps: scaled and unscaled clocks. All operations run on the host main thread.
     public sealed class TimerManager : Singleton<TimerManager>, IDisposable
     {
-        public void Dispose() => ResetForPlay();
+        public override void Dispose()
+        {
+            base.Release();
+            ResetForPlay();
+        }
         private sealed class Entry
         {
             internal long Id;

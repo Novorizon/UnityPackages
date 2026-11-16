@@ -155,10 +155,10 @@ internal static class Program
                 var metrics = PackageDiagnostics.Read(typeof(ProbeService), true, "Count");
                 Equal("Not created / released", metrics.Single().value);
                 Equal(0, ProbeService.InstanceCalls);
-                Equal(false, Game.Framework.Timing.TimerManager.IsCreated);
+                Equal(false, Game.Framework.Timing.TimerManager.TryGetInstance(out _));
                 PackageDiagnostics.Capture();
-                Equal(false, Game.Framework.Timing.TimerManager.IsCreated);
-                Equal(false, LocalizationManager.IsCreated);
+                Equal(false, Game.Framework.Timing.TimerManager.TryGetInstance(out _));
+                Equal(false, LocalizationManager.TryGetInstance(out _));
             });
             Check("diagnostics samples nested public counters and isolates failing getters", () =>
             {
@@ -175,13 +175,16 @@ internal static class Program
                 var first = LocalizationManager.Instance;
                 first.Initialize(Catalog(new[] { new[] { "key", "你好", "Hello" } }), "en");
                 first.Dispose();
-                Equal(false, LocalizationManager.IsCreated);
+                Equal(false, LocalizationManager.TryGetInstance(out _));
                 var next = LocalizationManager.Instance;
                 Equal(false, ReferenceEquals(first, next));
                 first.Dispose();
                 Equal(true, ReferenceEquals(next, LocalizationManager.Instance));
-                LocalizationManager.Release();
-                Equal(false, LocalizationManager.IsCreated);
+                if (LocalizationManager.TryGetInstance(out var current1))
+                {
+                    current1.Dispose();
+                }
+                Equal(false, LocalizationManager.TryGetInstance(out _));
             });
             Console.WriteLine("PASS " + passed + " localization/Luban/diagnostic scenarios; engine APIs and rendering are verified separately.");
         }

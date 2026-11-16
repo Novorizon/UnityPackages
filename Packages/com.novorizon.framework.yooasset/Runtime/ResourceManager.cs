@@ -17,8 +17,9 @@ namespace Game.Resource
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
     public partial class ResourceManager : Singleton<ResourceManager>, IDisposable
     {
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Release();
 #if UNITY_EDITOR
             if (EditorStaticReset.IsResetting)
             {

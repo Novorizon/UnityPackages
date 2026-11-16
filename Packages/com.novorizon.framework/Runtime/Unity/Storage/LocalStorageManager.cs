@@ -216,12 +216,12 @@ namespace Game.Framework.Storage
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             lock (gate)
             {
                 disposed = true;
-                ClearInstanceIfCurrent(this);
+                base.Release();
             }
         }
     }

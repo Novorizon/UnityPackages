@@ -189,7 +189,7 @@ namespace Game.Framework.Data
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             if (disposed)
             {
@@ -207,7 +207,7 @@ namespace Game.Framework.Data
             finally
             {
                 lifetime.Dispose();
-                ClearInstanceIfCurrent(this);
+                base.Release();
             }
         }
 

@@ -5,7 +5,6 @@
 /// Description：单例
 ///------------------------------------
 using System;
-using System.Threading;
 
 namespace Game.Framework
 {
@@ -27,67 +26,53 @@ namespace Game.Framework
         }
     }
 
-    /// <summary>按需创建的普通单例；运行时由所属入口集中 Release。</summary>
-    public abstract class Singleton<T>
-        where T : new()
+    /// <summary>按需创建普通单例，实际资源由服务自己清理。</summary>
+    public abstract class Singleton<T> : IDisposable where T : Singleton<T>, new()
     {
+        private static readonly object gate = new object();
+        private static Lazy<T> lazy = CreateLazy();
+
 #if UNITY_EDITOR
-        // 供生成的派生类代码调用；MonoSingleton 的使用方无需为此增加 Core 程序集引用。
+        static Singleton()
+        {
+            EditorStaticReset.Register(() =>
+            {
+                T previous;
+                lock (gate)
+                {
+                    previous = lazy.IsValueCreated ? lazy.Value : null;
+                    lazy = CreateLazy();
+                }
+
+                previous?.Dispose();
+            });
+        }
+
+        // 子类的静态字段由 Source Generator 登记。
         protected static bool RegisterEditorStaticReset(Action clear, Action restore)
         {
             return EditorStaticReset.Register(clear, restore);
         }
 #endif
-        /// <summary>统一的无参初始化入口。实例由 Instance 准备；有初始化工作的服务重写本方法。</summary>
-        public virtual void Initialize()
-        {
-        }
-
-        private static readonly object gate = new object ();
-        private static Lazy<T> lazy = CreateLazy();
-        private static bool resetting;
-        private static bool creating;
-#if UNITY_EDITOR
-        static Singleton()
-        {
-            EditorStaticReset.Register(ReleaseCurrent);
-        }
-#endif
 
         private static Lazy<T> CreateLazy()
         {
-            return new Lazy<T>(() =>
-            {
-                creating = true;
-                try
-                {
-                    return new T();
-                }
-                finally
-                {
-                    creating = false;
-                }
-            }, LazyThreadSafetyMode.ExecutionAndPublication);
+            return new Lazy<T>(() => new T());
         }
+
         public static T Instance
         {
             get
             {
                 lock (gate)
                 {
-                    EnsureAvailable();
-                    return lazy.Value;
-                }
-            }
-        }
+                    bool editorReset = SingletonRuntimeState.IsResetting;
+                    if (editorReset ? !lazy.IsValueCreated : SingletonRuntimeState.IsQuitting)
+                    {
+                        throw new InvalidOperationException("Cannot access the singleton during reset or shutdown: " + typeof(T).FullName);
+                    }
 
-        public static bool IsCreated
-        {
-            get
-            {
-                lock (gate)
-                {
-                    return lazy.IsValueCreated;
+                    return lazy.Value;
                 }
             }
         }
@@ -96,74 +81,29 @@ namespace Game.Framework
         {
             lock (gate)
             {
-                value = lazy.IsValueCreated ? lazy.Value : default;
-                return lazy.IsValueCreated;
+                value = lazy.IsValueCreated ? lazy.Value : null;
+                return value != null;
             }
         }
 
-        protected static void ClearInstanceIfCurrent(T value)
+        public virtual void Initialize()
+        {
+        }
+
+        /// <summary>清空当前实例的共享引用。</summary>
+        public virtual void Release()
         {
             lock (gate)
             {
-                if (lazy.IsValueCreated && ReferenceEquals(lazy.Value, value))
+                if (lazy.IsValueCreated && ReferenceEquals(lazy.Value, this))
                 {
                     lazy = CreateLazy();
                 }
             }
         }
 
-        private static void ReleaseCurrent()
+        public virtual void Dispose()
         {
-            Lazy<T> previous;
-            lock (gate)
-            {
-                if (creating || resetting)
-                {
-                    throw new InvalidOperationException("Cannot reset a service during creation or reset: " + typeof(T).FullName);
-                }
-
-                previous = lazy;
-                lazy = CreateLazy();
-                resetting = true;
-            }
-
-            try
-            {
-                if (previous.IsValueCreated && previous.Value is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            }
-            finally
-            {
-                lock (gate)
-                {
-                    resetting = false;
-                }
-            }
-        }
-
-        /// <summary>释放已有实例并清空引用，不创建尚未使用的单例。</summary>
-        public static void Release()
-        {
-            try
-            {
-                ReleaseCurrent();
-            }
-            catch (Exception error)
-            {
-                Logger.Exception(error);
-            }
-        }
-
-        private static void EnsureAvailable()
-        {
-            if (creating || resetting
-                || (SingletonRuntimeState.IsQuitting && !SingletonRuntimeState.IsResetting)
-                || (!lazy.IsValueCreated && SingletonRuntimeState.IsResetting))
-            {
-                throw new InvalidOperationException("Cannot create or access a singleton during creation, reset or shutdown: " + typeof(T).FullName);
-            }
         }
     }
 }
