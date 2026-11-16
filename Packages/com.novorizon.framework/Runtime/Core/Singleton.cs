@@ -29,12 +29,6 @@ namespace Game.Framework
                 previous?.Dispose();
             });
         }
-
-        // 子类的静态字段由 Source Generator 登记。
-        protected static bool RegisterEditorStaticReset(Action clear, Action restore)
-        {
-            return EditorStaticReset.Register(clear, restore);
-        }
 #endif
 
         private static Lazy<T> CreateLazy()

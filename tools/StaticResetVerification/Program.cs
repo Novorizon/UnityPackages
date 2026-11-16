@@ -211,7 +211,7 @@ public partial class Owned : Game.Framework.Singleton<Owned>, IDisposable
 {
     public static int Value = 1;
     public static Action Disposed;
-    public void Dispose()
+    public override void Dispose()
     {
         Disposed?.Invoke();
     }

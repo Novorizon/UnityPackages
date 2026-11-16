@@ -265,8 +265,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "8ab8e203490e514b2307f98163b48d91adc365aa9916ccabfbaabee581d92d0a",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state."
+      "sha256": "cda2d98721c6e49250b18a6dbbf078768131c58f2a46605a0c370850061fbc5d",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
       "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
@@ -313,8 +313,8 @@
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "bd25c3fb0ee0f1efd436a4d7c21bd606ce33a9a3d92ba5d813392090eff6e9e1",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state."
+      "sha256": "1e1c5a2229203fb00ac81cd851efc8f8de00bf2f1fa40c2c358498e3efbc894d",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
       "sha256": "8533c4793fc1801857809f901036be6f37fbcca37b7bde0e0d6e9cb63d83cd53",

@@ -6,13 +6,6 @@ namespace Game.Framework
 {
     public abstract class MonoSingleton<T> : MonoBehaviour, IDisposable where T : MonoSingleton<T>
     {
-#if UNITY_EDITOR
-        // 供生成的派生类代码调用；MonoSingleton 的使用方无需为此增加 Core 程序集引用。
-        protected static bool RegisterEditorStaticReset(Action clear, Action restore)
-        {
-            return EditorStaticReset.Register(clear, restore);
-        }
-#endif
         /// <summary>统一的无参初始化入口。实例由 Instance 准备；有初始化工作的服务重写本方法。</summary>
         public virtual void Initialize()
         {

@@ -166,7 +166,8 @@ namespace Game.Framework.Generators
                 if (index == 0)
                 {
                     members.AppendLine("#pragma warning disable CS0414");
-                    members.Append("private static readonly bool ").Append(Prefix).Append("Registration = RegisterEditorStaticReset(").Append(Prefix).Append("Clear, ").Append(Prefix).AppendLine("Restore);");
+                    members.Append("private static readonly bool ").Append(Prefix).Append("Registration = global::Game.Framework.EditorStaticReset.Register(")
+                        .Append(Prefix).Append("Clear, ").Append(Prefix).AppendLine("Restore);");
                     members.Append("private static void ").Append(Prefix).AppendLine("Clear()\n{");
                     for (int i = 0; i < parts.Length; i++)
                     {
