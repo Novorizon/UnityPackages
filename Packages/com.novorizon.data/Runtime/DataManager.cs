@@ -43,7 +43,10 @@ namespace Game.Framework.Data
 
         public static void Reset()
         {
-            Release();
+            if (TryGetInstance(out var current))
+            {
+                current.Dispose();
+            }
         }
 
         public override void Initialize()

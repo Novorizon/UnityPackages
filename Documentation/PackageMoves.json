@@ -221,7 +221,7 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "f084d71889f9e7306a7e2e471bed2997bbeda5544825fa58d010702581dc1b50",
+      "sha256": "9dd269265cc03064fc57be9ecb70af8ff8b0582fdcf9df7e7b7679e436185af3",
       "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
@@ -325,7 +325,7 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
-      "sha256": "315614508798f3b1798d2740535f6a6d17745415e463c14d7193c6b5a4cbe819",
+      "sha256": "e351ffde4dd2be3f1aa609f3728692b706098c4c395187faad9bc65ef6a731da",
       "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
@@ -333,7 +333,7 @@
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs": {
-      "sha256": "c4561e8238b0f25f6899f2fa713450fb0ffae4b9557b454105baedf191297f29",
+      "sha256": "91170c645d0ae21efa3ed459cffbf46724b65c29b83d49a9f7b4ff5166dd586e",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Initialization.cs": {
@@ -341,7 +341,7 @@
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs": {
-      "sha256": "fe8b57b41adf97e2085fc836b96ef9a769c41fc1ca0f123288e191a460a765cc",
+      "sha256": "cf9efdc082afb8099557cefb48bbf76ec6cabc4966b8e4fdfa40cd9254bed929",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs": {
@@ -361,7 +361,7 @@
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Runtime/DataManager.cs": {
-      "sha256": "8f692ecedaeceea1c9736445937134158b2203fda4bc479beb9259e774af6aa0",
+      "sha256": "ad5f3b77aa06721320e060394fe367e72a484f3a0ea728bb34137e89a83ab2f5",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {

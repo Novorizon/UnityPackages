@@ -24,7 +24,13 @@ namespace Game.Framework.Input
         public InputActionAsset Actions => Initialized ? actions : throw new InvalidOperationException("Initialize InputManager first.");
         public string CurrentControlScheme { get; private set; }
 
-        public static void Reset() => Release();
+        public static void Reset()
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.Dispose();
+            }
+        }
         public override void Initialize()
         {
             Initialize(null, null);

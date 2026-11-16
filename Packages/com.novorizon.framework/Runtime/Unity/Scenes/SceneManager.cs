@@ -23,7 +23,10 @@ namespace Game.Framework.Scenes
         public event Action<Scene> Unloaded;
         public static void Reset()
         {
-            Release();
+            if (TryGetInstance(out var current))
+            {
+                current.Dispose();
+            }
         }
 
         public override void Initialize()

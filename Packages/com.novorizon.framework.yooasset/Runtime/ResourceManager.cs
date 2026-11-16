@@ -863,15 +863,6 @@ namespace Game.Resource
             shutdown = null;
         }
 
-        /// <summary>入口退出时发起内部清理；不创建尚未使用的资源管理器。</summary>
-        public new static void Release()
-        {
-            if (TryGetInstance(out var current))
-            {
-                current.ShutdownAsync().Forget();
-            }
-        }
-
         public Task ShutdownAsync()
         {
             MainThread();
