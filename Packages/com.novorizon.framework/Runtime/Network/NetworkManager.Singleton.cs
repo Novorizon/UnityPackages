@@ -121,11 +121,9 @@ namespace Game.Framework.Network
 
         private static void EnsureInstanceAvailable()
         {
-            if (configuring || releasing
-                || (SingletonRuntimeState.IsQuitting && !SingletonRuntimeState.IsResetting)
-                || (instance == null && SingletonRuntimeState.IsResetting))
+            if (configuring || releasing)
             {
-                throw new InvalidOperationException("Cannot access the network during configuration, release or shutdown.");
+                throw new InvalidOperationException("Cannot access the network during configuration or release.");
             }
         }
     }

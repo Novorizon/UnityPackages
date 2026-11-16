@@ -62,50 +62,22 @@ internal static partial class Program
             }
             Equal(1, third.Disposals);
         });
-        Check("Release does not create an unused singleton and application quit blocks creation", () =>
+        Check("TryGetInstance does not create an unused singleton", () =>
         {
             True(!NeverCreated.TryGetInstance(out _));
-            Object.MarkQuittingForTest();
             Equal(0, NeverCreated.Created);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = NeverCreated.Instance;
-            });
-            Object.ResetSingletonsForPlay();
         });
-        Check("singleton owners release instances before quitting", () =>
+        Check("singleton owners can dispose an instance and start again", () =>
         {
             var old = Service.Instance;
-            if (Singleton<Service>.TryGetInstance(out var current5))
-            {
-                current5.Dispose();
-            }
+            old.Dispose();
             True(old.Disposed && !Service.TryGetInstance(out _));
-            Object.MarkQuittingForTest();
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = Service.Instance;
-            });
-            Object.ResetSingletonsForPlay();
             True(!ReferenceEquals(old, Service.Instance));
         });
-        Check("quit prevents service access and recreation", () =>
-        {
-            var current = Service.Instance;
-            Object.MarkQuittingForTest();
-            Throws<InvalidOperationException>(() => _ = Service.Instance);
-            if (Singleton<Service>.TryGetInstance(out var current6))
-            {
-                current6.Dispose();
-            }
-            Throws<InvalidOperationException>(() => _ = Service.Instance);
-            Object.ResetSingletonsForPlay();
-        });
-        Check("central explicit cleanup continues after failure without constructing services during quit", () =>
+        Check("central explicit cleanup continues after failure without constructing unused services", () =>
         {
             var old = ThrowingReset.Instance;
             var next = Resettable.Instance;
-            Object.MarkQuittingForTest();
             Throws<InvalidOperationException>(old.Dispose);
             if (Resettable.TryGetInstance(out var current7))
             {
@@ -215,25 +187,6 @@ internal static partial class Program
             True(transport.Disposed && !NetworkManager.TryGetInstance(out _));
         });
 #endif
-        Check("singleton and network release preserve the application quit guard", () =>
-        {
-            Object.MarkQuittingForTest();
-            try
-            {
-                if (Service.TryGetInstance(out var current11))
-                {
-                    current11.Dispose();
-                }
-                NetworkManager.Release();
-                Throws<InvalidOperationException>(() => _ = Service.Instance);
-                Throws<InvalidOperationException>(() => _ = NetworkManager.Instance);
-                Throws<InvalidOperationException>(() => NetworkManager.Configure(new Transport()));
-            }
-            finally
-            {
-                Object.ResetSingletonsForPlay();
-            }
-        });
         Check("MonoSingleton OnExit runs once across release and deferred native destruction", () =>
         {
             Object.ResetTestState();
@@ -281,7 +234,6 @@ internal static partial class Program
             var value = ExitHook.Instance;
             typeof(ExitHook).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(value, null);
             Equal(1, ExitHook.Exits);
-            True(ExitHook.Instance == null);
             ExitHook.Release();
             Equal(1, ExitHook.Exits);
         });
@@ -485,10 +437,6 @@ internal static partial class Program
         {
             base.Release();
             Attempted = true;
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = NeverCreated.Instance;
-            });
             throw new InvalidOperationException("Expected cleanup failure");
         }
     }

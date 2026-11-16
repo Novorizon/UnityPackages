@@ -23,7 +23,6 @@ namespace Game.Framework
         private bool retired;
         private bool lifetimeStarted;
         private bool lifetimeEnded;
-        private int lifetimeEpoch = -1;
         static MonoSingleton()
         {
 #if UNITY_EDITOR
@@ -47,7 +46,7 @@ namespace Game.Framework
             }
             finally
             {
-                instance = null;
+                ResetSingletonReference();
                 ending = false;
             }
         }
@@ -59,7 +58,7 @@ namespace Game.Framework
         {
             get
             {
-                if (SingletonRuntimeState.IsQuitting || ending)
+                if (ending)
                 {
                     return null;
                 }
@@ -71,12 +70,7 @@ namespace Game.Framework
 
                 if (TryGetInstance(out var current))
                 {
-                    return SingletonRuntimeState.IsResetting ? current : Prepare(current);
-                }
-
-                if (SingletonRuntimeState.IsResetting)
-                {
-                    throw new InvalidOperationException("Cannot create or initialize a MonoSingleton during reset: " + typeof(T).FullName);
+                    return Prepare(current);
                 }
 
                 T found = null;
@@ -165,20 +159,13 @@ namespace Game.Framework
         {
             try
             {
-                if (value.lifetimeEpoch != SingletonRuntimeState.Epoch)
-                {
-                    value.lifetimeEpoch = SingletonRuntimeState.Epoch;
-                    value.lifetimeStarted = false;
-                    value.lifetimeEnded = false;
-                }
-
                 if (!value.lifetimeStarted)
                 {
                     value.lifetimeStarted = true;
                     value.OnStart();
                 }
 
-                if (value.retired || SingletonRuntimeState.IsQuitting)
+                if (value.retired)
                 {
                     throw new ObjectDisposedException(typeof(T).FullName);
                 }
@@ -263,7 +250,7 @@ namespace Game.Framework
 
         protected virtual void Awake()
         {
-            if (retired || SingletonRuntimeState.IsQuitting)
+            if (retired)
             {
                 RetireSingleton();
                 Destroy(gameObject);
@@ -286,7 +273,6 @@ namespace Game.Framework
 
         protected virtual void OnApplicationQuit()
         {
-            SingletonRuntimeState.IsQuitting = true;
             EndLifetime();
         }
 

@@ -183,18 +183,8 @@ namespace UnityEngine
             DeferGameObjectDestructionForTest = deferred;
         }
 
-        public static void MarkQuittingForTest()
-        {
-            var state = typeof(Game.Framework.Singleton<>).Assembly.GetType("Game.Framework.SingletonRuntimeState")!;
-            state.GetField("IsQuitting", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, true);
-        }
-
         public static void ResetSingletonsForPlay()
         {
-            var state = typeof(Game.Framework.Singleton<>).Assembly.GetType("Game.Framework.SingletonRuntimeState")!;
-            state.GetField("IsQuitting", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, false);
-            var epoch = state.GetField("Epoch", BindingFlags.Static | BindingFlags.NonPublic)!;
-            epoch.SetValue(null, (int)epoch.GetValue(null)! + 1);
 #if UNITY_EDITOR
             Game.Framework.EditorStaticReset.RestoreDeclaredValues();
 #endif
@@ -1000,7 +990,6 @@ namespace UnityEngine
         public static event Action quitting;
         public static void QuitForTest()
         {
-            Object.MarkQuittingForTest();
             quitting?.Invoke();
         }
 

@@ -8,24 +8,6 @@ using System;
 
 namespace Game.Framework
 {
-    // 单例访问保护所需的内部状态；不保存实例、清理回调或释放顺序。
-    internal static class SingletonRuntimeState
-    {
-        internal static volatile bool IsQuitting;
-        internal static int Epoch;
-        internal static bool IsResetting
-        {
-            get
-            {
-#if UNITY_EDITOR
-                return EditorStaticReset.IsResetting;
-#else
-                return false;
-#endif
-            }
-        }
-    }
-
     /// <summary>按需创建普通单例，实际资源由服务自己清理。</summary>
     public abstract class Singleton<T> : IDisposable where T : Singleton<T>, new()
     {
@@ -66,12 +48,6 @@ namespace Game.Framework
             {
                 lock (gate)
                 {
-                    bool editorReset = SingletonRuntimeState.IsResetting;
-                    if (editorReset ? !lazy.IsValueCreated : SingletonRuntimeState.IsQuitting)
-                    {
-                        throw new InvalidOperationException("Cannot access the singleton during reset or shutdown: " + typeof(T).FullName);
-                    }
-
                     return lazy.Value;
                 }
             }

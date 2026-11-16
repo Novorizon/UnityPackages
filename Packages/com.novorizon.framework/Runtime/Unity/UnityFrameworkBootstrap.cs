@@ -33,8 +33,6 @@ namespace Game.Framework
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
-            SingletonRuntimeState.IsQuitting = false;
-            System.Threading.Interlocked.Increment(ref SingletonRuntimeState.Epoch);
 #if UNITY_EDITOR
             // Domain Reload 开启时由 CLR 初始化字段，避免重复执行声明中的初始化表达式。
             if (UnityEditor.EditorSettings.enterPlayModeOptionsEnabled &&
@@ -61,7 +59,6 @@ namespace Game.Framework
 
         private static void OnQuitting()
         {
-            SingletonRuntimeState.IsQuitting = true;
             FrameworkUpdateDriver.Stop();
             GameObjectPool.DisposeAll();
             ReferencePool.ClearAll();

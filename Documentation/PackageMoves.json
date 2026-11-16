@@ -205,8 +205,8 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
-      "sha256": "f0e1755fa4c28eaece224f3c244103e4de547ab0a0196b75d15b77fa432bfc27",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
+      "sha256": "90a84a4151f909daebb35faad79d98ef02120ef131949e78d4c5e56787982cba",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs": {
       "sha256": "89c516a4974d85791bd6ef85156c7151d85a833a806a83a4a389c5d11c2878ce",
@@ -217,8 +217,8 @@
       "reason": "Add central GPU scheduling and playback notifications"
     },
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
-      "sha256": "3a1bd5b35e9b74fd7919cd68be83da5139d8777e25f1cc5af06bc1fbc4c9ae52",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "ebced5fae4dbc97692b8db1dd2f31f53da4fc3e7d13954ce266f6c9fecbe2059",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
       "sha256": "9dd269265cc03064fc57be9ecb70af8ff8b0582fdcf9df7e7b7679e436185af3",
@@ -265,8 +265,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "de3a18dea743d613d3314e41f96004c2ff4464e0bc1bdfb1fd5340922c59695d",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "8ab8e203490e514b2307f98163b48d91adc365aa9916ccabfbaabee581d92d0a",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
       "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
@@ -313,8 +313,8 @@
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "9d64e62686fe1163907962a85709d72e2684fc40e6936d9b0aa2ba5a7be8d2c0",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
+      "sha256": "bd25c3fb0ee0f1efd436a4d7c21bd606ce33a9a3d92ba5d813392090eff6e9e1",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
       "sha256": "8533c4793fc1801857809f901036be6f37fbcca37b7bde0e0d6e9cb63d83cd53",
