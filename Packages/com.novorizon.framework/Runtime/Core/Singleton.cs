@@ -27,7 +27,7 @@ namespace Game.Framework
         }
     }
 
-    /// <summary>普通服务的共享引用；可由应用入口注册，也兼容原有的按需创建方式。</summary>
+    /// <summary>按需创建的普通单例；运行时由所属入口集中 Release。</summary>
     public abstract class Singleton<T>
         where T : new()
     {
@@ -38,7 +38,7 @@ namespace Game.Framework
             return EditorStaticReset.Register(clear, restore);
         }
 #endif
-        /// <summary>统一的无参初始化入口；有初始化工作的服务重写本方法。</summary>
+        /// <summary>统一的无参初始化入口。实例由 Instance 准备；有初始化工作的服务重写本方法。</summary>
         public virtual void Initialize()
         {
         }
@@ -47,8 +47,6 @@ namespace Game.Framework
         private static Lazy<T> lazy = CreateLazy();
         private static bool resetting;
         private static bool creating;
-        private static bool entryOwned;
-        private static T entryInstance;
 #if UNITY_EDITOR
         static Singleton()
         {
@@ -77,16 +75,6 @@ namespace Game.Framework
             {
                 lock (gate)
                 {
-                    if (entryOwned)
-                    {
-                        if (ReferenceEquals(entryInstance, null))
-                        {
-                            throw new InvalidOperationException("The application entry has not registered " + typeof(T).FullName);
-                        }
-
-                        return entryInstance;
-                    }
-
                     EnsureAvailable();
                     return lazy.Value;
                 }
@@ -99,7 +87,7 @@ namespace Game.Framework
             {
                 lock (gate)
                 {
-                    return entryOwned ? !ReferenceEquals(entryInstance, null) : lazy.IsValueCreated;
+                    return lazy.IsValueCreated;
                 }
             }
         }
@@ -108,62 +96,8 @@ namespace Game.Framework
         {
             lock (gate)
             {
-                if (entryOwned)
-                {
-                    value = entryInstance;
-                    return !ReferenceEquals(value, null);
-                }
-
                 value = lazy.IsValueCreated ? lazy.Value : default;
                 return lazy.IsValueCreated;
-            }
-        }
-
-        /// <summary>声明此服务由应用入口管理；必须在第一次访问前调用。</summary>
-        public static void UseEntryLifetime()
-        {
-            lock (gate)
-            {
-                if (entryOwned)
-                {
-                    return;
-                }
-
-                if (creating || resetting || lazy.IsValueCreated)
-                {
-                    throw new InvalidOperationException("Select entry ownership before accessing " + typeof(T).FullName);
-                }
-
-                entryOwned = true;
-            }
-        }
-
-        internal static void RegisterEntryInstance(T value)
-        {
-            if (ReferenceEquals(value, null))
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            lock (gate)
-            {
-                if (!entryOwned || !ReferenceEquals(entryInstance, null) || SingletonRuntimeState.IsQuitting || SingletonRuntimeState.IsResetting)
-                {
-                    throw new InvalidOperationException("Cannot register another entry instance of " + typeof(T).FullName);
-                }
-
-                entryInstance = value;
-            }
-        }
-
-        internal static void UnregisterEntryInstance(T value)
-        {
-            lock (gate)
-            {
-                if (entryOwned && ReferenceEquals(entryInstance, value))
-                {
-                    entryInstance = default;
-                }
             }
         }
 
@@ -183,11 +117,6 @@ namespace Game.Framework
             Lazy<T> previous;
             lock (gate)
             {
-                if (entryOwned)
-                {
-                    return;
-                }
-
                 if (creating || resetting)
                 {
                     throw new InvalidOperationException("Cannot reset a service during creation or reset: " + typeof(T).FullName);

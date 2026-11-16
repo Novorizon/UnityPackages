@@ -28,7 +28,7 @@
     }
   ],
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.10",
+    "com.novorizon.framework": "0.18.0-preview.9",
     "com.unity.render-pipelines.universal": "14.0.1"
   }
 }

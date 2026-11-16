@@ -20,7 +20,6 @@ namespace Game.Framework
 
         private static T instance;
         private static bool ending;
-        private static bool entryOwned;
         private bool retired;
         private bool lifetimeStarted;
         private bool lifetimeEnded;
@@ -42,11 +41,6 @@ namespace Game.Framework
 
         private static void ResetForPlay()
         {
-            if (entryOwned)
-            {
-                return;
-            }
-
             try
             {
                 EndExistingLifetime();
@@ -60,13 +54,12 @@ namespace Game.Framework
 
         public virtual string RootName => typeof(T).Name;
         protected bool IsDestroying => retired;
-        protected static bool HasEntryLifetime => entryOwned;
 
         public static T Instance
         {
             get
             {
-                if (!entryOwned && (SingletonRuntimeState.IsQuitting || ending))
+                if (SingletonRuntimeState.IsQuitting || ending)
                 {
                     return null;
                 }
@@ -78,12 +71,7 @@ namespace Game.Framework
 
                 if (TryGetInstance(out var current))
                 {
-                    return entryOwned || SingletonRuntimeState.IsResetting ? current : Prepare(current);
-                }
-
-                if (entryOwned)
-                {
-                    throw new InvalidOperationException("The application entry has not created " + typeof(T).FullName);
+                    return SingletonRuntimeState.IsResetting ? current : Prepare(current);
                 }
 
                 if (SingletonRuntimeState.IsResetting)
@@ -91,75 +79,47 @@ namespace Game.Framework
                     throw new InvalidOperationException("Cannot create or initialize a MonoSingleton during reset: " + typeof(T).FullName);
                 }
 
-                return FindOrCreate();
-            }
-        }
-
-        /// <summary>声明由应用入口管理；入口创建前，Awake 和 Instance 不启动该组件。</summary>
-        public static void UseEntryLifetime()
-        {
-            if (!entryOwned && instance != null)
-            {
-                throw new InvalidOperationException("Select entry ownership before accessing " + typeof(T).FullName);
-            }
-
-            entryOwned = true;
-        }
-
-        /// <summary>由应用入口显式准备并发布组件。</summary>
-        public static T CreateEntryInstance()
-        {
-            if (!entryOwned || instance != null || ending || SingletonRuntimeState.IsQuitting ||
-                SingletonRuntimeState.IsResetting || !UnityThread.IsMainThread)
-            {
-                throw new InvalidOperationException("Cannot create the entry-owned component " + typeof(T).FullName);
-            }
-
-            return FindOrCreate();
-        }
-
-        private static T FindOrCreate()
-        {
-            T found = null;
-            foreach (var candidate in FindObjectsOfType<T>(true))
-            {
-                if (candidate.retired)
+                T found = null;
+                foreach (var candidate in FindObjectsOfType<T>(true))
                 {
-                    continue;
+                    if (candidate.retired)
+                    {
+                        continue;
+                    }
+
+                    if (found == null)
+                    {
+                        found = candidate;
+                    }
+                    else
+                    {
+                        candidate.RejectDuplicate(found);
+                    }
                 }
 
-                if (found == null)
+                if (found != null)
                 {
-                    found = candidate;
-                }
-                else
-                {
-                    candidate.RejectDuplicate(found);
-                }
-            }
-
-            if (found != null)
-            {
-                instance = found;
-                return Prepare(found);
-            }
-
-            var go = new GameObject(typeof(T).Name);
-            try
-            {
-                var created = go.AddComponent<T>();
-                if (created.retired)
-                {
-                    throw new ObjectDisposedException(typeof(T).FullName);
+                    instance = found;
+                    return Prepare(found);
                 }
 
-                instance = created;
-                return Prepare(created);
-            }
-            catch
-            {
-                Destroy(go);
-                throw;
+                var go = new GameObject(typeof(T).Name);
+                try
+                {
+                    var created = go.AddComponent<T>();
+                    if (created.retired)
+                    {
+                        throw new ObjectDisposedException(typeof(T).FullName);
+                    }
+
+                    instance = created;
+                    return Prepare(created);
+                }
+                catch
+                {
+                    Destroy(go);
+                    throw;
+                }
             }
         }
 
@@ -173,11 +133,6 @@ namespace Game.Framework
         /// <summary>Retires the reference immediately, including while native Destroy is deferred.</summary>
         public static void DestroyInstance()
         {
-            if (entryOwned)
-            {
-                return;
-            }
-
             if (!TryGetInstance(out var current))
             {
                 return;
@@ -321,11 +276,6 @@ namespace Game.Framework
                 return;
             }
 
-            if (entryOwned)
-            {
-                return;
-            }
-
             instance = (T)this;
             Prepare((T)this);
             if (transform.parent != null)
@@ -337,10 +287,7 @@ namespace Game.Framework
         protected virtual void OnApplicationQuit()
         {
             SingletonRuntimeState.IsQuitting = true;
-            if (!entryOwned)
-            {
-                EndLifetime();
-            }
+            EndLifetime();
         }
 
         protected virtual void OnDestroy()

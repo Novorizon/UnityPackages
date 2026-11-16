@@ -184,54 +184,6 @@ internal static partial class Program
             True(!Service.IsCreated);
             True(Service.Instance != null);
         });
-        Check("entry owns publication, reverse cleanup and repeat startup", () =>
-        {
-            EntryService.UseEntryLifetime();
-            True(!EntryService.TryGetInstance(out _));
-            Throws<InvalidOperationException>(() => _ = EntryService.Instance);
-            Equal(0, EntryService.Created);
-
-            var scope = new EntryServiceScope();
-            var first = scope.Register(new EntryService());
-            var dependent = scope.Own(new EntryDependent());
-            EntryService.Release();
-            True(ReferenceEquals(first, EntryService.Instance));
-            scope.Dispose();
-            scope.Dispose();
-            True(dependent.SawLiveDependency && first.DisposedWhileUnpublished);
-            Equal(1, first.DisposeCount);
-            True(!EntryService.TryGetInstance(out _));
-            Throws<InvalidOperationException>(() => _ = EntryService.Instance);
-            Equal(1, EntryService.Created);
-
-            using (var nextScope = new EntryServiceScope())
-            {
-                True(!ReferenceEquals(first, nextScope.Register(new EntryService())));
-                scope.Dispose();
-                True(EntryService.TryGetInstance(out _));
-            }
-            True(!EntryService.TryGetInstance(out _));
-        });
-        Check("entry components ignore Awake, lookup and legacy release outside entry startup", () =>
-        {
-            Object.ResetTestState();
-            EntryComponent.UseEntryLifetime();
-            var component = new GameObject("entry component").AddComponent<EntryComponent>();
-            Equal(0, component.Starts);
-            True(!EntryComponent.TryGetInstance(out _));
-            Throws<InvalidOperationException>(() => _ = EntryComponent.Instance);
-            using (var scope = new EntryServiceScope())
-            {
-                True(ReferenceEquals(component, scope.Own(EntryComponent.CreateEntryInstance())));
-                EntryComponent.Release();
-                True(ReferenceEquals(component, EntryComponent.Instance));
-                Equal(1, component.Starts);
-                Equal(0, component.Exits);
-            }
-            True(!EntryComponent.TryGetInstance(out _));
-            Throws<InvalidOperationException>(() => _ = EntryComponent.Instance);
-            Equal(1, component.Exits);
-        });
         Check("NetworkManager owns its configured instance", NetworkLifecycle);
 #if UNITY_EDITOR
         Check("Editor static recovery disposes a configured network and leaves no shared instance", () =>
@@ -515,42 +467,6 @@ internal static partial class Program
 
     public sealed partial class Simple : Singleton<Simple>
     {
-    }
-
-    private sealed partial class EntryService : Singleton<EntryService>, IDisposable
-    {
-        public static int Created;
-        public int DisposeCount;
-        public bool DisposedWhileUnpublished;
-
-        public EntryService()
-        {
-            Created++;
-        }
-
-        public void Dispose()
-        {
-            DisposeCount++;
-            DisposedWhileUnpublished = !TryGetInstance(out _);
-        }
-    }
-
-    private sealed class EntryDependent : IDisposable
-    {
-        public bool SawLiveDependency;
-
-        public void Dispose()
-        {
-            SawLiveDependency = EntryService.TryGetInstance(out var dependency) && dependency.DisposeCount == 0;
-        }
-    }
-
-    public sealed class EntryComponent : MonoSingleton<EntryComponent>
-    {
-        public int Starts;
-        public int Exits;
-        protected override void OnStart() => Starts++;
-        protected override void OnExit() => Exits++;
     }
 
     public sealed partial class ExitHook : MonoSingleton<ExitHook>

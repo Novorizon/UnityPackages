@@ -361,10 +361,7 @@ namespace UI
         {
             quitting = true;
             UIDestructionObserver.StopForQuit();
-            if (!HasEntryLifetime)
-            {
-                Shutdown();
-            }
+            Shutdown();
         }
 
         void LateUpdate()
