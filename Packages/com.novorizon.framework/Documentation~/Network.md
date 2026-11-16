@@ -35,7 +35,7 @@ AuthenticateAsync 的类型是 Func<NetworkManager.AuthenticationContext, Cancel
 
 项目可在需要终止自动重试时抛出 ConnectionRejectedException。RemoteRequestException.ResultCode 保留服务器返回的整数，Framework 不解释任何项目错误码。已初始化会话不能再替换认证回调。
 
-自定义连接配置可在首次 Instance 访问前调用 NetworkManager.Configure(options, clientOptions, dispatcher, authenticate)。Configure 不能替换已创建的实例。只有应用启动层负责配置，页面共享连接。
+NetworkManager 管理自己的共享实例。应用入口可通过 Release 释放当前连接。调用方也可以直接 Dispose 已持有的连接。自定义连接配置可在首次 Instance 访问前调用 NetworkManager.Configure(options, clientOptions, dispatcher, authenticate)。Configure 不能替换已创建的实例。只有应用启动层负责配置，页面共享连接。
 
 ## 请求与通知
 

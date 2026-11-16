@@ -8,7 +8,7 @@ using Google.Protobuf;
 namespace Game.Framework.Network
 {
     // Application entry point. Owns a session without application-specific messages.
-    public sealed partial class NetworkManager : Singleton<NetworkManager>, IDisposable, IAsyncDisposable
+    public sealed partial class NetworkManager : IDisposable, IAsyncDisposable
     {
         private NetworkSession session;
         private readonly object initializationGate = new object ();
@@ -175,7 +175,13 @@ namespace Game.Framework.Network
             }
             finally
             {
-                ReleaseSingleton();
+                lock (instanceGate)
+                {
+                    if (ReferenceEquals(instance, this))
+                    {
+                        instance = null;
+                    }
+                }
             }
         }
 

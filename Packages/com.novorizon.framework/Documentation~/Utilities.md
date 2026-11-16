@@ -90,7 +90,7 @@ Lazy 保证共享入口初始化线程安全，IsCreated 不触发构造。类�
 
 实例在进程/AppDomain 保留，没有通用 Reset；禁用 Domain Reload 后业务状态可能跨 Play 保留。账号/会话状态应显式清理，构造中避免 Unity API、联网和资源初始化。
 
-NetworkManager 使用自己的应用生命周期与封闭构造入口，普通页面直接 Instance，不 new 或 Dispose 全局连接。
+NetworkManager 自己管理全局实例。应用入口配置和释放连接，页面使用 Instance。
 
 ## Unity 单例：`MonoSingleton<T>`
 
@@ -124,7 +124,7 @@ Dispatcher/MessageDispatcher 使用共享 UnityThread，Messager 使用共享 Ev
 
 ## 服务单例
 
-`Singleton<T>` 负责按需创建、查询和释放服务；需要配置时在入口调用服务自己的 Initialize 重载。NetworkManager.Configure 可在首次访问前提供传输适配器。退出时集中 Release，不为清理创建未使用的实例。
+`Singleton<T>` 负责按需创建、查询和释放服务；需要配置时在入口调用服务自己的 Initialize 重载。NetworkManager.Configure 可在首次访问前提供传输适配器。退出时集中 Release，不为清理创建未使用的实例。SceneManager、LocalStorageManager、DataManager 和 InputManager 的无参 Reset 也会释放当前实例。应用退出会阻止重新创建。
 
 
 单例基类提供无参 virtual Initialize，用于在项目入口集中显式准备服务。有实际无参初始化逻辑时 override；需要参数时新增重载，并可让无参 override 委托到默认参数配置。这个入口不重新调用 MonoSingleton.OnStart，也不代替需要 await 的异步初始化。

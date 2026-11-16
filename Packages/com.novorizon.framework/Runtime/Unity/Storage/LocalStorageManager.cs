@@ -20,9 +20,9 @@ namespace Game.Framework.Storage
         private bool disposed;
         public string RootDirectory => root;
 
-        public static void Reset(bool stopping = false)
+        public static void Reset()
         {
-            ResetInstance(value => value.Dispose(), stopping);
+            Release();
         }
 
         public override void Initialize()
@@ -221,7 +221,7 @@ namespace Game.Framework.Storage
             lock (gate)
             {
                 disposed = true;
-                ReleaseInstance(this);
+                ClearInstanceIfCurrent(this);
             }
         }
     }

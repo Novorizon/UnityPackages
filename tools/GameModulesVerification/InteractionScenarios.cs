@@ -181,12 +181,8 @@ internal static partial class Program
             var next = InputManager.Instance;
             True(!ReferenceEquals(input, next) && !next.Initialized);
             next.Initialize();
-            InputManager.Reset(true);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = InputManager.Instance;
-            });
             InputManager.Reset();
+            True(!InputManager.IsCreated);
         });
         Run("audio fade uses unified time and respects every pause source", () =>
         {
@@ -425,17 +421,12 @@ internal static partial class Program
             Fails<InvalidOperationException>(data.LoadAsync<cfg.Tables>(_ => throw new InvalidOperationException("factory")));
             Same(previous, data.Get<cfg.Tables>());
         });
-        Run("Luban singleton disposal releases its reference and stopped services cannot resurrect", () =>
+        Run("Luban singleton reset clears the reference and allows a clean instance", () =>
         {
             var previous = DataManager.Instance;
             previous.Initialize();
-            DataManager.Reset(true);
-            True(!DataManager.IsCreated);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = DataManager.Instance;
-            });
             DataManager.Reset();
+            True(!DataManager.IsCreated);
             True(!ReferenceEquals(previous, DataManager.Instance));
             Equal(0, DataManager.Instance.Count);
         });

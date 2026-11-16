@@ -47,13 +47,12 @@ namespace Game.Framework
         private static Lazy<T> lazy = CreateLazy();
         private static bool resetting;
         private static bool creating;
-        private static bool stopped;
+#if UNITY_EDITOR
         static Singleton()
         {
-#if UNITY_EDITOR
-            EditorStaticReset.Register(ResetSingleton);
-#endif
+            EditorStaticReset.Register(ReleaseCurrent);
         }
+#endif
 
         private static Lazy<T> CreateLazy()
         {
@@ -102,43 +101,7 @@ namespace Game.Framework
             }
         }
 
-        // 仅供需要显式构造依赖的服务在首次访问前使用，例如网络传输适配器。
-        protected static void ConfigureInstance(Func<T> factory)
-        {
-            if (factory == null)
-            {
-                throw new ArgumentNullException(nameof(factory));
-            }
-
-            lock (gate)
-            {
-                EnsureAvailable();
-                if (lazy.IsValueCreated)
-                {
-                    throw new InvalidOperationException("Configure the service before accessing its instance: " + typeof(T).FullName);
-                }
-
-                creating = true;
-                T value;
-                try
-                {
-                    value = factory();
-                    if (ReferenceEquals(value, null))
-                    {
-                        throw new InvalidOperationException("The singleton factory returned null: " + typeof(T).FullName);
-                    }
-                }
-                finally
-                {
-                    creating = false;
-                }
-
-                lazy = new Lazy<T>(() => value, LazyThreadSafetyMode.ExecutionAndPublication);
-                _ = lazy.Value;
-            }
-        }
-
-        protected static void ReleaseInstance(T value)
+        protected static void ClearInstanceIfCurrent(T value)
         {
             lock (gate)
             {
@@ -149,25 +112,7 @@ namespace Game.Framework
             }
         }
 
-        protected static void ResetInstance(Action<T> release, bool stopping = false)
-        {
-            ResetCore(release, stopping);
-        }
-
-        private static void ResetSingleton()
-        {
-            ResetCore(DisposeValue, false);
-        }
-
-        private static void DisposeValue(T value)
-        {
-            if (value is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        private static void ResetCore(Action<T> release, bool? stopping)
+        private static void ReleaseCurrent()
         {
             Lazy<T> previous;
             lock (gate)
@@ -179,19 +124,14 @@ namespace Game.Framework
 
                 previous = lazy;
                 lazy = CreateLazy();
-                if (stopping.HasValue)
-                {
-                    stopped = stopping.Value;
-                }
-
                 resetting = true;
             }
 
             try
             {
-                if (previous.IsValueCreated)
+                if (previous.IsValueCreated && previous.Value is IDisposable disposable)
                 {
-                    release?.Invoke(previous.Value);
+                    disposable.Dispose();
                 }
             }
             finally
@@ -208,7 +148,7 @@ namespace Game.Framework
         {
             try
             {
-                ResetCore(DisposeValue, null);
+                ReleaseCurrent();
             }
             catch (Exception error)
             {
@@ -218,7 +158,7 @@ namespace Game.Framework
 
         private static void EnsureAvailable()
         {
-            if (creating || resetting || stopped
+            if (creating || resetting
                 || (SingletonRuntimeState.IsQuitting && !SingletonRuntimeState.IsResetting)
                 || (!lazy.IsValueCreated && SingletonRuntimeState.IsResetting))
             {

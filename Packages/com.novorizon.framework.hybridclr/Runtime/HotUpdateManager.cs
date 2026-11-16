@@ -388,7 +388,7 @@ namespace Game.Framework.HotUpdate
                 lifetime = null;
                 settings = null;
                 startupContext = null;
-                ReleaseInstance(this);
+                ClearInstanceIfCurrent(this);
             }
         }
 

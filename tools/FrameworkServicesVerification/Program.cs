@@ -133,7 +133,7 @@ internal static partial class Program
         });
         Check("singleton supports concurrent acquisition", () =>
         {
-            Service.Reset();
+            Service.Release();
             int created = Service.Created;
             var values = new Service[64];
             Parallel.For(0, values.Length, i => values[i] = Service.Instance);
@@ -144,81 +144,72 @@ internal static partial class Program
 
             Equal(created + 1, Service.Created);
         });
-        Check("TryGetInstance never creates and configured services cannot be replaced implicitly", () =>
+        Check("releasing an unused singleton does not create it", () =>
         {
-            Service.Reset();
+            Service.Release();
+            int created = Service.Created;
             True(!Service.TryGetInstance(out _));
-            Service.Configure(() => Service.New("configured"));
-            Equal("configured", Service.Instance.Name);
-            Throws<InvalidOperationException>(() => Service.Configure(() => Service.New("replacement")));
+            Service.Release();
+            Equal(created, Service.Created);
         });
-        Check("reset releases outside the lock and blocks creation during cleanup", () =>
+        Check("release disposes outside the lock and blocks creation during cleanup", () =>
         {
-            Service.Reset();
             var old = Service.Instance;
-            Service.ResetWith(value =>
+            bool observed = false;
+            old.OnDispose = () =>
             {
-                True(Task.Run(() => !Service.IsCreated).Wait(2000));
+                observed = Task.Run(() => !Service.IsCreated).Wait(2000);
                 Throws<InvalidOperationException>(() =>
                 {
                     _ = Service.Instance;
                 });
-                value.Dispose();
-            });
-            True(old.Disposed);
+                observed &= !Service.TryGetInstance(out _);
+            };
+            Service.Release();
+            True(observed && old.Disposed);
             True(!ReferenceEquals(old, Service.Instance));
         });
-        Check("a stale release cannot clear a newer service", () =>
+        Check("a stale dispose cannot clear a newer service", () =>
         {
             var old = Service.Instance;
             old.Dispose();
             var next = Service.Instance;
-            Service.Release(old);
+            old.Dispose();
             True(ReferenceEquals(next, Service.Instance));
         });
-        Check("stop prevents resurrection until an explicit reset", () =>
+        Check("cleanup exceptions release the guard", () =>
         {
-            Service.Reset(stopping: true);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = Service.Instance;
-            });
-            Throws<InvalidOperationException>(() => Service.Configure(() => Service.New("stopped")));
-            Service.Reset();
-            True(Service.Instance != null);
-        });
-        Check("failed, null and reentrant factories leave creation retryable", () =>
-        {
-            Service.Reset();
-            Throws<InvalidOperationException>(() => Service.Configure(() => throw new InvalidOperationException("factory")));
-            Throws<InvalidOperationException>(() => Service.Configure(() => null));
-            Throws<InvalidOperationException>(() => Service.Configure(() => Service.Instance));
+            Service.Instance.OnDispose = () => throw new InvalidOperationException("cleanup");
+            Service.Release();
             True(!Service.IsCreated);
             True(Service.Instance != null);
         });
-        Check("cleanup exceptions release the reset gate", () =>
+        Check("NetworkManager owns its configured instance", NetworkLifecycle);
+#if UNITY_EDITOR
+        Check("Editor static recovery disposes a configured network and leaves no shared instance", () =>
         {
-            _ = Service.Instance;
-            Throws<InvalidOperationException>(() => Service.ResetWith(_ => throw new InvalidOperationException("cleanup")));
-            True(Service.Instance != null);
+            NetworkManager.Release();
+            var transport = new Transport();
+            NetworkManager.Configure(transport, new NetworkClientOptions { AutomaticDispatch = false });
+            Object.ResetSingletonsForPlay();
+            True(transport.Disposed && !NetworkManager.TryGetInstance(out _));
         });
-        Check("NetworkManager uses the Framework singleton", NetworkLifecycle);
-        Check("Release never creates a service and preserves the quit guard", () =>
+#endif
+        Check("singleton and network release preserve the application quit guard", () =>
         {
-            Service.Reset();
-            int created = Service.Created;
-            Singleton<Service>.Release();
-            Equal(created, Service.Created);
-            var value = Service.Instance;
-            Singleton<Service>.Release();
-            True(value.Disposed && !Service.IsCreated);
-            Service.Reset(stopping: true);
-            Singleton<Service>.Release();
-            Throws<InvalidOperationException>(() =>
+            Object.MarkQuittingForTest();
+            try
             {
-                _ = Service.Instance;
-            });
-            Service.Reset();
+                Service.Release();
+                NetworkManager.Release();
+                Throws<InvalidOperationException>(() => _ = Service.Instance);
+                Throws<InvalidOperationException>(() => _ = NetworkManager.Instance);
+                Throws<InvalidOperationException>(() => NetworkManager.Configure(new Transport()));
+            }
+            finally
+            {
+                Object.ResetSingletonsForPlay();
+            }
         });
         Check("MonoSingleton OnExit runs once across release and deferred native destruction", () =>
         {
@@ -292,17 +283,6 @@ internal static partial class Program
             value.Dispose();
             Equal(1, EcsExitHook.Exits);
             True(!EcsExitHook.TryGetInstance(out _));
-        });
-        Check("network stop and restart reuse the generic lifecycle", () =>
-        {
-            ResetNetwork(true);
-            Throws<InvalidOperationException>(() =>
-            {
-                _ = NetworkManager.Instance;
-            });
-            ResetNetwork();
-            True(NetworkManager.Instance != null);
-            ResetNetwork();
         });
         Check("GPU player has no individual Unity Update callback", () =>
         {
@@ -513,39 +493,25 @@ internal static partial class Program
     private sealed partial class Service : Singleton<Service>, IDisposable
     {
         public static int Created;
-        public readonly string Name;
         public bool Disposed;
-        private Service(string name)
+        public Action OnDispose;
+
+        public Service()
         {
-            Name = name;
             Interlocked.Increment(ref Created);
         }
 
-        public Service() : this("default")
-        {
-        }
-
-        public static Service New(string name) => new Service(name);
-        public static void Configure(Func<Service> factory) => ConfigureInstance(factory);
-        public static void Reset(bool stopping = false) => ResetInstance(value => value.Dispose(), stopping);
-        public static void ResetWith(Action<Service> release) => ResetInstance(release);
-        public static void Release(Service value) => ReleaseInstance(value);
         public void Dispose()
         {
             Disposed = true;
-            ReleaseInstance(this);
+            ClearInstanceIfCurrent(this);
+            OnDispose?.Invoke();
         }
-    }
-
-    private static void ResetNetwork(bool stopping = false)
-    {
-        typeof(NetworkManager).GetMethod("ResetSingleton", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { stopping });
     }
 
     private static void NetworkLifecycle()
     {
-        ResetNetwork();
-        True(typeof(Singleton<NetworkManager>).IsAssignableFrom(typeof(NetworkManager)));
+        NetworkManager.Release();
         True(!NetworkManager.TryGetInstance(out _));
         var transport = new Transport();
         NetworkManager.Configure(transport, new NetworkClientOptions { AutomaticDispatch = false });
@@ -555,9 +521,12 @@ internal static partial class Program
         first.Dispose();
         True(transport.Disposed && !NetworkManager.IsCreated);
         var second = NetworkManager.Instance;
+        True(!second.IsInitialized);
+        Throws<InvalidOperationException>(() => NetworkManager.Configure(new Transport()));
         first.Dispose();
         True(ReferenceEquals(second, NetworkManager.Instance));
-        ResetNetwork();
+        NetworkManager.Release();
+        True(!NetworkManager.TryGetInstance(out _));
     }
 
     private sealed class Transport : INetworkTransport
