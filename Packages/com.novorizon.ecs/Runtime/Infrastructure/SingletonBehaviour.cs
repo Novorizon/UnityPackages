@@ -143,6 +143,12 @@ namespace ECS
         internal static void ResetForNewSession()
         {
             sessionEpoch = SingletonRuntimeState.SessionEpoch;
+            if (HasEntryLifetime)
+            {
+                applicationIsQuitting = false;
+                return;
+            }
+
             var old = lifetimeOwner;
             applicationIsQuitting = true;
             bool cleanupSucceeded = false;

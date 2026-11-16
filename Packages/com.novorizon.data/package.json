@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.9",
+    "com.novorizon.framework": "0.18.0-preview.10",
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.code-philosophy.luban": "1.2.0"
   }

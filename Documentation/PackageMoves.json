@@ -185,8 +185,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "d88115cfd66221377425427d2f17aa2f1c2c69c2107b503b56a6a2bc2ef7d317",
-      "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service."
+      "sha256": "2e03a4b7acf1b0a82576af63420189523c7feec869b66d3d6aaf3efe3883eb1a",
+      "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service. Support explicit application entry ownership without recreating stopped services."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -261,12 +261,12 @@
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
-      "sha256": "7897d933732f55210de8a68b1a8f7260262d8ffad79af9780284d361faf3b51f",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "0e08e70b1ad4d772e964a543efea2529b5775538f067553b19279e8a428968a7",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Support explicit application entry ownership without recreating stopped services."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "de3a18dea743d613d3314e41f96004c2ff4464e0bc1bdfb1fd5340922c59695d",
-      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
+      "sha256": "c9d9c8aff16430a61c1ed9ef1b8a475dc3f22be95cf00024a24a336344a44699",
+      "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Support explicit application entry ownership without recreating stopped services."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
       "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
@@ -313,8 +313,8 @@
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "a43b8beabd9b4f8f3528ed6a16d7c47ccd8021b7882d888e39faab3f3c49a975",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base."
+      "sha256": "19bbd9b871addfafbc3a1c2761fd84cdbd00f44dbfc619e150b3a66f810735cc",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Support explicit application entry ownership without recreating stopped services."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
       "sha256": "f512bbf2ef5a4eae038d7985cba10be09876436ce48a1fa48d648fe6d3b2bf98",

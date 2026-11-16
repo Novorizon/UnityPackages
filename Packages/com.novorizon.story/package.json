@@ -8,7 +8,7 @@
     "name": "Novorizon"
   },
   "dependencies": {
-    "com.novorizon.framework": "0.18.0-preview.9",
+    "com.novorizon.framework": "0.18.0-preview.10",
     "com.unity.modules.audio": "1.0.0"
   },
   "samples": [
