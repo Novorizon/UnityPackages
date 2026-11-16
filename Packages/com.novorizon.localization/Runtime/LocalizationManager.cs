@@ -220,7 +220,7 @@ namespace Game.Framework.Localization
             {
                 LanguageChanged = null;
                 catalog = null;
-                ReleaseInstance(this);
+                ClearInstanceIfCurrent(this);
             }
         }
     }

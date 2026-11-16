@@ -21,9 +21,9 @@ namespace Game.Framework.Scenes
 
         public event Action<Scene> Loaded;
         public event Action<Scene> Unloaded;
-        public static void Reset(bool stopping = false)
+        public static void Reset()
         {
-            ResetInstance(value => value.Dispose(), stopping);
+            Release();
         }
 
         public override void Initialize()
@@ -225,7 +225,7 @@ namespace Game.Framework.Scenes
             finally
             {
                 lifetime.Dispose();
-                ReleaseInstance(this);
+                ClearInstanceIfCurrent(this);
             }
         }
     }

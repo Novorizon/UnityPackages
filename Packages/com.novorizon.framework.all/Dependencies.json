@@ -61,7 +61,7 @@
     },
     {
       "name": "com.novorizon.data",
-      "version": "0.2.0-preview.8",
+      "version": "0.2.0-preview.9",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.data#v0.1.0-preview.38",
       "external": false,
       "embed": false,
@@ -102,7 +102,7 @@
     },
     {
       "name": "com.novorizon.framework",
-      "version": "0.18.0-preview.8",
+      "version": "0.18.0-preview.9",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework#v0.1.0-preview.38",
       "external": false,
       "embed": false,
@@ -110,7 +110,7 @@
     },
     {
       "name": "com.novorizon.framework.hybridclr",
-      "version": "0.2.0-preview.9",
+      "version": "0.2.0-preview.10",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.framework.hybridclr#v0.1.0-preview.38",
       "external": false,
       "embed": false,
@@ -152,7 +152,7 @@
     },
     {
       "name": "com.novorizon.input",
-      "version": "0.1.0-preview.13",
+      "version": "0.1.0-preview.14",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.input#v0.1.0-preview.38",
       "external": false,
       "embed": false,
@@ -162,7 +162,7 @@
     },
     {
       "name": "com.novorizon.localization",
-      "version": "0.3.0-preview.2",
+      "version": "0.3.0-preview.3",
       "git": "https://github.com/Novorizon/UnityPackages.git?path=/Packages/com.novorizon.localization#v0.1.0-preview.38",
       "external": false,
       "embed": false,

@@ -12,7 +12,7 @@ namespace Game.Framework.Network
         public bool IsInitialized => Volatile.Read(ref session) != null && Volatile.Read(ref disposed) == 0;
 
         // Load/validate settings and install the dispatcher, without connecting or logging in.
-        public override void Initialize() => Initialize(null);
+        public void Initialize() => Initialize(null);
 
         public void Initialize(Func<AuthenticationContext, CancellationToken, Task> authenticate)
         {

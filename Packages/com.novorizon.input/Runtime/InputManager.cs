@@ -24,7 +24,7 @@ namespace Game.Framework.Input
         public InputActionAsset Actions => Initialized ? actions : throw new InvalidOperationException("Initialize InputManager first.");
         public string CurrentControlScheme { get; private set; }
 
-        public static void Reset(bool stopping = false) => ResetInstance(value => value.Dispose(), stopping);
+        public static void Reset() => Release();
         public override void Initialize()
         {
             Initialize(null, null);
@@ -323,7 +323,7 @@ namespace Game.Framework.Input
                 actions = null;
             }
 
-            ReleaseInstance(this);
+            ClearInstanceIfCurrent(this);
         }
 
         private sealed class BlockLease : IDisposable

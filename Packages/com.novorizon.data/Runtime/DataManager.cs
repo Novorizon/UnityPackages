@@ -41,9 +41,9 @@ namespace Game.Framework.Data
             lifetimeToken = lifetime.Token;
         }
 
-        public static void Reset(bool stopping = false)
+        public static void Reset()
         {
-            ResetInstance(value => value.Dispose(), stopping);
+            Release();
         }
 
         public override void Initialize()
@@ -207,7 +207,7 @@ namespace Game.Framework.Data
             finally
             {
                 lifetime.Dispose();
-                ReleaseInstance(this);
+                ClearInstanceIfCurrent(this);
             }
         }
 
