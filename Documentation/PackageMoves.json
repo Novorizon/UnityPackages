@@ -313,8 +313,8 @@
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "1e1c5a2229203fb00ac81cd851efc8f8de00bf2f1fa40c2c358498e3efbc894d",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly."
+      "sha256": "8b820aa4efa00f90d06b143c13070efaba4db58149967e7911401542d15b15f7",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly. Keep the base Release hook empty."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
       "sha256": "8533c4793fc1801857809f901036be6f37fbcca37b7bde0e0d6e9cb63d83cd53",

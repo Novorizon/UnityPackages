@@ -60,16 +60,8 @@ namespace Game.Framework
         {
         }
 
-        /// <summary>清空当前实例的共享引用。</summary>
         public virtual void Release()
         {
-            lock (gate)
-            {
-                if (lazy.IsValueCreated && ReferenceEquals(lazy.Value, this))
-                {
-                    lazy = CreateLazy();
-                }
-            }
         }
 
         public virtual void Dispose()

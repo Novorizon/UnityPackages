@@ -34,59 +34,34 @@ internal static partial class Program
             True(!Simple.TryGetInstance(out _));
             True(ReferenceEquals(Simple.Instance, Simple.Instance));
         });
-        Check("ordinary singletons explicitly release without creating and can be reused", () =>
+        Check("ordinary singleton disposal keeps the cached instance", () =>
         {
             var first = Resettable.Instance;
-            if (Resettable.TryGetInstance(out var current1))
-            {
-                current1.Dispose();
-            }
+            first.Dispose();
             Equal(1, first.Disposals);
-            True(!Resettable.TryGetInstance(out _));
-            var second = Resettable.Instance;
-            True(!ReferenceEquals(first, second));
-            if (Resettable.TryGetInstance(out var current2))
-            {
-                current2.Dispose();
-            }
-            Equal(1, second.Disposals);
-            True(!Resettable.TryGetInstance(out _));
-            var third = Resettable.Instance;
-            if (Resettable.TryGetInstance(out var current3))
-            {
-                current3.Dispose();
-            }
-            if (Resettable.TryGetInstance(out var current4))
-            {
-                current4.Dispose();
-            }
-            Equal(1, third.Disposals);
+            True(Resettable.TryGetInstance(out var current) && ReferenceEquals(first, current));
         });
+#if UNITY_EDITOR
+        Check("Editor reset clears the cached ordinary singleton before the next Play", () =>
+        {
+            var old = Resettable.Instance;
+            Object.ResetSingletonsForPlay();
+            Equal(1, old.Disposals);
+            True(!Resettable.TryGetInstance(out _));
+            True(!ReferenceEquals(old, Resettable.Instance));
+        });
+#endif
         Check("TryGetInstance does not create an unused singleton", () =>
         {
             True(!NeverCreated.TryGetInstance(out _));
             Equal(0, NeverCreated.Created);
         });
-        Check("singleton owners can dispose an instance and start again", () =>
-        {
-            var old = Service.Instance;
-            old.Dispose();
-            True(old.Disposed && !Service.TryGetInstance(out _));
-            True(!ReferenceEquals(old, Service.Instance));
-        });
-        Check("central explicit cleanup continues after failure without constructing unused services", () =>
+        Check("explicit cleanup failure leaves the cached instance available", () =>
         {
             var old = ThrowingReset.Instance;
-            var next = Resettable.Instance;
             Throws<InvalidOperationException>(old.Dispose);
-            if (Resettable.TryGetInstance(out var current7))
-            {
-                current7.Dispose();
-            }
-            True(old.Attempted && !ThrowingReset.TryGetInstance(out _));
-            Equal(1, next.Disposals);
+            True(old.Attempted && ThrowingReset.TryGetInstance(out var current) && ReferenceEquals(old, current));
             True(!NeverCreated.TryGetInstance(out _));
-            Object.ResetSingletonsForPlay();
         });
 #if UNITY_EDITOR
         Check("resetting a retained component calls OnExit once and OnStart on its next use", () =>
@@ -139,42 +114,25 @@ internal static partial class Program
 
             Equal(created + 1, Service.Created);
         });
-        Check("releasing an unused singleton does not create it", () =>
+        Check("base Release leaves the cached reference and resources unchanged", () =>
         {
-            if (Service.TryGetInstance(out var current9))
+            var current = Service.Instance;
+            current.Release();
+            True(Service.TryGetInstance(out var cached) && ReferenceEquals(current, cached) && !current.Disposed);
+        });
+        Check("cleanup failure does not clear the singleton cache", () =>
+        {
+            var current = Service.Instance;
+            current.OnDispose = () => throw new InvalidOperationException("cleanup");
+            try
             {
-                current9.Dispose();
+                Throws<InvalidOperationException>(current.Dispose);
+                True(Service.TryGetInstance(out var cached) && ReferenceEquals(current, cached));
             }
-            int created = Service.Created;
-            True(!Service.TryGetInstance(out _));
-            if (Service.TryGetInstance(out var current10))
+            finally
             {
-                current10.Dispose();
+                current.OnDispose = null;
             }
-            Equal(created, Service.Created);
-        });
-        Check("instance release clears the shared reference without doing service cleanup", () =>
-        {
-            var old = Service.Instance;
-            old.Release();
-            True(!Service.TryGetInstance(out _) && !old.Disposed);
-            old.Dispose();
-            True(old.Disposed && !ReferenceEquals(old, Service.Instance));
-        });
-        Check("a stale dispose cannot clear a newer service", () =>
-        {
-            var old = Service.Instance;
-            old.Dispose();
-            var next = Service.Instance;
-            old.Dispose();
-            True(ReferenceEquals(next, Service.Instance));
-        });
-        Check("cleanup exceptions release the guard", () =>
-        {
-            Service.Instance.OnDispose = () => throw new InvalidOperationException("cleanup");
-            Throws<InvalidOperationException>(Service.Instance.Dispose);
-            True(!Service.TryGetInstance(out _));
-            True(Service.Instance != null);
         });
         Check("NetworkManager owns its configured instance", NetworkLifecycle);
 #if UNITY_EDITOR
@@ -436,8 +394,11 @@ internal static partial class Program
         public override void Dispose()
         {
             base.Release();
-            Attempted = true;
-            throw new InvalidOperationException("Expected cleanup failure");
+            if (!Attempted)
+            {
+                Attempted = true;
+                throw new InvalidOperationException("Expected cleanup failure");
+            }
         }
     }
 
