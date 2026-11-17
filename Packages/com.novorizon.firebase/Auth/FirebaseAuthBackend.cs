@@ -15,9 +15,9 @@ namespace Game.Framework.Firebase.Unity
         private readonly AuthSdk sdk;
         private bool disposed, busy;
 
-        public FirebaseAuthBackend(FirebaseRuntime runtime)
+        public FirebaseAuthBackend(FirebaseManager runtime)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (owner != null)
             {
                 throw new InvalidOperationException("Another backend owns the project's default Firebase Auth instance.");
@@ -176,7 +176,7 @@ namespace Game.Framework.Firebase.Unity
 
         private void Ready()
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (disposed)
             {
                 throw new ObjectDisposedException(nameof(FirebaseAuthBackend));
@@ -185,7 +185,7 @@ namespace Game.Framework.Firebase.Unity
 
         public void Dispose()
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             disposed = true;
             if (!busy && ReferenceEquals(owner, this))
             {

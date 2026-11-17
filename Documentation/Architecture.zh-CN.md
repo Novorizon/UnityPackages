@@ -35,6 +35,6 @@ Story 是独立可选模块：核心只处理不可变序列和会话；Unity au
 
 ## 平台服务与业务入口
 
-业务统一通过 `IapManager`、`AdManager`、`AuthManager`、`AnalyticsManager`、`AttributionManager`、`FirebaseManager` 调用。Manager 的原 Client 基类保留兼容，启动层选择和注入 SDK adapter；不会新增自动初始化 SDK 的全局访问入口。
+业务统一通过 `IapManager`、`AdManager`、`AuthManager`、`AnalyticsManager`、`AttributionManager`、`FirebaseManager` 调用。各 Manager 持有自己的实现，启动层选择和注入 SDK adapter；不会新增自动初始化 SDK 的全局访问入口。
 
 Analytics 只依赖 Framework；Attribution 依赖 Framework / Analytics。Firebase 的统计 adapter 依赖 Analytics 核心，Analytics 不反向依赖 Firebase。统计与归因的可选程序集只有在安装对应外部 SDK 后才参与编译。SDK 版本、功能分工及推荐组合见 [SDK 清单](SdkGuide.zh-CN.md)。

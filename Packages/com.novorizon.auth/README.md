@@ -8,4 +8,4 @@
 
 `Native~` 中是显式安装到项目的桥接模板。GoogleSignIn 10.1.0 要求 iOS 15；Android Credential Manager 要求 API 23。账号删除、Apple 撤销、存档合并由服务端业务实现。SDK 真机闭环仍需项目配置和设备验收。
 
-业务优先使用 `AuthManager`；原 `AuthClient` API 继续兼容。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。
+业务直接使用 `AuthManager`。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。

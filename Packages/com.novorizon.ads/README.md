@@ -8,4 +8,4 @@
 
 安装和调用示例见 [平台服务接入](../../Documentation/PlatformServices.zh-CN.md)，独立包可查看[同版在线文档](https://github.com/Novorizon/UnityPackages/blob/v0.1.0-preview.37/Documentation/PlatformServices.zh-CN.md)。原生广告实际展示 / SSV 需项目 AppID、广告位、控制台与设备验收。
 
-业务优先使用 `AdManager`；原 `AdsClient` API 继续兼容。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。
+业务直接使用 `AdManager`。全部 SDK 的分工见[用途清单](../../Documentation/SdkGuide.zh-CN.md)。

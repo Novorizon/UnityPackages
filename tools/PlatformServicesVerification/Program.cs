@@ -322,7 +322,7 @@ internal static class Program
         Done(client.InitializeAsync());
         return client;
     }
-    private static AdsClient Advertising(Ads provider, bool owns = false)
+    private static AdManager Advertising(Ads provider, bool owns = false)
     {
         var client = new AdManager(provider, owns);
         Done(client.InitializeAsync());

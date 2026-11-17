@@ -8,11 +8,11 @@ namespace Game.Framework.Firebase.Unity
     /// <summary>Optional bridge to AnalyticsManager; the original Firebase IAnalytics API remains available.</summary>
     public sealed class FirebaseAnalyticsBackend : AnalyticsBackend, IRevenueAnalytics
     {
-        private readonly FirebaseRuntime runtime;
+        private readonly FirebaseManager runtime;
         private FirebaseAnalyticsAdapter adapter;
         public override string Id => "firebase-analytics";
 
-        public FirebaseAnalyticsBackend(FirebaseRuntime runtime)
+        public FirebaseAnalyticsBackend(FirebaseManager runtime)
         {
             this.runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
         }

@@ -12,9 +12,9 @@ namespace Game.Framework.Firebase.Unity
         public event Action<string> InstallationRegistered;
         public event Action<PushMessage> MessageReceived;
 
-        public FirebasePushMessaging(FirebaseRuntime runtime)
+        public FirebasePushMessaging(FirebaseManager runtime)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (runtime == null || !runtime.IsInitialized)
             {
                 throw new InvalidOperationException("Await Firebase initialization first.");
@@ -164,7 +164,7 @@ namespace Game.Framework.Firebase.Unity
 
         private void Ready()
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (disposed)
             {
                 throw new ObjectDisposedException(nameof(FirebasePushMessaging));
@@ -173,7 +173,7 @@ namespace Game.Framework.Firebase.Unity
 
         public void Dispose()
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (disposed)
             {
                 return;

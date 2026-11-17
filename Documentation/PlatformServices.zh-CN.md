@@ -121,7 +121,7 @@ Crashlytics 是 **Firebase 产品之一**，有独立 Unity 导入包；不是�
 
 目前官方将 Analytics、Crashlytics、Remote Config、Cloud Messaging 列为免费产品；Firebase 整体有 Spark / Blaze 方案，短信认证、Identity Platform 额度、数据库 / 存储 / 云函数及 BigQuery 等服务需分别核价。参见 [Firebase 官方价格表](https://firebase.google.com/pricing)，不要把“Firebase 免费”理解成所有产品和用量无上限。
 
-`FirebaseAnalyticsAdapter`、`FirebaseCrashReporter`、`FirebaseRemoteConfiguration`、`FirebasePushMessaging` 按需创建，注入已初始化的同一个 `FirebaseRuntime`。没有自动把 Unity 的所有日志上传；Crashlytics 官方 SDK 的崩溃收集与本包的显式非致命异常上报共存。代码不要把身份 token、支付收据或个人信息当作分析参数 / Crashlytics key。
+`FirebaseAnalyticsAdapter`、`FirebaseCrashReporter`、`FirebaseRemoteConfiguration`、`FirebasePushMessaging` 按需创建，注入已初始化的同一个 `FirebaseManager`。没有自动把 Unity 的所有日志上传；Crashlytics 官方 SDK 的崩溃收集与本包的显式非致命异常上报共存。代码不要把身份 token、支付收据或个人信息当作分析参数 / Crashlytics key。
 
 采集是否在冷启动时允许，必须在**原生 SDK 初始化之前**通过项目配置决定。之后调用 `SetCollectionEnabled` 不能撤回此前采集。按项目政策配置 Android manifest / iOS Info.plist 的 Analytics、Crashlytics、Messaging auto-init 设置，再由业务显式开启需要的产品。SDK 默认 App / Auth / RemoteConfig 实例属于工程，包装器 Dispose 不删除它们，也不替其他调用者登出。
 

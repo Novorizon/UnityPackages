@@ -11,15 +11,15 @@ namespace Game.Framework.Firebase.Unity
         private readonly RemoteSdk sdk;
         private bool busy;
 
-        public FirebaseRemoteConfiguration(FirebaseRuntime runtime)
+        public FirebaseRemoteConfiguration(FirebaseManager runtime)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             sdk = RemoteSdk.GetInstance((runtime ?? throw new ArgumentNullException(nameof(runtime))).App);
         }
 
         public async Task SetDefaultsAsync(IReadOnlyDictionary<string, object> defaults)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (busy)
             {
                 throw new InvalidOperationException("A Remote Config operation is already active.");
@@ -42,7 +42,7 @@ namespace Game.Framework.Firebase.Unity
 
         public async Task<bool> FetchAndActivateAsync(TimeSpan minimumCacheAge, CancellationToken token)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             token.ThrowIfCancellationRequested();
             if (minimumCacheAge < TimeSpan.Zero || busy)
             {
@@ -69,7 +69,7 @@ namespace Game.Framework.Firebase.Unity
 
         private global::Firebase.RemoteConfig.ConfigValue Value(string key)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (string.IsNullOrWhiteSpace(key))
             {
                 throw new ArgumentException("Configuration key is required.", nameof(key));

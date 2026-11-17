@@ -7,9 +7,9 @@ namespace Game.Framework.Firebase.Unity
 {
     public sealed class FirebaseAnalyticsAdapter : IAnalytics
     {
-        public FirebaseAnalyticsAdapter(FirebaseRuntime runtime)
+        public FirebaseAnalyticsAdapter(FirebaseManager runtime)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (runtime == null || !runtime.IsInitialized)
             {
                 throw new InvalidOperationException("Await Firebase initialization first.");
@@ -18,19 +18,19 @@ namespace Game.Framework.Firebase.Unity
 
         public void SetCollectionEnabled(bool enabled)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             AnalyticsSdk.SetAnalyticsCollectionEnabled(enabled);
         }
 
         public void SetUserId(string userId)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             AnalyticsSdk.SetUserId(userId);
         }
 
         public void LogEvent(string name, IReadOnlyDictionary<string, object> parameters = null)
         {
-            FirebaseRuntime.MainThread();
+            FirebaseManager.MainThread();
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Event name is required.", nameof(name));

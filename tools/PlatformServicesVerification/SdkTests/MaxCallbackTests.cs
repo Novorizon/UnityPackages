@@ -16,7 +16,7 @@ public sealed class MaxCallbackTests
     {
         UnityThread.Initialize();
         var provider = new MaxAdProvider(false, "acceptance-user");
-        var client = new AdsClient(provider, true);
+        var client = new AdManager(provider, true);
         var rewards = new List<AdReward>();
         client.RewardEarned += rewards.Add;
         var initialize = client.InitializeAsync();
