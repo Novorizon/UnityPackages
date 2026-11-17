@@ -68,6 +68,7 @@ namespace Game.Framework.Ads
     }
 
     /// <summary>Use one explicitly configured provider per client. Reward delivery is independent of closing.</summary>
+    /// <remarks>管理一个广告渠道的初始化、缓存和展示。广告位 ID 由调用方提供。</remarks>
     public sealed class AdManager : IDisposable
     {
         private readonly IAdProvider provider;
@@ -96,6 +97,7 @@ namespace Game.Framework.Ads
             }, token);
         }
 
+        /// <summary>预加载指定广告位。展示前用 IsReady 确认广告已可用。</summary>
         public Task LoadAsync(AdPlacement placement, CancellationToken token = default)
         {
             RequireInitialized(placement);
@@ -108,6 +110,7 @@ namespace Game.Framework.Ads
             return provider.IsReady(placement);
         }
 
+        /// <summary>展示已就绪的广告。激励奖励通过 RewardEarned 单独通知，不能用展示任务完成来判断。</summary>
         public Task ShowAsync(AdPlacement placement, CancellationToken token = default)
         {
             RequireInitialized(placement);
@@ -144,6 +147,7 @@ namespace Game.Framework.Ads
             }
             caller.ThrowIfCancellationRequested();
             busy = true;
+            // 取消调用方的等待后，底层操作仍要退出，才能接受下一次广告请求。
             return TaskUtil.WaitAsync(Execute(action, CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token, caller)), caller);
         }
 
@@ -171,6 +175,7 @@ namespace Game.Framework.Ads
                 return;
             }
             recent.Enqueue(reward.IdempotencyKey);
+            // 只保留最近 1024 条奖励键，限制内存占用。长期幂等应由发奖方处理。
             if (recent.Count > 1024)
             {
                 rewarded.Remove(recent.Dequeue());

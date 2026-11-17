@@ -43,6 +43,7 @@ namespace Game.Framework.Audio
         }
 
         /// <summary>播放唯一的主音乐。渐变切换需要两个音源槽位，容量不足时保持原音乐。</summary>
+        /// <remarks>播放音乐并按指定曲线淡入；已有背景音乐时可交叉淡化。</remarks>
         public AudioHandle PlayMusic(AudioClip clip, float fadeSeconds = 0.3f, float volume = 1, bool loop = true, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
         {
             MainThread();
@@ -211,6 +212,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 按累计时间计算当前音量，达到目标时结束这次淡化。
         private bool AdvanceFade(Voice voice, float deltaTime)
         {
             var fade = voice.Fade;

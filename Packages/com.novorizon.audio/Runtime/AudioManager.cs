@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Game.Framework.Audio
 {
     /// <summary>音源统一管理和回收。AudioClip 由调用者或资源系统持有，播放期间必须保持有效。</summary>
+    /// <remarks>集中管理播放实例、音量分组和 AudioSource 复用。</remarks>
     public sealed partial class AudioManager : MonoSingleton<AudioManager>
     {
         private sealed class Voice
@@ -99,6 +100,7 @@ namespace Game.Framework.Audio
             return handle;
         }
 
+        /// <summary>申请播放实例并返回句柄，达到同时播放数量上限时返回 false。</summary>
         public bool TryPlay(AudioClip clip, out AudioHandle handle, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
         {
             MainThread();
@@ -309,6 +311,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 合成全局、分组和单个播放实例的音量，再写入 AudioSource。
         private void ApplyVolume(Voice voice)
         {
             if (voice.Source != null)

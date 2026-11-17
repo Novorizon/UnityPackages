@@ -110,6 +110,7 @@ namespace Game.Framework.All.Editor
             return true;
         }
 
+        // 将阶段和结果持久化，脚本重新编译或域重载后可以继续安装。
         private static void Save()
         {
             Directory.CreateDirectory(Path.GetDirectoryName(StatePath));
@@ -134,6 +135,7 @@ namespace Game.Framework.All.Editor
             Debug.Log("[Novorizon All] " + phase);
         }
 
+        // 由 Editor 更新驱动安装状态机，每次只处理当前阶段和已有的 UPM 请求。
         private static void Tick()
         {
             if (blocked || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode)
@@ -329,6 +331,7 @@ namespace Game.Framework.All.Editor
             adding = Client.AddAndRemove(sources, obsolete.Select(i => i.name).ToArray());
         }
 
+        // 通过 UPM 嵌入清单指定的包，并检查已经完成的嵌入操作。
         private static void Embed(PackageInfo[] installed)
         {
             foreach (var package in catalog.packages.Where(p => p.embed))
@@ -407,6 +410,7 @@ namespace Game.Framework.All.Editor
             Debug.Log("[Novorizon All] 全部模块安装完成，HybridCLR 默认配置和热更入口已就绪。");
         }
 
+        /// <summary>从编辑器入口重新尝试失败的安装流程。</summary>
         [MenuItem("Tools/Novorizon/All Packages/Retry Installation")]
         public static void RetryInstallation()
         {

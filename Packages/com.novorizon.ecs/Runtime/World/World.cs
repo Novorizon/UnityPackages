@@ -9,6 +9,7 @@ using Sirenix.OdinInspector;
 namespace ECS
 {
     /// <summary>A main-thread system execution group. Entities remain globally owned.</summary>
+    /// <remarks>管理同一个 ECS 世界中的系统，以及实体变化到系统的分发。</remarks>
     [Serializable]
     public class World : IWorld
     {
@@ -108,6 +109,7 @@ namespace ECS
             Rethrow(firstError);
         }
 
+        // 根据发生变化的组件和 GameObject 状态选择需要接收更新的系统。
         internal void InjectChangedEntity(Entity entity, IList<int> componentTypeIds, bool gameObjectChanged)
         {
             if (destroyed) return;
@@ -246,6 +248,7 @@ namespace ECS
             Rethrow(firstError);
         }
 
+        // 为系统建立按组件类型和对象依赖的索引，减少每次实体变更的分发范围。
         private void Index(ISystemBase system)
         {
             if (!(system is ISystemFilter filter))
@@ -298,6 +301,7 @@ namespace ECS
         }
 
         /// <summary>Structural commands become visible after all three phases complete.</summary>
+        /// <remarks>推进已登记系统；更新中发生的系统增删按世界的延迟处理规则提交。</remarks>
         public void OnUpdate(float delta)
         {
             if (destroyed) return;

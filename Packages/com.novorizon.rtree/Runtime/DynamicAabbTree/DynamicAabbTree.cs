@@ -491,6 +491,7 @@ namespace RTree
             nodes[id].Height = 1 + Math.Max(nodes[left].Height, nodes[right].Height);
         }
 
+        // 为叶子选择新增包围体开销较小的分支，再向上更新边界。
         private void InsertLeaf(int leaf)
         {
             if (root < 0) { root = leaf; nodes[leaf].Parent = -1; return; }
@@ -564,6 +565,7 @@ namespace RTree
         // Height rotations bound traversal depth even for sorted insertions.
         // The taller grandchild remains outside the demoted node, minimizing
         // the new height; every changed ancestor is then refitted exactly.
+        // 对局部子树做旋转，减少树高不平衡对查询的影响。
         private int Balance(int a)
         {
             if (nodes[a].Left < 0 || nodes[a].Height < 2) return a;

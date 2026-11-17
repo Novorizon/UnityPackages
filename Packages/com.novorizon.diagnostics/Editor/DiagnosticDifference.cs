@@ -39,8 +39,10 @@ namespace Game.Framework.Diagnostics.Editor
     }
 
     /// <summary>Compares captured values only; never samples services or mutates resources.</summary>
+    /// <remarks>对比两次诊断快照，定位指标变化及新增、释放和变化的资源租约。</remarks>
     public static class DiagnosticSnapshotComparer
     {
+        /// <summary>以键匹配前后两次采样，输出可定位到具体指标和租约的差异。</summary>
         public static DiagnosticDifference Compare(DiagnosticSnapshot baseline, DiagnosticSnapshot current)
         {
             if (baseline == null || current == null)

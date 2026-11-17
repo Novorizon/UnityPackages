@@ -185,6 +185,7 @@ namespace UI
         }
 
         /// <summary>Rejects stale asynchronous results and unknown keys. Preserves the first visible item.</summary>
+        /// <remarks>异步测量应带上开始测量时的数据版本。列表已换数据时，旧结果会被忽略。</remarks>
         public bool ReportHeight(string key, float height, int dataVersion)
         {
             RequireConfigured();
@@ -199,6 +200,7 @@ namespace UI
             }
             ValidateTotal(Prefix(ItemCount) + height - heights[index]);
             CaptureAnchor(out string? anchor, out double inside, out double offset);
+            // 更新行高后按之前保存的可见条目恢复滚动位置，避免列表跳动。
             UpdateHeight(index, height);
             revision++;
             LayoutContent(RestoreAnchor(anchor, inside, offset));

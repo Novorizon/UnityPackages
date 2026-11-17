@@ -9,6 +9,7 @@ namespace RTree
     /// contracts as DynamicAabbTree and LooseOctree. Duplicate payloads are allowed.
     /// The original RTree API remains available independently.
     /// </summary>
+    /// <remarks>使用 R 树索引对象的三维包围盒，支持增删、移动和空间查询。</remarks>
     public sealed class RTreeIndex<T> : IMutableBoundsIndex3<T>, IRayQuery3<T>
     {
         private sealed class Workspace
@@ -86,6 +87,7 @@ namespace RTree
         }
 
         /// <summary>True if different bounds were removed/reinserted; invalid handles throw.</summary>
+        /// <remarks>更新代理的包围盒。包围盒未变化时返回 false，句柄无效时抛出异常。</remarks>
         public bool Move(ProxyHandle handle, Bounds3 bounds)
         {
             sync.EnterWriteLock();
@@ -128,6 +130,7 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        // 验证句柄是否属于当前索引和当前槽位版本，防止旧句柄访问已复用的槽位。
         private int Resolve(ProxyHandle handle)
         {
             int slot;

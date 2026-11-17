@@ -4,6 +4,7 @@ using Game.Framework;
 using UnityEngine;
 
 /// <summary>统一推进处于自动模式的播放器，并汇总所有播放器的动画通知。</summary>
+/// <remarks>管理 GPU 动画播放器的注册、逐帧调度和播放事件。</remarks>
 public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 {
     private struct Entry
@@ -119,6 +120,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
     }
 
     /// <summary>项目显式驱动时应关闭本 Manager 的 AutomaticUpdate。</summary>
+    /// <remarks>推进已登记的自动播放器，回调中发生的注册和移除按本轮调度规则处理。</remarks>
     public void Tick(float deltaTime)
     {
         if (ticking || IsDestroying || IsPaused || playbackSpeed == 0 || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
@@ -180,6 +182,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         return entry.Player != null && registered.TryGetValue(entry.Player, out Registration current) && current.Version == entry.Version;
     }
 
+    // 集中清理失效登记，避免播放回调中的移除打断当前遍历。
     private void Compact()
     {
         int count = 0;

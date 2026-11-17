@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
+    /// <summary>按照启动配置加载并运行热更模块，向入口报告就绪、错误和应用状态。</summary>
     public sealed class HotUpdateManager : Singleton<HotUpdateManager>, IDisposable
     {
         private CancellationTokenSource lifetime;
@@ -65,6 +66,7 @@ namespace Game.Framework.HotUpdate
         }
 
         /// <summary>显式执行更新、代码加载和 HotGame 启动；重复调用返回同一任务。</summary>
+        /// <remarks>启动已配置的热更流程，并返回本轮初始化任务供入口等待。</remarks>
         public Task StartAsync()
         {
             if (disposed)
@@ -123,6 +125,7 @@ namespace Game.Framework.HotUpdate
             return StartAsync();
         }
 
+        // 按顺序选择发行包、加载热更入口并初始化游戏模块。
         private async Task RunAsync(UpdateSettings settings, object startupContext, CancellationTokenSource session)
         {
             CancellationToken stopToken = session.Token;
@@ -215,6 +218,7 @@ namespace Game.Framework.HotUpdate
                     try
                     {
                         Task deadline = Task.Delay(TimeSpan.FromSeconds(settings.startupTimeoutSeconds), startup.Token);
+                        // 模块初始化有独立时限，等待超时后取消当前启动尝试。
                         if (await Task.WhenAny(initialize, deadline) != initialize)
                         {
                             _ = ObserveInitializationAsync(initialize);

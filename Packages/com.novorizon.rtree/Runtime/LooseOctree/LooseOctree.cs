@@ -10,6 +10,7 @@ namespace RTree
     /// Queries test the actual bounds, rather than returning loose-cell hits.
     /// Concurrent readers are supported; a writer excludes readers.
     /// </summary>
+    /// <remarks>使用松散节点边界容纳对象，适合包围盒可能跨越标准八分区边界的场景。</remarks>
     public sealed class LooseOctree<T> : IMutableBoundsIndex3<T>, IRayQuery3<T>
     {
         private const int SplitThreshold = 8;
@@ -269,6 +270,7 @@ namespace RTree
             owner[slot] = nextItem[slot] = previousItem[slot] = -1;
         }
 
+        // 从当前节点尝试向下定位，不能放进合适的子节点时留在当前层。
         private void Place(int slot, int nodeId)
         {
             while (true)

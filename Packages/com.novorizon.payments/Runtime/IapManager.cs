@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Payments
 {
     /// <summary>Explicit main-thread owner; cancellation never implies a financial transaction was rolled back.</summary>
+    /// <remarks>串行处理平台内购、验单发货和订单确认，由商店适配器执行原生操作。</remarks>
     public sealed class IapManager : IDisposable
     {
         private readonly IPaymentStore store;
@@ -34,6 +35,7 @@ namespace Game.Framework.Payments
             }, token);
         }
 
+        /// <summary>购买指定商品。商店返回待验证订单后，才会验单、发货并按需确认。</summary>
         public Task<PaymentResult> PurchaseAsync(string productId, CancellationToken token = default)
         {
             if (!ready)
@@ -110,6 +112,7 @@ namespace Game.Framework.Payments
         private async Task<PaymentResult> Fulfill(PurchaseReceipt receipt, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
+            // 先由发货端完成验单和发货，再确认商店订单；失败时订单可留待后续恢复。
             await fulfillment.VerifyAndGrantAsync(receipt, token);
             token.ThrowIfCancellationRequested();
             // Failed/cancelled verification never consumes or acknowledges a store order.

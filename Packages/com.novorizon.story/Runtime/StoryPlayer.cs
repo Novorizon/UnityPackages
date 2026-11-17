@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Story
 {
     /// <summary>One presentation owner per player. Unity adapters must be started on Unity's context.</summary>
+    /// <remarks>启动和停止剧情会话，管理当前会话对演出器的占用。</remarks>
     public sealed class StoryPlayer : IDisposable, IAsyncDisposable
     {
         private sealed class WallClock : IStoryClock
@@ -45,6 +46,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>启动一个剧情会话，也可以从指定的剧情检查点恢复。</summary>
         public StorySession Play(StorySequence sequence, CancellationToken cancellationToken = default, StoryCheckpoint checkpoint = null)
         {
             if (!TryPlay(sequence, out var session, cancellationToken, checkpoint))
@@ -371,6 +373,7 @@ namespace Game.Framework.Story
             return true;
         }
 
+        // 按节点执行剧情，统一处理正常完成、停止和执行异常。
         private async Task RunAsync(IStoryCommands commands, IStoryClock clock, int maximumSteps)
         {
             StoryStatus status = StoryStatus.Completed;
@@ -533,6 +536,7 @@ namespace Game.Framework.Story
             }
         }
 
+        // 结束会话并发布最终结果，调用方可等待会话清理完成。
         private async Task PublishAsync(StoryStatus status, Exception error)
         {
             StoryResult result;

@@ -59,6 +59,7 @@ namespace Game.Framework
             var errors = new List<Exception>();
             try
             {
+                // 先清空所有已登记的类型，再恢复各自的声明初值；顺序不能交错。
                 foreach (var entry in snapshot)
                 {
                     Invoke(entry.Clear, errors);

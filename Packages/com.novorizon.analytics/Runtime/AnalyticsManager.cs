@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Game.Framework.Analytics
 {
     /// <summary>Explicit, main-thread event router. Disabled events are discarded, never replayed later.</summary>
+    /// <remarks>把统计事件分发给启动时注入的后端，并汇总各后端的返回状态。</remarks>
     public sealed class AnalyticsManager : IDisposable
     {
         private readonly List<IAnalyticsBackend> backends = new List<IAnalyticsBackend>();
@@ -34,6 +35,7 @@ namespace Game.Framework.Analytics
             return SetCollectionEnabled(collectionEnabled);
         }
 
+        /// <summary>切换采集状态，并分别记录各后端应用开关的结果。</summary>
         public TelemetryReport SetCollectionEnabled(bool value)
         {
             Ready();
@@ -80,6 +82,7 @@ namespace Game.Framework.Analytics
             superProperties = AnalyticsValues.Copy(properties);
         }
 
+        /// <summary>合并公共属性和单次事件属性，再分发给允许上报的后端。</summary>
         public TelemetryReport LogEvent(string name, IReadOnlyDictionary<string, object> properties = null)
         {
             Ready();
@@ -173,6 +176,7 @@ namespace Game.Framework.Analytics
             return startRequested && enabled && backend.IsStarted;
         }
 
+        // 逐个后端执行并收集结果，单个后端失败时其余后端也能收到事件。
         private TelemetryReport Dispatch(Func<IAnalyticsBackend, TelemetryStatus> action)
         {
             var results = new List<TelemetryDelivery>(backends.Count);

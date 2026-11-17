@@ -8,6 +8,7 @@ using Google.Protobuf;
 namespace Game.Framework.Network
 {
     // Application entry point. Owns a session without application-specific messages.
+    /// <summary>持有网络会话，提供连接、收发、订阅以及回调调度入口。</summary>
     public sealed partial class NetworkManager : IDisposable, IAsyncDisposable
     {
         private NetworkSession session;
@@ -152,7 +153,9 @@ namespace Game.Framework.Network
         public Task ConnectAsync(CancellationToken ct = default) => Session.ConnectAsync(ct);
         public Task DisconnectAsync() => session?.DisconnectAsync() ?? Task.CompletedTask;
         // Manual host fallback. Unity integration dispatches automatically without calling Update.
+        /// <summary>手动执行一批待处理回调，maximumCallbacks 限制单次处理数量。</summary>
         public int Update(int maximumCallbacks = 64) => session?.Update(maximumCallbacks) ?? 0;
+        /// <summary>发送请求并等待对应响应，使用指定的 Protobuf 解析器获得结果。</summary>
         public Task<T> RequestAsync<T>(int messageId, IMessage message, MessageParser<T> parser, CancellationToken ct = default)
             where T : class, IMessage<T> => Session.RequestAsync(messageId, message, parser, ct);
         // Completes after writing bytes; RequestAsync additionally waits for the business response.

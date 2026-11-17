@@ -30,6 +30,7 @@ namespace Game.Ability
                 if (!IsRuntimeAvailable || !TryConsumeExecutionBudget("Damage")) return Block(result, "Runtime is unavailable or execution budget exhausted.");
                 if (!IsValidDamageRequest(request)) return Block(result, "Invalid damage request or victim.");
                 request.Engine = this;
+                // 计算伤害会调用扩展逻辑，后续用这次运行的编号判断战斗是否已被重置。
                 long generation = RuntimeGeneration;
                 string rejection = CheckDamageImmunity(request);
                 if (rejection != null) return Block(result, rejection);
@@ -70,6 +71,7 @@ namespace Game.Ability
                 if (result.AppliedAmount <= 0f) return Block(result, "The victim did not apply damage.");
                 // An attack's HP fact must be queryable even if a later observer fails.
                 // This also closes reentrant resolution before publishing notifications.
+                // 先记录扣血结果，再通知监听器，防止监听器重入时重复结算。
                 if (attack != null) CompleteAttack(attack, result);
 
                 // A defeat/settlement callback may clear the battle while the adapter applies HP.

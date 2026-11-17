@@ -23,6 +23,7 @@ namespace Game.Framework
                 lock (gate)
                 {
                     previous = lazy.IsValueCreated ? lazy.Value : null;
+                    // 先替换缓存，再在锁外清理上一轮 Play 留下的实例。
                     lazy = CreateLazy();
                 }
 
@@ -36,6 +37,7 @@ namespace Game.Framework
             return new Lazy<T>(() => new T());
         }
 
+        /// <summary>读取当前类型的缓存实例，首次读取时按需创建。</summary>
         public static T Instance
         {
             get
@@ -47,6 +49,7 @@ namespace Game.Framework
             }
         }
 
+        /// <summary>只取得已经创建的实例，检查过程不会创建对象。</summary>
         public static bool TryGetInstance(out T value)
         {
             lock (gate)
@@ -60,6 +63,7 @@ namespace Game.Framework
         {
         }
 
+        /// <summary>给派生类预留释放钩子，基类默认不执行操作。</summary>
         public virtual void Release()
         {
         }

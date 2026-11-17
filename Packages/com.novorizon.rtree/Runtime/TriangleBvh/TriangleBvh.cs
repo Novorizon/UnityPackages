@@ -82,6 +82,7 @@ namespace RTree
         }
 
         /// <summary>Updates triangles in original source order, retaining payloads and BVH topology.</summary>
+        /// <remarks>按原始输入顺序更新三角形，复用现有树结构更新包围盒。</remarks>
         public void Refit(IList<Triangle3> trianglesInSourceOrder)
         {
             if (trianglesInSourceOrder == null) throw new ArgumentNullException("trianglesInSourceOrder");

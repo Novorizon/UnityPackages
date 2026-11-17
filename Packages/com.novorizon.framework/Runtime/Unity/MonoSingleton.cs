@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Framework
 {
+    /// <summary>为 Unity 组件提供共享入口，组件自己的启动和退出逻辑在 OnStart、OnExit 中实现。</summary>
     public abstract class MonoSingleton<T> : MonoBehaviour, IDisposable where T : MonoSingleton<T>
     {
         /// <summary>统一的无参初始化入口。实例由 Instance 准备；有初始化工作的服务重写本方法。</summary>
@@ -31,6 +32,7 @@ namespace Game.Framework
             }
         }
 
+        // 关闭 Domain Reload 后，结束上一轮的运行状态并清掉静态引用，保留场景组件可供下次使用。
         private static void ResetForPlay()
         {
             try
@@ -137,6 +139,7 @@ namespace Game.Framework
                 return;
             }
 
+            // 先撤下当前组件的共享引用，因为 Unity 的 Destroy 可能要到帧末才生效。
             RetireSingleton();
             try
             {

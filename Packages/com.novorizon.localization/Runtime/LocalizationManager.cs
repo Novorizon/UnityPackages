@@ -51,6 +51,7 @@ namespace Game.Framework.Localization
             fallback = defaultCulture;
         }
 
+        /// <summary>先查当前语言，再查回退语言；两者均缺失时返回原始键。</summary>
         public string Get(string key)
         {
             RequireInitialized();
@@ -81,6 +82,7 @@ namespace Game.Framework.Localization
         }
 
         /// <summary>Latest request wins. A failed/cancelled preparation preserves the displayed language.</summary>
+        /// <remarks>先准备目标语言资源，准备成功后再提交语言切换和通知。</remarks>
         public async Task SetLanguageAsync(string language, Func<string, CancellationToken, Task> prepare, CancellationToken token = default)
         {
             RequireInitialized();
@@ -153,6 +155,7 @@ namespace Game.Framework.Localization
             }
         }
 
+        // 取消上一轮尚未完成的语言准备，避免较慢的旧请求覆盖新语言。
         private void CancelPending()
         {
             var source = Interlocked.Exchange(ref pending, null);

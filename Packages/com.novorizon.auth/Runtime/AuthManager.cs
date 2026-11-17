@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Auth
 {
     /// <summary>Explicitly owned main-thread facade. Busy persists until the underlying SDK task ends.</summary>
+    /// <remarks>把第三方身份凭据交给认证后端，统一处理登录、绑定和会话令牌。</remarks>
     public sealed class AuthManager : IDisposable
     {
         private readonly IAuthBackend backend;
@@ -51,6 +52,7 @@ namespace Game.Framework.Auth
             return Run(token => Authenticate(provider, null, token), cancellationToken);
         }
 
+        /// <summary>将第三方账号绑定到当前用户。等待授权期间若发生切号，绑定会失败。</summary>
         public Task<AuthUser> LinkAsync(IdentityProvider provider, CancellationToken cancellationToken = default)
         {
             Ready();
@@ -73,6 +75,7 @@ namespace Game.Framework.Auth
             return Run(token => backend.UnlinkAsync(user.Id, providerId, token), cancellationToken);
         }
 
+        /// <summary>获取当前后端会话令牌；forceRefresh 为 true 时要求后端刷新。</summary>
         public Task<string> GetSessionTokenAsync(bool forceRefresh = false, CancellationToken cancellationToken = default)
         {
             return Run(token => backend.GetSessionTokenAsync(forceRefresh, token), cancellationToken);
@@ -99,6 +102,7 @@ namespace Game.Framework.Auth
                 }
                 if (expectedUser != null)
                 {
+                    // 第三方授权可能弹出原生界面，回来后要再次确认仍是发起绑定时的账号。
                     if (backend.CurrentUser?.Id != expectedUser)
                     {
                         throw new InvalidOperationException("The current account changed before linking.");

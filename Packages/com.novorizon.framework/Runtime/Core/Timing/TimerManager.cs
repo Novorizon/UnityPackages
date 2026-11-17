@@ -248,7 +248,9 @@ namespace Game.Framework.Timing
             lastUnscaledSample = unscaledTime;
         }
 
+        /// <summary>安排一次回调，可选使用不受游戏时间缩放影响的时钟。</summary>
         public TimerHandle Schedule(double seconds, Action callback, bool useUnscaledTime = false) => Add(seconds, 0, callback, useUnscaledTime, default);
+        /// <summary>安排重复回调，用重复模式决定下一次到期时间。</summary>
         public TimerHandle Repeat(double intervalSeconds, Action callback, bool useUnscaledTime = false, TimerRepeatMode mode = TimerRepeatMode.FixedRate)
         {
             if (intervalSeconds <= 0)

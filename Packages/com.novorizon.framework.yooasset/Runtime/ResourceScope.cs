@@ -35,6 +35,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>取得归本作用域管理的租约，作用域释放时会统一释放名下资源。</summary>
         public async Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default)
             where T : UnityEngine.Object
         {
@@ -53,6 +54,7 @@ namespace Game.Resource
                     DiagnosticId,
                     sceneHandle,
                     sceneName);
+                // 加载完成时作用域可能已经关闭，立即退回刚取得的租约，避免残留持有者。
                 if (disposed || cancellation.IsCancellationRequested)
                 {
                     lease.Dispose();

@@ -69,6 +69,7 @@ namespace RTree
         }
 
         /// <summary>Updates bounds in original source order without changing payloads or topology.</summary>
+        /// <remarks>按建树时的输入顺序更新叶子包围盒，并从叶子向上重算父节点边界。</remarks>
         public void Refit(IList<Bounds3> boundsInSourceOrder)
         {
             if (boundsInSourceOrder == null) throw new ArgumentNullException("boundsInSourceOrder");
@@ -198,6 +199,7 @@ namespace RTree
             return RaycastFirst(ray, intersector, true, out hit, context);
         }
 
+        // closest 决定遍历命中后是否继续搜索更近的相交对象。
         private bool RaycastFirst(Ray3 ray, IRayIntersector<T> intersector, bool closest, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -243,6 +245,7 @@ namespace RTree
                                 if (statistics) context.PrimitiveTests++;
                                 if (!intersector.Intersect(items[id], ray, out parameter) || !ValidParameter(parameter, ray)) continue;
                             }
+                            // 包围盒只是候选；相交参数还必须在射线区间和当前最近命中范围内。
                             if (!ValidParameter(parameter, ray) || parameter > best) continue;
                             best = parameter;
                             hit = new RayHit<T>(items[id], parameter);

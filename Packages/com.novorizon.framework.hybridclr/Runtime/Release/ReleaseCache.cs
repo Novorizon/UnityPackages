@@ -59,6 +59,7 @@ namespace Game.Framework.HotUpdate
             return path;
         }
 
+        /// <summary>写入已验证的发布清单后，将整个暂存目录移到正式版本位置。</summary>
         public string Commit(string stage, string id, string signedEnvelope)
         {
             RequireStage(stage);
@@ -112,6 +113,7 @@ namespace Game.Framework.HotUpdate
         public bool WasRejected(string id) => File.Exists(RejectionPath(id)) || File.Exists(Path.Combine(ReleasePath(id), "rejected"));
         public bool IsHealthy(string id) => File.Exists(Path.Combine(ReleasePath(id), "healthy"));
 
+        /// <summary>检查上次启动是否停在未完成状态，供后续版本选择处理。</summary>
         public bool RecoverInterruptedBoot(string id)
         {
             string path = ReleasePath(id);

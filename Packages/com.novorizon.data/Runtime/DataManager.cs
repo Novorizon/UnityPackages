@@ -72,6 +72,7 @@ namespace Game.Framework.Data
         }
 
         /// <summary>直接传入生成的 Tables 构造函数；完整读取并校验成功后才替换同类型旧快照。</summary>
+        /// <remarks>加载清单及 Luban 表数据，全部成功后才发布新的表快照。</remarks>
         public async Task<TTables> LoadAsync<TTables>(Func<Func<string, ByteBuf>, TTables> createTables, string manifestLocation = "Config/Luban/manifest", CancellationToken token = default)
             where TTables : class
         {
@@ -157,6 +158,7 @@ namespace Game.Framework.Data
             return value;
         }
 
+        /// <summary>读取该表类型的当前快照，尚未加载时返回 false。</summary>
         public bool TryGet<TTables>(out TTables value)
             where TTables : class
         {
@@ -174,6 +176,7 @@ namespace Game.Framework.Data
             tables.Clear();
         }
 
+        // 用请求序号阻止过期的异步加载覆盖后发请求的结果。
         private void CheckRequest(Type type, long request, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();

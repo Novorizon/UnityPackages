@@ -17,6 +17,7 @@ namespace UI
     /// Do not attach a LayoutGroup/ContentSizeFitter to Content.
     /// Binding callbacks run only for recycled/refreshed cells. They must reset all cell-specific state.
     /// </remarks>
+    /// <remarks>按可见范围复用列表条目，适合高度固定的大量数据。</remarks>
     public sealed class UIVirtualList : MonoBehaviour
     {
         sealed class Cell
@@ -100,6 +101,7 @@ namespace UI
             SetItemCount(data.Count, (cell, index) => bindItem(cell, data[index], index), unbindItem, resetPosition);
         }
 
+        /// <summary>重新绑定当前可见条目，无需重新创建列表。</summary>
         public void RefreshItems()
         {
             RequireConfigured();
@@ -108,6 +110,7 @@ namespace UI
             if (operation == revision && !destroyed) RequestRefresh(true);
         }
 
+        /// <summary>将列表滚动到指定索引对应的位置。</summary>
         public void ScrollTo(int index)
         {
             RequireConfigured();

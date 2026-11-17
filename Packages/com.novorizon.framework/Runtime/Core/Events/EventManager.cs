@@ -310,6 +310,7 @@ namespace Game.Framework.Event
             UnityThread.Post(() => Dispatch(snapshot, message));
         }
 
+        // 一次发布使用开始时取得的订阅快照，避免订阅回调修改列表导致遍历出错。
         private static void Dispatch(Entry[] snapshot, object message)
         {
             foreach (var entry in snapshot)

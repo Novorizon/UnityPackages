@@ -11,6 +11,7 @@ using Game.Framework;
 
 namespace UI
 {
+    /// <summary>维护 UI 根节点、各层导航和输入返回键处理。</summary>
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, "UI", "Game.Framework.UI", "UIRoot")]
     public sealed partial class UIManager : MonoSingleton<UIManager>
     {
@@ -384,6 +385,7 @@ namespace UI
         }
 
         /// <summary>Close all views and release the old loader's leases before switching.</summary>
+        /// <remarks>为页面和弹窗等视图提供资源加载器。</remarks>
         public void SetAssetLoader(IUIAssetLoader assetLoader)
         {
             ThrowIfUnavailable();
@@ -527,6 +529,7 @@ namespace UI
         }
 
         /// <summary>关闭所有窗口，等待未完成加载及原生对象销毁后释放的 prefab 租约。</summary>
+        /// <remarks>关闭 UI，并返回可等待的资源清理任务。</remarks>
         public Task ShutdownAsync()
         {
             Shutdown();
@@ -618,6 +621,7 @@ namespace UI
         }
 
         /// <summary>Repeated Back shares one attempt; cancellation only abandons that caller's wait.</summary>
+        /// <remarks>异步处理一次返回操作，并报告是否有 UI 消费了它。</remarks>
         public Task<bool> HandleBackAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

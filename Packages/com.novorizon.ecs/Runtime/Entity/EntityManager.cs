@@ -11,6 +11,7 @@ using Sirenix.OdinInspector;
 #endif
 namespace ECS
 {
+    /// <summary>创建和管理 ECS 实体，维护组件数据和 Unity GameObject 的关联。</summary>
     public partial class EntityManager : SingletonBehaviour<EntityManager>
     {
         private static ulong GUID_COUNT = 1000000;
@@ -71,6 +72,7 @@ namespace ECS
             return Create(ownership == GameObjectOwnership.Borrowed ? GameObjectLease.Borrowed(gameObject) : GameObjectLease.Owned(gameObject));
         }
 
+        /// <summary>使用带租约的 GameObject 创建实体，由实体生命周期管理这份租约。</summary>
         public static Entity Create(GameObjectLease lease)
         {
             if (lease == null)

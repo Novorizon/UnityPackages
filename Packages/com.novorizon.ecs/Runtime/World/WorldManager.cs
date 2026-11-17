@@ -72,6 +72,7 @@ namespace ECS
         }
 
         /// <summary>Pairs BeginBatch/EndBatch even when the caller throws; scopes can be nested.</summary>
+        /// <remarks>开启实体变更批次，释放作用域后结束批次并按当前调度状态处理累计变更。</remarks>
         public IDisposable Batch()
         {
             BeginBatch();
@@ -135,6 +136,7 @@ namespace ECS
             FlushIfReady();
         }
 
+        /// <summary>在世界暂时不适合修改结构时排队命令。</summary>
         public void Defer(Action command)
         {
             if (command == null)

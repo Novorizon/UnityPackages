@@ -60,6 +60,7 @@ namespace Game.Resource
         }
 
         /// <summary>Allocates a read-only scalar snapshot only on request. Includes cancelled I/O awaiting native release.</summary>
+        /// <remarks>从当前资源租约生成诊断快照，便于检查仍持有资源的调用方。</remarks>
         public ResourceLeaseDiagnostic[] CaptureLeaseDiagnostics()
         {
             MainThread();
@@ -112,6 +113,7 @@ namespace Game.Resource
         /// <summary>包含尚未结束的原生加载和等待释放的句柄。</summary>
         public int OwnedAssetCount => ownedAssets.Count;
 
+        /// <summary>加载资源并取得租约。调用方通过释放租约结束持有。</summary>
         public Task<AssetLease<T>> AcquireAsync<T>(string location, CancellationToken token = default, bool keepAliveUntilDisposed = false)
             where T : UnityEngine.Object
         {
@@ -240,6 +242,7 @@ namespace Game.Resource
             }
         }
 
+        // 等待租约释放；清理是否需要尊重持有方由 respectOwner 决定。
         private async Task WaitForOwnedReleaseAsync(OwnedAsset owned, bool respectOwner)
         {
             // 原生实例仍在使用资源时，由持有者在实例销毁后归还租约。

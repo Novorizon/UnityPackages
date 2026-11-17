@@ -36,6 +36,7 @@ namespace Game.Framework.Input
             Initialize(null, null);
         }
 
+        /// <summary>复制输入资产用于本轮运行，运行时改键不会修改原始资产。</summary>
         public void Initialize(InputActionAsset source = null, string initialMap = null)
         {
             MainThread();
@@ -124,6 +125,7 @@ namespace Game.Framework.Input
         }
 
         /// <summary>嵌套屏蔽指定 Map，null 屏蔽全部；结束后只恢复仍被请求启用的 Map。</summary>
+        /// <remarks>按作用域屏蔽指定 Action Map；不传名称时屏蔽全部。释放返回值才撤销这次屏蔽。</remarks>
         public IDisposable Block(string mapName = null)
         {
             Ready();
@@ -200,6 +202,7 @@ namespace Game.Framework.Input
             actions.LoadBindingOverridesFromJson(json ?? throw new ArgumentNullException(nameof(json)));
         }
 
+        /// <summary>等待一次交互改键，结束后恢复 Action Map 状态。</summary>
         public async Task<string> RebindAsync(string actionName, int bindingIndex, CancellationToken token = default)
         {
             Ready();
@@ -259,6 +262,7 @@ namespace Game.Framework.Input
             }
         }
 
+        // 根据已请求启用的 Map 和当前屏蔽计数统一推算实际输入状态。
         private void ApplyMaps()
         {
             foreach (var map in actions.actionMaps)

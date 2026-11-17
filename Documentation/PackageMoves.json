@@ -168,8 +168,40 @@
     }
   },
   "sourceChanges": {
+    "Packages/com.novorizon.ecs/Runtime/World/World.cs": {
+      "sha256": "290c7f5a0334898bc2e51643c99d947c888bf16e9688f4f39173f72eed9661fc",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Combat.cs": {
+      "sha256": "5af46e12b8d98b3e7a1eb54b5f72a65be857b2b58eac9793329ec7b46b7af541",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseCache.cs": {
+      "sha256": "8694f122dfb6bc93d8aeab6c06c1608bce5f2f927cb4dc380a0bc657b5e7058d",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/DynamicAabbTree/DynamicAabbTree.cs": {
+      "sha256": "313bf8cf785913afe10983b62eead3ae4a6689b041c7b00614468a9e11b8f07c",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/LooseOctree/LooseOctree.cs": {
+      "sha256": "8a58e6d27a1a9e9c012e340236ec4425c8d85178eaab839ba277c144f982729a",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/RTree/RTreeIndex.cs": {
+      "sha256": "157a59029606971811798287717dd540d3b26d9d26ed20495b047b32df6f7bd1",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/StaticBvh/StaticBvh.cs": {
+      "sha256": "7ef960daf2753fd41abafd89fb3186bf2e6c2525735a3b225474e6bf97a55a48",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/TriangleBvh/TriangleBvh.cs": {
+      "sha256": "e30dae6ad7eabca4d37e8cfabe297a238bdbb7d65b20e6f83c3ead1625ca28e7",
+      "reason": "Add Chinese source comments without changing executable code."
+    },
     "Packages/com.novorizon.localization/Runtime/LocalizationManager.cs": {
-      "sha256": "58ff5a9799d96fb7e641357e85283365512ad146e66041279419eab3cda947ec",
+      "sha256": "c14ba58c89acbf225b9409567b8b71aea9dd4055a00cfc5b3e7fccd2cfba8b2f",
       "reason": "Clear the shared instance by identity when the manager is disposed directly. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/AssemblyInfo.cs": {
@@ -185,7 +217,7 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "d88115cfd66221377425427d2f17aa2f1c2c69c2107b503b56a6a2bc2ef7d317",
+      "sha256": "fb7eec28f0ced56e9d2eac8e2ba983660e71bc469c519047211dcc94370ba9e2",
       "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
@@ -209,7 +241,7 @@
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs": {
-      "sha256": "89c516a4974d85791bd6ef85156c7151d85a833a806a83a4a389c5d11c2878ce",
+      "sha256": "a8bd9d98cc803f6b1a133f28ae0367d4e9f73ead1c37bf554c7ccf6f0d83f9d2",
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
@@ -257,7 +289,7 @@
       "reason": "Add handle-controlled volume fades and fade-out recycling."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
-      "sha256": "ddac7999efb41b415f5f04758d0338dde5d67b7801e164008323e3ea1710f891",
+      "sha256": "8285f0bfe653862e635de9936686ae8e1d1f7ff8fe3c96f30c2d0e2537ef5124",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
@@ -265,15 +297,15 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "cda2d98721c6e49250b18a6dbbf078768131c58f2a46605a0c370850061fbc5d",
+      "sha256": "3b3f2ea91f0d36d7b5e228792b81cfb939e5a67bd2a243af80e242b69a7370ef",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
-      "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
+      "sha256": "39102755d0eb55b9d1d06b98526deea72df3e91afea0fa2d3dc261d0c81b959d",
       "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
-      "sha256": "9c543a7e0f64ea2c343a416d342c22703cd3906be06e56772d605d4a9e7faa5c",
+      "sha256": "7da2dbb628326e752777a198d84ee93de969d226def99f4447c693f65be4025c",
       "reason": "Add immutable resource ownership diagnostics and separately named owned acquisition while preserving original AcquireAsync API."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
@@ -289,11 +321,11 @@
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
-      "sha256": "947aac87f4441d68dbefde05ed0b1f93c10034044a41dc77ebfdb35401b687a8",
+      "sha256": "8e591489f9f11091fcb59bcee5d4f61ff2d0a580317845c29b97794e6a11edb7",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "9dfc76506c22f567295a54d762bd254541fd84753d1b749c0683400095a025f2",
+      "sha256": "48a47bb9a610c064fe609f8b806fa3194e6d6607730a2527a4209dd3ff73b7f1",
       "reason": "Enforce operation deadlines without overlapping outstanding native UPM requests."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
@@ -301,23 +333,23 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs": {
-      "sha256": "44a116ec542ff73e3eb98f608b6c204526b437a4c6c066f54e36bc6d39c43ff0",
+      "sha256": "b41afc4e344194bb831d1b8c745989834b47486a0cc41f3cfc5244ceca5f59fd",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.ecs/Runtime/World/WorldManager.cs": {
-      "sha256": "8721c5da36dbea2e7cbc07314a7d9d0629e9fde29ad36a922c6d3221504b7a6f",
+      "sha256": "c556e291a3787ccd9566383cecd430534ca0b94072d1df9d2b80f7553ee7d43f",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs": {
-      "sha256": "82fb077745be8ff8b8c7912562080db1a49c8f08dd8f8fc9567245eb1940579e",
+      "sha256": "7a4d3fc627d30988e00fe4e492c4d80595f5ec1dc07bc652d1db458f22010263",
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "8b820aa4efa00f90d06b143c13070efaba4db58149967e7911401542d15b15f7",
+      "sha256": "017fbc7f55f46ab359a0bec11e8e2facb2de5e1e5094f13beaa5c9108cbed209",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly. Keep the base Release hook empty."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
-      "sha256": "8533c4793fc1801857809f901036be6f37fbcca37b7bde0e0d6e9cb63d83cd53",
+      "sha256": "652c85014d808ae3b9eacce7ebe3a9f7d2e567addffa4a6381180b1edaa80830",
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
@@ -325,7 +357,7 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
-      "sha256": "e351ffde4dd2be3f1aa609f3728692b706098c4c395187faad9bc65ef6a731da",
+      "sha256": "d16b2884059bb398c07663eb021eb5091f18c22a9e34b21495976e08f48af805",
       "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
@@ -361,7 +393,7 @@
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Runtime/DataManager.cs": {
-      "sha256": "ad5f3b77aa06721320e060394fe367e72a484f3a0ea728bb34137e89a83ab2f5",
+      "sha256": "e506fdaadab82b20cf1dd48fda0433015112caf6272aeb7119b5f1006861bcca",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {
@@ -477,7 +509,7 @@
       "reason": "Bind each dispatch batch to its original host so callbacks that reset and initialize a replacement host cannot consume the new session queue; preserve the prewarmed allocation-free path."
     },
     "Packages/com.novorizon.framework/Runtime/Core/EditorStaticReset.cs": {
-      "sha256": "45a0ae7e38e509c25ad98def43f2eacdef9a29ad495cc24202907abe9c53f949",
+      "sha256": "2f777327e33289db9b26c1282a1f042e88493c526496585502a179f970556c6c",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs": {
@@ -489,7 +521,7 @@
       "reason": "Add an explicit URP Lit bake option while keeping the existing default URP Unlit mode. Report URP shader import failures from the merged package."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs": {
-      "sha256": "2fc9f8c0e7e8b3ea132e3398c2e2b2ec463709d13d3c91d821af0cf019de930d",
+      "sha256": "268cee20b84dc44cd367bd838065958c2f77c7a19dc117d7523699a78edb4ac8",
       "reason": "Notify internal grid owners before row retirement, including never-activated and externally destroyed rows, while retaining existing list semantics."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/GameObjectPool.cs": {
@@ -525,7 +557,7 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs": {
-      "sha256": "aba81f2a9c598c05b068a063a6faad336e354eea2e9f2a6dd2b23c6b9005c0d4",
+      "sha256": "8264204a5ffed0cb5095194c321d2e4221cf451ebaf0954499a83de59899a959",
       "reason": "Track optional owner, scope ID and scene labels in existing independent resource leases."
     },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Auras.cs": {
@@ -533,7 +565,7 @@
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Casting.cs": {
-      "sha256": "71103267b00dba523c336b2c4c635fbc0090eff308162ac23a8e1c7e4ba695f0",
+      "sha256": "b670f74c88c1006611dd8211bf25de3dca51cef98b609ffb4642451cbd0e9ec7",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/Projectile.cs": {
@@ -549,7 +581,7 @@
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.Fades.cs": {
-      "sha256": "70b05ecd6a39cb6690da4270353b8fed7af1516f61f28bbecc87de1c55bbc87e",
+      "sha256": "bc701723a6e89ff66d0edddf97b7e8caf48d1549354dc9fdb787248480d00487",
       "reason": "Validate contiguous fade curves without enum boxing."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {

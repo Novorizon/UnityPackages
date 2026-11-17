@@ -85,6 +85,7 @@ namespace Game.Framework.Attribution
     }
 
     /// <summary>Select one MMP per client/project. Product analytics remains a separate route.</summary>
+    /// <remarks>接收安装来源和活动归因变化，复用统计分发流程上报归因事件及收入。</remarks>
     public sealed class AttributionManager : IDisposable
     {
         private readonly AnalyticsManager client;
@@ -99,12 +100,14 @@ namespace Game.Framework.Attribution
             backend.AttributionChanged += OnChanged;
         }
 
+        /// <summary>启动已配置的归因后端，并传入初始采集开关。</summary>
         public TelemetryReport Start(bool collectionEnabled) => client.Start(collectionEnabled);
         public TelemetryReport SetCollectionEnabled(bool enabled) => client.SetCollectionEnabled(enabled);
         public TelemetryReport SetUserId(string userId) => client.SetUserId(userId);
         public TelemetryReport LogEvent(string name, System.Collections.Generic.IReadOnlyDictionary<string, object> properties = null) => client.LogEvent(name, properties);
         public TelemetryReport LogRevenue(RevenueEvent revenue) => client.LogRevenue(revenue);
 
+        // 将渠道归因变化通知各订阅者。
         private void OnChanged(AttributionSnapshot snapshot)
         {
             if (disposed || !client.CollectionEnabled)

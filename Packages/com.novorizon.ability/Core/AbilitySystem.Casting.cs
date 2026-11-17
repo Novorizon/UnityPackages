@@ -16,6 +16,7 @@ namespace Game.Ability
             public long CastId;
         }
 
+        // 复制施法指令，避免原调用方继续修改已进入处理流程的参数。
         internal static CastOrder CopyOrder(CastOrder order)
         {
             return order == null ? null : new CastOrder
@@ -51,6 +52,7 @@ namespace Game.Ability
             return false;
         }
 
+        // 处理一条施法指令，并根据当前施法状态决定立即执行、排队或失败。
         internal CastResult IssueOrderCore(CastOrder source)
         {
             using (BeginExecution())
@@ -100,6 +102,7 @@ namespace Game.Ability
         }
 
         /// <summary>Cancels the unit's current cast, channel and recovery. Queued commands are cleared by default.</summary>
+        /// <remarks>停止单位当前施法，并按 clearQueue 决定是否同时移除排队指令。</remarks>
         public void Stop(IUnit owner, bool clearQueue = true)
         {
             using (BeginExecution())
@@ -158,6 +161,7 @@ namespace Game.Ability
             if (errors.Count > 0) throw new AggregateException("Queued orders were cancelled, but callbacks failed.", errors);
         }
 
+        // 在调度推进时尝试取出可执行的排队指令。
         internal void TickQueuedOrders()
         {
             if (queuedCasts.Count == 0)
