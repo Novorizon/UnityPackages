@@ -168,40 +168,616 @@
     }
   },
   "sourceChanges": {
+    "Packages/com.novorizon.ability/Configuration/AbilityConfigurationValidation.cs": {
+      "sha256": "5ce14231007b7683785d17af8fb384cbc901f92480131817578e94f1f52e729b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/AbilityDefinitionCloner.cs": {
+      "sha256": "d7d30c6ea700f44e1e5babc71baac7cda532f013742e535f44d35a16e4ae3b47",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/AbilityDefinitionGraphValidator.cs": {
+      "sha256": "42dfdd0d680bb67da35a332820c83e6b810f3c7f4f336aec030da627015fb3fd",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/AbilityDefinitionProviders.cs": {
+      "sha256": "099ec1eadd0572d65babf450587d6cc0f026fee4936fc751ad75a2bf02a71bc8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/AbilityJsonSchemaValidator.cs": {
+      "sha256": "f3ec10c3441a4e371023bac9991cbd532367ea073203a96251383691e1c0b6ac",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/AbilityRuntimeSnapshot.cs": {
+      "sha256": "2df9ca52840c38cd0804f473caedc611d115f9378bf1784ff527971b46880135",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Configuration/JsonAbilityDefinitionProvider.cs": {
+      "sha256": "b6d7c357a5ee10286faa0db24dd31968c1a6ecc74101c0e6f0824030700054e8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Ability.cs": {
+      "sha256": "3e7708800b115e24f741da7f9a03b0333b2ddcf5624eecd4406e98b697e0480b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Execution.cs": {
+      "sha256": "b7aa8c51d262db8845a615c4b510f954323020365d90a1d3e2afd6933cd15930",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.ModifierIndex.cs": {
+      "sha256": "a2052e2a260a729ddfdba204d81905e7450f9b3c320b38613c61a79aab16b306",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Preview.cs": {
+      "sha256": "245c132279786d757f79aec106a17f1b1f6da91360c8c66d4f14ea7e4ebfd9b3",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.Queries.cs": {
+      "sha256": "c56b8635544d7d53613fc5088837fcfada01bce82795d1e2c92a09d3f147330c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/AbilitySystem.cs": {
+      "sha256": "60fbbc74bec0ae5f777441e2970804112570c27849a7d8c059925c97c7b79ca5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/ActionRunner.cs": {
+      "sha256": "db9fb94da8369c4f0558963ed733847151b975c2affce82d32a95223e15bd4dd",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/CombatContracts.cs": {
+      "sha256": "7d59f4672c8fd5c1ae788397d2fbf9cdb471e07ff603dbd839af26ee3d296854",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Definitions.cs": {
+      "sha256": "b91f51ab80528b6134a29e381b212fe25498fe9ebe257681b372688fdbfa7ec6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Enums.cs": {
+      "sha256": "ff1b3c0b20331ee65c149766dfa24c9ad6a6c1e5f2d81884310c306048c3d5ec",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Modifier.cs": {
+      "sha256": "ae41c520f0b8a02908a094a3c5e5555ddf4f3b9fa89cc683c11b4906c73e7dd2",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/ProjectileContracts.cs": {
+      "sha256": "4f7d9ca3efd01201afb1f738eb006d5df56bd0f16c71daa7b1c0d8243f04162c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Runtime.cs": {
+      "sha256": "fb355f61c06298611d4073393112016cb963458f3563b165855645a891483023",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Core/Thinker.cs": {
+      "sha256": "a9a706739b345f224e2f2362eb68c2a2a97e3d0489e020a6708cc01ed2cfb1f4",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/AbilityStudioDraft.cs": {
+      "sha256": "5d8c1a61c1dec67ef00661078fa6aed36208e9a206f87c11c27ba7f3b841cdd8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/AbilityStudioMissingOdin.cs": {
+      "sha256": "4807525d084ecc26f37d351c3ba9390ae5c6c4c9ed5b15db3c13e3f81c056194",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Core/AbilityJsonCodec.cs": {
+      "sha256": "3c536f792ae3f2dcb91fe9be41eac4c46ee9a8316182fa7dc83c7164c77448e5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Core/AbilityReferencePreflight.cs": {
+      "sha256": "db13eead6a6e668f4791f49ab70156512f99c87985ec9340a2a989e686dd6ecf",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Core/AbilityWorkspace.cs": {
+      "sha256": "25767eff4a6939d886927074f5b1cd6e2e81a4e67f6a081cd7a64187c41fc1c8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityInspectorPanel.cs": {
+      "sha256": "cb404a3f60f4690eddb0f69dcbb74cc7b7fd44346ed0ff3df27b180cdb8aaf21",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityJsonDrawers.cs": {
+      "sha256": "1d61dacd6a7966983b09c1c72e3325e7e63f78ed8e964bef599bf93050920aa5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityStudioTheme.cs": {
+      "sha256": "071e0760af842e44eff6830b32ae7a16be02d4b79c59b0c6053177bd6a2b22aa",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityStudioWindow.Commands.cs": {
+      "sha256": "25593afd3b5b252dbca15509f629970a9895339d2972dbc2900b7a223b44994f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityStudioWindow.Navigation.cs": {
+      "sha256": "0425abb82a0afa475fcd1e06e62760ed7d162bcd981c2a41fcec870f8a3939e9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityStudioWindow.Recovery.cs": {
+      "sha256": "10a52a3310917915bc75d8d0fbfc306bf9f5ded6484974ffdaaac37f83eafbc3",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Odin/AbilityStudioWindow.cs": {
+      "sha256": "d89f00e7bb2bc8aa49bcaf2b7c7daa93f3dc38d541d0b6e03f1ec1a2d6c370d6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Editor/Sandbox/AbilitySandbox.cs": {
+      "sha256": "7f0b270960a3caef0ab87ec77b51613b051257f33924eab20994b58cbc6dede4",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Interfaces/Interfaces.cs": {
+      "sha256": "0e86ce4749ff5d67c705420e86d9f04e758d7d6e86d40ffcfe0fda01105cb157",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Scripting/AbilityScript.cs": {
+      "sha256": "ed6fe051d8fa4526b2412af8f679571b300b893cce0714e3313198913a306bd1",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Scripting/ConfiguredAbilityScript.cs": {
+      "sha256": "04dcf6a7e3c8b17e5e4f343428fd85e4a0fd020632cb70a26675e3dbb81a63a9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Scripting/ConfiguredModifierScript.cs": {
+      "sha256": "009c7862cd907109ec38fe1ad730b6a9f590000ce5a7554233e3bd09fbc71ae9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Scripting/ModifierScript.cs": {
+      "sha256": "5f22431822148a590c42bb4e2b7052f0f6cf157f6f4cd141ad82a7d3081f3460",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ability/Scripting/ThinkerScript.cs": {
+      "sha256": "bb881b115fea0fc709d5efb86c928664769700e0d97887342c350d953a68373e",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Component/ComponentType.cs": {
+      "sha256": "5b95ce42bfb00b98c7bc3b3f34f25bcb1b61696db7968208b755380e40d08766",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Component/IComponent.cs": {
+      "sha256": "d6e039be10c32ce57f383c787288818a97dc75567aac9ba52d33d957f361931a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Entity/Entity.cs": {
+      "sha256": "88a2ab8a7445b6c48597bb5cf5b2b1ff995654b2217119c6bb51454766e8e1be",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Entity/EntityArchetype.cs": {
+      "sha256": "3606b0ae35671d085ddaa1a78c3782801ae19adb1771bd176e40b168dd2bd9df",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Infrastructure/Lifecycle.cs": {
+      "sha256": "d1d84adf077aed6979298c2dd4cf666075930c0f2925b8e3a7aec27332d909bd",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/System/ComponentSystem.cs": {
+      "sha256": "639cadab7f7b5296a69bb6e7137a112b8dd09c2fa6ef3511c209c59151411109",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/System/HybridSystem.cs": {
+      "sha256": "d7d073368734ad3d969d694421ade1780963d9c055cd44f4105e039b7dea6980",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/System/ISystemBase.cs": {
+      "sha256": "abed7f57b9bfed668f3d963e16f2fe5c946d812c7a166358ad18b490071c73e6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/System/SystemBase.cs": {
+      "sha256": "5850f93f9ed2247bb5d3972fa98dad3d04de1e7a07f73837d9a35cdfbd3db494",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/CopyFromTransformComponent.cs": {
+      "sha256": "4b6c7460c3aba7898088d7ff95412023098c12910999b8a55372c4b18c5b04cb",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/CopyFromTransformSystem.cs": {
+      "sha256": "588389dbf07db45321f7954e6e3129e13dc1f999eff7954b2a8934e99104eafa",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/CopyToTransformComponent.cs": {
+      "sha256": "e4bcfa129cb9e82c752d7b420d4db9f0409d0a05cd77a16cb184339f7e76a1a9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/CopyToTransformSystem.cs": {
+      "sha256": "0e1e4a73b565d55baa3919a6addc2f5f44376a662ab527fe58c1c574e735d31a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/LocalToWorld.cs": {
+      "sha256": "76b06cb77334d24508c9f430a23466ca07d0b0b62d38f0edaf017a38843f15d6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/Position.cs": {
+      "sha256": "abdc746d3cdc16deabac1c496f74154c578be262b294856dd19058802c4bbe13",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/Rotation.cs": {
+      "sha256": "54b6e84448df3420b60ebbd4ca9f8a282b26c0460283b3998f231cb20c868e02",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/Scale.cs": {
+      "sha256": "38b29e21670b7d770580d327b8a84a9ecd5ebefbac443814716fa765b6d1140c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/Transform/TRSToLocalToWorldSystem.cs": {
+      "sha256": "5ff741e6d192dcab79add00be82e7be9ae6d57805f4311b5bed7a54cffe7b1ab",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/UnityServices/GameObjectProvider.cs": {
+      "sha256": "2bbf5d8dd54541318c93706da5dddb46f3eb6787328408f6c44ecbc0c65f7e85",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.ecs/Runtime/World/IWorld.cs": {
+      "sha256": "a95d6ff7c8fbc3920ee92643c54c37503a805762ba5065d97280bda28aa316ea",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Editor/AssemblyPlan.cs": {
+      "sha256": "116a33fb9fc2e1d95ab121673d31654047ac44c109dc21f5ea71af53c303ebb5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Editor/HotAssemblyCompilation.cs": {
+      "sha256": "6ad0ac5afee1fe54798f17b5c14e3475eed247e5fec4a81a7c7172c9afd29fc9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/IUpdateTransport.cs": {
+      "sha256": "6568b28e0a0e7f902b94455c2d29d0ca6ef242b48291017961e173a5987b4b9c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateTransport.cs": {
+      "sha256": "a11e23de24aa4dc06e4d3458f7606bed63533e2bbfad9a3a9e9029da89a33d37",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.hybridclr/Tools~/ReleaseTool/Program.cs": {
+      "sha256": "ed88ce65462317019f93e1c8c1d339408c60e02ad7197451e9c0319a46dd75f1",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Editor/UIFrameworkMenu.cs": {
+      "sha256": "81bc2304035d02a002100ecf19424695dbd2401cf035855a551123f6bf2040c2",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Components/UISafeArea.cs": {
+      "sha256": "75470b8111fa103cbd47a7475c939e8fbbf2ae74275a952438e03587a408739b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIHandle.cs": {
+      "sha256": "87477c5942a1db889d9e86854778d6a39df696ce8acf09d4bab8a8023049cf50",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIKind.cs": {
+      "sha256": "cce279f5d2bc9859bad53568975931e388b2072211063a6f1d70b220566686e8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/DialogManager.cs": {
+      "sha256": "532ce104e5c519c279f827c3a1452ebd6829272bee03f6567c34239f4443f86c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/IUIOpenContext.cs": {
+      "sha256": "24cc9e3cfe689f413d08656ef016c79d95876af8657306f9583b9892b247678a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/IUIResultSource.cs": {
+      "sha256": "cc56415a587aaf2bafe473b7346245da70dc3e52ab614e33aa691c9de0150d03",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/UIDialogResult.cs": {
+      "sha256": "dfd298cd0f357a89034576316d36cfbe048722733a890b2137ba0e61f15c53bf",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/UIResultPopup.cs": {
+      "sha256": "8275d89df98688fcb4c60dbc669073a5f3b531eb68c2f3c5063afc64692c8134",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Lifecycle/UICloseReason.cs": {
+      "sha256": "f514515eca41d9f0c2198bcd926e18cf41567095abd069ec3cbe0053b036578b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Lifecycle/UILifetimeScope.cs": {
+      "sha256": "20d961c5f53f182d5f20ad610f97f916c70d6c11509469b00136efd7ffc25178",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/DelegateUIAssetLoader.cs": {
+      "sha256": "9fad99212714ef0fb61e3eaf4cfe6802d2df1f158d8c21540b990dc25cc2bd1f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/ResourcesAssetLoader.cs": {
+      "sha256": "e61b4b79ef920ce3daec567974d09345622b6c30b1162dd30581de66cb7f94c6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/OverlayManager.cs": {
+      "sha256": "57c7dcbc1ccee9a2dec7db017f374c40d463e8191635c4ddfcca43b897e2dd3f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Utils/UIBlocker.cs": {
+      "sha256": "a3d7e8e73b5f3be045ce93ffa8931dd845d2ef343803a2806879e2060a222c2e",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Utils/UIMessageBus.cs": {
+      "sha256": "0dcc128a651992b50b6a08857f20da84bc35be0cf1177fa091db2fd4dd1f81f8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIOverlay.cs": {
+      "sha256": "2a834d2eac3a338a45c7d576641f7ee4d6eb015957df7070e4345db3d5711b06",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIPage.cs": {
+      "sha256": "75eb0a3e46588c0639ff1128eb8b6570efb74f3485c5d98ad5b7d0153a7c8e29",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIPanel.cs": {
+      "sha256": "d1fac58b64d5a0df48c951f4cae0369df1891dde79c95dbc42f76c5ad930300a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIPopup.cs": {
+      "sha256": "971c255fd722a14084d7c1bc835904d4151834bf45df4a89add3ca6e4f33be0f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIToast.cs": {
+      "sha256": "ca4aef80747b310b5a1bbec5a7c7cfb9642e6846537b24d173c7b0f3cd579379",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/View/UIView.cs": {
+      "sha256": "2ec43f19adc4d95cf94154a55cb0ad53d8783358a9482fd5eabe8f0f574ec0f1",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Extensions.cs": {
+      "sha256": "b6a1866d7c464b2aa998b802882c5c0ff8f3d762fe9f195c4374287fc87b45c6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ShaderManager.cs": {
+      "sha256": "0ad07046c8c66d637092df4fd84ac6fea0c284ce5d8aaa43026193fe2b022696",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Editor/NetworkSettingsMenu.cs": {
+      "sha256": "8d9bd1911c03f0f9e68d40dc5f4e3a7365a63311e27a2d9d89e3098bb99a5429",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/IMessage.cs": {
+      "sha256": "cc66dc1f77319bfe9eb5e67a73cc6109b3abef0f37adf2cfe7e377a40aa97ab6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/ISubscription.cs": {
+      "sha256": "2b69985986ed4abb5414a5142bc61a6550f6b752bc8f2cfba6da3a0c261cdd11",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/MessageBus.cs": {
+      "sha256": "098d6dfa3d39395b8915edd195e811a6befde573ea2e076b274cf69dd74a3632",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Events/Subscriber.cs": {
+      "sha256": "d27c0dbe8600cc9289449b9202f6e6cc36086cad10d9ef441472d8c9270ab925",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Logging/Logger.cs": {
+      "sha256": "7ab110a9fa099530d95a5bc72f4ebe68dbecf923e741f071c1cd591728ff12e5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Logging/NetLogger.cs": {
+      "sha256": "d5624f3cb2ef0c2ff22099ac59cab2545c1f8f470d9ca971648480cc7abfdc9d",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Tasks/Signal.cs": {
+      "sha256": "9553ea2616c4ae464fbb0fa56b07857239eb837f2c534b5ef1beb5b6afafc96c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Tasks/TaskExtensions.cs": {
+      "sha256": "ee9c07f7f30cbe166e8e8cb9a4ea8a3df622a3737436f0e2e067ee00fd869f19",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Core/Tasks/TaskUtil.cs": {
+      "sha256": "895c276a1cee5c2928794a05f59def96664690df10e6631271ed94ccbe5d26be",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Dispatcher.cs": {
+      "sha256": "d579191fa211dd88272b19b00e8c33e9b737177e6cc60d3f1ba08f80fdfbdc92",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/IMessage.cs": {
+      "sha256": "dfa52cd69266a86f8c8cc9c3475219b09aed1ef7568b87f89dc1f96e96e94c2e",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/ISubscription.cs": {
+      "sha256": "6b88f5bcee0b228e79dd4a061f67071a395afcd2b61ba9c476b0272b331bb109",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/MessageDispatcher.cs": {
+      "sha256": "0bb93f9e4273e9075c9011688136af9b247b98a766b62a3cff9de4cee63e9260",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/Messager.Message.cs": {
+      "sha256": "a7e205ed6ea4f095ded1f6518ac5b836442ca74f34cda27b5d89afd5a8853b4e",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/Messager.cs": {
+      "sha256": "2a5b8bbffe75c774074c74b5dc5ed4bcd7b377bfbf483b0cd85f5eec2c9bddbf",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/Subscriber.cs": {
+      "sha256": "13d82d8cf4c18aaed4cccd20725a9a7ba8ce0dcc9355da72e5c3a876a1a2d8a1",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Signal.cs": {
+      "sha256": "36e519c74be00e1da0c59298321f7b531b3d03e6200bce8fa778a86a991355fd",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network.Unity/NetworkSettings.cs": {
+      "sha256": "9b464bf5229a0e74771913d59fd493de41c2e6c4a5b2347c1d263b73e76f780b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/AsyncOperation.cs": {
+      "sha256": "763b37a5ab2684e5e37f93089ec2ddb009e8a4e2638322d791ccb57c73076bc4",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Dispatching/NetworkDispatcherProvider.cs": {
+      "sha256": "8239d024d0878c8dd61f4889d150931e9a60e526f83ba40a8e140b9aca438c88",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Dispatching/NotificationRouter.cs": {
+      "sha256": "1797975116c15f45f2e4d8e17efddb983e2ebc6338f17cbc273649d39288c87a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Dispatching/QueuedNetworkDispatcher.cs": {
+      "sha256": "44fd934db8973eb0ec9cbf5c33e6ba5e09d8ce35f9683d1649fff42260da4efa",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/INetworkTransport.cs": {
+      "sha256": "7206bb30f45f00ef5501f90e79606ae733479ebf42312231224159ac3979dbd9",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkDefaults.cs": {
+      "sha256": "34fdb547dd7a102aee50c443539b76410dc24fee8a78e1194dc3b84ac83f3bd0",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Protobuf.cs": {
+      "sha256": "4bdfb9e35f4bfd21f67f511dc1c8486ae90937823475d3c8f21b5bb39acb7922",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkOptions.cs": {
+      "sha256": "12861838f1cdbfa5a088704ef249ea5dbf7a8f50bbb5a0352f6ea9cc5c068be5",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/NetworkPacket.cs": {
+      "sha256": "4458a8acfa47b94b2b5a5e37ef1a32c2a0b6226ee753f2fe475e80e5692e56a3",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/PooledPacket.cs": {
+      "sha256": "6ddc1d1c24742f0d5f493e48f5f18798a5d678b7897a8383e058805879913cad",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Protocol/MessageParserCache.cs": {
+      "sha256": "afed3c5b7ae1ead8682b1fa908b9ec62647891933a2060e78cf11ec03608a203",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Protocol/PacketCodec.cs": {
+      "sha256": "1173fed35f16a88e4e64f296ff8bf06a8c1005dfcc6382ffbc73c35d687658a6",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Protocol/PacketHeader.cs": {
+      "sha256": "763b1115ff2889979e749bd54eeb8ea77c469dc9a900edd77e26f80bc544578a",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/Security/PacketCipher.cs": {
+      "sha256": "e2a60929d273e8246063bb1a97285f08274c0383218a8c21056bdd58ba8c65eb",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/SimpleTcpClient.cs": {
+      "sha256": "4687a062a4478b9c966c767276d476980ec4cf3032daea6349e35f90d76ff95c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Network/TcpConnection.cs": {
+      "sha256": "2584e37872505b353a886b1ef6bfb7bf8d884f512c3ad550b7858455bb365e95",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.framework/Runtime/Unity/GameObjectPoolMember.cs": {
+      "sha256": "1e4b1206faa0f76e078f8a981a81abfa335361820cf3ee8bca64296d93dba57b",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationBakeDiscovery.cs": {
+      "sha256": "6e32394825fcc7f291068d95a9268adcd79393cc1afc5453bf704a4a8a23d102",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationBakeTypes.cs": {
+      "sha256": "9140784f587c32c26a060adba3546a00e374598ec3ba0ecc7e2b4246ee21deb2",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationBakeUtility.cs": {
+      "sha256": "15b64bedb526ca9fb2ca84439fe57c5261c8ca7b1ae4fa1ff0b944b37e16f73f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningGenerator.cs": {
+      "sha256": "be30d8b836831fd5df6dfb3f0ca47ef937ae90114a3db904ba37d4727f30c9b4",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/Aabb.cs": {
+      "sha256": "0f1581aa9676cf13fd0ec81574ff740e827b166059d0fc9da92413cbdc1c8f6f",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/Point.cs": {
+      "sha256": "ac85aac4657f262fa84e80a8a2fa4e1597139d8aa881db7ed75321ce08429173",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/QueryContext.cs": {
+      "sha256": "db0c3f359e9739aa6d4f6688968bbc9a628c03d347bf1072b0b3c7897fd318fa",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/Rectangle.cs": {
+      "sha256": "232d9c54012be723769cd01b3b3038bde507311c64edb2c5ecf20b3723871e2d",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/SpatialContracts.cs": {
+      "sha256": "6553c10698e58d515b1400a8bf9eb8b71e4e5e6c01e1b03374f0a485e76ae109",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/SpatialGeometry.cs": {
+      "sha256": "ba6d759430933070f5def785ddb889e0081874bb4c88528ec57c4f1d203d5c2c",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/SpatialQueryExtensions.cs": {
+      "sha256": "dd65fa8ec54d5c8dcfe0559e5ac8d2f26d5256c16295361df3794b00a94ead29",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/TriangleExact.cs": {
+      "sha256": "08b7d58f74f32e3e0996468a80caf87d5bf5a9a9a8b7869a452587c15727ea34",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/Common/TriangleIntersection.cs": {
+      "sha256": "fc405d971fa62258f5181cdc07af2196268efa9eff9807dba5dfed814c1bd4a8",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/KdTree/KdTree.cs": {
+      "sha256": "b49b4544584edcb4dbd76f6c60730274436fa2bbc36c9d305819c6afb5f7c976",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/RTree/Node.cs": {
+      "sha256": "207b605dad1e930de2a502be4de5d25f6e49da99cdd730b773a56f5e75eef5cb",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/RTree/RTree.Queries.cs": {
+      "sha256": "05850600d5f61918a92ce3b151786e104432f7aa8236dd3ce30e47cf558e5abd",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/RTree/RTree.Spatial.cs": {
+      "sha256": "9dd2ae72a5250480f171fac9815cf070713de7424bdc443ea4cbf8b95bfe0de3",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Runtime/RTree/RTree.cs": {
+      "sha256": "92fed26b8079ac4ec9f41a44ae33c2dae32b0341488deea9b1c7ebdd3d462887",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
+    "Packages/com.novorizon.rtree/Samples~/SpatialQueries/SpatialQueryExample.cs": {
+      "sha256": "067be2a930be7cb05da5baf6b0624301480bd6f9f5584dea8aea2f283f4c6d37",
+      "reason": "Document the public and internal declarations in Chinese without changing executable code."
+    },
     "Packages/com.novorizon.ecs/Runtime/World/World.cs": {
-      "sha256": "290c7f5a0334898bc2e51643c99d947c888bf16e9688f4f39173f72eed9661fc",
+      "sha256": "23d18a4a8123d04560ae038d3282818c69fee0549e9c41e7bfefd3a129d57f53",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Combat.cs": {
-      "sha256": "5af46e12b8d98b3e7a1eb54b5f72a65be857b2b58eac9793329ec7b46b7af541",
+      "sha256": "5832087036caf7e97508b736695d9a37a03c2b528d0aff5465fedf279f413919",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseCache.cs": {
-      "sha256": "8694f122dfb6bc93d8aeab6c06c1608bce5f2f927cb4dc380a0bc657b5e7058d",
+      "sha256": "2c1a639d051231a0f73d320ebcc8af1696562ef77cdc9f9d8ef4713e9cf011df",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.rtree/Runtime/DynamicAabbTree/DynamicAabbTree.cs": {
-      "sha256": "313bf8cf785913afe10983b62eead3ae4a6689b041c7b00614468a9e11b8f07c",
+      "sha256": "eeb52eb1abec66aaea4c4f1dc340fa0414974edeadd0d583b48a6aa437134aaf",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.rtree/Runtime/LooseOctree/LooseOctree.cs": {
-      "sha256": "8a58e6d27a1a9e9c012e340236ec4425c8d85178eaab839ba277c144f982729a",
+      "sha256": "08223f8e6a343c66e12f4e74b462b45e5ffbac84b38a0bc9ad123c8d47a4369e",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.rtree/Runtime/RTree/RTreeIndex.cs": {
-      "sha256": "157a59029606971811798287717dd540d3b26d9d26ed20495b047b32df6f7bd1",
+      "sha256": "a0ee42f52a38b1007c49113f4499d973695b42b192bf904f20c76233539805c1",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.rtree/Runtime/StaticBvh/StaticBvh.cs": {
-      "sha256": "7ef960daf2753fd41abafd89fb3186bf2e6c2525735a3b225474e6bf97a55a48",
+      "sha256": "f11417d10bc9d011df93e5cdf62e19ab854c8b049f2211cd2d8c22349fcedfa9",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.rtree/Runtime/TriangleBvh/TriangleBvh.cs": {
-      "sha256": "e30dae6ad7eabca4d37e8cfabe297a238bdbb7d65b20e6f83c3ead1625ca28e7",
+      "sha256": "087541b1ad8424e4024a5c8b32cfaa1a26d13d140856a0dd911e1de79a4527e2",
       "reason": "Add Chinese source comments without changing executable code."
     },
     "Packages/com.novorizon.localization/Runtime/LocalizationManager.cs": {
-      "sha256": "c14ba58c89acbf225b9409567b8b71aea9dd4055a00cfc5b3e7fccd2cfba8b2f",
+      "sha256": "9f5bac375c5b02cc3c758f837a3bcf5b44e83b6933d5b0c0b1c2c4ff13165577",
       "reason": "Clear the shared instance by identity when the manager is disposed directly. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/AssemblyInfo.cs": {
@@ -209,111 +785,111 @@
       "reason": "Allow the network assembly to observe the framework application and Editor lifecycle guards without inheriting the singleton base."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs": {
-      "sha256": "8b509048451fcabc5822e07d2e9e3b9efced7f0069438a63f2223ffbaffe41f0",
+      "sha256": "39a452af2b598a72b517b99f02e83831e29052187aa49f892cbbeff2c824991b",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs": {
-      "sha256": "e58a63cf05702c5e7b27b4506f5e5574ec3c4117063b05843630deaef5059120",
+      "sha256": "1d2a781483a70be7495c5766ee7ab875b6682d8349948a311cb7355c33533b0d",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "fb7eec28f0ced56e9d2eac8e2ba983660e71bc469c519047211dcc94370ba9e2",
+      "sha256": "247023dd3401e1ebd171d238a5e66bb16c70e2727e31283bc83a069383f07cda",
       "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
-      "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
+      "sha256": "8c66509e26e498ff29b8ba80a6d5dd39b68f778f2f7689926ee903a6298509d6",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIDestructionObserver.cs": {
-      "sha256": "1c41c14cc62ecd33a2f96624fa4a68331b47eefa7d9b9b12f388daa2bfc32620",
+      "sha256": "4bd387351fccf04322bfbce5c8409f1d6e71e23dbe628d9b7303a18f3b40705b",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Loading/IUIAssetLoader.cs": {
-      "sha256": "827f0da6e67efc18aaaf7200a86d7f24c4de9459b6930a4e7fd3f31ba6f5215d",
+      "sha256": "8f783df73b8e2a4a613e6271fce4392695d3d8c1e86d8e18fb1bcb3633a3bd07",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "sha256": "69cff0a17a2fa12e65f659b5f82d915e0d029582d972af3cf25dc25b4919eb5f",
+      "sha256": "4b89564662239771d6dfe64cedcfbabfc4e9f7100ebe576e99f876428ed8ee91",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
-      "sha256": "90a84a4151f909daebb35faad79d98ef02120ef131949e78d4c5e56787982cba",
+      "sha256": "11e963531578ebde17b4aaf8953ad8ba7b9a66a4c4a550ac4b9a2ecfac395cf8",
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.cs": {
-      "sha256": "a8bd9d98cc803f6b1a133f28ae0367d4e9f73ead1c37bf554c7ccf6f0d83f9d2",
+      "sha256": "ee8cf904f30605414c313eceb54b724956624403a724c782e284a72a2704db85",
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
-      "sha256": "fe8905f05db7ebcb856ca14ecf8a2ac615fccd78d26d227715ad3e43f0504e67",
+      "sha256": "4783776f9515b8ffaa26bf3be00351ee5294463a2845cdfa39e95314bcd941b9",
       "reason": "Add central GPU scheduling and playback notifications"
     },
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
-      "sha256": "ebced5fae4dbc97692b8db1dd2f31f53da4fc3e7d13954ce266f6c9fecbe2059",
+      "sha256": "278aeb2629f5cb9fd7b0fb17dbdfb7ade4211749438d1578f0119b7e15969d56",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "9dd269265cc03064fc57be9ecb70af8ff8b0582fdcf9df7e7b7679e436185af3",
+      "sha256": "12477c417de7069f35a4af8a7bc9886676d47ee852d48e7aa1aae35e04221972",
       "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
-      "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
+      "sha256": "06633eab9d38ab2c5c59ef700e9dc301e717f1b45d2c3c3c6274bfd9c761f398",
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs": {
-      "sha256": "130e2964a0397d6e750fee1a32180c491c82f54097273373d195453ebdcc43c5",
+      "sha256": "87b929c89f9bbcc730b116dc795f671c2246fae36b5da10e5e1ab96f063f63fa",
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs": {
-      "sha256": "993648295ff7224e164d9490ff70f73e92c5bd961cbb4806c88be764b3a2612e",
+      "sha256": "5cd73a316100914970695b5c333528784cd5ecc0d452f30481bd67e92a577c8d",
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs": {
-      "sha256": "f86de78ef76a478a9907f4629d5f31e923ca71a2b172e33efb828f3aab3bf221",
+      "sha256": "da899faf4eec66c1b668641a691fc62b15cc0297a19cddabe3662dfcd1111b06",
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs": {
-      "sha256": "c5649746cd5ac23588218be343a3adc16af15f31bdade8f57b6b0e5955ef56fd",
+      "sha256": "cdb7b7389216a819cd5708faaaa32a1ee2e73fbe227e81013c8cf6a0a091688d",
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs": {
-      "sha256": "6a59c49d2d1417d33a14acd6aa05348796d9b157a545cce23b7bbc9ce44b0eab",
+      "sha256": "0629aa96373fdbf207e569f571d3365186e7ded1111c220816fe33c2e4acd27c",
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetSceneLoader.cs": {
-      "sha256": "c492d3ab711cc5987b83ab925d1a51dc08a929e6be7fc7861f16933afde3c322",
+      "sha256": "ad7df946c81d28c7c4146e5addc12c60db83f728c4bf1e63cb27cc615d3f5936",
       "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
     },
     "Packages/com.novorizon.audio/Runtime/AudioHandle.cs": {
-      "sha256": "5d7c563a06aa3b81e7b111ae8a203e8ac4cd16573f4dcc9837969595faec5b85",
+      "sha256": "cc18746533f8f0c780baa221fc60caa60bff8f5621183adf2132add3389fbda3",
       "reason": "Add handle-controlled volume fades and fade-out recycling."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
-      "sha256": "8285f0bfe653862e635de9936686ae8e1d1f7ff8fe3c96f30c2d0e2537ef5124",
+      "sha256": "7d5763d709eaf83e10b05518d4561f291578c5129159df30395b600422acaeb5",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
-      "sha256": "7897d933732f55210de8a68b1a8f7260262d8ffad79af9780284d361faf3b51f",
+      "sha256": "18f07a9046a2b9deb4c3a0c3ffbfe64ad5413086569e2d8dae8b4c83d45647ef",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/MonoSingleton.cs": {
-      "sha256": "3b3f2ea91f0d36d7b5e228792b81cfb939e5a67bd2a243af80e242b69a7370ef",
+      "sha256": "5e02248bc43b4ad9231a37826ed8f59d58256e66cc2b9c57023ee3f3c3d451cf",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
-      "sha256": "39102755d0eb55b9d1d06b98526deea72df3e91afea0fa2d3dc261d0c81b959d",
+      "sha256": "043676287cc531574a69a96fd822fbd31ad67f637f8920bc5259bdc25e5ed7f5",
       "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
-      "sha256": "7da2dbb628326e752777a198d84ee93de969d226def99f4447c693f65be4025c",
+      "sha256": "7b1fd4053b5fe212f1c683c01bcbb4c9c79d6f6031c40c220857e6bdae68866a",
       "reason": "Add immutable resource ownership diagnostics and separately named owned acquisition while preserving original AcquireAsync API."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
-      "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
+      "sha256": "b671890f0a2ae315368248aaeb84b1dffc79628270152f8c5cda49d18b1a61b4",
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateSettings.cs": {
-      "sha256": "701d711594fded1583c28e3864d2a9b213f51c517553e001e838783b4093c7fa",
+      "sha256": "40b2f0b08c64b889fb43872363bf8485f0263759623fc4b7610bec2ecb368e2d",
       "reason": "Retain resource-backed verified code loading and standalone transport compatibility; support explicit packaged-only startup before cache access so online releases, acceptance receipts and health records remain untouched."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/Templates/HotGame.cs.txt": {
@@ -321,219 +897,219 @@
       "reason": "Replace the auto-created bootstrap and startup JSON with explicit HotUpdateManager initialization from GameEntry; configure runtime/build from C# and retain the HotGame shared contract and original metadata GUIDs."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/HotUpdateManager.cs": {
-      "sha256": "8e591489f9f11091fcb59bcee5d4f61ff2d0a580317845c29b97794e6a11edb7",
+      "sha256": "c1109225e5b71cfd05a6c0397425d452e7a0d482dab3a457dcc4c4383e9178bf",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.all/Editor/AllPackagesInstaller.cs": {
-      "sha256": "48a47bb9a610c064fe609f8b806fa3194e6d6607730a2527a4209dd3ff73b7f1",
+      "sha256": "278778cdfc042816f6163961bb740320ef9c464a5f982cb184e798726bdd4e51",
       "reason": "Enforce operation deadlines without overlapping outstanding native UPM requests."
     },
     "Packages/com.novorizon.ecs/Runtime/Ecs.cs": {
-      "sha256": "a0349f48abf6b1409bb889358b710e9aefe59579a676db9a90832c38d1a4bcdd",
+      "sha256": "ea1426beac907218a7fd3b4a7fa75bac03dd47fba9a78ce79b9dd34647c654a0",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.ecs/Runtime/Entity/EntityManager.cs": {
-      "sha256": "b41afc4e344194bb831d1b8c745989834b47486a0cc41f3cfc5244ceca5f59fd",
+      "sha256": "1ecf95cec27dd25f451a39ebb87c6cff5a9dd044de065c3a637075fc31982158",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.ecs/Runtime/World/WorldManager.cs": {
-      "sha256": "c556e291a3787ccd9566383cecd430534ca0b94072d1df9d2b80f7553ee7d43f",
+      "sha256": "b7bff70202fe96d95423159188e598ddad5ba3ea0201c0dd94f834f9664c703c",
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs": {
-      "sha256": "7a4d3fc627d30988e00fe4e492c4d80595f5ec1dc07bc652d1db458f22010263",
+      "sha256": "d85468cb4b7947f095ddb77f354db8293b8b2782b33f5d07f1201c23f1645ce9",
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
-      "sha256": "017fbc7f55f46ab359a0bec11e8e2facb2de5e1e5094f13beaa5c9108cbed209",
+      "sha256": "416ebc59500c2b545f701378c5e09609bb253576b75ca8d12822d5f160569163",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal. Remove shared singleton runtime state. Generated static reset registration now calls EditorStaticReset directly. Keep the base Release hook empty."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
-      "sha256": "652c85014d808ae3b9eacce7ebe3a9f7d2e567addffa4a6381180b1edaa80830",
+      "sha256": "303593b32675a53434516405b75264d8ce92ec6a43d27c433fed05baf0be1b0b",
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
-      "sha256": "b0bfd07a36a96f845bde97f9e7b2b6f68ab34ce6470e7cdb1ccd94d1a94d9c86",
+      "sha256": "f1b9d0c1a312e2689e5292710c86f1286bdf4acab08b92a511f9411be3ed02ab",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
-      "sha256": "d16b2884059bb398c07663eb021eb5091f18c22a9e34b21495976e08f48af805",
+      "sha256": "d14af4c1500dbc892c1d39d7ce139dfb94fd4540e1e152ad4f8a9b2d8ea58d8c",
       "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
-      "sha256": "abec211bf7367ef1cce0a25bd8345bc6d4a7c86733341e843aaef3505516ef5c",
+      "sha256": "775bf144ed12dd0ae1fb061a49f1f443cd1ce2bc24bf5c05369ef684e3bdf483",
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs": {
-      "sha256": "91170c645d0ae21efa3ed459cffbf46724b65c29b83d49a9f7b4ff5166dd586e",
+      "sha256": "378cc39c1ab331abf263157ac8c57d19718205fe3465e8b900de2197a298721f",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Initialization.cs": {
-      "sha256": "7fbc3e21e33a9bdfbaa9ac1b99b1e4fac8ec4c014ea93942be306c91266d4730",
+      "sha256": "7a2f00f9c740764972477ca19164e25f151bba8cd4eb7e6488e759fa773180a9",
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs": {
-      "sha256": "cf9efdc082afb8099557cefb48bbf76ec6cabc4966b8e4fdfa40cd9254bed929",
+      "sha256": "67d36d773a2114d875c59cdb75e5062470b08709f412bf0a0eb589f1b8577eef",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs": {
-      "sha256": "714583159e4e20d592dc5cc206c2ef25c7b459c61aa31fba25a46d43a00cb3f4",
+      "sha256": "88c34925a6dcad408c0cca18856dc672dc213b78fee076cc83f99527a48832ae",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Editor/LubanExporter.cs": {
-      "sha256": "ce767d307b1293ac1c018d6a2534eee5a1e4253446a40d8202ee1beec1834547",
+      "sha256": "59f8e37f3936116a988d803f0cb4f6b529c23ef8ab2b0f9c00e084c431e14297",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Editor/LubanGeneratorSettings.cs": {
-      "sha256": "956931fd6033754d39e33421def37c094f996c2eec69acd957627acc720c6fee",
+      "sha256": "a1771b6ccb8779112e13940fd0022f135ed316703208318d136e430f2729ad4a",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Editor/LubanGeneratorMenu.cs": {
-      "sha256": "3d014da12b2463d4d504883c9d456ba0a991ae22bcae95ceff3939d9efb3c362",
+      "sha256": "ef75d1b53de9be002fff517ea6ae520c2928f4323ab8442b229649c2fb24b68c",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Runtime/DataManager.cs": {
-      "sha256": "e506fdaadab82b20cf1dd48fda0433015112caf6272aeb7119b5f1006861bcca",
+      "sha256": "1513315eb95cb92c95542495db9a0073140f3e047a18f0e24b1b662b6c7df532",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Simplify the ordinary singleton API and let services implement disposal."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {
-      "sha256": "a7070b024e90ba52b31f0cbe07209a9af5187a0e6492d183df2906accf0ff5f7",
+      "sha256": "3f016e86eb785bb43ea18da12e6c4b0a40842f8ccf3b33e21c9d529804b2c196",
       "reason": "Support resource-backed verified code loading after content preparation, retain standalone transport compatibility, and build bound resource versions after DLL compilation."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/UpdateCoordinator.cs": {
-      "sha256": "0ce4d9ba88089a588fb3b32072aad9d2ea0168809ad8e1403d4d89b9d601acba",
+      "sha256": "f032b04708a61059cb18bd7e7eb1e9c37ff75cb2c4cd3128cb500c7ed5db2dc1",
       "reason": "Avoid redundant assembly hashes and move pure integrity work off the caller thread while preserving cancellation/publication checks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
-      "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
+      "sha256": "310fc77fc2d5e6f12d77eab168b56b991762f295c734bcc457e718c5c47115ab",
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "f4d38f14471a55c091b0e26e6ab911d120c4582f4a4d0e2a44be2b36927e2b15"
+      "sha256": "ee719e485cf63c851b804b563fc23a8a1ccca859af774fec681f7701c1f2cdfe"
     },
     "Packages/com.novorizon.gpuanimator/Samples~/FrameworkPool/GpuAnimatorPool.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "0829711fa6b073923336ffcb82e3d65eebe06a1cff0f7b10570b8d7213804c4d"
+      "sha256": "ad219eb311bf3199f78ad79883f34efbb7c6e5c4a223c8a4f015e84a151060bf"
     },
     "Packages/com.novorizon.gpuanimator/Samples~/ManualCrowd/GpuAnimatorCrowdExample.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "feccce108b32ef10bf8aaeb418b9366bf75b8c1e8b30e59b82a5751f067bcc8c"
+      "sha256": "deb14d8ee3f609fa4c015b133cda9f848f9a83aa4cdd855d75a3c30b7b219d34"
     },
     "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartComponents.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "8df8122a1bb6193b5ade78d5f5c763c531ccf3b18fd3091e64599f1f1535dded"
+      "sha256": "9e4a9bf133c3f272bcafccc3ec32ed2c5903eb6bc5ee53b4133deb4c4ed9e291"
     },
     "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartDemo.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "49995aa4ea69cbcd5143d8fb59a1b3e134b054d132bc38c8da4f9b4b2336e384"
+      "sha256": "a411244fcea43b45a063460c8f1e4b3d04ebc70e0ef8327fcf47cbcc15fcf976"
     },
     "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartMovementSystem.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "616ff88afc12df10876117ceaeb94b2125e5c92f0a21b3bf523dcce1d93763ec"
+      "sha256": "7ddbe43609c97f6a86051494cd20149cc3c20f3217ad4c42acbf17ce8ae5d575"
     },
     "Packages/com.novorizon.ecs/Samples~/QuickStart/QuickStartSession.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "6fb1041407ddebbfb2e3d862d640097dbc96346d219078bf9b5d93215bea83b3"
+      "sha256": "9e3565dff8bf76e8906d9f03540f1c95c1ed749ef0ead88f85c8c4e58367da3a"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Editor/UIDemoSceneMenu.cs": {
-      "sha256": "4085c39e54de8b0d285368293cd49163418f12c5cbd391ef5c87d90abe23b60e",
+      "sha256": "bda90798591132c7ae5a9c02ba2661471c9a5a9df0844f06b4fce46a1355ed1f",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoAssetLoader.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "f01fd2d6bcb8b913a8d2ddbcd6fc96ceda01c7da5b9237c8b7f4d908c23b09d9"
+      "sha256": "3c1c3473f9b68119ea4b4065736d72d9a3f67f9f92f016eea113160418d1277e"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoConfirmPopup.cs": {
-      "sha256": "59c9cc5b44d510fdf5a7ed637546e8444a322fff5955bdf686aa864c84bc0ef6",
+      "sha256": "be8e3c4b12b3cbb85baff0e36b08bcec8325b3b5290c44b959a9b0932f62be48",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": {
-      "sha256": "d5195c4e2d1e0d4c48d9581f53d22627df7853758ba1c03055a3b7532f1d7671",
+      "sha256": "a05d661bd5826225285680e9ba1a863b23806d233a1c02a378b388f750b5eefd",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": {
-      "sha256": "fea9ff8cab8025906ea5ac5c60b8165829f2b9733a81c7344b9cf87c22976736",
+      "sha256": "067c6db778520adec4c4e74d7d6e7097ccbb7c15dfa0a228cb0288f182190922",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": {
-      "sha256": "c43b71d73cdb8dd220c026a23fd2cdd0801e990e9fc1fe3eb50f5d3ccb9686db",
+      "sha256": "1451f1b2455e43aa74d60edd852f00c4076a3850c56d0910307f04ae5fed1b8e",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": {
-      "sha256": "7fd143a041f00d718b961892da39a879a9285d88cc2b42b6cd02ac89df83fa60",
+      "sha256": "21e5719ca1b070694fe9ee01102b3064d1260015106cc22eeb71e8a8f8beeb48",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": {
-      "sha256": "cf22eaed9ee140a927218a4fb0a1457b7f929e65a4e58d9354ece2f76d24a298",
+      "sha256": "0614dcb32ab87d7ce6857bbff1a23ab4a7438338b574405536fff2d9c61a1795",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoToast.cs": {
-      "sha256": "1e31efdcbd0695d411b305c58c68e5f67abec3774bd600699ceb301dc063757f",
+      "sha256": "08152f038cfd8d0acf450a7e6d6550a8112266d1a6bdd2e442d7c9e476a69d8f",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoWidgets.cs": {
-      "sha256": "147828339915ac6c773a5752ac17fd2d26ba13622417b0dd83c314b1f653955e",
+      "sha256": "68870e931314590880c0c23025a001526cb30d88f1c5589733d3d7fbf6cdb363",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "10b2545d6ada76c12fa4370e43efd1d49282c5cd4c2e90a3b4b8d5ae3b23d5c8"
+      "sha256": "32d7f4e3eea5c6da0a9c619c5afcf19e96dc0646781ab640e704ec013ce4cf06"
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "f6b3776f01302231d014816f8dfd069b0c69471367707c7c19ff1215789dbba6"
+      "sha256": "bd12fbb5246003788b887cf63512f4724d229265a0808225756fcd6fbd0d66e0"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "a21776b1b688e8e9c7c7f3ce4ca5c9f27600903e72c6eda6517e6dcfb1c7dc27"
+      "sha256": "a1b1800aec68b7dd410193607f4dda5cd62c5c1f1ab171de193cd0392f3b2456"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/CoreDemoPooledItem.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "01d26556f506a846778953f92dbeb2fbf28c035c5fbd20bc566cab60795169a5"
+      "sha256": "fa0164b733687f91496aedd6b8d63f2d5d24d79ff7b6b7a48ae280c696edc83d"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoReferenceContext.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "82d280a4031f00d89ce276990a7fbffb3679ebbb9bdc52893dd1db50b76b122c"
+      "sha256": "e647574d4bff8cb5551eadefd1707968a214c24a5703abcaf72565c926a791c5"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/DemoSession.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "086a5edc49991abd5e6f076f70fe79a6ca95b0c43196d4e6cad1ff322fa1c3f3"
+      "sha256": "734214f4fde43c19ca84a39d08667f2ff64a12948b6e6267c17cf32e5f62de46"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/FrameworkDemo.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "8e4b2deb656f6e371e7abbec9b091abc54883516afe62f2193465ae1ebef6dac"
+      "sha256": "04dbfa21b971b871b584b0c7ae69041e78ead4a84dccfd5472b5818142f1c35a"
     },
     "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
-      "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",
+      "sha256": "2c0bcf3bb60004e4602794747447e29b2648ce5fc56864f4b678dc28affc9682",
       "reason": "Bind each dispatch batch to its original host so callbacks that reset and initialize a replacement host cannot consume the new session queue; preserve the prewarmed allocation-free path."
     },
     "Packages/com.novorizon.framework/Runtime/Core/EditorStaticReset.cs": {
-      "sha256": "2f777327e33289db9b26c1282a1f042e88493c526496585502a179f970556c6c",
+      "sha256": "c80bbe7ef749c564aa46e179771a6f2b017d1703c897cebc21269e0bf7d5e05b",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs": {
-      "sha256": "c052244876b7070dd39b4a56c74be1d80d2ae38e02a48b5a920b65be0a54e31c",
+      "sha256": "dc090a57e0d80fc88ad644565951e1c1322f0735e7e5283d4c705586d4c2449e",
       "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
     },
     "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs": {
-      "sha256": "feedeb8532c71a5dc6558444073a30d65594c7ecda06e60082d1acfc7ad715ac",
+      "sha256": "147a0cc8e448bea377d295c2e578b60d27d91b771ab35cc472c2bb051e9a961d",
       "reason": "Add an explicit URP Lit bake option while keeping the existing default URP Unlit mode. Report URP shader import failures from the merged package."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualList.cs": {
-      "sha256": "268cee20b84dc44cd367bd838065958c2f77c7a19dc117d7523699a78edb4ac8",
+      "sha256": "ca5a964b1d5baa8c8d5f61c7b418e9dac50a02e3631f241407e74394c5553cb9",
       "reason": "Notify internal grid owners before row retirement, including never-activated and externally destroyed rows, while retaining existing list semantics."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/GameObjectPool.cs": {
-      "sha256": "bdef00583c55339126618556ba279675619f744ca76571a92d297f971a08c057",
+      "sha256": "6688f9a0b73695caeafd5922dbf1547d42e06b2f067cb64d8eb36c4d3c024b7c",
       "reason": "Expose read-only aggregated counts from the existing pool registry for the diagnostics window without creating pools."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Pooling/ReferencePool.cs": {
-      "sha256": "f2b89bae0041d4185f9242e33aa625174ef6cee6f39802e85d55047d08ff5944",
+      "sha256": "ce4986dbaf85ea0f0e22ba684e74db254ff2def01317dee104c6a677884bc436",
       "reason": "Expose the existing shared pool registry count without accessing lazy Shared pools."
     },
     "Packages/com.novorizon.gpuanimator/Editor/GpuAnimationAssetWriter.cs": {
-      "sha256": "c7618b358eb2fa672e7df9bdbf8737a16b1b2117b4f8c27d9393baaeaf9e1baa",
+      "sha256": "7b074a326766ae737f5ad5ec02e56ed8c74f447a9125219c5f5cd41bcb35b3c9",
       "reason": "Save only generated mesh/material dirty assets through SaveAssetIfDirty so native Unity rebakes persist changes and preserve GUIDs without saving unrelated sources."
     },
     "tools/NativeAcceptance/Editor/GpuAnimator/GpuAnimationAssetWriterTests.cs": {
@@ -557,47 +1133,47 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs": {
-      "sha256": "8264204a5ffed0cb5095194c321d2e4221cf451ebaf0954499a83de59899a959",
+      "sha256": "00ea2e63504d6cb02ab0da13d5d713d8a748a9d0b5d17c4d9470053b786ab613",
       "reason": "Track optional owner, scope ID and scene labels in existing independent resource leases."
     },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Auras.cs": {
-      "sha256": "a1a3912f2cf3642473322374d6415c64acf49b99142e750790a2acfba57d43b3",
+      "sha256": "25b2aeb08b90173f8ade772be03cc9893fd57cc88b114f215f9f172740fef71d",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Casting.cs": {
-      "sha256": "b670f74c88c1006611dd8211bf25de3dca51cef98b609ffb4642451cbd0e9ec7",
+      "sha256": "ca7bcccebc046c4bcad32b48403b3ee84c9c972e1c8d587e005a9f1e7f2eb267",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/Projectile.cs": {
-      "sha256": "9fd477cfcc91d9fb87548a69fef7cdc4a5eddf66a782415ff7df48da66369388",
+      "sha256": "08eafc4689c90231b5c897001346aabb2568b11e49550eea9f3b664ee401b94f",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/RuntimeSnapshotPool.cs": {
-      "sha256": "4cd51f5edcda1490735ebb64e69cbea16f9d98257934af1a515981c32c721b52",
+      "sha256": "3dcec2031168a7cfbb8b3f0c003b4262d496bda238b8eff92630b0bafba30cfe",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.ability/Core/Targeting.cs": {
-      "sha256": "581b913a772aa6fc592050b672c9f45424fd92109fd76059d7b5e116bb0b9c50",
+      "sha256": "cd953262068d28b0d44b151abdfc415612899c5ba5aed1797c59aca00f4fc80b",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.Fades.cs": {
-      "sha256": "bc701723a6e89ff66d0edddf97b7e8caf48d1549354dc9fdb787248480d00487",
+      "sha256": "855e50ec4acf7c5b494288fa8bb98a7374dbf3c4073ac1f5dd405adf1742ba2f",
       "reason": "Validate contiguous fade curves without enum boxing."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {
-      "sha256": "4b703204752701ab99d054c77d73294e06a86c89335b4e3df3c0e9a98f0f4927",
+      "sha256": "1b3e209cd988cd910a9e1a53c506fe785fe257036241e9a12a0193d5912dfd46",
       "reason": "Read public getters only and reuse row-type ownership accessors."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGrid.cs": {
-      "sha256": "e213f381d80cc0c62582e12ca0bc20c1997786e908cad816ec5d40591f2ae382",
+      "sha256": "5d2960434851076543ed006b9089158cab5f72660c319dbc66614b99930eb170",
       "reason": "Fence pooled row binding generations across reentrant unbind callbacks."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGridRow.cs": {
-      "sha256": "950f203ea13ba9df38bb23b10a0bdc4310ffce96ba851cfba65fe609824ff4d0",
+      "sha256": "c10310c2f68c0a6312465004e6940ba16411476bc76924a96408847474aacb94",
       "reason": "Fence pooled row binding generations across reentrant unbind callbacks."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.Message.cs": {
-      "sha256": "d20cfc432f8c5c87bd08dc1a1e45f13529d365b614dccd43189ceda54b8921f4",
+      "sha256": "f8660a197558dfef627a2f79c31b264c32284d47d5775a25c28bc202f31ee867",
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.gpuanimator/Shaders/URP/GpuSkinningAnimationURP.shader": {
@@ -609,7 +1185,7 @@
       "reason": "Declare every per-instance frame property written by the GPU player."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/AnimationData.cs": {
-      "sha256": "13577aad9bf91e1ec30695f5400d76ebea2619157868c42505b18a08b47216da",
+      "sha256": "a74ce5c1036ab68281226820b74cd11fde21dafdd2b86101e71ba66f523ce412",
       "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
     },
     "Packages/com.novorizon.gpuanimator/Shaders/GpuSkinningAnimationPBR.shader": {
@@ -617,11 +1193,11 @@
       "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
     },
     "Packages/com.novorizon.localization/Runtime/LocalizationCatalog.cs": {
-      "sha256": "35bd7ca3d3f9a37433407c8de2136271a0a183131ec20d386e8745ddc1fbf68c",
+      "sha256": "ef3644e22847c35ab6fb43f92209bd659be3b1cd7e8fe2c0573ad74bb48a2654",
       "reason": "Validate format indices with a 64-bit mask and shared stateless probes."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticsWindow.cs": {
-      "sha256": "fde35bd478785769f5ece8761a3dd7a7d6a5fa10c3dfce7dee4e2aeccbc068d2",
+      "sha256": "f0629cb26fc192ef6c5c0da1ae4de25b2aa2906ab83db62525d8af4a46a913ee",
       "reason": "Cache matched diagnostic rows, remove params-array filtering and bound each IMGUI event to 100 records while exporting full snapshots."
     }
   }

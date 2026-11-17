@@ -10,8 +10,10 @@ namespace Game.Framework.Story
     /// <remarks>启动和停止剧情会话，管理当前会话对演出器的占用。</remarks>
     public sealed class StoryPlayer : IDisposable, IAsyncDisposable
     {
+        /// <summary>表示剧情 Player中的Wall 时钟。</summary>
         private sealed class WallClock : IStoryClock
         {
+            /// <summary>根据传入参数取得DelayAsync。</summary>
             public Task DelayAsync(TimeSpan duration, CancellationToken cancellationToken) => Task.Delay(duration, cancellationToken);
         }
 
@@ -23,6 +25,7 @@ namespace Game.Framework.Story
         private StorySession active;
         private bool disposed;
 
+        /// <summary>使用调用方提供的presenter、commands、clock创建 StoryPlayer。</summary>
         public StoryPlayer(IStoryPresenter presenter, IStoryCommands commands = null, IStoryClock clock = null, int maximumSteps = 10000)
         {
             this.presenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
@@ -56,6 +59,7 @@ namespace Game.Framework.Story
             return session;
         }
 
+        /// <summary>尝试处理 Play，返回是否成功。</summary>
         public bool TryPlay(StorySequence sequence, out StorySession session, CancellationToken cancellationToken = default, StoryCheckpoint checkpoint = null)
         {
             if (sequence == null)
@@ -81,6 +85,7 @@ namespace Game.Framework.Story
             return true;
         }
 
+        /// <summary>结束剧情 Player对相关资源的持有，并执行该类型的清理流程。</summary>
         internal void Release(StorySession session)
         {
             lock (gate)
@@ -92,6 +97,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>发出停止请求，返回可等待的停止任务。</summary>
         public Task StopAsync()
         {
             StorySession current;
@@ -107,6 +113,7 @@ namespace Game.Framework.Story
             return current.Completion;
         }
 
+        /// <summary>结束剧情 Player对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             StorySession current;
@@ -122,6 +129,7 @@ namespace Game.Framework.Story
             current?.Cancel();
         }
 
+        /// <summary>等待资源和后台操作完成异步清理。</summary>
         public async ValueTask DisposeAsync()
         {
             Dispose();
@@ -133,10 +141,12 @@ namespace Game.Framework.Story
     /// A single run, including its cleanup. Ports must cooperate with cancellation for prompt stop;
     /// an ignored token leaves the player Busy until that actual operation and cleanup settle.
     /// </summary>
+    /// <remarks>提供剧情会话的实现。</remarks>
     public sealed class StorySession
     {
         // CancelAfter lets exceptions from cancellation callbacks escape its timer thread.
         // This timer owns delivery explicitly so port failures can become StoryResult errors.
+        /// <summary>表示剧情会话中的步骤 Timeout。</summary>
         private sealed class StepTimeout
         {
             private readonly object gate = new object();
@@ -147,6 +157,7 @@ namespace Game.Framework.Story
             private Exception error;
             private TaskCompletionSource<bool> delivered;
 
+            /// <summary>使用调用方提供的source、seconds创建 StepTimeout。</summary>
             internal StepTimeout(CancellationTokenSource source, double seconds)
             {
                 this.source = source;
@@ -178,6 +189,7 @@ namespace Game.Framework.Story
                 }
             }
 
+            /// <summary>调用 source.Cancel 完成Expire。</summary>
             private void Expire(object state)
             {
                 TaskCompletionSource<bool> delivery;
@@ -207,6 +219,7 @@ namespace Game.Framework.Story
                 }
             }
 
+            /// <summary>异步结束步骤 Timeout。</summary>
             internal Task FinishAsync()
             {
                 Task pending;
@@ -268,6 +281,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>使用调用方提供的owner、presenter、sequence创建 StorySession。</summary>
         internal StorySession(StoryPlayer owner, IStoryPresenter presenter, StorySequence sequence, CancellationToken token, StoryCheckpoint restored)
         {
             this.owner = owner;
@@ -282,12 +296,14 @@ namespace Game.Framework.Story
             externalCancellation = token.Register(() => RequestStop(StoryStatus.Cancelled));
         }
 
+        /// <summary>启动剧情会话。</summary>
         internal void Start(IStoryCommands commands, IStoryClock clock, int maximumSteps)
         {
             // Run always converts execution/cleanup errors into a StoryResult.
             _ = RunAsync(commands, clock, maximumSteps);
         }
 
+        /// <summary>推进剧情会话。</summary>
         public bool Advance()
         {
             StoryStepContext observed;
@@ -327,10 +343,13 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>跳过剧情会话。</summary>
         public bool Skip() => RequestStop(StoryStatus.Skipped);
 
+        /// <summary>取消剧情会话。</summary>
         public bool Cancel() => RequestStop(StoryStatus.Cancelled);
 
+        /// <summary>返回请求 Stop的判断结果。</summary>
         private bool RequestStop(StoryStatus reason, Exception error = null)
         {
             TaskCompletionSource<bool> delivered;
@@ -459,6 +478,7 @@ namespace Game.Framework.Story
             await PublishAsync(status, error);
         }
 
+        /// <summary>在已停止时抛出异常。</summary>
         private void ThrowIfStopped()
         {
             lock (gate)
@@ -471,6 +491,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>异步执行步骤。</summary>
         private async Task<StoryStepOutcome> ExecuteStepAsync(StoryNode node, StoryStepContext step, IStoryCommands commands, IStoryClock clock)
         {
             using (var source = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token))
@@ -509,6 +530,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>异步执行当前操作。</summary>
         private async Task<StoryStepOutcome> ExecuteAsync(
             StoryNode node,
             StoryStepContext step,
@@ -574,6 +596,7 @@ namespace Game.Framework.Story
             completion.TrySetResult(result);
         }
 
+        /// <summary>根据传入参数取得Combine。</summary>
         private static Exception Combine(Exception first, Exception second) => first == null ? second : new AggregateException(first, second);
     }
 }

@@ -4,6 +4,7 @@ using System.Globalization;
 
 namespace Game.Framework.Localization
 {
+    /// <summary>提供本地化表数据行的实现。</summary>
     [Serializable]
     public sealed class LocalizationTableRow
     {
@@ -11,11 +12,13 @@ namespace Game.Framework.Localization
         public string[] values = Array.Empty<string>();
     }
 
+    /// <summary>提供缺失翻译的实现。</summary>
     public sealed class MissingTranslation
     {
         public string Key { get; }
         public string Language { get; }
 
+        /// <summary>使用调用方提供的key、language创建 MissingTranslation。</summary>
         internal MissingTranslation(string key, string language)
         {
             Key = key;
@@ -24,6 +27,7 @@ namespace Game.Framework.Localization
     }
 
     /// <summary>Validated, copied authoring data shared by CSV/TSV imports and Unity assets.</summary>
+    /// <remarks>提供本地化表数据数据的实现。</remarks>
     public sealed class LocalizationTableData
     {
         private readonly string[] languages;
@@ -32,6 +36,7 @@ namespace Game.Framework.Localization
         public IReadOnlyList<string> Languages { get; }
         public int RowCount => rows.Length;
 
+        /// <summary>使用调用方提供的languages、rows创建 LocalizationTableData。</summary>
         public LocalizationTableData(IReadOnlyList<string> languages, IReadOnlyList<LocalizationTableRow> rows)
         {
             if (languages == null || rows == null)
@@ -57,8 +62,10 @@ namespace Game.Framework.Localization
             catalog = BuildCatalog();
         }
 
+        /// <summary>创建目录。</summary>
         public LocalizationCatalog CreateCatalog() => catalog;
 
+        /// <summary>构建目录。</summary>
         private LocalizationCatalog BuildCatalog()
         {
             var columns = new TranslationColumn<LocalizationTableRow>[languages.Length];
@@ -70,6 +77,7 @@ namespace Game.Framework.Localization
             return LocalizationCatalog.FromRows(rows, row => row.key, columns);
         }
 
+        /// <summary>复制行。</summary>
         public LocalizationTableRow[] CopyRows()
         {
             var result = new LocalizationTableRow[rows.Length];
@@ -80,6 +88,7 @@ namespace Game.Framework.Localization
             return result;
         }
 
+        /// <summary>查找缺失 Translations。</summary>
         public MissingTranslation[] FindMissingTranslations()
         {
             var result = new List<MissingTranslation>();
@@ -96,6 +105,7 @@ namespace Game.Framework.Localization
             return result.ToArray();
         }
 
+        /// <summary>复制本地化表数据数据。</summary>
         private static LocalizationTableRow Copy(LocalizationTableRow row)
         {
             return new LocalizationTableRow { key = row.key, values = (string[])row.values.Clone() };

@@ -7,8 +7,10 @@ namespace RTree
     /// Reusable query workspace. Use one context per active query. A warmed
     /// context and a sufficiently sized result list avoid query allocations.
     /// </summary>
+    /// <remarks>Query对应的上下文。携带一次操作所需的上下文。</remarks>
     public sealed class QueryContext
     {
+        /// <summary>保存堆条目所需的数据与配套操作。</summary>
         internal struct HeapEntry
         {
             internal int NodeId;
@@ -24,8 +26,10 @@ namespace RTree
         internal int candidateCount;
         private int busy;
 
+        /// <summary>用默认配置创建 QueryContext，其余初始化交给完整构造函数。</summary>
         public QueryContext() : this(false) { }
 
+        /// <summary>使用调用方提供的collectStatistics创建 QueryContext。</summary>
         public QueryContext(bool collectStatistics)
         {
             CollectStatistics = collectStatistics;
@@ -37,6 +41,7 @@ namespace RTree
         public long PrimitiveTests { get; internal set; }
         public int ResultCount { get; internal set; }
 
+        /// <summary>调用 Interlocked.CompareExchange 完成Enter。</summary>
         internal void Enter()
         {
             if (Interlocked.CompareExchange(ref busy, 1, 0) != 0)
@@ -50,6 +55,7 @@ namespace RTree
             ResultCount = 0;
         }
 
+        /// <summary>调用 Interlocked.Exchange 完成退出。</summary>
         internal void Exit()
         {
             stackCount = 0;
@@ -58,14 +64,17 @@ namespace RTree
             Interlocked.Exchange(ref busy, 0);
         }
 
+        /// <summary>压入 Query 上下文。</summary>
         internal void Push(int nodeId)
         {
             if (stackCount == stack.Length) Array.Resize(ref stack, checked(stack.Length * 2));
             stack[stackCount++] = nodeId;
         }
 
+        /// <summary>弹出 Query 上下文。</summary>
         internal int Pop() { return stack[--stackCount]; }
 
+        /// <summary>检查并确保候选项可用。</summary>
         internal void EnsureCandidates(int capacity)
         {
             if (capacity <= candidates.Length) return;
@@ -74,6 +83,7 @@ namespace RTree
             Array.Resize(ref candidateDistances, size);
         }
 
+        /// <summary>压入 Query 上下文。</summary>
         internal void Push(int nodeId, DistanceKey distance)
         {
             if (heapCount == heap.Length) Array.Resize(ref heap, checked(heap.Length * 2));
@@ -89,6 +99,7 @@ namespace RTree
             heap[index].Distance = distance;
         }
 
+        /// <summary>弹出最近。</summary>
         internal HeapEntry PopNearest()
         {
             HeapEntry first = heap[0];

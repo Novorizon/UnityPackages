@@ -4,17 +4,21 @@ namespace RTree
 {
     // The fast path certifies signs with floating-point error bounds. Difficult
     // boundary, nearly parallel, and extreme-range cases use exact dyadics.
+    /// <summary>提供三角形 Intersection的实现。</summary>
     internal static class TriangleIntersection
     {
         private const double ErrorFactor = 1.4210854715202004e-14; // 64 * machine epsilon
         private const double MinimumNormal = 2.2250738585072014e-308;
 
+        /// <summary>保存Approximation所需的数据与配套操作。</summary>
         private struct Approximation
         {
             internal double Value, Error;
+            /// <summary>使用调用方提供的value、error创建 Approximation。</summary>
             internal Approximation(double value, double error) { Value = value; Error = error; }
         }
 
+        /// <summary>检查是否存在面积。</summary>
         internal static bool HasArea(Vector3d a, Vector3d b, Vector3d c)
         {
             if (a.Equals(b) || a.Equals(c) || b.Equals(c)) return false;
@@ -28,6 +32,7 @@ namespace RTree
             return TriangleExact.HasArea(a, b, c);
         }
 
+        /// <summary>返回Certified 交叉的判断结果。</summary>
         private static bool CertifiedCross(double a, double b, double c, double d)
         {
             if (!Ordinary(a) || !Ordinary(b) || !Ordinary(c) || !Ordinary(d)) return false;
@@ -36,6 +41,7 @@ namespace RTree
             return Math.Abs(p - q) > ErrorFactor * (Math.Abs(p) + Math.Abs(q));
         }
 
+        /// <summary>判断是否相交三角形 Intersection。</summary>
         internal static bool Intersects(Triangle3 triangle, Ray3 ray, out double parameter)
         {
             ray.Validate(); parameter = 0;
@@ -104,6 +110,7 @@ namespace RTree
             parameter = hit; return true;
         }
 
+        /// <summary>根据传入参数取得上限坐标。</summary>
         private static double MaximumCoordinate(Triangle3 triangle, Vector3d origin)
         {
             double scale = Math.Max(Math.Abs(origin.X), Math.Max(Math.Abs(origin.Y), Math.Abs(origin.Z)));
@@ -112,6 +119,7 @@ namespace RTree
             return Math.Max(scale, Math.Max(Math.Abs(triangle.C.X), Math.Max(Math.Abs(triangle.C.Y), Math.Abs(triangle.C.Z))));
         }
 
+        /// <summary>返回差异的判断结果。</summary>
         private static bool Difference(double coordinate, double origin, double scale, out Approximation result)
         {
             double difference = coordinate - origin;
@@ -126,6 +134,7 @@ namespace RTree
             return Ordinary(value) && (value != 0 || coordinate == origin);
         }
 
+        /// <summary>返回项目的判断结果。</summary>
         private static bool Project(double coordinate, double origin, double scale, double shear, Approximation depth, out Approximation result)
         {
             Approximation axis;
@@ -138,6 +147,7 @@ namespace RTree
             return Ordinary(value) && ProductOrdinary(product, shear, depth.Value);
         }
 
+        /// <summary>归一化三角形 Intersection。</summary>
         private static bool Normalize(ref Approximation value, double scale)
         {
             value.Value /= scale;
@@ -145,6 +155,7 @@ namespace RTree
             return Ordinary(value.Value) && !double.IsInfinity(value.Error);
         }
 
+        /// <summary>返回交叉的判断结果。</summary>
         private static bool Cross(Approximation a, Approximation b, Approximation c, Approximation d, out Approximation result)
         {
             double p = a.Value * b.Value, q = c.Value * d.Value;
@@ -157,8 +168,10 @@ namespace RTree
                 Ordinary(value) && Math.Abs(value) > error;
         }
 
+        /// <summary>返回商品普通的判断结果。</summary>
         private static bool ProductOrdinary(double product, double a, double b)
         { return Ordinary(product) && (product != 0 || a == 0 || b == 0); }
+        /// <summary>返回普通的判断结果。</summary>
         private static bool Ordinary(double value)
         { return !double.IsNaN(value) && !double.IsInfinity(value) && (value == 0 || Math.Abs(value) >= MinimumNormal); }
     }

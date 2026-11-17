@@ -9,6 +9,7 @@ namespace UI
     /// This component owns the fitted axes; do not drive those axes with another layout controller.
     /// It does not change its parent, the Canvas, or sibling backgrounds.
     /// </remarks>
+    /// <remarks>提供界面安全面积的实现。</remarks>
     [RequireComponent(typeof(RectTransform))]
     [DisallowMultipleComponent]
     public sealed class UISafeArea : MonoBehaviour
@@ -38,6 +39,7 @@ namespace UI
         }
 
         /// <summary>Immediately refresh after changing the layout. Returns false for unsupported contexts.</summary>
+        /// <remarks>应用界面安全面积。</remarks>
         public bool Apply()
         {
             if (!isActiveAndEnabled || applying) return false;
@@ -48,13 +50,20 @@ namespace UI
             return ApplyIfChanged();
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         void OnEnable() => Apply();
+        /// <summary>推进该对象的一次更新。</summary>
         void Update() { if (captured) ApplyIfChanged(); }
+        /// <summary>Unity 在编辑器里验证序列化数据时执行本地校验。</summary>
         void OnValidate() { hasSnapshot = false; }
+        /// <summary>响应矩形变换 Dimensions 变更。</summary>
         void OnRectTransformDimensionsChange() { if (captured && !applying) ApplyIfChanged(); }
+        /// <summary>响应变换父节点变化。</summary>
         void OnTransformParentChanged() { parentCanvas = null; Invalidate(); }
+        /// <summary>响应画布层级变化。</summary>
         void OnCanvasHierarchyChanged() { parentCanvas = null; Invalidate(); }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         void OnDisable()
         {
             RestoreOwnedAxes();
@@ -63,12 +72,14 @@ namespace UI
             canvasParent = null;
         }
 
+        /// <summary>使失效界面安全面积。</summary>
         void Invalidate()
         {
             hasSnapshot = false;
             if (captured && !applying && isActiveAndEnabled) ApplyIfChanged();
         }
 
+        /// <summary>应用 If 变化。</summary>
         bool ApplyIfChanged()
         {
             if (applying || target == null || !isActiveAndEnabled) return IsApplied;
@@ -113,6 +124,7 @@ namespace UI
             finally { applying = false; }
         }
 
+        /// <summary>尝试处理 Capture，返回是否成功。</summary>
         bool TryCapture(out Snapshot snapshot)
         {
             snapshot = default;
@@ -140,6 +152,7 @@ namespace UI
             return true;
         }
 
+        /// <summary>尝试处理项目，返回是否成功。</summary>
         static bool TryProject(in Snapshot input, out Vector2 min, out Vector2 max)
         {
             min = max = default;
@@ -167,8 +180,10 @@ namespace UI
             return Finite(min.x) && Finite(min.y) && Finite(max.x) && Finite(max.y);
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
+        /// <summary>恢复自有 Axes。</summary>
         void RestoreOwnedAxes()
         {
             IsApplied = false;
@@ -185,15 +200,20 @@ namespace UI
             finally { applying = false; }
         }
 
+        /// <summary>保存布局所需的数据与配套操作。</summary>
         struct Layout
         {
             internal Vector2 Min, Max, OffsetMin, OffsetMax;
+            /// <summary>读取传入的 rect。</summary>
             internal static Layout Read(RectTransform rect) => new Layout
             { Min = rect.anchorMin, Max = rect.anchorMax, OffsetMin = rect.offsetMin, OffsetMax = rect.offsetMax };
+            /// <summary>恢复 Horizontal。</summary>
             internal void RestoreHorizontal(Layout value)
             { Min.x = value.Min.x; Max.x = value.Max.x; OffsetMin.x = value.OffsetMin.x; OffsetMax.x = value.OffsetMax.x; }
+            /// <summary>恢复 Vertical。</summary>
             internal void RestoreVertical(Layout value)
             { Min.y = value.Min.y; Max.y = value.Max.y; OffsetMin.y = value.OffsetMin.y; OffsetMax.y = value.OffsetMax.y; }
+            /// <summary>写入传入的 rect。</summary>
             internal void Write(RectTransform rect)
             {
                 if (rect.anchorMin != Min) rect.anchorMin = Min;
@@ -203,6 +223,7 @@ namespace UI
             }
         }
 
+        /// <summary>保存快照所需的数据与配套操作。</summary>
         struct Snapshot
         {
             internal RectTransform? Parent;
@@ -214,6 +235,7 @@ namespace UI
             internal int ScreenWidth, ScreenHeight;
             internal float Scale;
             internal bool Horizontal, Vertical;
+            /// <summary>比较是否相同 As。</summary>
             internal readonly bool SameAs(in Snapshot other) => ReferenceEquals(Parent, other.Parent) && ReferenceEquals(Canvas, other.Canvas) &&
                 ReferenceEquals(Camera, other.Camera) && ParentRect == other.ParentRect && SafeRect == other.SafeRect &&
                 CanvasRect == other.CanvasRect && CameraRect == other.CameraRect && ParentMatrix == other.ParentMatrix &&

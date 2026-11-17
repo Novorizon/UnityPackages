@@ -5,6 +5,7 @@ using UnityEngine;
 namespace UI
 {
     /// <summary>Internal ownership for cells belonging to one pooled virtual row.</summary>
+    /// <remarks>提供界面虚拟网格行的实现。</remarks>
     public sealed class UIVirtualGridRow : MonoBehaviour
     {
         internal UIVirtualGrid Owner;
@@ -16,12 +17,14 @@ namespace UI
 
         internal bool IsReleasing => releaseDepth != 0;
 
+        /// <summary>开始绑定。</summary>
         internal void BeginBinding(Action<GameObject> callback)
         {
             bindingVersion++;
             Unbind = callback;
         }
 
+        /// <summary>结束界面虚拟网格行对相关资源的持有，并执行该类型的清理流程。</summary>
         internal void Release(int column)
         {
             if (Indices[column] < 0)
@@ -45,6 +48,7 @@ namespace UI
             }
         }
 
+        /// <summary>释放全部。</summary>
         internal void ReleaseAll()
         {
             int version = bindingVersion;
@@ -66,6 +70,7 @@ namespace UI
             }
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             ReleaseAll();

@@ -12,8 +12,10 @@ using UnityEngine;
 
 namespace Game.Ability.Editor.Odin
 {
+    /// <summary>技能编辑工作台对应的窗口。提供此模块的 Unity 编辑器窗口。</summary>
     public sealed partial class AbilityStudioWindow
     {
+        /// <summary>调用 workspace.Documents.Where 完成Persist 恢复。</summary>
         private void PersistRecovery()
         {
             if (workspace == null) return;
@@ -33,6 +35,7 @@ namespace Game.Ability.Editor.Odin
             else SessionState.SetString(RecoveryKey, JsonUtility.ToJson(new RecoveryData { root = workspace.RootDirectory, entries = entries.ToArray() }));
         }
 
+        /// <summary>恢复恢复。</summary>
         private void RestoreRecovery()
         {
             string text = SessionState.GetString(RecoveryKey, string.Empty);

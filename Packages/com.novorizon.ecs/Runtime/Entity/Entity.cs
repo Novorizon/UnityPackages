@@ -7,6 +7,7 @@ using Sirenix.OdinInspector;
 
 namespace ECS
 {
+    /// <summary>提供实体的实现。</summary>
     public sealed class Entity
     {
 #if UNITY_EDITOR
@@ -33,6 +34,7 @@ namespace ECS
         // Invalidate earlier loads even when the same live entity starts another request.
         internal ulong LoadRequestId;
 
+        /// <summary>根据传入参数取得字符串 To 哈希。</summary>
         public static int StringToHash(string str)
         {
             int hashcode = 0;

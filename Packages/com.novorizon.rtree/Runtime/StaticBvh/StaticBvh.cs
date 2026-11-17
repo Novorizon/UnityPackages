@@ -9,8 +9,10 @@ namespace RTree
     /// surface-area heuristic; Refit preserves the original source order.
     /// Concurrent queries are supported. Intersectors must not reenter this tree.
     /// </summary>
+    /// <remarks>提供静态层次包围盒的实现。</remarks>
     public sealed class StaticBvh<T> : IBoundsQuery3<T>, IRayQuery3<T>
     {
+        /// <summary>保存节点所需的数据与配套操作。</summary>
         private struct Node
         {
             internal Aabb Bounds;
@@ -24,8 +26,10 @@ namespace RTree
         private T[] items = new T[0];
         private int[] order = new int[0];
 
+        /// <summary>用默认配置创建 StaticBvh，其余初始化交给完整构造函数。</summary>
         public StaticBvh(IEnumerable<KeyValuePair<Bounds3, T>> items) : this(items, 4) { }
 
+        /// <summary>使用调用方提供的items、leafCapacity创建 StaticBvh。</summary>
         public StaticBvh(IEnumerable<KeyValuePair<Bounds3, T>> items, int leafCapacity)
         {
             if (leafCapacity < 1) throw new ArgumentOutOfRangeException("leafCapacity");
@@ -41,6 +45,7 @@ namespace RTree
         public int LeafCapacity { get { return leafCapacity; } }
 
         /// <summary>Atomically replaces all primitives, preserving enumeration order as source order.</summary>
+        /// <remarks>重建静态层次包围盒。</remarks>
         public void Rebuild(IEnumerable<KeyValuePair<Bounds3, T>> source)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -104,26 +109,33 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>查询静态层次包围盒。</summary>
         public int Query(Bounds3 query, List<T> results) { return Query(query, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>查询静态层次包围盒。</summary>
         public int Query(Bounds3 query, List<T> results, QueryContext context)
         {
             ValidateBounds(query, "query");
             return QueryRange(query, default(Sphere3), null, 0, results, context);
         }
 
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results) { return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         {
             return QueryRange(default(Bounds3), sphere, null, 1, results, context);
         }
 
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results) { return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QueryRange(default(Bounds3), default(Sphere3), frustum, 2, results, context);
         }
 
+        /// <summary>按范围查询匹配结果。</summary>
         private int QueryRange(Bounds3 query, Sphere3 sphere, Frustum3 frustum, int kind, List<T> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -174,6 +186,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>判断是否匹配静态层次包围盒。</summary>
         private static bool Matches(Aabb box, Bounds3 query, Sphere3 sphere, Frustum3 frustum, int kind)
         {
             if (kind == 0) return box.Intersects(query.Box);
@@ -181,18 +194,26 @@ namespace RTree
             return kind == 1 ? SpatialMath.Intersects(publicBox, sphere) : frustum.Intersects(publicBox);
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit) { return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context) { return RaycastFirst(ray, null, false, out hit, context); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, IRayIntersector<T> intersector, out RayHit<T> hit) { return RaycastAny(ray, intersector, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, IRayIntersector<T> intersector, out RayHit<T> hit, QueryContext context)
         {
             if (intersector == null) throw new ArgumentNullException("intersector");
             return RaycastFirst(ray, intersector, false, out hit, context);
         }
 
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit) { return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context) { return RaycastFirst(ray, null, true, out hit, context); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, IRayIntersector<T> intersector, out RayHit<T> hit) { return RaycastClosest(ray, intersector, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, IRayIntersector<T> intersector, out RayHit<T> hit, QueryContext context)
         {
             if (intersector == null) throw new ArgumentNullException("intersector");
@@ -247,6 +268,7 @@ namespace RTree
                             }
                             // 包围盒只是候选；相交参数还必须在射线区间和当前最近命中范围内。
                             if (!ValidParameter(parameter, ray) || parameter > best) continue;
+                            // 遇到更近的命中后收紧遍历上限，后面的节点只需搜索这一距离以内。
                             best = parameter;
                             hit = new RayHit<T>(items[id], parameter);
                             found = true;
@@ -261,15 +283,20 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results) { return RaycastAll(ray, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context) { return RaycastAllCore(ray, null, results, context); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, IRayIntersector<T> intersector, List<RayHit<T>> results) { return RaycastAll(ray, intersector, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, IRayIntersector<T> intersector, List<RayHit<T>> results, QueryContext context)
         {
             if (intersector == null) throw new ArgumentNullException("intersector");
             return RaycastAllCore(ray, intersector, results, context);
         }
 
+        /// <summary>对全部核心执行射线检测。</summary>
         private int RaycastAllCore(Ray3 ray, IRayIntersector<T> intersector, List<RayHit<T>> results, QueryContext context)
         {
             ray.Validate();
@@ -322,12 +349,14 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>返回有效参数的判断结果。</summary>
         private static bool ValidParameter(double parameter, Ray3 ray)
         {
             return !double.IsNaN(parameter) && !double.IsInfinity(parameter) && parameter >= ray.TMin && parameter <= ray.TMax;
         }
 
         // In-place heapsort avoids comparer/delegate allocations in hot queries.
+        /// <summary>排序命中列表。</summary>
         private static void SortHits(List<RayHit<T>> results)
         {
             for (int i = results.Count / 2 - 1; i >= 0; i--) SiftHits(results, i, results.Count);
@@ -338,6 +367,7 @@ namespace RTree
             }
         }
 
+        /// <summary>筛排命中列表。</summary>
         private static void SiftHits(List<RayHit<T>> results, int root, int count)
         {
             RayHit<T> value = results[root];
@@ -351,6 +381,7 @@ namespace RTree
             results[root] = value;
         }
 
+        /// <summary>验证包围盒。</summary>
         private static void ValidateBounds(Bounds3 box, string name)
         {
             if (!Finite(box.MinX) || !Finite(box.MinY) || !Finite(box.MinZ) || !Finite(box.MaxX) || !Finite(box.MaxY) || !Finite(box.MaxZ) ||
@@ -358,8 +389,10 @@ namespace RTree
                 throw new ArgumentException("Bounds must have finite ordered coordinates.", name);
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         private static bool Finite(double value) { return !double.IsNaN(value) && !double.IsInfinity(value); }
 
+        /// <summary>表示静态层次包围盒中的构建器。</summary>
         private sealed class Builder
         {
             private const int BinCount = 12;
@@ -373,6 +406,7 @@ namespace RTree
             internal Node[] Nodes;
             internal int[] Order;
 
+            /// <summary>使用调用方提供的source、capacity创建 Builder。</summary>
             internal Builder(Aabb[] source, int capacity)
             {
                 this.source = source; this.capacity = capacity;
@@ -381,12 +415,14 @@ namespace RTree
                 Nodes = new Node[source.Length == 0 ? 0 : checked(source.Length * 2 - 1)];
             }
 
+            /// <summary>构建构建器。</summary>
             internal void Build()
             {
                 if (Order.Length != 0) BuildNode(0, Order.Length, 0);
                 if (nodeCount != Nodes.Length) Array.Resize(ref Nodes, nodeCount);
             }
 
+            /// <summary>构建节点。</summary>
             private int BuildNode(int start, int count, int depth)
             {
                 int id = nodeCount++;
@@ -418,6 +454,7 @@ namespace RTree
                 return id;
             }
 
+            /// <summary>查找 Split。</summary>
             private bool FindSplit(int start, int count, Aabb parent, Aabb centers, out int bestAxis, out int bestSplit)
             {
                 bestAxis = 0; bestSplit = -1;
@@ -457,6 +494,7 @@ namespace RTree
                 return bestSplit >= 0;
             }
 
+            /// <summary>根据传入参数取得Partition。</summary>
             private int Partition(int start, int count, int axis, int split, Aabb centers)
             {
                 int left = start, right = start + count - 1;
@@ -468,6 +506,7 @@ namespace RTree
                 return left;
             }
 
+            /// <summary>选择 Median。</summary>
             private void SelectMedian(int left, int right, int middle, int axis)
             {
                 // Median partition guarantees balanced fallback children,
@@ -488,6 +527,7 @@ namespace RTree
                 }
             }
 
+            /// <summary>根据传入参数取得Bin。</summary>
             private static int Bin(double center, double minimum, double maximum)
             {
                 double scale = Math.Max(Math.Abs(minimum), Math.Abs(maximum));
@@ -496,6 +536,7 @@ namespace RTree
                 return bin < 0 ? 0 : bin >= BinCount ? BinCount - 1 : bin;
             }
 
+            /// <summary>根据传入参数取得面积。</summary>
             private static double Area(Aabb box, double scale)
             {
                 double x = box.MaxX / scale - box.MinX / scale;
@@ -504,12 +545,14 @@ namespace RTree
                 return x * y + x * z + y * z;
             }
 
+            /// <summary>根据传入参数取得中心点包围盒。</summary>
             private static Aabb CenterBox(Aabb box)
             {
                 double x = box.Center(0), y = box.Center(1), z = box.Center(2);
                 return new Aabb(x, y, z, x, y, z);
             }
 
+            /// <summary>根据传入参数取得Widest 轴向。</summary>
             private static int WidestAxis(Aabb box)
             {
                 double x = box.MaxX * 0.5 - box.MinX * 0.5;

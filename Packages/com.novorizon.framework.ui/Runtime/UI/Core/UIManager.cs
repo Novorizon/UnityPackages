@@ -43,6 +43,7 @@ namespace UI
 
         BackRequest? pendingBack;
         CancellationTokenSource? backLifetime;
+        /// <summary>表示界面管理器中的返回请求。</summary>
         sealed class BackRequest
         {
             readonly object gate = new();
@@ -54,6 +55,7 @@ namespace UI
             internal readonly TaskCompletionSource<bool> Completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
             internal readonly CancellationToken OwnerToken;
             internal readonly DialogManager Dialogs;
+            /// <summary>使用调用方提供的owner、dialogs创建 BackRequest。</summary>
             internal BackRequest(CancellationToken owner, DialogManager dialogs)
             {
                 OwnerToken = owner;
@@ -76,6 +78,7 @@ namespace UI
                 }
             }
 
+            /// <summary>尝试处理 Join，返回是否成功。</summary>
             internal bool TryJoin(out BackWaiter? waiter)
             {
                 lock (gate)
@@ -92,6 +95,7 @@ namespace UI
                 }
             }
 
+            /// <summary>离开返回请求。</summary>
             internal void Leave()
             {
                 bool cancel;
@@ -128,6 +132,7 @@ namespace UI
                 }
             }
 
+            /// <summary>结束返回请求。</summary>
             internal void Finish(bool result, Exception? failure)
             {
                 lock (gate)
@@ -153,14 +158,17 @@ namespace UI
             }
         }
 
+        /// <summary>表示界面管理器中的返回等待方。</summary>
         sealed class BackWaiter : IDisposable
         {
             BackRequest? owner;
+            /// <summary>使用调用方提供的owner创建 BackWaiter。</summary>
             internal BackWaiter(BackRequest owner)
             {
                 this.owner = owner;
             }
 
+            /// <summary>结束返回等待方对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose() => Interlocked.Exchange(ref owner, null)?.Leave();
         }
 
@@ -179,6 +187,7 @@ namespace UI
         public int ActiveViewCount => factory?.ActiveCount ?? 0;
         public int CachedViewCount => factory?.CachedCount ?? 0;
 
+        /// <summary>Unity 创建组件时执行本组件的初始化逻辑。</summary>
         protected override void Awake()
         {
             if (quitting)
@@ -190,6 +199,7 @@ namespace UI
             base.Awake();
         }
 
+        /// <summary>响应 Start。</summary>
         protected override void OnStart()
         {
             destroyed = false;
@@ -202,6 +212,7 @@ namespace UI
             Initialize();
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         void OnEnable()
         {
             if (!quitting && !destroyed && !initialized && !initializing)
@@ -210,6 +221,7 @@ namespace UI
             }
         }
 
+        /// <summary>初始化界面管理器。</summary>
         public override void Initialize()
         {
             ThrowIfUnavailable();
@@ -249,6 +261,7 @@ namespace UI
             }
         }
 
+        /// <summary>在不可用时抛出异常。</summary>
         void ThrowIfUnavailable()
         {
             if (destroyed)
@@ -267,6 +280,7 @@ namespace UI
             }
         }
 
+        /// <summary>设置设置。</summary>
         public void SetSettings(UISettings uiSettings)
         {
             ThrowIfUnavailable();
@@ -278,6 +292,7 @@ namespace UI
         }
 
         /// <summary>Use a project-owned system without taking ownership. Null restores automatic discovery.</summary>
+        /// <remarks>设置事件系统。</remarks>
         public void SetEventSystem(EventSystem? eventSystem)
         {
             ThrowIfUnavailable();
@@ -286,6 +301,7 @@ namespace UI
         }
 
         /// <summary>Use an explicit UI camera. Null restores configured Overlay/MainCamera mode.</summary>
+        /// <remarks>设置摄像机。</remarks>
         public void SetCamera(Camera? camera)
         {
             ThrowIfUnavailable();
@@ -294,6 +310,7 @@ namespace UI
         }
 
         /// <summary>Refresh scene dependencies after a runtime camera or input-system change.</summary>
+        /// <remarks>刷新平台。</remarks>
         public void RefreshPlatform()
         {
             ThrowIfUnavailable();
@@ -306,6 +323,7 @@ namespace UI
             RefreshCamera();
         }
 
+        /// <summary>订阅平台。</summary>
         void SubscribePlatform()
         {
             if (platformSubscribed)
@@ -320,6 +338,7 @@ namespace UI
             platformSubscribed = true;
         }
 
+        /// <summary>取消订阅平台。</summary>
         void UnsubscribePlatform()
         {
             if (!platformSubscribed)
@@ -334,6 +353,7 @@ namespace UI
             platformSubscribed = false;
         }
 
+        /// <summary>响应场景已加载。</summary>
         void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!quitting && initialized)
@@ -342,6 +362,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应场景已卸载。</summary>
         void OnSceneUnloaded(Scene scene)
         {
             if (!quitting && initialized)
@@ -350,6 +371,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应活跃场景变化。</summary>
         void OnActiveSceneChanged(Scene previous, Scene next)
         {
             if (!quitting && initialized)
@@ -358,6 +380,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应应用正在退出。</summary>
         void OnApplicationQuitting()
         {
             quitting = true;
@@ -365,6 +388,7 @@ namespace UI
             Shutdown();
         }
 
+        /// <summary>在常规帧更新以后执行本组件的处理。</summary>
         void LateUpdate()
         {
             if (!initialized || quitting || destroyed)
@@ -397,7 +421,9 @@ namespace UI
             RecreateManagers(assetLoader, clearBus: false);
         }
 
+        /// <summary>清理当前缓存项。</summary>
         public void ClearCache() => factory?.ClearCache();
+        /// <summary>重置全部。</summary>
         public void ResetAll()
         {
             if (destroyed || quitting)
@@ -408,6 +434,7 @@ namespace UI
             RecreateManagers(loader, clearBus: true);
         }
 
+        /// <summary>重新创建管理器。</summary>
         void RecreateManagers(IUIAssetLoader assetLoader, bool clearBus)
         {
             if (rebuilding)
@@ -440,6 +467,7 @@ namespace UI
             }
         }
 
+        /// <summary>创建管理器。</summary>
         void CreateManagers(int startId)
         {
             factory = new UIInstanceFactory(loader, layerRoots, startId, settings != null ? Math.Max(0, settings.maxCachedInstances) : 32, settings != null ? Math.Max(0, settings.maxCachedPerPath) : 2);
@@ -453,6 +481,7 @@ namespace UI
             backLifetime = new CancellationTokenSource();
         }
 
+        /// <summary>停止返回 Requests。</summary>
         void StopBackRequests()
         {
             CancellationTokenSource? lifetime = backLifetime;
@@ -477,6 +506,7 @@ namespace UI
             }
         }
 
+        /// <summary>关闭界面管理器。</summary>
         void Shutdown()
         {
             if (shuttingDown || (!initialized && !initializing && !shutdownCompletion.IsCompleted))
@@ -514,6 +544,7 @@ namespace UI
             }
         }
 
+        /// <summary>终止使用工厂。</summary>
         void RetireFactory(UICloseReason reason)
         {
             retiredFactories.RemoveAll(task => task.IsCompleted);
@@ -536,6 +567,7 @@ namespace UI
             return shutdownCompletion;
         }
 
+        /// <summary>响应退出。</summary>
         protected override void OnExit()
         {
             destroyed = true;
@@ -543,6 +575,7 @@ namespace UI
         }
 
         /// <summary>Consumes Back at the highest eligible layer, including a veto or active input gate.</summary>
+        /// <remarks>处理返回。</remarks>
         public bool HandleBack()
         {
             if (destroyed || quitting || shuttingDown || rebuilding || !initialized)
@@ -607,7 +640,9 @@ namespace UI
             return false;
         }
 
+        /// <summary>启动返回 Confirmation。</summary>
         void StartBackConfirmation() => _ = ObserveBackAsync(HandleBackAsync());
+        /// <summary>异步观察返回。</summary>
         static async Task ObserveBackAsync(Task<bool> operation)
         {
             try
@@ -655,6 +690,7 @@ namespace UI
             return waiting;
         }
 
+        /// <summary>异步等待返回请求。</summary>
         static async Task<bool> AwaitBackRequestAsync(BackRequest request, BackWaiter waiter, CancellationToken cancellationToken)
         {
             try
@@ -671,6 +707,7 @@ namespace UI
             }
         }
 
+        /// <summary>异步重试之后返回清理。</summary>
         async Task<bool> RetryAfterBackCleanupAsync(BackRequest previous, CancellationTokenSource owner, CancellationToken cancellationToken)
         {
             try
@@ -690,6 +727,7 @@ namespace UI
             return await HandleBackAsync(cancellationToken);
         }
 
+        /// <summary>异步完成返回。</summary>
         async Task CompleteBackAsync(BackRequest request)
         {
             bool result = false;
@@ -730,6 +768,7 @@ namespace UI
             }
         }
 
+        /// <summary>异步处理返回核心。</summary>
         async Task<bool> HandleBackCoreAsync(CancellationToken cancellationToken)
         {
             if (Overlays.IsBlocking)
@@ -758,6 +797,7 @@ namespace UI
             return false;
         }
 
+        /// <summary>检查并确保事件系统可用。</summary>
         void EnsureEventSystem()
         {
             EventSystem? selected = null;
@@ -840,6 +880,7 @@ namespace UI
             }
         }
 
+        /// <summary>刷新摄像机。</summary>
         void RefreshCamera()
         {
             if (rootCanvas == null)
@@ -866,6 +907,7 @@ namespace UI
             rootCanvas.worldCamera = selected;
         }
 
+        /// <summary>检查并确保画布层级可用。</summary>
         void EnsureCanvasHierarchy()
         {
             if (rootCanvas == null)
@@ -909,6 +951,7 @@ namespace UI
             CreateOrUpdateLayer(rootCanvas.transform, UILayer.Overlay);
         }
 
+        /// <summary>创建 Or 更新层级。</summary>
         void CreateOrUpdateLayer(Transform parent, UILayer layer)
         {
             string name = $"Layer_{layer}";

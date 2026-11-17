@@ -8,12 +8,15 @@ using Object = UnityEngine.Object;
 namespace UI.Demo
 {
     /// <summary>Demo-owned runtime templates. Each acquisition owns a lease, including delayed loads.</summary>
+    /// <remarks>提供界面示例资源加载器的实现。</remarks>
     public sealed class UIDemoAssetLoader : IUIAssetLoader
     {
+        /// <summary>表示界面示例资源加载器中的模板。</summary>
         sealed class Template
         {
             internal readonly GameObject Prefab;
             internal int Leases;
+            /// <summary>使用调用方提供的prefab创建 Template。</summary>
             internal Template(GameObject prefab)
             {
                 Prefab = prefab;
@@ -29,6 +32,7 @@ namespace UI.Demo
         public bool IsRetired { get; private set; }
         public bool IsDisposed { get; private set; }
 
+        /// <summary>使用调用方提供的name、delayMilliseconds创建 UIDemoAssetLoader。</summary>
         public UIDemoAssetLoader(string name, int delayMilliseconds = 0)
         {
             if (delayMilliseconds < 0)
@@ -42,6 +46,7 @@ namespace UI.Demo
             Object.DontDestroyOnLoad(container);
         }
 
+        /// <summary>登记界面示例资源加载器。</summary>
         public void Register(string key, GameObject prefab)
         {
             if (IsRetired)
@@ -80,6 +85,7 @@ namespace UI.Demo
             templates.Add(key, new Template(prefab));
         }
 
+        /// <summary>异步加载预制件。</summary>
         public async Task<GameObject?> LoadPrefabAsync(string prefabPath)
         {
             if (IsRetired)
@@ -112,6 +118,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>释放预制件。</summary>
         public void ReleasePrefab(GameObject prefab)
         {
             foreach (Template template in templates.Values)
@@ -133,6 +140,7 @@ namespace UI.Demo
             throw new InvalidOperationException("This prefab belongs to another demo loader.");
         }
 
+        /// <summary>归还当前租用的对象。</summary>
         void Return(Template template)
         {
             template.Leases--;
@@ -142,12 +150,14 @@ namespace UI.Demo
         }
 
         /// <summary>Stop new loads, but retain every template until all in-flight/live view leases return.</summary>
+        /// <remarks>终止使用界面示例资源加载器。</remarks>
         public void Retire()
         {
             IsRetired = true;
             CompleteRetirement();
         }
 
+        /// <summary>完成 Retirement。</summary>
         void CompleteRetirement()
         {
             if (!IsRetired || IsDisposed || OutstandingLeases != 0)

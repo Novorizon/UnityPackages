@@ -8,12 +8,14 @@ using UnityEngine.UI;
 
 namespace UI.Demo
 {
+    /// <summary>提供界面示例 Home 页面的实现。</summary>
     public sealed class UIDemoHomePage : UIPage
     {
         UIDemoLauncher? owner;
         TMP_Text? statusLabel, scopeLabel;
         string previousStatus = string.Empty;
         int previousLeases = -1, received;
+        /// <summary>响应 Create。</summary>
         protected override void OnCreate()
         {
             RectTransform safe = UIDemoWidgets.SafeContent(transform);
@@ -37,6 +39,7 @@ namespace UI.Demo
             UIDemoWidgets.Top((RectTransform)statusLabel.transform, 546, 120);
         }
 
+        /// <summary>添加界面示例 Home 页面。</summary>
         static void Add(RectTransform parent, int index, string caption, UnityEngine.Events.UnityAction action)
         {
             var button = UIDemoWidgets.Button("Action " + index, parent, caption, action);
@@ -44,6 +47,7 @@ namespace UI.Demo
             UIDemoWidgets.Top((RectTransform)button.transform, 126 + index / 2 * 66, 56, 24, 24, column * .5f, (column + 1) * .5f);
         }
 
+        /// <summary>响应打开。</summary>
         protected override void OnOpen(object? args)
         {
             owner = args as UIDemoLauncher ?? throw new ArgumentException("Demo controller is required.", nameof(args));
@@ -60,6 +64,7 @@ namespace UI.Demo
             Update();
         }
 
+        /// <summary>异步刷新界面示例 Home 页面。</summary>
         async Task RefreshAsync(CancellationToken token)
         {
             try
@@ -80,6 +85,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>响应时钟脉冲。</summary>
         void OnPulse(UIDemoPulse pulse)
         {
             received++;
@@ -89,6 +95,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>响应 Show。</summary>
         protected override void OnShow()
         {
             if (owner != null)
@@ -97,6 +104,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>响应 Hide。</summary>
         protected override void OnHide()
         {
             if (owner != null)
@@ -105,11 +113,13 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>响应 Close。</summary>
         protected override void OnClose()
         {
             owner = null;
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         void Update()
         {
             if (owner == null || statusLabel == null)
@@ -128,6 +138,7 @@ namespace UI.Demo
             statusLabel.text = owner.Status + "\nResource leases/pending: " + leases + "; acquisitions: " + (owner.Loader?.AcquireCount ?? 0) + "; releases: " + (owner.Loader?.ReleaseCount ?? 0);
         }
 
+        /// <summary>调用 owner.Run 完成物品清单。</summary>
         void Inventory()
         {
             if (owner != null)
@@ -136,6 +147,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.Run 完成弹窗。</summary>
         void Popup()
         {
             if (owner != null)
@@ -144,6 +156,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.Run 完成面板。</summary>
         void Panel()
         {
             if (owner != null)
@@ -152,6 +165,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>确认界面示例 Home 页面。</summary>
         void Confirm()
         {
             if (owner != null)
@@ -160,6 +174,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.Run 完成覆盖层。</summary>
         void Overlay()
         {
             if (owner != null)
@@ -168,6 +183,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.ShowToast 完成提示。</summary>
         void Toast()
         {
             if (owner != null)
@@ -176,6 +192,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.PublishPulse 完成时钟脉冲。</summary>
         void Pulse()
         {
             if (owner != null)
@@ -184,6 +201,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>切换加载器。</summary>
         void SwitchLoader()
         {
             if (owner != null)
@@ -192,6 +210,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>恢复该类型约定的初始状态。</summary>
         void Reset()
         {
             if (owner != null)
@@ -200,6 +219,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>调用 owner.Run 完成返回。</summary>
         void Back()
         {
             if (owner != null)

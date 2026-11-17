@@ -2,6 +2,7 @@
 using UnityEngine;
 namespace Game.Framework.Network.Unity
 {
+    /// <summary>网络对应的设置。保存本模块使用的配置。</summary>
     [CreateAssetMenu(menuName = "Novorizon/Network Settings", fileName = "NetworkSettings")]
     public sealed class NetworkSettings : ScriptableObject
     {
@@ -13,6 +14,7 @@ namespace Game.Framework.Network.Unity
         public bool AutomaticDispatch = true;
         public int HeartbeatIntervalMilliseconds = 15000;
         public int HeartbeatMessageId = 1;
+        /// <summary>创建配置。</summary>
         internal NetworkConfiguration CreateConfiguration() => new NetworkConfiguration
         {
             Tcp = new TcpClientOptions { Host = Host, Port = Port, Encryption = Encryption, KeyBase64 = CommunicationKeyBase64 },

@@ -9,8 +9,10 @@ using Google.Protobuf;
 
 namespace Game.Framework.Network
 {
+    /// <summary>提供网络会话的实现。</summary>
     internal sealed class NetworkSession : IDisposable, IAsyncDisposable
     {
+        /// <summary>表示网络会话中的待处理。</summary>
         private sealed class Pending
         {
             internal long Generation;
@@ -34,10 +36,12 @@ namespace Game.Framework.Network
         private bool disposed;
         private long requestSeed, generation;
         private Exception closeError, lastError;
+        /// <summary>使用调用方提供的transportOptions、options、dispatcher创建 NetworkSession。</summary>
         public NetworkSession(TcpClientOptions transportOptions, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null) : this(new SimpleTcpClient(transportOptions), options, dispatcher, authenticate)
         {
         }
 
+        /// <summary>使用调用方提供的transport、options、dispatcher创建 NetworkSession。</summary>
         public NetworkSession(INetworkTransport transport, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null)
         {
             this.transport = transport ?? throw new ArgumentNullException(nameof(transport));
@@ -103,8 +107,10 @@ namespace Game.Framework.Network
         public event Action<Exception> Disconnected;
         public event Action<Exception> Error;
         // Only needed when no explicit dispatcher was supplied; call on the constructing thread.
+        /// <summary>推进该对象的一次更新。</summary>
         public int Update(int maximumCallbacks = 64) => ownedDispatcher?.Pump(maximumCallbacks) ?? 0;
         // Cancellation belongs to this waiter. DisconnectAsync/Dispose stop the shared connection loop.
+        /// <summary>异步连接网络会话。</summary>
         public async Task ConnectAsync(CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
@@ -152,6 +158,7 @@ namespace Game.Framework.Network
             await AsyncOperation.WaitAsync(wait, ct).ConfigureAwait(false);
         }
 
+        /// <summary>异步完成 Run。</summary>
         private async Task CompleteRunAsync(CancellationToken token, TaskCompletionSource<bool> completion)
         {
             try
@@ -173,6 +180,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>取得新就绪。</summary>
         private static TaskCompletionSource<bool> NewReady()
         {
             var value = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -183,6 +191,7 @@ namespace Game.Framework.Network
             return value;
         }
 
+        /// <summary>设置状态。</summary>
         private void SetState(NetworkState value)
         {
             lock (sync)
@@ -197,6 +206,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>异步运行当前操作。</summary>
         private async Task RunAsync(CancellationToken ct)
         {
             bool wasReady = false;
@@ -379,6 +389,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>根据传入参数取得HeartbeatAsync。</summary>
         private async Task HeartbeatAsync(CancellationToken ct)
         {
             if (options.HeartbeatIntervalMilliseconds == 0)
@@ -399,6 +410,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>根据传入参数取得请求 Async。</summary>
         public async Task<T> RequestAsync<T>(int messageId, IMessage message, MessageParser<T> parser, CancellationToken ct = default)
             where T : class, IMessage<T>
         {
@@ -413,6 +425,7 @@ namespace Game.Framework.Network
         }
 
         // Completion means bytes written. This does not await or retry the business response.
+        /// <summary>异步发送网络会话。</summary>
         public async Task SendAsync(int messageId, IMessage message, CancellationToken ct = default)
         {
             long expectedGeneration = EnsureRequestAllowed(messageId, false);
@@ -420,6 +433,7 @@ namespace Game.Framework.Network
             await transport.SendAsync(messageId, id, message, ct, expectedGeneration).ConfigureAwait(false);
         }
 
+        /// <summary>检查并确保请求允许可用。</summary>
         private long EnsureRequestAllowed(int messageId, bool authenticating)
         {
             if (messageId <= 0 || messageId >= PacketCodec.NotificationMessageIdStart)
@@ -443,6 +457,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>取得下一个请求标识。</summary>
         private long NextRequestId()
         {
             long value = Interlocked.Increment(ref requestSeed);
@@ -454,6 +469,7 @@ namespace Game.Framework.Network
             return value;
         }
 
+        /// <summary>根据传入参数取得请求核心 Async。</summary>
         private async Task<NetworkPacket> RequestCoreAsync(int messageId, IMessage message, CancellationToken ct, bool authenticating, long authenticationGeneration = 0)
         {
             ct.ThrowIfCancellationRequested();
@@ -519,6 +535,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>检查结果。</summary>
         private static void CheckResult(NetworkPacket response)
         {
             if (response.Header.ResultCode != 0)
@@ -527,6 +544,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>响应数据包。</summary>
         private void OnPacket(long packetGeneration, NetworkPacket packet)
         {
             if (packetGeneration != ConnectionId)
@@ -593,6 +611,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>响应已关闭。</summary>
         private void OnClosed(long closedGeneration, Exception error)
         {
             lock (sync)
@@ -606,6 +625,7 @@ namespace Game.Framework.Network
             FailPending(closedGeneration, error ?? new IOException("TCP peer closed."));
         }
 
+        /// <summary>标记失败待处理。</summary>
         private void FailPending(long closedGeneration, Exception error)
         {
             lock (sync)
@@ -629,6 +649,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>订阅网络会话。</summary>
         public IDisposable Subscribe<T>(int messageId, MessageParser<T> parser, Action<T> handler)
             where T : class, IMessage<T>
         {
@@ -648,11 +669,13 @@ namespace Game.Framework.Network
             return notifications.Subscribe(messageId, parser, handler);
         }
 
+        /// <summary>上报网络会话。</summary>
         private void Report(Exception error)
         {
             Post(() => SafeInvoke(Error, error));
         }
 
+        /// <summary>投递网络会话。</summary>
         private void Post(Action callback)
         {
             dispatcher.TryPost(() =>
@@ -664,6 +687,7 @@ namespace Game.Framework.Network
             }, 0);
         }
 
+        /// <summary>调用 handlers.GetInvocationList 完成安全 Invoke。</summary>
         private void SafeInvoke(Action handlers)
         {
             if (handlers != null)
@@ -682,6 +706,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>调用 handlers.GetInvocationList 完成安全 Invoke。</summary>
         private void SafeInvoke(Action<Exception> handlers, Exception value)
         {
             if (handlers != null)
@@ -699,6 +724,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>调用 handlers.GetInvocationList 完成安全 Invoke。</summary>
         private void SafeInvoke(Action<NetworkState> handlers, NetworkState value)
         {
             if (handlers == null)
@@ -719,6 +745,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>取消安全地。</summary>
         private void CancelSafely(CancellationTokenSource source)
         {
             try
@@ -734,6 +761,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>异步断开网络会话。</summary>
         public async Task DisconnectAsync()
         {
             Task task;
@@ -784,6 +812,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>结束网络会话对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             TaskCompletionSource<bool> completion;
@@ -806,6 +835,7 @@ namespace Game.Framework.Network
             _ = DisposeCoreAsync(completion);
         }
 
+        /// <summary>异步释放网络会话。</summary>
         private async Task DisposeCoreAsync(TaskCompletionSource<bool> completion)
         {
             var errors = new List<Exception>();
@@ -846,6 +876,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>等待资源和后台操作完成异步清理。</summary>
         public async ValueTask DisposeAsync()
         {
             Dispose();
@@ -858,9 +889,11 @@ namespace Game.Framework.Network
             await task.ConfigureAwait(false);
         }
 
+        /// <summary>认证对应的上下文。携带一次操作所需的上下文。</summary>
         public sealed class AuthenticationContext
         {
             private readonly NetworkSession owner;
+            /// <summary>使用调用方提供的owner、connectionId创建 AuthenticationContext。</summary>
             internal AuthenticationContext(NetworkSession owner, long connectionId)
             {
                 this.owner = owner;
@@ -869,6 +902,7 @@ namespace Game.Framework.Network
 
             public long ConnectionId { get; }
 
+            /// <summary>根据传入参数取得请求 Async。</summary>
             public async Task<T> RequestAsync<T>(int messageId, IMessage request, MessageParser<T> parser, CancellationToken ct)
                 where T : class, IMessage<T>
             {

@@ -8,9 +8,11 @@ namespace Game.Ability
     /// Runtime ability instance owned by one unit.
     /// It stores level, cooldown, charges, cast point, channel state, and its C# script.
     /// </summary>
+    /// <remarks>提供技能的实现。</remarks>
     public sealed class Ability
     {
         // Float partitioning can leave a tiny positive residual at an exact timer boundary.
+        /// <summary>根据传入参数取得计时器 Tolerance。</summary>
         private static float TimerTolerance(float duration) => Mathf.Min(0.000001f, Mathf.Max(0f, duration) * 0.000001f);
         public AbilitySystem Engine { get; }
         internal long RuntimeGenerationAtCreation { get; }
@@ -50,6 +52,7 @@ namespace Game.Ability
 
         // Captured for every ability before any ability callback runs in an Update. Keeping
         // the tokens in the rented frame snapshot also preserves nested Update isolation.
+        /// <summary>调度对应的状态。保存状态或定义允许的状态值。</summary>
         internal readonly struct TickState
         {
             internal readonly Ability Ability;
@@ -57,6 +60,7 @@ namespace Game.Ability
             internal readonly int CooldownVersion;
             internal readonly int ChargeTimerVersion;
 
+            /// <summary>使用调用方提供的ability创建 TickState。</summary>
             internal TickState(Ability ability)
             {
                 Ability = ability;
@@ -66,12 +70,14 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>采集调度状态。</summary>
         internal TickState CaptureTickState() => new TickState(this);
 
         public bool IsRemoved { get; private set; }
         public bool IsBusy => executing || Phase != AbilityPhase.Idle;
         public long CastId { get; private set; }
 
+        /// <summary>使用调用方提供的engine、definition、owner创建 Ability。</summary>
         internal Ability(AbilitySystem engine, AbilityDefinition definition, IUnit owner, IResourceOwner resourceOwner, AbilityScript script, int level, long runtimeGeneration)
         {
             Engine = engine;
@@ -88,6 +94,7 @@ namespace Game.Ability
             Script.Bind(this);
         }
 
+        /// <summary>初始化运行时。</summary>
         internal void InitializeRuntime()
         {
             if (initialized || IsRemoved) return;
@@ -98,6 +105,7 @@ namespace Game.Ability
 
         private bool IsOperational => !IsRemoved && Engine.IsRuntimeAvailable && Engine.ContainsAbility(this) && !Engine.IsUnitRemoving(Owner);
 
+        /// <summary>设置等级。</summary>
         public void SetLevel(int level)
         {
             if (IsRemoved) return;
@@ -119,6 +127,7 @@ namespace Game.Ability
             ThrowFailures(errors, "Ability level changed, but upgrade callbacks failed.");
         }
 
+        /// <summary>设置 Activated。</summary>
         public void SetActivated(bool activated)
         {
             if (IsRemoved) return;
@@ -126,32 +135,38 @@ namespace Game.Ability
             if (!activated) Interrupt();
         }
 
+        /// <summary>获取特殊值。</summary>
         public float GetSpecialValue(string name)
         {
             return Definition.GetSpecialValue(name, Level);
         }
 
+        /// <summary>获取冷却。</summary>
         public float GetCooldown()
         {
             float reduction = Engine.GetModifierProperty(Owner, ModifierProperty.CooldownReductionPercent, null);
             return Mathf.Max(0f, Script.GetCooldown() * Mathf.Max(0f, 1f - reduction / 100f));
         }
 
+        /// <summary>获取法力代价。</summary>
         public float GetManaCost()
         {
             return Script.GetManaCost();
         }
 
+        /// <summary>获取施法范围。</summary>
         public float GetCastRange()
         {
             return Script.GetCastRange();
         }
 
+        /// <summary>获取范围效果半径。</summary>
         public float GetAoeRadius()
         {
             return Script.GetAoeRadius();
         }
 
+        /// <summary>启动冷却。</summary>
         public void StartCooldown(float cooldown = -1f)
         {
             if (IsRemoved) return;
@@ -164,6 +179,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>结束冷却。</summary>
         public void EndCooldown()
         {
             if (IsRemoved) return;
@@ -172,6 +188,7 @@ namespace Game.Ability
             Engine.RaiseEvent(new RuntimeEvent { EventType = RuntimeEventType.CooldownFinished, Ability = this, Caster = Owner });
         }
 
+        /// <summary>设置充能次数。</summary>
         public void SetCharges(int value)
         {
             if (IsRemoved || Definition.Charges == null)
@@ -197,6 +214,7 @@ namespace Game.Ability
             Engine.RaiseEvent(new RuntimeEvent { EventType = RuntimeEventType.ChargeChanged, Ability = this, Caster = Owner, Value = Charges });
         }
 
+        /// <summary>恢复完整充能次数。</summary>
         public void RestoreFullCharges()
         {
             if (Definition.Charges != null)
@@ -206,6 +224,7 @@ namespace Game.Ability
         }
 
         /// <summary>All orders pass through the engine's identity, budget and unit arbitration checks.</summary>
+        /// <remarks>发出指令。</remarks>
         public CastResult IssueOrder(CastOrder order)
         {
             if (order == null || !IsSameUnit(order.Caster, Owner) || order.AbilityName != Definition.Name)
@@ -214,6 +233,7 @@ namespace Game.Ability
             return Engine.IssueOrder(order);
         }
 
+        /// <summary>开始指令。</summary>
         internal CastResult BeginOrder(CastOrder order, long castId)
         {
             CastResult result = Engine.EvaluateOrderContext(this, order, out CastContext context, castId);
@@ -270,6 +290,7 @@ namespace Game.Ability
             return Accepted(castId);
         }
 
+        /// <summary>调用 FinishChannel 完成Interrupt。</summary>
         public void Interrupt()
         {
             CastContext context = activeContext;
@@ -294,6 +315,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进技能。</summary>
         internal void Tick(float deltaTime, TickState frame)
         {
             if (!IsOperational || !ReferenceEquals(frame.Ability, this)) return;
@@ -334,6 +356,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>移除技能。</summary>
         internal void Remove()
         {
             if (IsRemoved) return;
@@ -346,14 +369,17 @@ namespace Game.Ability
             ThrowFailures(errors, "Ability removal callbacks failed after runtime cleanup completed.");
         }
 
+        /// <summary>响应持有方死亡。</summary>
         internal void OnOwnerDeath() { Interrupt(); }
 
+        /// <summary>刷新固有之后复活。</summary>
         internal void RefreshIntrinsicAfterRespawn()
         {
             if (intrinsicModifier != null && intrinsicModifier.IsDestroyed) intrinsicModifier = null;
             ApplyIntrinsicModifier();
         }
 
+        /// <summary>移除固有状态修饰器。</summary>
         private void RemoveIntrinsicModifier()
         {
             Modifier previous = intrinsicModifier;
@@ -361,6 +387,7 @@ namespace Game.Ability
             if (previous != null) Engine.RemoveModifier(previous);
         }
 
+        /// <summary>响应单位已移除。</summary>
         internal void OnUnitRemoved(IUnit unit)
         {
             if (unit == null)
@@ -383,6 +410,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>检查是否可以执行施法基础。</summary>
         internal CastResult CanCastBasic(bool allowHidden = false, bool ongoingCast = false)
         {
             if (!IsOperational) return CastResult.Fail(CastFailureReason.RuntimeUnavailable);
@@ -464,6 +492,7 @@ namespace Game.Ability
             return IsOperational ? CastResult.Ok() : CastResult.Fail(CastFailureReason.RuntimeUnavailable);
         }
 
+        /// <summary>执行施法。</summary>
         private CastResult ExecuteCast(CastContext context, int version)
         {
             long id = context.CastId;
@@ -500,6 +529,7 @@ namespace Game.Ability
             return Accepted(id);
         }
 
+        /// <summary>提交资源。</summary>
         private CastResult CommitResources(CastContext context, int version)
         {
             long id = context.CastId;
@@ -525,6 +555,7 @@ namespace Game.Ability
             return Accepted(id);
         }
 
+        /// <summary>推进施法。</summary>
         private void TickCasting(float deltaTime)
         {
             float used = Mathf.Min(deltaTime, Mathf.Max(0f, castPointRemaining));
@@ -580,6 +611,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进引导。</summary>
         private void TickChannel(float deltaTime)
         {
             if (Phase != AbilityPhase.Channeling) return;
@@ -602,6 +634,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>结束引导。</summary>
         private void FinishChannel(bool interrupted)
         {
             if (Phase != AbilityPhase.Channeling) return;
@@ -623,6 +656,7 @@ namespace Game.Ability
             ThrowFailures(errors, "Channel finish callbacks failed after channel state was cleared.");
         }
 
+        /// <summary>开始后摇。</summary>
         private void BeginBackswing(CastContext context, long id)
         {
             float duration = (Definition.Behavior & AbilityBehavior.Immediate) != 0 ? 0f : Mathf.Max(0f, Script.GetCastBackswing());
@@ -636,6 +670,7 @@ namespace Game.Ability
             else CompleteCast(context, id);
         }
 
+        /// <summary>完成施法。</summary>
         private void CompleteCast(CastContext context, long id)
         {
             Phase = AbilityPhase.Idle;
@@ -644,6 +679,7 @@ namespace Game.Ability
             RaiseTerminal(context, id, false);
         }
 
+        /// <summary>取消施法阶段。</summary>
         private void CancelCastPhase(CastContext context, long id, bool invokeHook)
         {
             if (Phase != AbilityPhase.Casting) return;
@@ -658,6 +694,7 @@ namespace Game.Ability
             ThrowFailures(errors, "Ability phase interruption callbacks failed after cast state was cleared.");
         }
 
+        /// <summary>中止失败回调。</summary>
         private AggregateException AbortFailedCallback(Exception error, int version)
         {
             List<Exception> errors = new List<Exception> { error };
@@ -666,17 +703,20 @@ namespace Game.Ability
             return new AggregateException("Ability callback failed after its cast was interrupted.", errors);
         }
 
+        /// <summary>采集失败原因。</summary>
         private static void CaptureFailure(List<Exception> errors, Action callback)
         {
             try { callback(); }
             catch (Exception error) { errors.Add(error); }
         }
 
+        /// <summary>抛出异常 Failures。</summary>
         private static void ThrowFailures(List<Exception> errors, string message)
         {
             if (errors.Count > 0) throw new AggregateException(message, errors);
         }
 
+        /// <summary>触发 Terminal。</summary>
         private void RaiseTerminal(CastContext context, long id, bool interrupted)
         {
             if (id == 0 || context == null || context.IsTerminated) return;
@@ -684,9 +724,12 @@ namespace Game.Ability
             Engine.RaiseEvent(new RuntimeEvent { EventType = interrupted ? RuntimeEventType.CastInterrupted : RuntimeEventType.CastCompleted, Ability = this, Caster = Owner, Target = context != null ? context.Target : null, Position = context != null ? context.TargetPosition : Owner.Position, CastId = id });
         }
 
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+        /// <summary>检查输入是否仍是当前有效值。</summary>
         private bool IsCurrent(int version) => IsOperational && version == castVersion;
 
+        /// <summary>拒绝技能。</summary>
         private CastResult Reject(CastOrder order, CastResult result, long id)
         {
             result.CastId = id;
@@ -694,6 +737,7 @@ namespace Game.Ability
             return result;
         }
 
+        /// <summary>根据传入参数取得Accepted。</summary>
         private static CastResult Accepted(long id)
         {
             CastResult result = CastResult.Ok();
@@ -701,6 +745,7 @@ namespace Game.Ability
             return result;
         }
 
+        /// <summary>推进冷却。</summary>
         private void TickCooldown(float deltaTime)
         {
             if (CooldownRemaining <= 0f)
@@ -716,6 +761,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进充能次数。</summary>
         private void TickCharges(float deltaTime)
         {
             if (Definition.Charges == null || Charges >= Definition.Charges.MaxCharges || Definition.Charges.RestoreTime <= 0f)
@@ -736,6 +782,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>验证 Ongoing 施法者。</summary>
         private CastResult ValidateOngoingCaster()
         {
             if (!Activated)
@@ -772,6 +819,7 @@ namespace Game.Ability
             return CastResult.Ok();
         }
 
+        /// <summary>应用固有状态修饰器。</summary>
         private void ApplyIntrinsicModifier()
         {
             // Intrinsics are permanent modifiers attached to passive or owned abilities.
@@ -783,6 +831,7 @@ namespace Game.Ability
             intrinsicModifier = Engine.AddModifier(Owner, Owner, this, modifierName, new ModifierApplyOptions { Duration = -1f });
         }
 
+        /// <summary>判断是否为 Same 单位。</summary>
         private static bool IsSameUnit(IUnit left, IUnit right)
         {
             return left != null && right != null && ReferenceEquals(left, right);

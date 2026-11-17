@@ -10,8 +10,10 @@ using Logger = Game.Framework.Logger;
 
 namespace Game.Resource
 {
+    /// <summary>资源对应的管理器。管理对应模块的状态和操作入口。</summary>
     public partial class ResourceManager
     {
+        /// <summary>表示资源管理器中的自有资源。</summary>
         private sealed class OwnedAsset
         {
             internal long DiagnosticId;
@@ -86,12 +88,14 @@ namespace Game.Resource
             return snapshots;
         }
 
+        /// <summary>取得下一个资源作用域标识。</summary>
         internal long NextResourceScopeId()
         {
             MainThread();
             return ++nextScopeId;
         }
 
+        /// <summary>采集 Creation 栈。</summary>
         private string CaptureCreationStack()
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -120,6 +124,7 @@ namespace Game.Resource
             return AcquireOwnedAsync<T>(location, token, keepAliveUntilDisposed, null, 0, 0, null);
         }
 
+        /// <summary>异步取得自有。</summary>
         public Task<AssetLease<T>> AcquireOwnedAsync<T>(
             string location,
             string owner,
@@ -130,6 +135,7 @@ namespace Game.Resource
             return AcquireOwnedAsync<T>(location, token, keepAliveUntilDisposed, owner, 0, 0, null);
         }
 
+        /// <summary>异步取得自有。</summary>
         internal async Task<AssetLease<T>> AcquireOwnedAsync<T>(
             string location,
             CancellationToken token,
@@ -187,6 +193,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>释放自有资源管理器。</summary>
         private void ReleaseOwned(OwnedAsset owned)
         {
             MainThread();
@@ -209,6 +216,7 @@ namespace Game.Resource
             CompleteOwnedReleaseAsync(owned, completion).Forget();
         }
 
+        /// <summary>异步完成自有发布版本。</summary>
         private async Task CompleteOwnedReleaseAsync(OwnedAsset owned, TaskCompletionSource<bool> completion)
         {
             try
@@ -258,6 +266,7 @@ namespace Game.Resource
             await owned.ReleaseTask;
         }
 
+        /// <summary>异步释放自有资源。</summary>
         private Task ReleaseOwnedAssetsAsync(bool respectOwner = false)
         {
             var releases = new List<Task>();
@@ -269,11 +278,13 @@ namespace Game.Resource
             return Task.WhenAll(releases);
         }
 
+        /// <summary>创建作用域。</summary>
         public ResourceScope CreateScope()
         {
             return CreateScope(null);
         }
 
+        /// <summary>创建作用域。</summary>
         public ResourceScope CreateScope(string owner)
         {
             MainThread();
@@ -286,6 +297,7 @@ namespace Game.Resource
             return CreateSceneScope(scene, null);
         }
 
+        /// <summary>创建场景作用域。</summary>
         public ResourceScope CreateSceneScope(Scene scene, string owner)
         {
             MainThread();

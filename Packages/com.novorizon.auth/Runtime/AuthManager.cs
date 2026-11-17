@@ -28,6 +28,7 @@ namespace Game.Framework.Auth
             }
         }
 
+        /// <summary>注入会话后端和各厂商身份适配器。ownsDependencies 为 true 时由管理器释放这些依赖。</summary>
         public AuthManager(IAuthBackend backend, IEnumerable<IIdentityProvider> providers, bool ownsDependencies = false)
         {
             this.backend = backend ?? throw new ArgumentNullException(nameof(backend));
@@ -42,11 +43,13 @@ namespace Game.Framework.Auth
             }
         }
 
+        /// <summary>使用后端的匿名登录能力创建或进入匿名会话。</summary>
         public Task<AuthUser> SignInAnonymouslyAsync(CancellationToken cancellationToken = default)
         {
             return Run(backend.SignInAnonymouslyAsync, cancellationToken);
         }
 
+        /// <summary>向指定第三方获取凭据，再交给认证后端建立会话。</summary>
         public Task<AuthUser> SignInAsync(IdentityProvider provider, CancellationToken cancellationToken = default)
         {
             return Run(token => Authenticate(provider, null, token), cancellationToken);
@@ -60,6 +63,7 @@ namespace Game.Framework.Auth
             return Run(token => Authenticate(provider, user, token), cancellationToken);
         }
 
+        /// <summary>解除当前用户与指定厂商的绑定，普通账号必须保留至少一种登录方式。</summary>
         public Task<AuthUser> UnlinkAsync(string providerId, CancellationToken cancellationToken = default)
         {
             Ready();
@@ -81,12 +85,14 @@ namespace Game.Framework.Auth
             return Run(token => backend.GetSessionTokenAsync(forceRefresh, token), cancellationToken);
         }
 
+        /// <summary>退出当前后端会话。调用前必须处于空闲且未销毁状态。</summary>
         public void SignOut()
         {
             Ready();
             backend.SignOut();
         }
 
+        // 获取并校验一次第三方凭据，再按有无目标用户选择绑定或登录。
         private async Task<AuthUser> Authenticate(IdentityProvider provider, string expectedUser, CancellationToken token)
         {
             if (!providers.TryGetValue(provider, out var source))
@@ -113,6 +119,7 @@ namespace Game.Framework.Auth
             }
         }
 
+        // 串行启动认证操作，并允许调用方取消等待。
         private Task<T> Run<T>(Func<CancellationToken, Task<T>> action, CancellationToken caller)
         {
             Ready();
@@ -121,9 +128,11 @@ namespace Game.Framework.Auth
             var stop = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token, caller);
             Task<T> operation = Execute(action, stop);
             // Cancelling a waiter never starts a second operation over an unfinished native popup.
+            // 调用方取消等待后，忙碌状态仍由底层操作负责清除，原生授权窗口不会重叠。
             return TaskUtil.WaitAsync(operation, caller);
         }
 
+        // 认证操作实际结束时清掉忙碌状态，按需释放依赖。
         private async Task<T> Execute<T>(Func<CancellationToken, Task<T>> action, CancellationTokenSource stop)
         {
             try
@@ -141,6 +150,7 @@ namespace Game.Framework.Auth
             }
         }
 
+        // 检查主线程、生命周期与忙碌状态，防止原生授权窗口重叠。
         private void Ready()
         {
             MainThread();
@@ -154,6 +164,7 @@ namespace Game.Framework.Auth
             }
         }
 
+        // 登录和绑定入口必须在已初始化的 Unity 主线程使用。
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -162,6 +173,7 @@ namespace Game.Framework.Auth
             }
         }
 
+        /// <summary>取消当前认证并结束管理器生命周期，等待底层退出后再释放自有依赖。</summary>
         public void Dispose()
         {
             MainThread();
@@ -184,6 +196,7 @@ namespace Game.Framework.Auth
         }
 
         private bool released;
+        // 释放管理器持有的取消令牌，并按所有权释放身份适配器和认证后端。
         private void ReleaseDependencies()
         {
             if (released)

@@ -10,6 +10,7 @@ using UnityEngine;
 namespace Game.Framework.Localization.Editor
 {
     /// <summary>Authoring preview only. Never creates or reads a runtime localization singleton.</summary>
+    /// <remarks>已本地化文本对应的编辑器。提供相应资源或组件的 Unity 编辑界面。</remarks>
     [CustomEditor(typeof(LocalizedText))]
     public sealed class LocalizedTextEditor : UnityEditor.Editor
     {
@@ -24,6 +25,7 @@ namespace Game.Framework.Localization.Editor
         private string glyphResult;
         private string glyphContext;
 
+        /// <summary>绘制当前对象的检视面板并处理用户编辑。</summary>
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -127,6 +129,7 @@ namespace Game.Framework.Localization.Editor
             }
         }
 
+        /// <summary>更新目录。</summary>
         private void UpdateCatalog(LocalizationTableAsset table)
         {
             if (cachedTable == table && cachedVersion == table.ContentVersion)
@@ -148,6 +151,7 @@ namespace Game.Framework.Localization.Editor
             }
         }
 
+        /// <summary>根据传入参数取得预览翻译。</summary>
         private static string PreviewTranslation(LocalizationCatalog source, string key, string language, string fallbackLanguage)
         {
             foreach (string code in new[] { language, fallbackLanguage })
@@ -165,6 +169,7 @@ namespace Game.Framework.Localization.Editor
             return key;
         }
 
+        /// <summary>查找字体。</summary>
         private static TMP_FontAsset FindFont(SerializedProperty fonts, string language, TMP_FontAsset fallback)
         {
             var culture = CultureInfo.GetCultureInfo(language);

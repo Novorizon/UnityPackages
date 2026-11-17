@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Game.Ability.Configuration
 {
     /// <summary>Source-independent validation for the graph that the runtime will actually consume.</summary>
+    /// <remarks>提供技能定义图校验器的实现。</remarks>
     internal sealed class AbilityDefinitionGraphValidator
     {
         private readonly IReadOnlyDictionary<string, AbilityDefinitionRegistration> abilities;
@@ -14,6 +15,7 @@ namespace Game.Ability.Configuration
         private AbilityDefinitionOrigin origin;
         private string owner;
 
+        /// <summary>使用调用方提供的abilities、modifiers、projectiles创建 AbilityDefinitionGraphValidator。</summary>
         public AbilityDefinitionGraphValidator(IReadOnlyDictionary<string, AbilityDefinitionRegistration> abilities, IReadOnlyDictionary<string, ModifierDefinitionRegistration> modifiers, IReadOnlyDictionary<string, ProjectileDefinitionRegistration> projectiles, AbilityValidationReport report)
         {
             this.abilities = abilities;
@@ -22,6 +24,7 @@ namespace Game.Ability.Configuration
             this.report = report;
         }
 
+        /// <summary>验证技能定义图校验器。</summary>
         public void Validate()
         {
             foreach (KeyValuePair<string, AbilityDefinitionRegistration> pair in abilities)
@@ -137,6 +140,7 @@ namespace Game.Ability.Configuration
             foreach (string name in modifiers.Keys) VisitImmediate(name, colors, path, visits);
         }
 
+        /// <summary>调用 Error 完成动作。</summary>
         private void Actions(IReadOnlyList<ActionDefinition> actions, bool modifierContext = false, bool triggerContext = false)
         {
             for (int i = 0; i < actions.Count; i++)
@@ -172,6 +176,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>调用 Number 完成投射物。</summary>
         private void Projectile(ProjectileDefinition definition)
         {
             Number(definition.Speed, "Projectile.Speed", true); Number(definition.Radius, "Projectile.Radius", true); Number(definition.Distance, "Projectile.Distance", true);
@@ -181,6 +186,7 @@ namespace Game.Ability.Configuration
             if (definition.ProvidesVision) Error("Projectile vision has no runtime consumer; ProvidesVision must be false.");
         }
 
+        /// <summary>调用 ValidateActionSpecials 完成特殊动作。</summary>
         private void SpecialActions(IReadOnlyList<ActionDefinition> actions, AbilityDefinition ability, HashSet<string> reachable)
         {
             for (int i = 0; i < actions.Count; i++)
@@ -192,6 +198,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>调用 string.IsNullOrEmpty 完成特殊状态修饰器。</summary>
         private void SpecialModifier(string name, AbilityDefinition ability, HashSet<string> reachable)
         {
             if (string.IsNullOrEmpty(name) || reachable.Contains(name)) return;
@@ -219,6 +226,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证动作 Specials。</summary>
         private void ValidateActionSpecials(ActionDefinition action, AbilityDefinition ability)
         {
             Special(action.ValueSpecialName, ability);
@@ -227,25 +235,31 @@ namespace Game.Ability.Configuration
                 Level(special, "Action.SpecialValues." + action.ValueSpecialName, true);
         }
 
+        /// <summary>压入特殊动作。</summary>
         private void PushSpecialActions(IReadOnlyList<ActionDefinition> actions)
         {
             for (int i = actions.Count - 1; i >= 0; i--)
                 if (actions[i] != null) specialVisits.Push(new SpecialVisit(actions[i]));
         }
 
+        /// <summary>保存特殊 Visit所需的数据与配套操作。</summary>
         private readonly struct SpecialVisit
         {
             public readonly string Name;
             public readonly ActionDefinition Action;
+            /// <summary>使用调用方提供的name创建 SpecialVisit。</summary>
             public SpecialVisit(string name) { Name = name; Action = null; }
+            /// <summary>使用调用方提供的action创建 SpecialVisit。</summary>
             public SpecialVisit(ActionDefinition action) { Name = null; Action = action; }
         }
 
+        /// <summary>调用 string.IsNullOrEmpty 完成特殊。</summary>
         private void Special(string name, AbilityDefinition ability)
         {
             if (!string.IsNullOrEmpty(name) && !ability.SpecialValues.ContainsKey(name)) Error("References missing special value '" + name + "' in ability " + ability.Name + ".", "ABILITYPROVIDER010");
         }
 
+        /// <summary>遍历立即。</summary>
         private void VisitImmediate(string name, IDictionary<string, int> colors, List<string> path, Stack<ImmediateVisit> visits)
         {
             if (colors.ContainsKey(name) || !modifiers.TryGetValue(name, out ModifierDefinitionRegistration registration) || registration.Definition == null) return;
@@ -279,6 +293,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>保存立即 Visit所需的数据与配套操作。</summary>
         private struct ImmediateVisit
         {
             public readonly string Name;
@@ -286,8 +301,10 @@ namespace Game.Ability.Configuration
             private int group;
             private int nextAction;
 
+            /// <summary>使用调用方提供的name、definition创建 ImmediateVisit。</summary>
             public ImmediateVisit(string name, ModifierDefinition definition) { Name = name; this.definition = definition; group = 0; nextAction = 0; }
 
+            /// <summary>取得下一个引用。</summary>
             public string NextReference()
             {
                 while (group < 2)
@@ -306,28 +323,33 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>根据传入参数取得状态修饰器动作。</summary>
         private static IEnumerable<IReadOnlyList<ActionDefinition>> ModifierActions(ModifierDefinition definition)
         {
             yield return definition.OnCreatedActions; yield return definition.OnRefreshActions; yield return definition.OnDestroyActions;
             yield return definition.IntervalActions; yield return definition.TriggerActions;
         }
 
+        /// <summary>调用 string.IsNullOrEmpty 完成引用。</summary>
         private void Reference(string name, string kind, bool required)
         {
             if ((required || !string.IsNullOrEmpty(name)) && (string.IsNullOrEmpty(name) || !modifiers.ContainsKey(name))) Error("References missing " + kind + " '" + name + "'.", "ABILITYPROVIDER010");
         }
 
+        /// <summary>验证名称。</summary>
         private void ValidateName(string key, string name)
         {
             if (string.IsNullOrWhiteSpace(name) || !string.Equals(key, name, StringComparison.Ordinal)) Error("Internal name changed after registration; reload the provider instead.");
         }
 
+        /// <summary>调用 Flags 完成选目标。</summary>
         private void Targeting(TargetTeam team, UnitType type, TargetFlags flags)
         {
             Flags(team, "TargetTeam"); Flags(type, "TargetType"); Flags(flags, "TargetFlags");
             if ((flags & (TargetFlags.IncludeSelf | TargetFlags.ExcludeSelf)) == (TargetFlags.IncludeSelf | TargetFlags.ExcludeSelf)) Error("IncludeSelf and ExcludeSelf cannot be combined.");
         }
 
+        /// <summary>调用 Error 完成等级。</summary>
         private void Level(LevelValue value, string field, bool nonnegative, bool allowUnspecified = false)
         {
             if (value == null) { Error(field + " cannot be null."); return; }
@@ -335,6 +357,7 @@ namespace Game.Ability.Configuration
             for (int i = 0; i < value.ValuesByLevel.Count; i++) Number(value.ValuesByLevel[i], field + "[" + i + "]", nonnegative);
         }
 
+        /// <summary>返回全部正值的判断结果。</summary>
         private static bool AllPositive(LevelValue value)
         {
             if (value == null) return false;
@@ -343,16 +366,19 @@ namespace Game.Ability.Configuration
             return true;
         }
 
+        /// <summary>调用 float.IsNaN 完成数值。</summary>
         private void Number(float value, string field, bool nonnegative = false, bool positive = false)
         {
             if (float.IsNaN(value) || float.IsInfinity(value) || (nonnegative && value < 0f) || (positive && value <= 0f)) Error(field + " must be " + (positive ? "positive and finite." : nonnegative ? "nonnegative and finite." : "finite."));
         }
 
+        /// <summary>调用 Enum.IsDefined 完成Defined。</summary>
         private void Defined<T>(T value, string field) where T : struct
         {
             if (!Enum.IsDefined(typeof(T), value)) Error(field + " contains an unknown value " + value + ".");
         }
 
+        /// <summary>调用 Enum.GetValues 完成标志位。</summary>
         private void Flags<T>(T value, string field) where T : struct
         {
             ulong mask = 0;
@@ -361,6 +387,7 @@ namespace Game.Ability.Configuration
             if (raw < 0 || ((ulong)raw & ~mask) != 0) Error(field + " contains unknown flags " + value + ".");
         }
 
+        /// <summary>调用 report.Add 完成错误。</summary>
         private void Error(string message, string code = "ABILITYGRAPH001")
         {
             report.Add(AbilityValidationSeverity.Error, code, owner + ": " + message, origin?.ToConfigSource(), owner);

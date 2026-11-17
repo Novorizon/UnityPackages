@@ -8,12 +8,14 @@ using UnityEngine.Rendering.Universal;
 
 namespace Game.Framework.GpuAnimation.URP.Editor
 {
+    /// <summary>提供URP 项目配置的实现。</summary>
     public static class UrpProjectSetup
     {
         private const string DirectoryPath = "Assets/Settings/NovorizonURP";
         private const string PipelinePath = DirectoryPath + "/UniversalRenderPipeline.asset";
         private const string RendererPath = DirectoryPath + "/UniversalRenderer.asset";
 
+        /// <summary>配置 URP 项目配置。</summary>
         [MenuItem("Tools/Novorizon/URP/Configure Default Pipeline")]
         public static void Configure()
         {
@@ -53,6 +55,7 @@ namespace Game.Framework.GpuAnimation.URP.Editor
             Debug.Log("[Novorizon URP] Default URP 14 pipeline configured at " + PipelinePath);
         }
 
+        /// <summary>拒绝 Occupied 路径。</summary>
         private static void RejectOccupiedPath(string path)
         {
             if (AssetDatabase.LoadMainAssetAtPath(path) != null || File.Exists(path))

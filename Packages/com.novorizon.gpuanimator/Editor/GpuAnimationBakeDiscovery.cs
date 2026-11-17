@@ -4,6 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>提供GPU 动画 Bake 候选项的实现。</summary>
 internal sealed class GpuAnimationBakeCandidate
 {
     public string Name;
@@ -11,8 +12,10 @@ internal sealed class GpuAnimationBakeCandidate
     public string Error;
 }
 
+/// <summary>提供GPU 动画 BakeDiscovery的实现。</summary>
 internal static class GpuAnimationBakeDiscovery
 {
+    /// <summary>归一化资源路径。</summary>
     internal static string NormalizeAssetPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -38,6 +41,7 @@ internal static class GpuAnimationBakeDiscovery
         return normalized;
     }
 
+    /// <summary>将当前值转换为绝对路径。</summary>
     internal static string ToAbsolutePath(string assetPath)
     {
         string normalized = NormalizeAssetPath(assetPath);
@@ -46,6 +50,7 @@ internal static class GpuAnimationBakeDiscovery
         return Path.GetFullPath(Path.Combine(projectRoot.FullName, normalized));
     }
 
+    /// <summary>验证 Directories。</summary>
     internal static void ValidateDirectories(string sourceDirectory, string outputDirectory)
     {
         string source = NormalizeAssetPath(sourceDirectory);
@@ -60,6 +65,7 @@ internal static class GpuAnimationBakeDiscovery
             throw new ArgumentException("The output path is a file, not a directory: " + output);
     }
 
+    /// <summary>查找 GPU 动画 BakeDiscovery。</summary>
     internal static List<GpuAnimationBakeCandidate> Discover(string sourceDirectory, string outputDirectory, string shaderName, int maximumTextureSize)
     {
         ValidateDirectories(sourceDirectory, outputDirectory);
@@ -91,6 +97,7 @@ internal static class GpuAnimationBakeDiscovery
         return candidates;
     }
 
+    /// <summary>创建请求。</summary>
     private static GpuAnimationBakeRequest CreateRequest(DirectoryInfo directory, string assetDirectory,
         string outputDirectory, string shaderName, int maximumTextureSize)
     {
@@ -132,6 +139,7 @@ internal static class GpuAnimationBakeDiscovery
         };
     }
 
+    /// <summary>查找单个文件。</summary>
     private static FileInfo FindSingleFile(FileInfo[] files, Predicate<FileInfo> matches, string description, bool required)
     {
         FileInfo match = null;
@@ -145,6 +153,7 @@ internal static class GpuAnimationBakeDiscovery
         return match;
     }
 
+    /// <summary>加载资源。</summary>
     private static T LoadAsset<T>(string assetPath) where T : UnityEngine.Object
     {
         T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
@@ -153,6 +162,7 @@ internal static class GpuAnimationBakeDiscovery
         return asset;
     }
 
+    /// <summary>验证 Role 名称。</summary>
     private static void ValidateRoleName(string name)
     {
         if (name.IndexOfAny(new[] { '<', '>', ':', '"', '/', '\\', '|', '?', '*' }) >= 0 ||

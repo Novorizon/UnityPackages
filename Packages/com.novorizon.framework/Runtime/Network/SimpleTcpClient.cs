@@ -10,6 +10,7 @@ using Google.Protobuf;
 namespace Game.Framework.Network
 {
     // Transport only: each connection owns its queue, cipher, CTS and loop tasks.
+    /// <summary>提供简易 TCP 客户端的实现。</summary>
     public sealed class SimpleTcpClient : INetworkTransport
     {
         private readonly object sync = new object();
@@ -23,6 +24,7 @@ namespace Game.Framework.Network
         private Task lastCompletion = Task.CompletedTask;
         private bool disposed;
         private Task disposeTask;
+        /// <summary>使用调用方提供的options创建 SimpleTcpClient。</summary>
         public SimpleTcpClient(TcpClientOptions options) { this.options = (options ?? throw new ArgumentNullException(nameof(options))).Snapshot(); }
         public bool IsConnected { get { lock (sync) return !disposed && current != null && current.IsOpen; } }
         public long ConnectionId { get { lock (sync) return current?.Generation ?? generation; } }
@@ -33,6 +35,7 @@ namespace Game.Framework.Network
         public event Action<long, NetworkPacket> PacketReceived;
         public event Action<long, Exception> Closed;
 
+        /// <summary>异步连接简易 TCP 客户端。</summary>
         public async Task ConnectAsync(CancellationToken ct = default)
         {
             lock (sync) { if (disposed) throw new ObjectDisposedException(nameof(SimpleTcpClient)); }
@@ -104,14 +107,17 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>异步发送简易 TCP 客户端。</summary>
         public Task SendAsync(int messageId, long requestId, IMessage message, CancellationToken ct = default, long expectedConnectionId = 0)
         {
             var session = Session();
             if (expectedConnectionId != 0 && session.Generation != expectedConnectionId) throw new IOException("Connection changed before the message was queued.");
             return session.SendAsync(messageId, requestId, message, null, ct);
         }
+        /// <summary>异步发送原始。</summary>
         public Task SendRawAsync(int messageId, long requestId, byte[] payload, CancellationToken ct = default) =>
             Session().SendAsync(messageId, requestId, null, payload, ct);
+        /// <summary>取得会话。</summary>
         private TcpConnection Session()
         {
             lock (sync)
@@ -120,16 +126,19 @@ namespace Game.Framework.Network
                 return current ?? throw new IOException("TCP connection is not open.");
             }
         }
+        /// <summary>响应数据包。</summary>
         private void OnPacket(TcpConnection session, NetworkPacket packet)
         {
             lock (sync) { if (!ReferenceEquals(current, session) || disposed) return; }
             PacketReceived?.Invoke(session.Generation, packet);
         }
+        /// <summary>响应已关闭。</summary>
         private void OnClosed(TcpConnection session, Exception error)
         {
             lock (sync) { if (!ReferenceEquals(current, session)) return; current = null; }
             Closed?.Invoke(session.Generation, error);
         }
+        /// <summary>中止简易 TCP 客户端。</summary>
         public void Abort(Exception error = null)
         {
             TcpConnection session;
@@ -140,6 +149,7 @@ namespace Game.Framework.Network
             }
             session?.Abort(error);
         }
+        /// <summary>异步断开简易 TCP 客户端。</summary>
         public async Task DisconnectAsync()
         {
             Abort(new IOException("TCP connection closed by the application."));
@@ -153,6 +163,7 @@ namespace Game.Framework.Network
             }
             finally { connectGate.Release(); }
         }
+        /// <summary>结束简易 TCP 客户端对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             lock (sync)
@@ -162,8 +173,10 @@ namespace Game.Framework.Network
                 disposeTask = DisposeCoreAsync();
             }
         }
+        /// <summary>异步释放简易 TCP 客户端。</summary>
         private async Task DisposeCoreAsync()
         { await DisconnectAsync().ConfigureAwait(false); lifetime.Dispose(); }
+        /// <summary>等待资源和后台操作完成异步清理。</summary>
         public async ValueTask DisposeAsync()
         { Dispose(); Task task; lock (sync) task = disposeTask; await task.ConfigureAwait(false); }
     }

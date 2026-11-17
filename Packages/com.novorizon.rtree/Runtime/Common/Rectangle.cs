@@ -29,6 +29,7 @@ namespace RTree
      * @author  aled@sourceforge.net
      * @version 1.0b2p1
      */
+    /// <summary>提供矩形的实现。</summary>
     public class Rectangle
     {
         /**
@@ -55,6 +56,7 @@ namespace RTree
          * @param x2 coordinate of the opposite corner
          * @param y2 (see x2)
          */
+        /// <summary>使用调用方提供的x1、y1、x2创建 Rectangle。</summary>
         public Rectangle(double x1, double y1, double x2, double y2, double z1, double z2)
         {
             min = new double[DIMENSIONS];
@@ -68,6 +70,7 @@ namespace RTree
          * @param min array containing the minimum value for each dimension; ie { min(x), min(y) }
          * @param max array containing the maximum value for each dimension; ie { max(x), max(y) }
          */
+        /// <summary>使用调用方提供的min、max创建 Rectangle。</summary>
         public Rectangle(double[] min, double[] max)
         {
             if (min == null)
@@ -100,6 +103,7 @@ namespace RTree
           * @param x2 coordinate of the opposite corner
           * @param y2 (see x2)
           */
+        /// <summary>通过当前接口设置。</summary>
         internal void set(double x1, double y1, double x2, double y2, double z1, double z2)
         {
             ValidateCoordinate(x1, "x1");
@@ -116,6 +120,7 @@ namespace RTree
             max[2] = Math.Max(z1, z2);
         }
 
+        /// <summary>验证坐标。</summary>
         internal static void ValidateCoordinate(double value, string parameterName)
         {
             if (double.IsNaN(value) || double.IsInfinity(value))
@@ -128,6 +133,7 @@ namespace RTree
          * @param min array containing the minimum value for each dimension; ie { min(x), min(y) }
          * @param max array containing the maximum value for each dimension; ie { max(x), max(y) }
          */
+        /// <summary>通过当前接口设置。</summary>
         internal void set(double[] min, double[] max)
         {
             System.Array.Copy(min, 0, this.min, 0, DIMENSIONS);
@@ -139,6 +145,7 @@ namespace RTree
          * 
          * @return copy of this rectangle
          */
+        /// <summary>取得copy。</summary>
         internal Rectangle copy()
         {
             return new Rectangle(min, max);
@@ -148,6 +155,7 @@ namespace RTree
          * Determine whether an edge of this rectangle overlies the equivalent 
          * edge of the passed rectangle
          */
+        /// <summary>返回edgeOverlaps的判断结果。</summary>
         internal bool edgeOverlaps(Rectangle r)
         {
             for (int i = 0; i < DIMENSIONS; i++)
@@ -167,6 +175,7 @@ namespace RTree
          * 
          * @return true if the rectangles intersect, false if they do not intersect
          */
+        /// <summary>返回intersects的判断结果。</summary>
         internal bool intersects(Rectangle r)
         {
             // Every dimension must intersect. If any dimension
@@ -189,6 +198,7 @@ namespace RTree
          * @return true if this rectangle contains the passed rectangle, false if
          *         it does not
          */
+        /// <summary>返回contains的判断结果。</summary>
         internal bool contains(Rectangle r)
         {
             for (int i = 0; i < DIMENSIONS; i++)
@@ -209,6 +219,7 @@ namespace RTree
          * @return true if the passed rectangle contains this rectangle, false if
          *         it does not
          */
+        /// <summary>返回containedBy的判断结果。</summary>
         internal bool containedBy(Rectangle r)
         {
             for (int i = 0; i < DIMENSIONS; i++)
@@ -229,6 +240,7 @@ namespace RTree
          * 
          * @return distance beween this rectangle and the passed point.
          */
+        /// <summary>根据传入参数取得distance。</summary>
         internal double distance(Point p)
         {
             return Norm(PointGap(min[0], max[0], p.coordinates[0]),
@@ -238,6 +250,7 @@ namespace RTree
 
         // Used to compare distances larger than double.MaxValue. Scaling the
         // coordinates before subtracting also prevents gap overflow.
+        /// <summary>根据传入参数取得distance 已缩放。</summary>
         internal double distanceScaled(Point p, double scale)
         {
             return Norm(PointGap(min[0] * scale, max[0] * scale, p.coordinates[0] * scale),
@@ -254,6 +267,7 @@ namespace RTree
          * @return distance between this rectangle and the passed rectangle
          */
 
+        /// <summary>根据传入参数取得distance。</summary>
         internal double distance(Rectangle r)
         {
             return Norm(IntervalGap(min[0], max[0], r.min[0], r.max[0]),
@@ -261,6 +275,7 @@ namespace RTree
                         IntervalGap(min[2], max[2], r.min[2], r.max[2]));
         }
 
+        /// <summary>根据传入参数取得点间距。</summary>
         private static double PointGap(double minimum, double maximum, double point)
         {
             if (point < minimum)
@@ -270,6 +285,7 @@ namespace RTree
             return 0;
         }
 
+        /// <summary>根据传入参数取得间隔间距。</summary>
         private static double IntervalGap(double min1, double max1, double min2, double max2)
         {
             if (max1 < min2)
@@ -279,6 +295,7 @@ namespace RTree
             return 0;
         }
 
+        /// <summary>根据传入参数取得范数。</summary>
         private static double Norm(double x, double y, double z)
         {
             double squared = x * x + y * y + z * z;
@@ -298,6 +315,7 @@ namespace RTree
         /**
          * Return the squared distance from this rectangle to the passed point
          */
+        /// <summary>根据传入参数取得distanceSquared。</summary>
         internal double distanceSquared(int dimension, double point)
         {
             double gap = PointGap(min[dimension], max[dimension], point);
@@ -312,6 +330,7 @@ namespace RTree
          * passed rectangle, and use the maximum.
          *
          */
+        /// <summary>根据传入参数取得furthest 距离。</summary>
         internal double furthestDistance(Rectangle r)
         {
             return Norm(Math.Max(PointGap(min[0], max[0], r.min[0]), PointGap(min[0], max[0], r.max[0])),
@@ -327,6 +346,7 @@ namespace RTree
          *          compute the difference in area of the union and the
          *          original rectangle
          */
+        /// <summary>根据传入参数取得enlargement。</summary>
         internal double enlargement(Rectangle r)
         {
             double x = max[0] - min[0];
@@ -349,6 +369,7 @@ namespace RTree
          * 
          * @return The area of this rectangle
          */
+        /// <summary>取得area。</summary>
         internal double area()
         {
             return Product(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
@@ -356,6 +377,7 @@ namespace RTree
 
         // Secondary insertion costs distinguish planar and linear boxes whose
         // volumes are all zero. The factor of two in surface area is omitted.
+        /// <summary>取得surface 面积。</summary>
         internal double surfaceArea()
         {
             double x = max[0] - min[0];
@@ -364,6 +386,7 @@ namespace RTree
             return Product(x, y) + Product(x, z) + Product(y, z);
         }
 
+        /// <summary>根据传入参数取得surfaceEnlargement。</summary>
         internal double surfaceEnlargement(Rectangle r)
         {
             double x = max[0] - min[0];
@@ -377,11 +400,13 @@ namespace RTree
                    Product(growY, z + growZ) + Product(y, growZ);
         }
 
+        /// <summary>取得margin。</summary>
         internal double margin()
         {
             return (max[0] - min[0]) + (max[1] - min[1]) + (max[2] - min[2]);
         }
 
+        /// <summary>根据传入参数取得marginEnlargement。</summary>
         internal double marginEnlargement(Rectangle r)
         {
             return Math.Max(0, min[0] - r.min[0]) + Math.Max(0, r.max[0] - max[0]) +
@@ -389,11 +414,13 @@ namespace RTree
                    Math.Max(0, min[2] - r.min[2]) + Math.Max(0, r.max[2] - max[2]);
         }
 
+        /// <summary>根据传入参数取得商品。</summary>
         private static double Product(double x, double y)
         {
             return x == 0 || y == 0 ? 0 : x * y;
         }
 
+        /// <summary>根据传入参数取得商品。</summary>
         private static double Product(double x, double y, double z)
         {
             double product = (x * y) * z;
@@ -415,6 +442,7 @@ namespace RTree
          * 
          * @param r Rectangle to add to this rectangle
          */
+        /// <summary>处理add。</summary>
         internal void add(Rectangle r)
         {
             for (int i = 0; i < DIMENSIONS; i++)
@@ -436,6 +464,7 @@ namespace RTree
          * 
          * @param r The rectangle to union with this rectangle
          */
+        /// <summary>根据传入参数取得union。</summary>
         internal Rectangle union(Rectangle r)
         {
             Rectangle union = this.copy();
@@ -443,6 +472,7 @@ namespace RTree
             return union;
         }
 
+        /// <summary>比较 Arrays。</summary>
         internal bool CompareArrays(double[] a1, double[] a2)
         {
             if ((a1 == null) || (a2 == null))
@@ -462,6 +492,7 @@ namespace RTree
          * 
          * @param o The object to compare with this rectangle
          */
+        /// <summary>比较当前值和参数是否相等。</summary>
         public override bool Equals(object obj)
         {
             Rectangle r = obj as Rectangle;
@@ -469,6 +500,7 @@ namespace RTree
                    CompareArrays(r.min, min) && CompareArrays(r.max, max);
         }
 
+        /// <summary>根据参与相等比较的字段生成哈希值。</summary>
         public override int GetHashCode()
         {
             unchecked
@@ -491,6 +523,7 @@ namespace RTree
          * 
          * @param o The object to compare with this rectangle.
          */
+        /// <summary>返回same 对象的判断结果。</summary>
         internal bool sameObject(object o)
         {
             return base.Equals(o);

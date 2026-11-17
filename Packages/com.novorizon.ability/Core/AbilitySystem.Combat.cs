@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
         private readonly HashSet<int> notifiedDeaths = new HashSet<int>();
@@ -15,11 +16,13 @@ namespace Game.Ability
         /// Freezes the request, calculates, allows controlled amount/block adjustments, commits once,
         /// then publishes isolated snapshots. Listeners cannot redirect a request or rewrite history.
         /// </summary>
+        /// <remarks>应用伤害。</remarks>
         public DamageResult ApplyDamage(DamageInfo damageInfo)
         {
             return ApplyDamageCore(damageInfo, null);
         }
 
+        /// <summary>应用伤害核心。</summary>
         private DamageResult ApplyDamageCore(DamageInfo damageInfo, AttackRecord attack)
         {
             using (BeginExecution())
@@ -106,6 +109,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>创建伤害结果。</summary>
         private static DamageResult CreateDamageResult(DamageInfo request)
         {
             return request == null ? new DamageResult() : new DamageResult
@@ -115,6 +119,7 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>判断是否为有效伤害请求。</summary>
         private bool IsValidDamageRequest(DamageInfo request)
         {
             if (!AreDamageParticipantsCurrent(request)) return false;
@@ -125,6 +130,7 @@ namespace Game.Ability
             return true;
         }
 
+        /// <summary>返回Are 伤害 Participants 当前的判断结果。</summary>
         private bool AreDamageParticipantsCurrent(DamageInfo request)
         {
             if (request == null || request.Victim == null || !request.Victim.IsAlive || !IsCombatContextCurrent(request.Attacker, request.Victim, request.Ability)) return false;
@@ -133,6 +139,7 @@ namespace Game.Ability
             return CombatSnapshots.IsFinite(health) && health > 0f;
         }
 
+        /// <summary>判断是否为战斗上下文当前。</summary>
         private bool IsCombatContextCurrent(IUnit source, IUnit target, Ability ability)
         {
             // Dead sources may own launched hits/DoT. Despawned or replaced sources cannot
@@ -140,6 +147,7 @@ namespace Game.Ability
             return target != null && !IsUnitRemoving(target) && (source == null || !IsUnitRemoving(source)) && IsAbilitySourceValid(ability);
         }
 
+        /// <summary>检查伤害 Immunity。</summary>
         private string CheckDamageImmunity(DamageInfo request)
         {
             long generation = RuntimeGeneration;
@@ -151,11 +159,13 @@ namespace Game.Ability
             return null;
         }
 
+        /// <summary>判断是否为生命值 Removal。</summary>
         private static bool IsHealthRemoval(DamageInfo request)
         {
             return request.Category == DamageCategory.HpLoss || (request.Flags & DamageFlags.HpLoss) != 0;
         }
 
+        /// <summary>计算伤害。</summary>
         private float CalculateDamage(DamageInfo request, DamageResult result)
         {
             float amount = request.Amount;
@@ -195,11 +205,13 @@ namespace Game.Ability
             return CombatSnapshots.NonNegative(amount);
         }
 
+        /// <summary>根据传入参数取得正值 Multiplier。</summary>
         private static float PositiveMultiplier(float percent)
         {
             return CombatSnapshots.IsFinite(percent) ? Math.Max(0f, 1f + percent / 100f) : 0f;
         }
 
+        /// <summary>调整 Calculated 伤害。</summary>
         private void AdjustCalculatedDamage(DamageInfo request, DamageResult result)
         {
             long generation = RuntimeGeneration;
@@ -228,6 +240,7 @@ namespace Game.Ability
             finally { RuntimeSnapshotPool<Modifier>.Release(listeners); }
         }
 
+        /// <summary>发布伤害。</summary>
         private void PublishDamage(ModifierEventType type, DamageInfo request, DamageResult result)
         {
             DispatchModifierEvent(new ModifierEvent
@@ -237,6 +250,7 @@ namespace Game.Ability
             });
         }
 
+        /// <summary>根据传入参数取得屏蔽。</summary>
         private static DamageResult Block(DamageResult result, string reason)
         {
             result.Blocked = true;
@@ -246,8 +260,10 @@ namespace Game.Ability
             return result;
         }
 
+        /// <summary>调用 HealWithResult 完成治疗。</summary>
         public void Heal(HealInfo healInfo) { HealWithResult(healInfo); }
 
+        /// <summary>根据传入参数取得治疗 With 结果。</summary>
         public HealResult HealWithResult(HealInfo healInfo)
         {
             using (BeginExecution())
@@ -297,6 +313,7 @@ namespace Game.Ability
         }
 
         /// <summary>A complete immediate attack, using the same once-only path as a delayed attack.</summary>
+        /// <remarks>应用普攻伤害。</remarks>
         public DamageResult ApplyAttackDamage(DamageInfo damageInfo)
         {
             using (BeginExecution())
@@ -311,6 +328,7 @@ namespace Game.Ability
         /// Accepts an attack launch and freezes its combat request. After launch, stun or death of
         /// the attacker does not undo the hit; a miss/projectile cancellation calls CancelAttack.
         /// </summary>
+        /// <remarks>开始普攻。</remarks>
         public AttackRecord BeginAttack(DamageInfo damageInfo)
         {
             using (BeginExecution())
@@ -331,6 +349,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>解析普攻。</summary>
         public DamageResult ResolveAttack(AttackRecord attack)
         {
             using (BeginExecution())
@@ -371,18 +390,21 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>完成普攻。</summary>
         private static void CompleteAttack(AttackRecord attack, DamageResult result)
         {
             attack.CommittedResult = CombatSnapshots.Clone(result);
             attack.State = AttackRecordState.Resolved;
         }
 
+        /// <summary>添加战斗错误。</summary>
         private static void AddCombatError(ref List<Exception> errors, Exception exception)
         {
             if (errors == null) errors = new List<Exception>();
             errors.Add(exception);
         }
 
+        /// <summary>取消普攻。</summary>
         public bool CancelAttack(AttackRecord attack)
         {
             if (attack == null || attack.Engine != this || attack.State != AttackRecordState.Pending) return false;
@@ -391,17 +413,20 @@ namespace Game.Ability
             return true;
         }
 
+        /// <summary>发布普攻。</summary>
         private void PublishAttack(ModifierEventType type, IUnit attacker, IUnit target, long attackId)
         {
             DispatchModifierEvent(new ModifierEvent { EventType = type, AttackId = attackId, Engine = this, Source = attacker, Target = target, Position = target.Position });
         }
 
+        /// <summary>检查是否可以按位置取得 tack。</summary>
         private bool CanAttack(IUnit attacker, IUnit target)
         {
             return IsRuntimeAvailable && attacker != null && attacker.IsAlive && target != null && target.IsAlive && !IsUnitRemoving(attacker) && !IsUnitRemoving(target) &&
                 !HasState(attacker, UnitState.Stunned | UnitState.Disarmed | UnitState.CommandRestricted | UnitState.Hexed | UnitState.OutOfGame);
         }
 
+        /// <summary>通知普攻 Start。</summary>
         public void NotifyAttackStart(IUnit attacker, IUnit target)
         {
             using (BeginExecution())
@@ -411,6 +436,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>通知普攻 Landed。</summary>
         public void NotifyAttackLanded(IUnit attacker, IUnit target)
         {
             using (BeginExecution())
@@ -421,6 +447,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>通知死亡。</summary>
         public void NotifyDeath(IUnit victim, IUnit killer = null, Ability ability = null)
         {
             using (BeginExecution())
@@ -462,6 +489,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>通知复活。</summary>
         public void NotifyRespawn(IUnit unit)
         {
             using (BeginExecution())
@@ -482,11 +510,13 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>获取技能快照。</summary>
         private Ability[] GetAbilitySnapshot(IUnit unit)
         {
             return unit != null && abilitiesByUnit.TryGetValue(unit.EntityId, out List<Ability> owned) ? owned.ToArray() : new Ability[0];
         }
 
+        /// <summary>移除战斗单位。</summary>
         internal void RemoveCombatUnit(IUnit unit)
         {
             if (unit == null) return;
@@ -500,6 +530,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>重置战斗状态。</summary>
         internal void ResetCombatState()
         {
             notifiedDeaths.Clear();

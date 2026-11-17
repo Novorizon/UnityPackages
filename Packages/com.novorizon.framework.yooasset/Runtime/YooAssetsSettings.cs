@@ -12,6 +12,7 @@ using YooAsset;
 
 namespace Game.Resource
 {
+    /// <summary>Yoo 资源对应的设置。保存本模块使用的配置。</summary>
     public static class YooAssetsSettings
     {
         public static string PadInstallTimePath = "InstallTimeAssets";
@@ -21,6 +22,7 @@ namespace Game.Resource
         public static string YooCachePath = Path.Combine(Application.persistentDataPath, YooCache);
         public static string DefaultHostServer = "";
         public static string FallbackHostServer = "";
+        /// <summary>创建参数。</summary>
         public static InitializeParameters CreateParameters()
         {
 #if UNITY_EDITOR
@@ -36,6 +38,7 @@ namespace Game.Resource
 #endif
         }
 
+        /// <summary>创建编辑器 Simulate 模式参数。</summary>
         public static InitializeParameters CreateEditorSimulateModeParameters()
         {
             PackageInvokeBuildResult buildResult = EditorSimulateModeHelper.SimulateBuild("DefaultPackage");
@@ -48,6 +51,7 @@ namespace Game.Resource
             return parameters;
         }
 
+        /// <summary>创建 OfflinePlay 模式参数。</summary>
         public static InitializeParameters CreateOfflinePlayModeParameters()
         {
             FileSystemParameters fileSystemParameters = FileSystemParameters.CreateDefaultBuildinFileSystemParameters();
@@ -58,11 +62,13 @@ namespace Game.Resource
             return parameters;
         }
 
+        /// <summary>创建宿主 Play Mode 参数。</summary>
         public static InitializeParameters CreateHostPlayModeParameters()
         {
             return CreateHostPlayModeParameters(DefaultHostServer, FallbackHostServer);
         }
 
+        /// <summary>创建宿主 Play Mode 参数。</summary>
         public static InitializeParameters CreateHostPlayModeParameters(string mainUrl, string fallbackUrl = null)
         {
             ValidateRemoteUrl(mainUrl);
@@ -76,6 +82,7 @@ namespace Game.Resource
             };
         }
 
+        /// <summary>创建 CustomPlay 模式参数。</summary>
         public static InitializeParameters CreateCustomPlayModeParameters()
         {
             ValidateRemoteUrls();
@@ -100,6 +107,7 @@ namespace Game.Resource
             ValidateRemoteUrl(string.IsNullOrWhiteSpace(FallbackHostServer) ? DefaultHostServer : FallbackHostServer);
         }
 
+        /// <summary>验证远程 URL。</summary>
         private static void ValidateRemoteUrl(string url)
         {
             if (!Uri.TryCreate(url, UriKind.Absolute, out var parsed) || (parsed.Scheme != "http" && parsed.Scheme != "https"))
@@ -107,25 +115,30 @@ namespace Game.Resource
                 throw new InvalidOperationException("Configure a valid resource host URL before enabling remote play mode.");
             }
         }
+        /// <summary>表示Yoo 资源设置中的远程服务。</summary>
         private class RemoteServices : IRemoteServices
         {
             private readonly string _defaultHostServer;
             private readonly string _fallbackHostServer;
 
+            /// <summary>使用调用方提供的defaultHostServer、fallbackHostServer创建 RemoteServices。</summary>
             public RemoteServices(string defaultHostServer, string fallbackHostServer)
             {
                 _defaultHostServer = defaultHostServer;
                 _fallbackHostServer = fallbackHostServer;
             }
+            /// <summary>获取远程主 URL。</summary>
             string IRemoteServices.GetRemoteMainURL(string fileName)
             {
                 return $"{_defaultHostServer}/{fileName}";
             }
+            /// <summary>获取远程回退项 URL。</summary>
             string IRemoteServices.GetRemoteFallbackURL(string fileName)
             {
                 return $"{_fallbackHostServer}/{fileName}";
             }
         }
+        /// <summary>返回NeedDownload 远程资源的判断结果。</summary>
         private static bool NeedDownloadRemoteResources()
         {
             // 可根据条件判断：平台、渠道、大版本号……

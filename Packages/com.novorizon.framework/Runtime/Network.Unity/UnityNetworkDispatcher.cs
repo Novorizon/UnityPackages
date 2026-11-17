@@ -8,16 +8,19 @@ namespace Game.Framework.Network.Unity
 {
     // Unity executes SynchronizationContext.Post callbacks in its main loop.
     // At most one drain is posted per dispatcher, even while the application is paused.
+    /// <summary>提供Unity 网络调度器的实现。</summary>
     internal sealed class UnityNetworkDispatcher : IAutomaticNetworkDispatcher
     {
         private readonly QueuedNetworkDispatcher queue = new QueuedNetworkDispatcher();
         private readonly Action drain;
         private int scheduled, disposed;
+        /// <summary>创建 UnityNetworkDispatcher 并采用默认配置。</summary>
         internal UnityNetworkDispatcher()
         {
             drain = Drain;
         }
 
+        /// <summary>尝试处理 Post，返回是否成功。</summary>
         public bool TryPost(Action callback, int retainedPayloadBytes)
         {
             if (Volatile.Read(ref disposed) != 0 || !queue.TryPost(callback, retainedPayloadBytes))
@@ -29,6 +32,7 @@ namespace Game.Framework.Network.Unity
             return true;
         }
 
+        /// <summary>安排 Unity 网络调度器。</summary>
         private void Schedule()
         {
             if (Volatile.Read(ref disposed) != 0 || Interlocked.CompareExchange(ref scheduled, 1, 0) != 0)
@@ -47,6 +51,7 @@ namespace Game.Framework.Network.Unity
             }
         }
 
+        /// <summary>取出并处理 Unity 网络调度器。</summary>
         private void Drain()
         {
             try
@@ -70,6 +75,7 @@ namespace Game.Framework.Network.Unity
             }
         }
 
+        /// <summary>结束Unity 网络调度器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref disposed, 1) == 0)
@@ -79,8 +85,10 @@ namespace Game.Framework.Network.Unity
         }
     }
 
+    /// <summary>提供Unity 网络 Integration的实现。</summary>
     internal static class UnityNetworkIntegration
     {
+        /// <summary>恢复该类型约定的初始状态。</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset()
         {
@@ -88,6 +96,7 @@ namespace Game.Framework.Network.Unity
             NetworkDefaults.ConfigurationProvider = null;
         }
 
+        /// <summary>加载配置。</summary>
         private static NetworkConfiguration LoadConfiguration()
         {
             if (!UnityThread.IsMainThread)
@@ -104,6 +113,7 @@ namespace Game.Framework.Network.Unity
             return settings.CreateConfiguration();
         }
 
+        /// <summary>初始化 Unity 网络 Integration。</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {

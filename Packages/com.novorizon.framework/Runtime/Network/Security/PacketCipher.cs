@@ -13,10 +13,12 @@ namespace Game.Framework.Network.Security
 {
     // Standard AES-256-GCM/HKDF-SHA256, interoperable with GameServer's .NET implementation.
     // Each connection owns two directions; callers serialize each direction and dispose after I/O stops.
+    /// <summary>提供数据包加密器的实现。</summary>
     public sealed class PacketCipher : IDisposable
     {
         public const int HelloBytes = 40;
         public const int TagBytes = 16;
+        /// <summary>表示数据包加密器中的方向。</summary>
         private sealed class Direction
         {
             internal GcmBlockCipher Cipher = new GcmBlockCipher(new AesEngine());
@@ -27,6 +29,7 @@ namespace Game.Framework.Network.Security
             private ulong counter;
             private bool initialized, failed;
 
+            /// <summary>使用调用方提供的key创建 Direction。</summary>
             internal Direction(byte[] key)
             {
                 this.key = key;
@@ -34,6 +37,7 @@ namespace Game.Framework.Network.Security
                 // A null key explicitly reuses the expanded AES key and GCM multiplier after first Init.
                 reuseParameters = new AeadParameters(null, TagBytes * 8, nonce, associatedData);
             }
+            /// <summary>开始方向。</summary>
             internal void Begin(bool encrypt, byte[] header)
             {
                 if (failed) throw new NetworkProtocolException("Cipher direction failed; establish a new connection.");
@@ -52,8 +56,11 @@ namespace Game.Framework.Network.Security
                 }
                 catch { Fail(); throw; }
             }
+            /// <summary>完成方向。</summary>
             internal void Complete() { counter++; }
+            /// <summary>标记失败方向。</summary>
             internal void Fail() { failed = true; Array.Clear(key, 0, key.Length); }
+            /// <summary>结束方向对相关资源的持有，并执行该类型的清理流程。</summary>
             internal void Dispose()
             {
                 Array.Clear(key, 0, key.Length); Array.Clear(nonce, 0, nonce.Length);
@@ -67,6 +74,7 @@ namespace Game.Framework.Network.Security
         private readonly Direction send, receive;
         private bool disposed;
 
+        /// <summary>使用调用方提供的key、hello、server创建 PacketCipher。</summary>
         public PacketCipher(byte[] key, byte[] hello, bool server = false)
         {
             if (key == null || key.Length != 32 || hello == null || hello.Length != HelloBytes ||
@@ -88,6 +96,7 @@ namespace Game.Framework.Network.Security
             }
         }
 
+        /// <summary>根据传入参数取得Derive。</summary>
         private static byte[] Derive(byte[] key, byte[] hello, string info)
         {
             byte[] salt = new byte[32]; Array.Copy(hello, 8, salt, 0, salt.Length);
@@ -101,6 +110,7 @@ namespace Game.Framework.Network.Security
             finally { Array.Clear(salt, 0, salt.Length); }
         }
 
+        /// <summary>编码数据包加密器。</summary>
         public int Encode(byte[] buffer, int applicationLength)
         {
             if (disposed) throw new ObjectDisposedException(nameof(PacketCipher));
@@ -119,6 +129,7 @@ namespace Game.Framework.Network.Security
             catch { send.Fail(); throw; }
         }
 
+        /// <summary>解码数据包加密器。</summary>
         public void Decode(byte[] buffer, int wireLength, int maximumWireBytes)
         {
             if (disposed) throw new ObjectDisposedException(nameof(PacketCipher));
@@ -142,6 +153,7 @@ namespace Game.Framework.Network.Security
         }
 
         // The transport owns payload; header and tag can be reused after this synchronous call.
+        /// <summary>解码 Payload。</summary>
         internal void DecodePayload(byte[] headerBytes, byte[] payload, byte[] tag, int maximumWireBytes)
         {
             if (disposed) throw new ObjectDisposedException(nameof(PacketCipher));
@@ -164,6 +176,7 @@ namespace Game.Framework.Network.Security
             catch { receive.Fail(); Array.Clear(payload, 0, payload.Length); throw; }
         }
 
+        /// <summary>结束数据包加密器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed) return;

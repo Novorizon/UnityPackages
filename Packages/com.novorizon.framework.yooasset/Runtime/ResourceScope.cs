@@ -21,6 +21,7 @@ namespace Game.Resource
         private bool disposed;
         public CancellationToken Token => token;
 
+        /// <summary>使用调用方提供的resources、scene、owner创建 ResourceScope。</summary>
         internal ResourceScope(ResourceManager resources, Scene? scene = null, string owner = null)
         {
             this.resources = resources;
@@ -62,11 +63,13 @@ namespace Game.Resource
                     throw new ObjectDisposedException(nameof(ResourceScope));
                 }
 
+                // 从这里起由作用域统一持有该租约，作用域结束时会负责归还。
                 leases.Add(lease);
                 return lease;
             }
         }
 
+        /// <summary>响应场景已卸载。</summary>
         private void OnSceneUnloaded(Scene scene)
         {
             if (scene.handle == sceneHandle)
@@ -75,6 +78,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>结束资源作用域对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

@@ -1,6 +1,7 @@
 namespace Game.Ability
 {
     /// <summary>Damage origin and damage type are separate axes. A physical spell is still a spell.</summary>
+    /// <remarks>定义伤害 Category可选的枚举值。</remarks>
     public enum DamageCategory
     {
         Spell = 0,
@@ -9,8 +10,10 @@ namespace Game.Ability
     }
 
     /// <summary>A launched attack token. Only its originating engine may resolve it, once.</summary>
+    /// <remarks>普攻对应的记录。记录一次操作及其相关数据。</remarks>
     public sealed class AttackRecord
     {
+        /// <summary>使用调用方提供的engine、attackId、generation创建 AttackRecord。</summary>
         internal AttackRecord(AbilitySystem engine, long attackId, long generation, DamageInfo request)
         {
             Engine = engine;
@@ -34,6 +37,7 @@ namespace Game.Ability
         public DamageResult Result => CombatSnapshots.Clone(CommittedResult);
     }
 
+    /// <summary>定义普攻记录状态可选的枚举值。</summary>
     internal enum AttackRecordState { Pending, Resolving, Resolved, Cancelled }
 
     /// <summary>
@@ -41,6 +45,7 @@ namespace Game.Ability
     /// once and report the HP change; armor, resistance and block belong to AbilitySystem.
     /// Units without this interface retain the legacy IUnit boundary, but cannot accept NonLethal.
     /// </summary>
+    /// <remarks>定义战斗单位的调用契约。</remarks>
     public interface ICombatUnit : IUnit
     {
         float CurrentHealth { get; }
@@ -53,16 +58,20 @@ namespace Game.Ability
         /// run after the HP commit must be isolated by the adapter so they cannot discard this
         /// result by throwing. The engine cannot infer an unreported commit from an exception.
         /// </summary>
+        /// <remarks>应用最终伤害。</remarks>
         DamageApplicationResult ApplyFinalDamage(DamageResult result);
         /// <summary>
         /// Applies healing once and returns the actual committed change. As with damage,
         /// isolate post-commit project callbacks and always return the committed HP fact.
         /// </summary>
+        /// <remarks>应用最终治疗。</remarks>
         HealApplicationResult ApplyFinalHeal(HealInfo info);
     }
 
+    /// <summary>伤害应用对应的结果。携带操作执行结果和相关数据。</summary>
     public sealed class DamageApplicationResult
     {
+        /// <summary>使用调用方提供的appliedAmount、killed创建 DamageApplicationResult。</summary>
         public DamageApplicationResult(float appliedAmount, bool killed = false)
         {
             AppliedAmount = appliedAmount;
@@ -73,14 +82,18 @@ namespace Game.Ability
         public bool Killed { get; }
     }
 
+    /// <summary>治疗应用对应的结果。携带操作执行结果和相关数据。</summary>
     public sealed class HealApplicationResult
     {
+        /// <summary>使用调用方提供的appliedAmount创建 HealApplicationResult。</summary>
         public HealApplicationResult(float appliedAmount) { AppliedAmount = appliedAmount; }
         public float AppliedAmount { get; }
     }
 
+    /// <summary>治疗对应的结果。携带操作执行结果和相关数据。</summary>
     public sealed class HealResult
     {
+        /// <summary>使用调用方提供的source、target、ability创建 HealResult。</summary>
         internal HealResult(IUnit source, IUnit target, Ability ability, float requestedAmount, float appliedAmount, string failureReason = null)
         {
             Source = source;
@@ -101,8 +114,10 @@ namespace Game.Ability
     }
 
     /// <summary>Mutable legacy DTOs are never shared between observers or with committed facts.</summary>
+    /// <remarks>提供战斗快照的实现。</remarks>
     internal static class CombatSnapshots
     {
+        /// <summary>克隆战斗快照。</summary>
         internal static DamageInfo Clone(DamageInfo value)
         {
             return value == null ? null : new DamageInfo
@@ -112,6 +127,7 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>克隆战斗快照。</summary>
         internal static DamageResult Clone(DamageResult value)
         {
             return value == null ? null : new DamageResult
@@ -123,11 +139,13 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>克隆战斗快照。</summary>
         internal static HealInfo Clone(HealInfo value)
         {
             return value == null ? null : new HealInfo { Source = value.Source, Target = value.Target, Ability = value.Ability, Amount = value.Amount };
         }
 
+        /// <summary>克隆战斗快照。</summary>
         internal static CastOrder Clone(CastOrder value)
         {
             return value == null ? null : new CastOrder
@@ -138,6 +156,7 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>克隆事件。</summary>
         internal static ModifierEvent CloneEvent(ModifierEvent value)
         {
             return value == null ? null : new ModifierEvent
@@ -149,7 +168,9 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         internal static bool IsFinite(float value) { return !float.IsNaN(value) && !float.IsInfinity(value); }
+        /// <summary>根据传入参数取得NonNegative。</summary>
         internal static float NonNegative(float value) { return IsFinite(value) ? System.Math.Max(0f, value) : 0f; }
     }
 }

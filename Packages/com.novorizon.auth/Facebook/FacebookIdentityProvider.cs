@@ -7,12 +7,14 @@ using UnityEngine;
 namespace Game.Framework.Auth.Facebook
 {
     /// <summary>Facebook SDK 19. iOS uses Limited Login with a fresh nonce; Android uses an access token.</summary>
+    /// <remarks>Facebook 身份对应的厂商适配器。提供此模块需要的能力或数据。</remarks>
     public sealed class FacebookIdentityProvider : IIdentityProvider
     {
         private static FacebookIdentityProvider owner;
         private bool busy, disposed;
         public IdentityProvider Provider => IdentityProvider.Facebook;
 
+        /// <summary>异步取得 Facebook 身份厂商适配器。</summary>
         public async Task<IdentityProof> AcquireAsync(CancellationToken token)
         {
             MainThread();
@@ -80,6 +82,7 @@ namespace Game.Framework.Auth.Facebook
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -88,6 +91,7 @@ namespace Game.Framework.Auth.Facebook
             }
         }
 
+        /// <summary>根据传入参数取得Limited 凭据。</summary>
         internal static IdentityProof LimitedProof(string rawNonce, AuthenticationToken authentication)
         {
             // Firebase expects the raw nonce and validates SHA-256(rawNonce) against the ID token.
@@ -98,6 +102,7 @@ namespace Game.Framework.Auth.Facebook
             return new IdentityProof(IdentityProvider.Facebook, IdentityTokenKind.IdToken, authentication.TokenString, rawNonce);
         }
 
+        /// <summary>结束Facebook 身份厂商适配器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             MainThread();

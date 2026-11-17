@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace UI.Editor
 {
+    /// <summary>提供界面框架菜单的实现。</summary>
     public static class UIFrameworkMenu
     {
+        /// <summary>创建启动入口。</summary>
         [MenuItem("Tools/Novorizon/UI/Create UIBootstrap in Scene")]
         public static void CreateBootstrap()
         {
@@ -15,6 +17,7 @@ namespace UI.Editor
             Selection.activeObject = go;
         }
 
+        /// <summary>创建设置。</summary>
         [MenuItem("Tools/Novorizon/UI/Create UISettings Asset")]
         public static void CreateSettings()
         {

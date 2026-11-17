@@ -4,6 +4,7 @@ using System.Globalization;
 
 namespace Game.Framework.Diagnostics.Editor
 {
+    /// <summary>提供诊断指标变更的实现。</summary>
     [Serializable]
     public sealed class DiagnosticMetricChange
     {
@@ -13,6 +14,7 @@ namespace Game.Framework.Diagnostics.Editor
         public string after;
     }
 
+    /// <summary>提供诊断租约变更的实现。</summary>
     [Serializable]
     public sealed class DiagnosticLeaseChange
     {
@@ -21,6 +23,7 @@ namespace Game.Framework.Diagnostics.Editor
         public DiagnosticLease after;
     }
 
+    /// <summary>提供诊断差异的实现。</summary>
     [Serializable]
     public sealed class DiagnosticDifference
     {
@@ -30,6 +33,7 @@ namespace Game.Framework.Diagnostics.Editor
         public DiagnosticLeaseChange[] leases;
     }
 
+    /// <summary>提供诊断导出数据的实现。</summary>
     [Serializable]
     public sealed class DiagnosticExport
     {
@@ -95,6 +99,7 @@ namespace Game.Framework.Diagnostics.Editor
             };
         }
 
+        /// <summary>根据传入参数取得指标。</summary>
         private static Dictionary<string, string> Metrics(DiagnosticMetric[] metrics)
         {
             var result = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -108,6 +113,7 @@ namespace Game.Framework.Diagnostics.Editor
             return result;
         }
 
+        /// <summary>根据传入参数取得Leases。</summary>
         private static Dictionary<string, DiagnosticLease> Leases(DiagnosticLease[] leases)
         {
             var result = new Dictionary<string, DiagnosticLease>(StringComparer.Ordinal);
@@ -121,6 +127,7 @@ namespace Game.Framework.Diagnostics.Editor
             return result;
         }
 
+        /// <summary>根据传入参数取得并集。</summary>
         private static SortedSet<string> Union(IEnumerable<string> left, IEnumerable<string> right)
         {
             var keys = new SortedSet<string>(left, StringComparer.Ordinal);
@@ -128,6 +135,7 @@ namespace Game.Framework.Diagnostics.Editor
             return keys;
         }
 
+        /// <summary>比较是否相同诊断快照比较器。</summary>
         private static bool Same(DiagnosticLease left, DiagnosticLease right)
         {
             return left.owner == right.owner && left.scopeId == right.scopeId &&

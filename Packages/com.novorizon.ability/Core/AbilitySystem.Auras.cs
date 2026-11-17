@@ -3,22 +3,26 @@ using UnityEngine;
 
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
         private readonly HashSet<Modifier> auraChildren = new HashSet<Modifier>();
         private readonly Stack<AuraUpdateFrame> auraUpdateFrames = new Stack<AuraUpdateFrame>();
         private readonly Stack<AuraUpdateFrame> availableAuraFrames = new Stack<AuraUpdateFrame>();
 
+        /// <summary>登记光环子节点。</summary>
         internal void RegisterAuraChild(Modifier modifier)
         {
             if (modifier.IsAuraApplied && modifier.SourceAura != null) auraChildren.Add(modifier);
         }
 
+        /// <summary>撤销登记光环子节点。</summary>
         internal void UnregisterAuraChild(Modifier modifier)
         {
             auraChildren.Remove(modifier);
         }
 
+        /// <summary>检查是否存在光环租约。</summary>
         internal bool HasAuraLease(Modifier modifier)
         {
             if (!modifier.IsAuraApplied || auraUpdateFrames.Count == 0) return false;
@@ -26,6 +30,7 @@ namespace Game.Ability
             return frame.Generation == RuntimeGeneration && frame.Covered.Contains(modifier);
         }
 
+        /// <summary>开始光环更新。</summary>
         private void BeginAuraUpdate()
         {
             AuraUpdateFrame frame = availableAuraFrames.Count > 0 ? availableAuraFrames.Pop() : new AuraUpdateFrame();
@@ -65,6 +70,7 @@ namespace Game.Ability
             finally { RuntimeSnapshotPool<Modifier>.Release(children); }
         }
 
+        /// <summary>安排光环 Refresh。</summary>
         private void ScheduleAuraRefresh(Modifier aura)
         {
             if (!IsAuraSourceValid(aura)) return;
@@ -84,6 +90,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>刷新缓冲区光环 Updates。</summary>
         private void FlushAuraUpdates()
         {
             if (auraUpdateFrames.Count == 0) return;
@@ -111,6 +118,7 @@ namespace Game.Ability
             finally { frame.IsFlushing = false; }
         }
 
+        /// <summary>结束光环更新。</summary>
         private void EndAuraUpdate()
         {
             if (auraUpdateFrames.Count == 0) return;
@@ -119,6 +127,7 @@ namespace Game.Ability
             if (availableAuraFrames.Count < 8) availableAuraFrames.Push(frame);
         }
 
+        /// <summary>重置光环状态。</summary>
         private void ResetAuraState()
         {
             auraChildren.Clear();
@@ -127,17 +136,20 @@ namespace Game.Ability
             foreach (AuraUpdateFrame frame in auraUpdateFrames) frame.Clear();
         }
 
+        /// <summary>判断是否为光环来源有效。</summary>
         private bool IsAuraSourceValid(Modifier aura)
         {
             return IsRuntimeAvailable && aura != null && !aura.IsDestroyed && aura.IsRuntimeCurrent && IsModifierRegistered(aura) && aura.Parent != null && !IsUnitRemoving(aura.Parent) && !IsUnitRemoving(aura.Caster) && (aura.Parent.IsAlive || !aura.Definition.RemoveOnDeath) && !string.IsNullOrEmpty(aura.Definition.AuraModifierName);
         }
 
+        /// <summary>创建光环 Query。</summary>
         private TargetQuery CreateAuraQuery(Modifier source)
         {
             ModifierDefinition definition = source.Definition;
             return new TargetQuery { Engine = this, Caster = source.Parent, Team = definition.AuraTargetTeam, Types = definition.AuraTargetType, Flags = definition.AuraTargetFlags };
         }
 
+        /// <summary>应用光环 Refresh。</summary>
         private void ApplyAuraRefresh(Modifier aura)
         {
             if (!IsAuraSourceValid(aura)) return;
@@ -156,6 +168,7 @@ namespace Game.Ability
             finally { RuntimeSnapshotPool<IUnit>.Release(units); }
         }
 
+        /// <summary>表示技能系统中的光环更新帧。</summary>
         private sealed class AuraUpdateFrame
         {
             internal long Generation;
@@ -165,6 +178,7 @@ namespace Game.Ability
             internal readonly Dictionary<Modifier, int> RefreshCounts = new Dictionary<Modifier, int>();
             internal readonly List<Modifier> Sources = new List<Modifier>();
 
+            /// <summary>清空光环更新帧。</summary>
             internal void Clear()
             {
                 Generation = -1;

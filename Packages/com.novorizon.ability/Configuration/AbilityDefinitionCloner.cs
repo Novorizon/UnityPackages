@@ -3,17 +3,20 @@ using System.Collections.Generic;
 namespace Game.Ability.Configuration
 {
     /// <summary>Publication owns a detached graph; editing provider data cannot change a running game.</summary>
+    /// <remarks>提供技能定义克隆器的实现。</remarks>
     internal sealed class AbilityDefinitionCloner
     {
         private readonly Dictionary<ProjectileDefinition, ProjectileDefinition> projectiles = new Dictionary<ProjectileDefinition, ProjectileDefinition>();
 
         private readonly IReadOnlyDictionary<string, ProjectileDefinitionRegistration> namedProjectiles;
 
+        /// <summary>使用调用方提供的namedProjectiles创建 AbilityDefinitionCloner。</summary>
         public AbilityDefinitionCloner(IReadOnlyDictionary<string, ProjectileDefinitionRegistration> namedProjectiles)
         {
             this.namedProjectiles = namedProjectiles;
         }
 
+        /// <summary>克隆技能定义克隆器。</summary>
         public AbilityDefinition Clone(AbilityDefinition source)
         {
             AbilityDefinition result = new AbilityDefinition
@@ -32,6 +35,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>克隆技能定义克隆器。</summary>
         public ModifierDefinition Clone(ModifierDefinition source)
         {
             ModifierDefinition result = new ModifierDefinition
@@ -53,6 +57,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>克隆技能定义克隆器。</summary>
         private static LevelValue Clone(LevelValue source)
         {
             if (source == null) return null;
@@ -61,6 +66,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>克隆动作。</summary>
         private void CloneActions(IReadOnlyList<ActionDefinition> source, ICollection<ActionDefinition> target)
         {
             for (int i = 0; i < source.Count; i++)
@@ -76,6 +82,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>克隆技能定义克隆器。</summary>
         private ProjectileDefinition Clone(ProjectileDefinition source)
         {
             if (source == null) return null;

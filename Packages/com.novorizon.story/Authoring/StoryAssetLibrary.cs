@@ -6,9 +6,11 @@ using UnityEngine;
 namespace Game.Framework.Story.Unity
 {
     /// <summary>Small local stories can use inspector references without generated tables or a resource SDK.</summary>
+    /// <remarks>提供剧情资源库的实现。</remarks>
     [CreateAssetMenu(menuName = "Novorizon/Story/Asset Library", fileName = "StoryAssets")]
     public sealed class StoryAssetLibrary : ScriptableObject, IStoryAssets
     {
+        /// <summary>表示剧情资源库中的条目。</summary>
         [Serializable]
         public sealed class Entry
         {
@@ -18,6 +20,7 @@ namespace Game.Framework.Story.Unity
 
         public Entry[] entries = Array.Empty<Entry>();
 
+        /// <summary>异步加载剧情资源库。</summary>
         public Task<StoryAssetLease<T>> LoadAsync<T>(string id, CancellationToken cancellationToken) where T : UnityEngine.Object
         {
             cancellationToken.ThrowIfCancellationRequested();

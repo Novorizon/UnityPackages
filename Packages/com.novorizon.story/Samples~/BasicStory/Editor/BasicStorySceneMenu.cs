@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace Game.Framework.Story.Samples.Editor
 {
+    /// <summary>提供基础剧情场景菜单的实现。</summary>
     public static class BasicStorySceneMenu
     {
+        /// <summary>创建场景。</summary>
         [MenuItem("Tools/Novorizon/Demos/Create Basic Story Scene")]
         public static void CreateScene()
         {

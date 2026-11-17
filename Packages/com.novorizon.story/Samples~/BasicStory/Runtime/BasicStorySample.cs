@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.Story.Samples
 {
     /// <summary>A dedicated, self-contained scene sample. All generated objects and catalogs belong to this instance.</summary>
+    /// <remarks>基础剧情对应的示例。演示该模块的典型调用方式。</remarks>
     [DisallowMultipleComponent]
     public sealed class BasicStorySample : MonoBehaviour
     {
@@ -51,6 +52,7 @@ namespace Game.Framework.Story.Samples
         public Button AdvanceButton { get; private set; }
         public string MediaStatus => optionalVideo == null ? "media.absent" : "media.ready";
 
+        /// <summary>配置 Media。</summary>
         public void ConfigureMedia(AudioClip voice, VideoClip video)
         {
             if (built || stopping)
@@ -62,6 +64,7 @@ namespace Game.Framework.Story.Samples
         }
 
         /// <summary>Build without starting playback, useful for embedding the sample in native acceptance scenes.</summary>
+        /// <remarks>异步构建基础剧情示例。</remarks>
         public Task BuildAsync()
         {
             if (stopping || !isActiveAndEnabled)
@@ -104,6 +107,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>异步播放基础剧情示例。</summary>
         public async Task<StoryResult> PlayAsync(CancellationToken cancellationToken = default)
         {
             await BuildAsync();
@@ -114,6 +118,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>设置语言。</summary>
         public void SetLanguage(string language)
         {
             if (!IsBuilt)
@@ -124,11 +129,13 @@ namespace Game.Framework.Story.Samples
             RefreshStatus();
         }
 
+        /// <summary>异步关闭基础剧情示例。</summary>
         public Task ShutdownAsync()
         {
             return shutdown ?? (shutdown = ShutdownCoreAsync());
         }
 
+        /// <summary>异步关闭基础剧情示例。</summary>
         private async Task ShutdownCoreAsync()
         {
             stopping = true;
@@ -148,6 +155,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>构建资源。</summary>
         private void BuildAssets()
         {
             var library = Own(ScriptableObject.CreateInstance<StoryAssetLibrary>());
@@ -214,6 +222,7 @@ namespace Game.Framework.Story.Samples
             Settings.charactersPerSecond = 36;
         }
 
+        /// <summary>构建 Ui。</summary>
         private void BuildUi()
         {
             uiRoot = new GameObject("Basic Story Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
@@ -328,6 +337,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>根据传入参数取得按钮。</summary>
         private Button Button(string name, Transform parent, string key, Action action)
         {
             Image image = Image(name, parent, new Color(.15f, .28f, .42f));
@@ -349,6 +359,7 @@ namespace Game.Framework.Story.Samples
             return button;
         }
 
+        /// <summary>根据传入参数取得标签。</summary>
         private TMP_Text Label(string name, Transform parent, float size)
         {
             var label = Rect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
@@ -360,6 +371,7 @@ namespace Game.Framework.Story.Samples
             return label;
         }
 
+        /// <summary>根据传入参数取得图像。</summary>
         private static Image Image(string name, Transform parent, Color color)
         {
             var image = Rect(name, parent).gameObject.AddComponent<Image>();
@@ -368,6 +380,7 @@ namespace Game.Framework.Story.Samples
             return image;
         }
 
+        /// <summary>根据传入参数取得矩形。</summary>
         private static RectTransform Rect(string name, Transform parent)
         {
             var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
@@ -375,8 +388,10 @@ namespace Game.Framework.Story.Samples
             return rect;
         }
 
+        /// <summary>调用 Place 完成拉伸。</summary>
         private static void Stretch(RectTransform rect) => Place(rect, 0, 0, 1, 1);
 
+        /// <summary>处理Place。</summary>
         private static void Place(RectTransform rect, float xMin, float yMin, float xMax, float yMax)
         {
             rect.anchorMin = new Vector2(xMin, yMin);
@@ -385,6 +400,7 @@ namespace Game.Framework.Story.Samples
             rect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>创建 Background。</summary>
         private Sprite CreateBackground()
         {
             return CreateSprite("Sample Background", 256, 128, (x, y) =>
@@ -394,6 +410,7 @@ namespace Game.Framework.Story.Samples
             });
         }
 
+        /// <summary>创建立绘。</summary>
         private Sprite CreatePortrait()
         {
             return CreateSprite("Sample Guide", 128, 192, (x, y) =>
@@ -424,6 +441,7 @@ namespace Game.Framework.Story.Samples
             });
         }
 
+        /// <summary>创建精灵图。</summary>
         private Sprite CreateSprite(string name, int width, int height, Func<int, int, Color> pixel)
         {
             var texture = Own(new Texture2D(width, height, TextureFormat.RGBA32, false));
@@ -443,6 +461,7 @@ namespace Game.Framework.Story.Samples
             return sprite;
         }
 
+        /// <summary>根据传入参数取得Own。</summary>
         private T Own<T>(T asset) where T : Object
         {
             asset.hideFlags = HideFlags.DontSave;
@@ -450,6 +469,7 @@ namespace Game.Framework.Story.Samples
             return asset;
         }
 
+        /// <summary>响应 Finished。</summary>
         private void OnFinished(StoryResult result)
         {
             RefreshStatus();
@@ -463,6 +483,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>刷新状态。</summary>
         private void RefreshStatus()
         {
             if (status != null && Localization != null && Localization.IsInitialized)
@@ -471,6 +492,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         private void Update()
         {
             if (!IsBuilt)
@@ -483,6 +505,7 @@ namespace Game.Framework.Story.Samples
             replay.interactable = !Launcher.IsPlaying;
         }
 
+        /// <summary>运行播放。</summary>
         private async void RunPlayback()
         {
             try
@@ -502,6 +525,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>启动基础剧情示例。</summary>
         private void Start()
         {
             if (autoPlay && !stopping && !built)
@@ -510,6 +534,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>销毁自有对象。</summary>
         private void DestroyOwnedObjects()
         {
             if (uiRoot != null)
@@ -538,6 +563,7 @@ namespace Game.Framework.Story.Samples
             built = false;
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private async void OnDestroy()
         {
             try
@@ -550,6 +576,7 @@ namespace Game.Framework.Story.Samples
             }
         }
 
+        /// <summary>表示基础剧情示例中的翻译。</summary>
         private sealed class Translation
         {
             internal string key;
@@ -557,6 +584,7 @@ namespace Game.Framework.Story.Samples
             internal string french;
         }
 
+        /// <summary>创建目录。</summary>
         private static LocalizationCatalog CreateCatalog()
         {
             return LocalizationCatalog.FromRows(
@@ -583,6 +611,7 @@ namespace Game.Framework.Story.Samples
                 new TranslationColumn<Translation>("fr", row => row.french));
         }
 
+        /// <summary>根据传入参数取得行。</summary>
         private static Translation Row(string key, string english, string french)
         {
             return new Translation { key = key, english = english, french = french };

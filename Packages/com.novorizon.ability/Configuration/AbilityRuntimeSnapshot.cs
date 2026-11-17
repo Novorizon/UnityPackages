@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Ability
 {
+    /// <summary>技能运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class AbilityRuntimeSnapshot
     {
@@ -14,6 +15,7 @@ namespace Game.Ability
         public readonly List<PresentationHandleInfo> PresentationHandles = new List<PresentationHandleInfo>();
     }
 
+    /// <summary>技能单位运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class AbilityUnitRuntimeSnapshot
     {
@@ -24,6 +26,7 @@ namespace Game.Ability
         public readonly List<AbilityInstanceRuntimeSnapshot> Abilities = new List<AbilityInstanceRuntimeSnapshot>();
     }
 
+    /// <summary>技能实例运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class AbilityInstanceRuntimeSnapshot
     {
@@ -36,6 +39,7 @@ namespace Game.Ability
         public int Charges;
     }
 
+    /// <summary>状态修饰器运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class ModifierRuntimeSnapshot
     {
@@ -50,6 +54,7 @@ namespace Game.Ability
         public readonly List<ModifierPropertyRuntimeSnapshot> Properties = new List<ModifierPropertyRuntimeSnapshot>();
     }
 
+    /// <summary>状态修饰器属性运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class ModifierPropertyRuntimeSnapshot
     {
@@ -57,6 +62,7 @@ namespace Game.Ability
         public float Value;
     }
 
+    /// <summary>投射物运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class ProjectileRuntimeSnapshot
     {
@@ -69,6 +75,7 @@ namespace Game.Ability
         public bool Destroyed;
     }
 
+    /// <summary>持续效果对象运行时对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class ThinkerRuntimeSnapshot
     {

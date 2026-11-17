@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace Game.Framework.Auth.Editor
 {
+    /// <summary>提供身份 SDK 配置的实现。</summary>
     public static class IdentitySdkSetup
     {
+        /// <summary>安装原生。</summary>
         [MenuItem("Novorizon/Platform SDKs/Install native identity")]
         public static void InstallNative()
         {
@@ -33,6 +35,7 @@ namespace Game.Framework.Auth.Editor
             Debug.Log("Native SDK bridge installed. Run External Dependency Manager resolution for your build target; see this package README.");
         }
 
+        /// <summary>启用 Facebook。</summary>
         [MenuItem("Novorizon/Platform SDKs/Enable installed Facebook SDK")]
         public static void EnableFacebook()
         {
@@ -43,6 +46,7 @@ namespace Game.Framework.Auth.Editor
             Enable("NOVORIZON_FACEBOOK");
         }
 
+        /// <summary>启用身份 SDK 配置。</summary>
         private static void Enable(string symbol)
         {
             var group = EditorUserBuildSettings.selectedBuildTargetGroup;

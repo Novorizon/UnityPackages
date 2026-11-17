@@ -15,6 +15,7 @@ namespace RTree
     {
         private const int SplitThreshold = 8;
 
+        /// <summary>保存八叉树节点所需的数据与配套操作。</summary>
         private struct OctreeNode
         {
             internal Bounds3 Tight, Loose;
@@ -38,12 +39,14 @@ namespace RTree
         private int freeNodeCount, nextNode;
         private int[] owner = new int[16], nextItem = new int[16], previousItem = new int[16];
 
+        /// <summary>用默认配置创建 LooseOctree，其余初始化交给完整构造函数。</summary>
         public LooseOctree(Bounds3 worldBounds) : this(worldBounds, 16, 2.0, true) { }
 
         /// <param name="worldBounds">Initial tight root bounds.</param>
         /// <param name="maxDepth">Maximum number of subdivisions, between 0 and 32.</param>
         /// <param name="looseness">Loose cell size relative to its tight cell; at least 1.</param>
         /// <param name="autoExpand">Expand the world and rebuild when an object leaves it.</param>
+        /// <summary>使用调用方提供的worldBounds、maxDepth、looseness创建 LooseOctree。</summary>
         public LooseOctree(Bounds3 worldBounds, int maxDepth, double looseness, bool autoExpand)
         {
             if (maxDepth < 0 || maxDepth > 32) throw new ArgumentOutOfRangeException("maxDepth");
@@ -76,6 +79,7 @@ namespace RTree
             }
         }
 
+        /// <summary>插入松散八叉树。</summary>
         public ProxyHandle Insert(Bounds3 bounds, T item)
         {
             if ((object)item == null) throw new ArgumentNullException("item");
@@ -102,6 +106,7 @@ namespace RTree
         /// reinserted or the root is rebuilt, and false while its loose cell fits.
         /// An invalid, expired or foreign handle throws ArgumentException.
         /// </summary>
+        /// <remarks>移动松散八叉树。</remarks>
         public bool Move(ProxyHandle handle, Bounds3 bounds)
         {
             sync.EnterWriteLock();
@@ -134,6 +139,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>移除松散八叉树。</summary>
         public bool Remove(ProxyHandle handle)
         {
             sync.EnterWriteLock();
@@ -150,6 +156,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>尝试取得包围盒，返回是否成功。</summary>
         public bool TryGetBounds(ProxyHandle handle, out Bounds3 bounds)
         {
             sync.EnterReadLock();
@@ -168,6 +175,7 @@ namespace RTree
         }
 
         /// <summary>Repartitions all proxies without invalidating their handles.</summary>
+        /// <remarks>重建松散八叉树。</remarks>
         public void Rebuild()
         {
             sync.EnterWriteLock();
@@ -175,6 +183,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>重建松散八叉树。</summary>
         private void RebuildCore()
         {
             ResetNodes();
@@ -182,6 +191,7 @@ namespace RTree
                 if (proxies.Live[slot]) Place(slot, 0);
         }
 
+        /// <summary>重置 Nodes。</summary>
         private void ResetNodes()
         {
             nextNode = 0;
@@ -189,6 +199,7 @@ namespace RTree
             AllocateNode(worldBounds, -1, -1, 0);
         }
 
+        /// <summary>检查并确保条目容量可用。</summary>
         private void EnsureItemCapacity(int slot)
         {
             if (slot < owner.Length) return;
@@ -198,6 +209,7 @@ namespace RTree
             Array.Resize(ref previousItem, capacity);
         }
 
+        /// <summary>分配节点。</summary>
         private int AllocateNode(Bounds3 tight, int parent, int octant, int depth)
         {
             int id;
@@ -230,6 +242,7 @@ namespace RTree
             return id;
         }
 
+        /// <summary>关联松散八叉树。</summary>
         private void Link(int slot, int nodeId)
         {
             int first = nodes[nodeId].FirstItem;
@@ -242,6 +255,7 @@ namespace RTree
             GrowBounds(nodeId, proxies.Bounds[slot].Box);
         }
 
+        /// <summary>扩大包围盒。</summary>
         private void GrowBounds(int nodeId, Aabb bounds)
         {
             while (nodeId >= 0)
@@ -260,6 +274,7 @@ namespace RTree
             }
         }
 
+        /// <summary>解除关联松散八叉树。</summary>
         private void Unlink(int slot)
         {
             int nodeId = owner[slot], previous = previousItem[slot], next = nextItem[slot];
@@ -303,6 +318,7 @@ namespace RTree
             }
         }
 
+        /// <summary>重新分配松散八叉树。</summary>
         private void Redistribute(int nodeId)
         {
             int slot = nodes[nodeId].FirstItem;
@@ -327,6 +343,7 @@ namespace RTree
             }
         }
 
+        /// <summary>检查是否可以拆分。</summary>
         private bool CanSplit(int nodeId)
         {
             OctreeNode node = nodes[nodeId];
@@ -338,6 +355,7 @@ namespace RTree
                    (z > tight.MinZ && z < tight.MaxZ);
         }
 
+        /// <summary>按给定输入查找子节点。</summary>
         private bool FindChild(int nodeId, Bounds3 bounds, out int octant, out Bounds3 tight, out Bounds3 loose)
         {
             Bounds3 parent = nodes[nodeId].Tight;
@@ -355,6 +373,7 @@ namespace RTree
             return loose.Contains(bounds);
         }
 
+        /// <summary>剪枝松散八叉树。</summary>
         private void Prune(int nodeId)
         {
             while (nodeId != 0 && nodes[nodeId].ItemCount == 0 && nodes[nodeId].ChildCount == 0)
@@ -368,6 +387,7 @@ namespace RTree
             }
         }
 
+        /// <summary>根据传入参数取得松散包围盒。</summary>
         private Bounds3 LooseBounds(Bounds3 tight)
         {
             double factor = looseness - 1;
@@ -378,6 +398,7 @@ namespace RTree
                 Add(tight.MaxX, x), Add(tight.MaxY, y), Add(tight.MaxZ, z));
         }
 
+        /// <summary>根据传入参数取得展开后的世界。</summary>
         private Bounds3 ExpandedWorld(Bounds3 bounds)
         {
             Bounds3 union = Bounds3.Union(worldBounds, bounds);
@@ -390,49 +411,60 @@ namespace RTree
                 Add(union.MaxX, x), Add(union.MaxY, y), Add(union.MaxZ, z));
         }
 
+        /// <summary>根据传入参数取得Midpoint。</summary>
         private static double Midpoint(double minimum, double maximum)
         {
             return minimum == maximum ? minimum : minimum * 0.5 + maximum * 0.5;
         }
 
+        /// <summary>添加松散八叉树。</summary>
         private static double Add(double value, double margin)
         {
             double result = value + margin;
             return double.IsPositiveInfinity(result) ? double.MaxValue : result;
         }
 
+        /// <summary>根据传入参数取得Subtract。</summary>
         private static double Subtract(double value, double margin)
         {
             double result = value - margin;
             return double.IsNegativeInfinity(result) ? -double.MaxValue : result;
         }
 
+        /// <summary>根据传入参数取得Intersection。</summary>
         private static Bounds3 Intersection(Bounds3 left, Bounds3 right)
         {
             return new Bounds3(Math.Max(left.MinX, right.MinX), Math.Max(left.MinY, right.MinY), Math.Max(left.MinZ, right.MinZ),
                 Math.Min(left.MaxX, right.MaxX), Math.Min(left.MaxY, right.MaxY), Math.Min(left.MaxZ, right.MaxZ));
         }
 
+        /// <summary>查询松散八叉树。</summary>
         public int Query(Bounds3 bounds, List<T> results) { return Query(bounds, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results) { return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results) { return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get()); }
 
+        /// <summary>查询松散八叉树。</summary>
         public int Query(Bounds3 bounds, List<T> results, QueryContext context)
         {
             return QueryCore(0, bounds, default(Sphere3), default(Frustum3), results, context);
         }
 
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         {
             return QueryCore(1, default(Bounds3), sphere, default(Frustum3), results, context);
         }
 
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QueryCore(2, default(Bounds3), default(Sphere3), frustum, results, context);
         }
 
+        /// <summary>按松散八叉树查询匹配结果。</summary>
         private int QueryCore(int kind, Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -477,6 +509,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>判断是否匹配松散八叉树。</summary>
         private static bool Matches(int kind, Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, Bounds3 target)
         {
             if (kind == 0) return bounds.Intersects(target);
@@ -484,10 +517,14 @@ namespace RTree
             return frustum.Intersects(target);
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit) { return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit) { return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results) { return RaycastAll(ray, results, SpatialQueryWorkspaces.Get()); }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -528,6 +565,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -579,6 +617,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context)
         {
             ray.Validate();
@@ -621,6 +660,7 @@ namespace RTree
 
         // In-place heapsort has bounded stack use and needs no comparer/delegate
         // allocation, including when called from allocation-sensitive ray loops.
+        /// <summary>排序命中列表。</summary>
         private static void SortHits(List<RayHit<T>> hits)
         {
             for (int start = hits.Count / 2 - 1; start >= 0; start--) SiftHits(hits, start, hits.Count);
@@ -633,6 +673,7 @@ namespace RTree
             }
         }
 
+        /// <summary>筛排命中列表。</summary>
         private static void SiftHits(List<RayHit<T>> hits, int root, int count)
         {
             RayHit<T> value = hits[root];

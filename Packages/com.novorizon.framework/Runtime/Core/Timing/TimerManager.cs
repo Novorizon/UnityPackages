@@ -3,16 +3,19 @@ using System.Collections.Generic;
 
 namespace Game.Framework.Timing
 {
+    /// <summary>定义计时器 Repeat 模式可选的枚举值。</summary>
     public enum TimerRepeatMode
     {
         FixedRate,
         FixedDelay
     }
 
+    /// <summary>计时器对应的句柄。保存访问本次操作或对象所需的标识。</summary>
     public readonly struct TimerHandle : IDisposable
     {
         private readonly TimerManager owner;
         private readonly long id;
+        /// <summary>使用调用方提供的owner、id创建 TimerHandle。</summary>
         internal TimerHandle(TimerManager owner, long id)
         {
             this.owner = owner;
@@ -21,7 +24,9 @@ namespace Game.Framework.Timing
 
         public bool IsActive => owner != null && owner.Contains(id);
 
+        /// <summary>取消计时器句柄。</summary>
         public bool Cancel() => owner != null && owner.Cancel(id);
+        /// <summary>结束计时器句柄对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             Cancel();
@@ -29,13 +34,16 @@ namespace Game.Framework.Timing
     }
 
     // Two indexed min-heaps: scaled and unscaled clocks. All operations run on the host main thread.
+    /// <summary>计时器对应的管理器。管理对应模块的状态和操作入口。</summary>
     public sealed class TimerManager : Singleton<TimerManager>, IDisposable
     {
+        /// <summary>结束计时器管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public override void Dispose()
         {
             base.Release();
             ResetForPlay();
         }
+        /// <summary>表示计时器管理器中的条目。</summary>
         private sealed class Entry
         {
             internal long Id;
@@ -46,18 +54,22 @@ namespace Game.Framework.Timing
             internal int Index = -1;
         }
 
+        /// <summary>表示计时器管理器中的堆。</summary>
         private sealed class Heap
         {
             private readonly List<Entry> values = new List<Entry>();
             internal Entry First => values.Count == 0 ? null : values[0];
 
+            /// <summary>返回Before的判断结果。</summary>
             private static bool Before(Entry a, Entry b) => a.Due < b.Due || (a.Due == b.Due && a.Id < b.Id);
+            /// <summary>设置传入的 index、entry。</summary>
             private void Set(int index, Entry entry)
             {
                 values[index] = entry;
                 entry.Index = index;
             }
 
+            /// <summary>添加堆。</summary>
             internal void Add(Entry entry)
             {
                 int index = values.Count;
@@ -77,6 +89,7 @@ namespace Game.Framework.Timing
                 Set(index, entry);
             }
 
+            /// <summary>移除堆。</summary>
             internal void Remove(Entry entry)
             {
                 int index = entry.Index, lastIndex = values.Count - 1;
@@ -126,6 +139,7 @@ namespace Game.Framework.Timing
                 Set(index, last);
             }
 
+            /// <summary>清空堆。</summary>
             internal void Clear(bool trim)
             {
                 values.Clear();
@@ -172,6 +186,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -180,6 +195,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>调用 double.IsNaN 完成时长。</summary>
         private static void Duration(double value, string name)
         {
             if (double.IsNaN(value) || double.IsInfinity(value) || value < 0)
@@ -189,6 +205,7 @@ namespace Game.Framework.Timing
         }
 
         // Advanced hosts bind clocks once, before scheduling. Unity installs its clocks automatically.
+        /// <summary>设置并使用时钟。</summary>
         public void UseClocks(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider)
         {
             MainThread();
@@ -218,6 +235,7 @@ namespace Game.Framework.Timing
 
         // Unity may discover an explicitly created replacement after timers were already scheduled.
         // Preserve that instance's elapsed time and pending deadlines; custom clocks remain untouched.
+        /// <summary>检查并确保时钟可用。</summary>
         internal void EnsureClocks(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider)
         {
             MainThread();
@@ -266,6 +284,7 @@ namespace Game.Framework.Timing
             return Add(intervalSeconds, intervalSeconds, callback, useUnscaledTime, mode);
         }
 
+        /// <summary>添加计时器管理器。</summary>
         private TimerHandle Add(double delay, double interval, Action callback, bool realTime, TimerRepeatMode mode)
         {
             MainThread();
@@ -300,6 +319,7 @@ namespace Game.Framework.Timing
             return new TimerHandle(this, entry.Id);
         }
 
+        /// <summary>检查是否包含计时器管理器。</summary>
         internal bool Contains(long id)
         {
             if (!UnityThread.IsInitialized)
@@ -311,6 +331,7 @@ namespace Game.Framework.Timing
             return active.ContainsKey(id);
         }
 
+        /// <summary>取消计时器管理器。</summary>
         internal bool Cancel(long id)
         {
             if (!UnityThread.IsInitialized)
@@ -335,6 +356,7 @@ namespace Game.Framework.Timing
             return true;
         }
 
+        /// <summary>回收计时器管理器。</summary>
         private void Recycle(Entry entry)
         {
             entry.Callback = null;
@@ -345,6 +367,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public int Update(double scaledDeltaSeconds, double unscaledDeltaSeconds)
         {
             MainThread();
@@ -368,6 +391,7 @@ namespace Game.Framework.Timing
             return Dispatch();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public int Update()
         {
             MainThread();
@@ -390,6 +414,7 @@ namespace Game.Framework.Timing
             return Dispatch();
         }
 
+        /// <summary>验证示例。</summary>
         private static void ValidateSample(double now, double previous)
         {
             Duration(now, nameof(now));
@@ -399,6 +424,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>读取时钟。</summary>
         private double ReadClock(bool realTime)
         {
             if (scaledClock == null)
@@ -420,7 +446,9 @@ namespace Game.Framework.Timing
             return now;
         }
 
+        /// <summary>根据传入参数取得下一个 Representable。</summary>
         private static double NextRepresentable(double now) => BitConverter.Int64BitsToDouble(BitConverter.DoubleToInt64Bits(now) + 1);
+        /// <summary>设置下一个截止时间。</summary>
         private void SetNextDeadline(Entry entry)
         {
             double now = ReadClock(entry.Unscaled);
@@ -463,6 +491,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>调度计时器管理器。</summary>
         private int Dispatch()
         {
             long cutoff = nextId;
@@ -547,18 +576,21 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>返回就绪的判断结果。</summary>
         private bool Ready(Heap heap, long cutoff)
         {
             var entry = heap.First;
             return entry != null && entry.Id <= cutoff && entry.Due <= (entry.Unscaled ? unscaledTime : scaledTime);
         }
 
+        /// <summary>清空计时器管理器。</summary>
         public void Clear(bool trimExcess = false)
         {
             MainThread();
             ClearCore(trimExcess);
         }
 
+        /// <summary>清空计时器管理器。</summary>
         private void ClearCore(bool trim)
         {
             foreach (var entry in active.Values)
@@ -585,6 +617,7 @@ namespace Game.Framework.Timing
             }
         }
 
+        /// <summary>重置 ForPlay。</summary>
         internal void ResetForPlay()
         {
             ClearCore(true);

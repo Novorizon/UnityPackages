@@ -6,18 +6,23 @@ namespace RTree
     // Adaptive fallback for triangle predicates. All finite binary64 inputs
     // become exact integers in a common dyadic unit. No geometric epsilon is
     // used: thin triangles and intersections on edges retain their identity.
+    /// <summary>提供三角形精确的实现。</summary>
     internal static class TriangleExact
     {
+        /// <summary>保存整数3所需的数据与配套操作。</summary>
         private struct Integer3
         {
             internal BigInteger X, Y, Z;
+            /// <summary>使用调用方提供的value、shift创建 Integer3。</summary>
             internal Integer3(Vector3d value, int shift)
             {
                 X = Integer(value.X, shift); Y = Integer(value.Y, shift); Z = Integer(value.Z, shift);
             }
+            /// <summary>使用调用方提供的x、y、z创建 Integer3。</summary>
             internal Integer3(BigInteger x, BigInteger y, BigInteger z) { X = x; Y = y; Z = z; }
         }
 
+        /// <summary>检查是否存在面积。</summary>
         internal static bool HasArea(Vector3d a, Vector3d b, Vector3d c)
         {
             int shift = Math.Min(Shift(a), Math.Min(Shift(b), Shift(c)));
@@ -29,6 +34,7 @@ namespace RTree
             return !normal.X.IsZero || !normal.Y.IsZero || !normal.Z.IsZero;
         }
 
+        /// <summary>判断是否相交三角形精确。</summary>
         internal static bool Intersects(Triangle3 triangle, Ray3 ray, out double parameter)
         {
             parameter = 0;
@@ -59,20 +65,25 @@ namespace RTree
             return true;
         }
 
+        /// <summary>根据传入参数取得Subtract。</summary>
         private static Integer3 Subtract(Integer3 a, Integer3 b)
         { return new Integer3(a.X - b.X, a.Y - b.Y, a.Z - b.Z); }
 
+        /// <summary>根据传入参数取得交叉。</summary>
         private static Integer3 Cross(Integer3 a, Integer3 b)
         { return new Integer3(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X); }
 
+        /// <summary>根据传入参数取得Dot。</summary>
         private static BigInteger Dot(Integer3 a, Integer3 b)
         { return a.X * b.X + a.Y * b.Y + a.Z * b.Z; }
 
         // Shift is measured from 2^-1074. Removing powers common to every
         // input makes ordinary integer-coordinate fallbacks inexpensive.
+        /// <summary>根据传入参数取得Shift。</summary>
         private static int Shift(Vector3d value)
         { return Math.Min(Shift(value.X), Math.Min(Shift(value.Y), Shift(value.Z))); }
 
+        /// <summary>根据传入参数取得Shift。</summary>
         private static int Shift(double value)
         {
             ulong bits = (ulong)BitConverter.DoubleToInt64Bits(value) & 0x7fffffffffffffffUL;
@@ -83,6 +94,7 @@ namespace RTree
             return (exponent == 0 ? 0 : exponent - 1) + TrailingZeros(mantissa);
         }
 
+        /// <summary>根据传入参数取得整数。</summary>
         private static BigInteger Integer(double value, int commonShift)
         {
             long signedBits = BitConverter.DoubleToInt64Bits(value);
@@ -97,6 +109,7 @@ namespace RTree
             return signedBits < 0 ? -result : result;
         }
 
+        /// <summary>根据传入参数取得TrailingZeros。</summary>
         private static int TrailingZeros(ulong value)
         {
             int result = 0;
@@ -109,6 +122,7 @@ namespace RTree
             return result;
         }
 
+        /// <summary>比较比例。</summary>
         private static int CompareRatio(BigInteger numerator, BigInteger denominator, double value)
         {
             if (value == 0) return numerator.Sign;
@@ -123,6 +137,7 @@ namespace RTree
 
         // Correctly rounded, nearest-even positive rational conversion. Only
         // the quotient's final 53 bits (or subnormal units) become a double.
+        /// <summary>根据传入参数取得比例。</summary>
         private static double Ratio(BigInteger numerator, BigInteger denominator)
         {
             if (numerator.IsZero) return 0;
@@ -152,6 +167,7 @@ namespace RTree
             return BitConverter.Int64BitsToDouble(((long)(exponent + 1023) << 52) | fraction);
         }
 
+        /// <summary>根据传入参数取得Bit 长度。</summary>
         private static int BitLength(BigInteger value)
         {
             byte[] bytes = value.ToByteArray();

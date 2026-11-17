@@ -8,6 +8,7 @@ using UnityEngine.Purchasing;
 
 namespace Game.Framework.Payments.UnityIap
 {
+    /// <summary>定义原生商店可选的枚举值。</summary>
     public enum NativeStore
     {
         Apple,
@@ -15,6 +16,7 @@ namespace Game.Framework.Payments.UnityIap
     }
 
     /// <summary>Unity IAP 5.5 native stores. One owner of the shared default controller at a time.</summary>
+    /// <remarks>提供Unity 内购商店的实现。</remarks>
     public sealed class UnityIapStore : IPaymentStore
     {
         private static UnityIapStore owner;
@@ -32,6 +34,7 @@ namespace Game.Framework.Payments.UnityIap
         private bool initialized, disposed, connecting;
         public IReadOnlyList<StoreProduct> Products => products;
 
+        /// <summary>使用调用方提供的store、catalog创建 UnityIapStore。</summary>
         public UnityIapStore(NativeStore store, IEnumerable<StoreProduct> catalog)
         {
             if (!Enum.IsDefined(typeof(NativeStore), store))
@@ -48,6 +51,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>异步初始化 Unity 内购商店。</summary>
         public async Task InitializeAsync(CancellationToken token)
         {
             MainThread();
@@ -103,6 +107,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>异步发起购买 Unity 内购商店。</summary>
         public async Task<StorePurchase> PurchaseAsync(string productId, CancellationToken token)
         {
             Ready();
@@ -131,10 +136,13 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>异步恢复 Unity 内购商店。</summary>
         public Task<IReadOnlyList<PurchaseReceipt>> RestoreAsync(CancellationToken token) => FetchHistory(true, token);
 
+        /// <summary>异步拉取购买记录。</summary>
         public Task<IReadOnlyList<PurchaseReceipt>> FetchPurchasesAsync(CancellationToken token) => FetchHistory(false, token);
 
+        /// <summary>拉取 History。</summary>
         private async Task<IReadOnlyList<PurchaseReceipt>> FetchHistory(bool restore, CancellationToken token)
         {
             Ready();
@@ -183,6 +191,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>异步确认 Unity 内购商店。</summary>
         public async Task ConfirmAsync(PurchaseReceipt receipt, CancellationToken token)
         {
             Ready();
@@ -215,6 +224,7 @@ namespace Game.Framework.Payments.UnityIap
 
         private string StoreName => nativeStore == NativeStore.Apple ? "AppleAppStore" : "GooglePlay";
 
+        /// <summary>调用 values.FirstOrDefault 完成商品列表已获取。</summary>
         private void ProductsFetched(List<Product> values)
         {
             if (disposed)
@@ -234,8 +244,10 @@ namespace Game.Framework.Payments.UnityIap
             fetchingProducts?.TrySetResult(true);
         }
 
+        /// <summary>调用 .TrySetException 完成商品列表失败。</summary>
         private void ProductsFailed(ProductFetchFailed _) => fetchingProducts?.TrySetException(new InvalidOperationException("Store product fetching failed."));
 
+        /// <summary>将当前值转换为收据。</summary>
         private PurchaseReceipt ToReceipt(Order order, bool requiresConfirmation = true)
         {
             if (!Application.isEditor && order.StoreName != StoreName)
@@ -250,6 +262,7 @@ namespace Game.Framework.Payments.UnityIap
             return new PurchaseReceipt(StoreName, items[0].Product.definition.id, order.Info.TransactionID, order.Info.Receipt, order.Info.Apple?.jwsRepresentation, requiresConfirmation);
         }
 
+        /// <summary>发起购买待处理。</summary>
         private void PurchasePending(PendingOrder order)
         {
             if (disposed)
@@ -272,6 +285,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>发起购买失败。</summary>
         private void PurchaseFailed(FailedOrder order)
         {
             if (!MatchesCurrentPurchase(order))
@@ -288,6 +302,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>发起购买 Deferred。</summary>
         private void PurchaseDeferred(DeferredOrder order)
         {
             if (MatchesCurrentPurchase(order))
@@ -296,11 +311,13 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>判断是否匹配当前购买。</summary>
         private bool MatchesCurrentPurchase(Order order)
         {
             return !disposed && buyingProduct != null && order.CartOrdered.Items().Any(item => item.Product.definition.id == buyingProduct);
         }
 
+        /// <summary>发起购买 Confirmed。</summary>
         private void PurchaseConfirmed(Order order)
         {
             if (confirming.TryGetValue(order.Info.TransactionID, out var signal))
@@ -317,6 +334,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>调用 ToReceipt 完成购买记录已获取。</summary>
         private void PurchasesFetched(Orders orders)
         {
             try
@@ -344,7 +362,9 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>调用 .TrySetException 完成购买记录失败。</summary>
         private void PurchasesFailed(PurchasesFetchFailureDescription _) => fetchingPurchases?.TrySetException(new InvalidOperationException("Store purchase history fetching failed."));
+        /// <summary>调用 .TrySetException 完成Disconnected。</summary>
         private void Disconnected(StoreConnectionFailureDescription _)
         {
             initialized = false;
@@ -355,6 +375,7 @@ namespace Game.Framework.Payments.UnityIap
             // A connection error cannot prove a native checkout/confirmation has stopped.
         }
 
+        /// <summary>调用 Array.Empty&lt;StoreProduct&gt; 完成账号变化。</summary>
         private void AccountChanged()
         {
             initialized = false;
@@ -363,6 +384,7 @@ namespace Game.Framework.Payments.UnityIap
             FailWaiting(new InvalidOperationException("The store account changed. Dispose and reinitialize this adapter."));
         }
 
+        /// <summary>标记失败 Waiting。</summary>
         private void FailWaiting(Exception error)
         {
             fetchingProducts?.TrySetException(error);
@@ -375,6 +397,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>调用 MainThread 完成就绪。</summary>
         private void Ready()
         {
             MainThread();
@@ -385,6 +408,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>对象已结束使用时抛出异常。</summary>
         private void ThrowIfDisposed()
         {
             if (disposed)
@@ -393,6 +417,7 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -401,8 +426,10 @@ namespace Game.Framework.Payments.UnityIap
             }
         }
 
+        /// <summary>取得信号。</summary>
         private static TaskCompletionSource<T> Signal<T>() => new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
 
+        /// <summary>结束Unity 内购商店对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             MainThread();

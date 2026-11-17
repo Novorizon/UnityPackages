@@ -6,6 +6,7 @@ namespace Game.Ability
     /// One modifier on one parent. Periodic work advances in lifetime order, so a refresh
     /// inside a callback takes effect at that callback's time, including at expiry.
     /// </summary>
+    /// <remarks>提供状态修饰器的实现。</remarks>
     public sealed class Modifier
     {
         private const float TimeEpsilon = 0.000001f;
@@ -39,6 +40,7 @@ namespace Game.Ability
         internal bool IsRuntimeCurrent => Engine.RuntimeGeneration == runtimeGeneration;
         internal bool RequiresPropertyContext => !(Script is DefaultModifierScript) && !(Script is ConfiguredModifierScript);
 
+        /// <summary>使用调用方提供的engine、definition、caster创建 Modifier。</summary>
         internal Modifier(AbilitySystem engine, ModifierDefinition definition, IUnit caster, IUnit parent, Ability ability, ModifierScript script, ModifierApplyOptions options)
         {
             Engine = engine;
@@ -61,6 +63,7 @@ namespace Game.Ability
 
         // Called only after the engine owns this instance. OnCreated can now remove itself,
         // query its own properties, or recursively apply another modifier safely.
+        /// <summary>响应已登记。</summary>
         internal void OnRegistered(ModifierApplyOptions options)
         {
             if (isRegistered || IsDestroyed) return;
@@ -82,11 +85,13 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>设置栈数量。</summary>
         public void SetStackCount(int value)
         {
             StackCount = Mathf.Clamp(value, 1, Mathf.Max(1, Definition.MaxStack));
         }
 
+        /// <summary>调用 Mathf.Max 完成Increment 栈。</summary>
         public void IncrementStack(int count = 1)
         {
             // Saturate before adding to avoid integer overflow for caller-supplied counts.
@@ -94,6 +99,7 @@ namespace Game.Ability
             SetStackCount((int)System.Math.Min(int.MaxValue, next));
         }
 
+        /// <summary>刷新状态修饰器。</summary>
         public void Refresh(ModifierApplyOptions options)
         {
             if (options != null && float.IsInfinity(options.Duration)) throw new System.ArgumentOutOfRangeException(nameof(options), "Modifier duration must be finite, or NaN to use its definition.");
@@ -116,6 +122,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进状态修饰器。</summary>
         internal void Tick(float deltaTime)
         {
             using (Engine.BeginExecution())
@@ -126,11 +133,13 @@ namespace Game.Ability
 
         // Aura coverage is sampled before any object ticks. A covered child still runs its
         // own interval/regen timeline, but its duration represents linger after coverage ends.
+        /// <summary>处理Renew 光环租约。</summary>
         internal void RenewAuraLease()
         {
             if (HasDuration) RemainingTime = Duration;
         }
 
+        /// <summary>推进 Timeline。</summary>
         private void TickTimeline(float deltaTime, bool hasAuraLease)
         {
             if (!CanContinue() || deltaTime <= 0f || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
@@ -197,6 +206,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>销毁状态修饰器。</summary>
         internal void Destroy()
         {
             if (IsDestroyed) return;
@@ -208,16 +218,19 @@ namespace Game.Ability
             finally { Script.OnDestroy(); }
         }
 
+        /// <summary>获取属性。</summary>
         internal float GetProperty(ModifierProperty property, ModifierPropertyContext context)
         {
             return Script.GetProperty(property, context);
         }
 
+        /// <summary>检查状态。</summary>
         internal bool CheckState(UnitState state)
         {
             return Script.CheckState(state);
         }
 
+        /// <summary>检查是否可以继续。</summary>
         private bool CanContinue()
         {
             if (IsDestroyed || !Engine.IsRuntimeAvailable || !IsRuntimeCurrent) return false;
@@ -226,6 +239,7 @@ namespace Game.Ability
             return false;
         }
 
+        /// <summary>推进时间。</summary>
         private void AdvanceTime(float deltaTime, bool hasAuraLease)
         {
             if (deltaTime <= 0f) return;
@@ -246,6 +260,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>跳过时间。</summary>
         private void SkipTime(float deltaTime, bool hasAuraLease)
         {
             float activeTime = HasDuration && !hasAuraLease ? Mathf.Min(deltaTime, Mathf.Max(0f, RemainingTime)) : deltaTime;
@@ -256,17 +271,20 @@ namespace Game.Ability
             if (HasDuration && !hasAuraLease && IsDue(RemainingTime, Duration)) Engine.RemoveModifier(this);
         }
 
+        /// <summary>判断是否为到期时间。</summary>
         private static bool IsDue(float timer, float period)
         {
             return timer <= Mathf.Min(TimeEpsilon, period * 0.00001f);
         }
 
+        /// <summary>根据传入参数取得下一个计时器。</summary>
         private static float NextTimer(float timer, float interval)
         {
             float remainder = -timer % interval;
             return remainder == 0f ? interval : interval - remainder;
         }
 
+        /// <summary>解析时长。</summary>
         private static float ResolveDuration(ModifierDefinition definition, ModifierApplyOptions options)
         {
             return options != null && !float.IsNaN(options.Duration) ? options.Duration : definition.Duration;

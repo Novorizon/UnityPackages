@@ -2,9 +2,12 @@ using System;
 
 namespace Game.Framework.Network
 {
+    /// <summary>定义数据包 Encryption 模式可选的枚举值。</summary>
     public enum PacketEncryptionMode { None = 0, AesGcm = 1 }
+    /// <summary>定义网络状态可选的枚举值。</summary>
     public enum NetworkState { Disconnected, Connecting, Authenticating, Connected, Reconnecting, Disposed }
 
+    /// <summary>TCP 客户端对应的选项。定义可由调用方设置的选项。</summary>
     public sealed class TcpClientOptions
     {
         public string Host { get; set; } = "127.0.0.1";
@@ -18,6 +21,7 @@ namespace Game.Framework.Network
         public int MaxPendingSends { get; set; } = 128;
         public int MaxPendingSendBytes { get; set; } = 4 * 1024 * 1024;
 
+        /// <summary>取得快照。</summary>
         internal TcpClientOptions Snapshot()
         {
             var copy = (TcpClientOptions)MemberwiseClone();
@@ -41,6 +45,7 @@ namespace Game.Framework.Network
         }
     }
 
+    /// <summary>网络客户端对应的选项。定义可由调用方设置的选项。</summary>
     public sealed class NetworkClientOptions
     {
         public bool AutoReconnect { get; set; } = true;
@@ -54,6 +59,7 @@ namespace Game.Framework.Network
         public int ReconnectMinimumMilliseconds { get; set; } = 500;
         public int ReconnectMaximumMilliseconds { get; set; } = 30000;
         public int MaxReconnectAttempts { get; set; } = 0;
+        /// <summary>取得快照。</summary>
         internal NetworkClientOptions Snapshot()
         {
             if (RequestTimeoutMilliseconds < 1 || AuthenticationTimeoutMilliseconds < 1 || HeartbeatIntervalMilliseconds < 0 || HeartbeatMessageId < 1 ||

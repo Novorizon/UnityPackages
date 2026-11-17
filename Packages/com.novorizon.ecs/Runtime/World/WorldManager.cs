@@ -9,14 +9,17 @@ using Sirenix.OdinInspector;
 namespace ECS
 {
     /// <summary>Main-thread structural transactions and change routing for registered worlds.</summary>
+    /// <remarks>世界对应的管理器。管理对应模块的状态和操作入口。</remarks>
     public class WorldManager : SingletonBehaviour<WorldManager>
     {
+        /// <summary>表示世界管理器中的待处理变更。</summary>
         private sealed class PendingChange
         {
             internal ulong Guid;
             internal bool All;
             internal bool GameObject;
             internal readonly List<int> ComponentTypes = new List<int>();
+            /// <summary>恢复该类型约定的初始状态。</summary>
             internal void Reset()
             {
                 Guid = 0;
@@ -57,10 +60,12 @@ namespace ECS
         public bool IsBatching => IsUpdating || batchDepth > 0 || isFlushing;
         internal bool HasOpenBatch => batchDepth > 0;
 
+        /// <summary>初始化世界管理器。</summary>
         public override void Initialize()
         {
         }
 
+        /// <summary>开始批次。</summary>
         public void BeginBatch()
         {
             if (IsStopping)
@@ -79,14 +84,17 @@ namespace ECS
             return new BatchScope(this);
         }
 
+        /// <summary>批次对应的作用域。保存作用域内需要统一管理的信息。</summary>
         private sealed class BatchScope : IDisposable
         {
             private WorldManager owner;
+            /// <summary>使用调用方提供的owner创建 BatchScope。</summary>
             internal BatchScope(WorldManager owner)
             {
                 this.owner = owner;
             }
 
+            /// <summary>结束批次作用域对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose()
             {
                 var manager = owner;
@@ -98,6 +106,7 @@ namespace ECS
             }
         }
 
+        /// <summary>结束批次。</summary>
         public void EndBatch()
         {
             if (batchDepth == 0)
@@ -109,22 +118,26 @@ namespace ECS
             FlushIfReady();
         }
 
+        /// <summary>开始更新。</summary>
         internal void BeginUpdate()
         {
             ++updateDepth;
         }
 
+        /// <summary>开始 Dispatch。</summary>
         internal void BeginDispatch()
         {
             ++dispatchDepth;
         }
 
+        /// <summary>结束 Dispatch。</summary>
         internal void EndDispatch()
         {
             --dispatchDepth;
             FlushIfReady();
         }
 
+        /// <summary>结束更新。</summary>
         internal void EndUpdate()
         {
             if (updateDepth == 0)
@@ -155,6 +168,7 @@ namespace ECS
         }
 
         /// <summary>Release removed components only after every cached system reference is detached.</summary>
+        /// <remarks>调用 nameof 完成之后变更 Applied。</remarks>
         public void AfterChangesApplied(Action action)
         {
             if (action == null)
@@ -172,6 +186,7 @@ namespace ECS
             }
         }
 
+        /// <summary>注入实体 ToWorlds。</summary>
         public void InjectEntityToWorlds(Entity entity)
         {
             if (entity == null)
@@ -189,6 +204,7 @@ namespace ECS
             }
         }
 
+        /// <summary>通知组件变化。</summary>
         public void NotifyComponentChanged(Entity entity, int componentTypeId)
         {
             if (entity == null)
@@ -215,6 +231,7 @@ namespace ECS
             }
         }
 
+        /// <summary>通知 GameObject 变化。</summary>
         public void NotifyGameObjectChanged(Entity entity)
         {
             if (entity == null)
@@ -238,6 +255,7 @@ namespace ECS
         }
 
         /// <summary>Call after marking dead/clearing data and before recycling any entity or component.</summary>
+        /// <remarks>通知实体已销毁。</remarks>
         public void NotifyEntityDestroyed(Entity entity)
         {
             if (entity == null)
@@ -254,6 +272,7 @@ namespace ECS
             Dispatch(entity, null, false, true, 0, false);
         }
 
+        /// <summary>获取待处理。</summary>
         private PendingChange GetPending(Entity entity)
         {
             if (pendingChanges.TryGetValue(entity, out var change))
@@ -268,12 +287,14 @@ namespace ECS
             return change;
         }
 
+        /// <summary>回收变更。</summary>
         private void RecycleChange(PendingChange change)
         {
             change.Reset();
             changePool.Push(change);
         }
 
+        /// <summary>调度世界管理器。</summary>
         private void Dispatch(Entity entity, IList<int> componentTypeIds, bool gameObjectChanged, bool all, int singleType, bool single)
         {
             ++dispatchDepth;
@@ -333,6 +354,7 @@ namespace ECS
             }
         }
 
+        /// <summary>刷新缓冲区 If 就绪。</summary>
         private void FlushIfReady()
         {
             if (IsUpdating || batchDepth > 0 || isFlushing)
@@ -432,6 +454,7 @@ namespace ECS
             }
         }
 
+        /// <summary>登记世界。</summary>
         public void RegisterWorld(IWorld world)
         {
             if (world == null)
@@ -456,6 +479,7 @@ namespace ECS
             }
         }
 
+        /// <summary>移除世界。</summary>
         public void RemoveWorld(IWorld world)
         {
             if (world == null)
@@ -475,6 +499,7 @@ namespace ECS
             }
         }
 
+        /// <summary>响应已初始化。</summary>
         protected override void OnInitialized()
         {
             deleted = false;
@@ -483,6 +508,7 @@ namespace ECS
             LocalWorld.Initialize();
         }
 
+        /// <summary>响应 Delete。</summary>
         protected override void OnDelete()
         {
             deleted = true;
@@ -546,6 +572,7 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected override void OnUpdate(float delta)
         {
             if (LocalWorld != null)

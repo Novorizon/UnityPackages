@@ -16,10 +16,12 @@ namespace Game.Framework.Network
         private int disposed;
         private IAutomaticNetworkDispatcher automaticDispatcher;
         // For a custom protocol, supply its authentication callback or omit authentication.
+        /// <summary>使用调用方提供的transportOptions、options、dispatcher创建 NetworkManager。</summary>
         internal NetworkManager(TcpClientOptions transportOptions, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null) : this(new SimpleTcpClient(transportOptions), options, dispatcher, authenticate)
         {
         }
 
+        /// <summary>使用调用方提供的transport、options、dispatcher创建 NetworkManager。</summary>
         internal NetworkManager(INetworkTransport transport, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null)
         {
             try
@@ -33,6 +35,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>解析调度器。</summary>
         private INetworkDispatcher ResolveDispatcher(INetworkDispatcher dispatcher, NetworkClientOptions options)
         {
             if (dispatcher != null)
@@ -51,6 +54,7 @@ namespace Game.Framework.Network
 
         public bool UsesAutomaticDispatch => Volatile.Read(ref automaticDispatcher) != null;
 
+        /// <summary>包装认证。</summary>
         private static Func<NetworkSession.AuthenticationContext, CancellationToken, Task> WrapAuthentication(Func<AuthenticationContext, CancellationToken, Task> authenticate)
         {
             if (authenticate == null)
@@ -150,7 +154,9 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>异步连接网络管理器。</summary>
         public Task ConnectAsync(CancellationToken ct = default) => Session.ConnectAsync(ct);
+        /// <summary>异步断开网络管理器。</summary>
         public Task DisconnectAsync() => session?.DisconnectAsync() ?? Task.CompletedTask;
         // Manual host fallback. Unity integration dispatches automatically without calling Update.
         /// <summary>手动执行一批待处理回调，maximumCallbacks 限制单次处理数量。</summary>
@@ -159,9 +165,12 @@ namespace Game.Framework.Network
         public Task<T> RequestAsync<T>(int messageId, IMessage message, MessageParser<T> parser, CancellationToken ct = default)
             where T : class, IMessage<T> => Session.RequestAsync(messageId, message, parser, ct);
         // Completes after writing bytes; RequestAsync additionally waits for the business response.
+        /// <summary>异步发送网络管理器。</summary>
         public Task SendAsync(int messageId, IMessage message, CancellationToken ct = default) => Session.SendAsync(messageId, message, ct);
+        /// <summary>订阅网络管理器。</summary>
         public IDisposable Subscribe<T>(int messageId, MessageParser<T> parser, Action<T> handler)
             where T : class, IMessage<T> => Session.Subscribe(messageId, parser, handler);
+        /// <summary>结束网络管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             NetworkSession current;
@@ -188,15 +197,18 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>等待资源和后台操作完成异步清理。</summary>
         public ValueTask DisposeAsync()
         {
             Dispose();
             return session != null ? session.DisposeAsync() : default;
         }
 
+        /// <summary>认证对应的上下文。携带一次操作所需的上下文。</summary>
         public sealed class AuthenticationContext
         {
             private readonly NetworkSession.AuthenticationContext context;
+            /// <summary>使用调用方提供的context创建 AuthenticationContext。</summary>
             internal AuthenticationContext(NetworkSession.AuthenticationContext context)
             {
                 this.context = context;
@@ -204,10 +216,13 @@ namespace Game.Framework.Network
 
             public long ConnectionId => context.ConnectionId;
 
+            /// <summary>根据传入参数取得请求 Async。</summary>
             public Task<T> RequestAsync<T>(int messageId, IMessage request, CancellationToken ct = default)
                 where T : class, IMessage<T>, new() => context.RequestAsync(messageId, request, MessageParserCache<T>.Instance, ct);
+            /// <summary>根据传入参数取得请求 Async。</summary>
             public Task<T> RequestAsync<T>(Enum messageId, IMessage request, CancellationToken ct = default)
                 where T : class, IMessage<T>, new() => RequestAsync<T>(GetMessageId(messageId), request, ct);
+            /// <summary>根据传入参数取得请求 Async。</summary>
             public Task<T> RequestAsync<T>(int messageId, IMessage request, MessageParser<T> parser, CancellationToken ct)
                 where T : class, IMessage<T> => context.RequestAsync(messageId, request, parser, ct);
         }

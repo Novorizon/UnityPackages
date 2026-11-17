@@ -8,6 +8,7 @@ namespace Game.Framework.Storage
     /// <summary>小型本地文件存储。JSON 使用 Unity JsonUtility 的字段序列化规则。</summary>
     public sealed class LocalStorageManager : Singleton<LocalStorageManager>, IDisposable
     {
+        /// <summary>JSON对应的记录。记录一次操作及其相关数据。</summary>
         [Serializable]
         private sealed class JsonRecord
         {
@@ -20,6 +21,7 @@ namespace Game.Framework.Storage
         private bool disposed;
         public string RootDirectory => root;
 
+        /// <summary>恢复该类型约定的初始状态。</summary>
         public static void Reset()
         {
             if (TryGetInstance(out var current))
@@ -28,11 +30,13 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>初始化本地 Storage 管理器。</summary>
         public override void Initialize()
         {
             Initialize((string)null);
         }
 
+        /// <summary>初始化本地 Storage 管理器。</summary>
         public void Initialize(string directory = null)
         {
             lock (gate)
@@ -49,6 +53,7 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>保存字节数据。</summary>
         public void SaveBytes(string key, byte[] bytes)
         {
             if (bytes == null)
@@ -99,6 +104,7 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>加载字节数据。</summary>
         public byte[] LoadBytes(string key)
         {
             lock (gate)
@@ -109,6 +115,7 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>返回Exists的判断结果。</summary>
         public bool Exists(string key)
         {
             lock (gate)
@@ -118,6 +125,7 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>删除本地 Storage 管理器。</summary>
         public void Delete(string key)
         {
             lock (gate)
@@ -129,12 +137,15 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>保存文本。</summary>
         public void SaveText(string key, string text)
         {
             SaveBytes(key, new UTF8Encoding(false, true).GetBytes(text ?? throw new ArgumentNullException(nameof(text))));
         }
 
+        /// <summary>加载文本。</summary>
         public string LoadText(string key) => new UTF8Encoding(false, true).GetString(LoadBytes(key));
+        /// <summary>保存 JSON。</summary>
         public void SaveJson<T>(string key, T value, int version = 1)
             where T : class
         {
@@ -185,6 +196,7 @@ namespace Game.Framework.Storage
             return JsonUtility.FromJson<T>(json) ?? throw new InvalidDataException("Invalid JSON payload: " + key);
         }
 
+        /// <summary>解析本地 Storage 管理器。</summary>
         private string Resolve(string key)
         {
             EnsureAvailable();
@@ -211,6 +223,7 @@ namespace Game.Framework.Storage
             return Path.Combine(root, Path.Combine(parts));
         }
 
+        /// <summary>检查并确保可用可用。</summary>
         private void EnsureAvailable()
         {
             if (disposed)
@@ -219,6 +232,7 @@ namespace Game.Framework.Storage
             }
         }
 
+        /// <summary>结束本地 Storage 管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public override void Dispose()
         {
             lock (gate)

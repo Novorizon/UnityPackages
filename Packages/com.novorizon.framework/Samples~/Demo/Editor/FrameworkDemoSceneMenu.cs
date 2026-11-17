@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace Game.Framework.Samples.Demo.Editor
 {
+    /// <summary>提供框架示例场景菜单的实现。</summary>
     public static class FrameworkDemoSceneMenu
     {
+        /// <summary>创建场景。</summary>
         [MenuItem("Tools/Novorizon/Demos/Create Core Demo Scene")]
         public static void CreateScene()
         {

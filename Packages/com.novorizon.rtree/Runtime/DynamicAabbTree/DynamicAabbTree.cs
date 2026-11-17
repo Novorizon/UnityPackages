@@ -9,11 +9,13 @@ namespace RTree
     /// Leaves use expanded bounds to avoid reinsertion for small movements;
     /// queries and reported pairs always test the current, unexpanded bounds.
     /// </summary>
+    /// <remarks>提供动态轴对齐包围盒树的实现。</remarks>
     public sealed class DynamicAabbTree<T> : IBroadPhase3<T>, IRayQuery3<T>
     {
         // A little height slack permits spatial rotations that strict AVL
         // balance forbids, while still bounding adversarial insertion depth.
         private const int MaximumImbalance = 4;
+        /// <summary>保存节点所需的数据与配套操作。</summary>
         private struct Node
         {
             internal int Parent, Left, Right, Height, Slot, NextFree;
@@ -40,8 +42,10 @@ namespace RTree
         private int[] writerStack = new int[32];
         private int writerStackCount;
 
+        /// <summary>用默认配置创建 DynamicAabbTree，其余初始化交给完整构造函数。</summary>
         public DynamicAabbTree() : this(0.1, 2) { }
 
+        /// <summary>使用调用方提供的fatMargin、displacementMultiplier创建 DynamicAabbTree。</summary>
         public DynamicAabbTree(double fatMargin, double displacementMultiplier)
         {
             if (double.IsNaN(fatMargin) || double.IsInfinity(fatMargin) || fatMargin < 0)
@@ -78,6 +82,7 @@ namespace RTree
             }
         }
 
+        /// <summary>插入动态轴对齐包围盒树。</summary>
         public ProxyHandle Insert(Bounds3 bounds, T item)
         {
             if ((object)item == null) throw new ArgumentNullException("item");
@@ -98,11 +103,13 @@ namespace RTree
         }
 
         /// <summary>Updates a proxy, returning true only if its fat bound was replaced.</summary>
+        /// <remarks>移动动态轴对齐包围盒树。</remarks>
         public bool Move(ProxyHandle handle, Bounds3 bounds)
         {
             return Move(handle, bounds, default(Vector3d));
         }
 
+        /// <summary>移动动态轴对齐包围盒树。</summary>
         public bool Move(ProxyHandle handle, Bounds3 bounds, Vector3d displacement)
         {
             sync.EnterWriteLock();
@@ -123,6 +130,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>移除动态轴对齐包围盒树。</summary>
         public bool Remove(ProxyHandle handle)
         {
             sync.EnterWriteLock();
@@ -141,6 +149,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>尝试取得包围盒，返回是否成功。</summary>
         public bool TryGetBounds(ProxyHandle handle, out Bounds3 bounds)
         {
             sync.EnterReadLock();
@@ -154,37 +163,44 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>查询动态轴对齐包围盒树。</summary>
         public int Query(Bounds3 bounds, List<T> results)
         {
             return Query(bounds, results, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>查询动态轴对齐包围盒树。</summary>
         public int Query(Bounds3 bounds, List<T> results, QueryContext context)
         {
             return QueryVolume(bounds, default(Sphere3), default(Frustum3), 0, results, context);
         }
 
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results)
         {
             return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         {
             return QueryVolume(default(Bounds3), sphere, default(Frustum3), 1, results, context);
         }
 
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results)
         {
             return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QueryVolume(default(Bounds3), default(Sphere3), frustum, 2, results, context);
         }
 
+        /// <summary>按体积查询匹配结果。</summary>
         private int QueryVolume(Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, int kind, List<T> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -228,6 +244,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>判断是否相交体积。</summary>
         private static bool IntersectsVolume(Bounds3 candidate, Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, int kind)
         {
             if (kind == 0) return candidate.Intersects(bounds);
@@ -235,11 +252,13 @@ namespace RTree
             return frustum.Intersects(candidate);
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit)
         {
             return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -278,11 +297,13 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit)
         {
             return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -335,11 +356,13 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results)
         {
             return RaycastAll(ray, results, SpatialQueryWorkspaces.Get());
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context)
         {
             ray.Validate();
@@ -379,6 +402,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>按配对查询匹配结果。</summary>
         public int QueryPairs(List<ProxyPair<T>> results)
         {
             return QueryPairs(results, SpatialQueryWorkspaces.Get());
@@ -389,6 +413,7 @@ namespace RTree
         /// boxes. The first call builds the persistent fat-bound candidate
         /// cache; subsequent insertions, removals and reinserts maintain it.
         /// </summary>
+        /// <remarks>按配对查询匹配结果。</remarks>
         public int QueryPairs(List<ProxyPair<T>> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -417,6 +442,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>排序命中列表。</summary>
         private static void SortHits(List<RayHit<T>> hits)
         {
             // In-place heapsort avoids comparer/delegate allocations, including
@@ -430,6 +456,7 @@ namespace RTree
             }
         }
 
+        /// <summary>筛排命中。</summary>
         private static void SiftHit(List<RayHit<T>> hits, int index, int count)
         {
             RayHit<T> value = hits[index];
@@ -444,6 +471,7 @@ namespace RTree
             hits[index] = value;
         }
 
+        /// <summary>检查并确保槽位容量可用。</summary>
         private void EnsureSlotCapacity(int slot)
         {
             if (slot < nodeBySlot.Length) return;
@@ -455,6 +483,7 @@ namespace RTree
             for (int i = previous; i < size; i++) nodeBySlot[i] = -1;
         }
 
+        /// <summary>分配节点。</summary>
         private int AllocateNode()
         {
             int id;
@@ -473,17 +502,20 @@ namespace RTree
             return id;
         }
 
+        /// <summary>释放节点。</summary>
         private void ReleaseNode(int id)
         {
             nodes[id] = new Node { Parent = -1, Left = -1, Right = -1, Height = -1, Slot = -1, NextFree = freeNode };
             freeNode = id;
         }
 
+        /// <summary>根据传入参数取得并集。</summary>
         private static Bounds3 Union(Bounds3 left, Bounds3 right)
         {
             return Bounds3.FromAabb(Aabb.Union(left.Box, right.Box));
         }
 
+        /// <summary>更新边界动态轴对齐包围盒树。</summary>
         private void Refit(int id)
         {
             int left = nodes[id].Left, right = nodes[id].Right;
@@ -526,12 +558,14 @@ namespace RTree
             RefitAncestors(parent, true);
         }
 
+        /// <summary>根据传入参数取得Descent 代价。</summary>
         private double DescentCost(int node, Bounds3 bounds)
         {
             Aabb box = nodeBounds[node].Box;
             return nodes[node].Left < 0 ? box.Surface() + box.SurfaceGrowth(bounds.Box) : box.SurfaceGrowth(bounds.Box);
         }
 
+        /// <summary>移除叶节点。</summary>
         private void RemoveLeaf(int leaf)
         {
             if (leaf == root) { root = -1; nodes[leaf].Parent = -1; return; }
@@ -550,6 +584,7 @@ namespace RTree
             if (grandparent >= 0) RefitAncestors(grandparent, false);
         }
 
+        /// <summary>更新边界 Ancestors。</summary>
         private void RefitAncestors(int node, bool improve)
         {
             while (node >= 0)
@@ -619,6 +654,7 @@ namespace RTree
         // Exchange an aunt with a grandchild when that reduces the changed
         // branch's area. The top bound is unchanged. Height constraints retain
         // the bounded imbalance without imposing an ordering on BVH leaves.
+        /// <summary>调用 ConsiderRotation 完成Improve 面积。</summary>
         private void ImproveArea(int a)
         {
             int b = nodes[a].Left, c = nodes[a].Right;
@@ -646,6 +682,7 @@ namespace RTree
             Refit(branch); Refit(a);
         }
 
+        /// <summary>调用 Math.Max 完成Consider 旋转。</summary>
         private void ConsiderRotation(int a, int branch, int outside, int inside, int retained,
             ref int bestBranch, ref int bestInside, ref double best)
         {
@@ -661,6 +698,7 @@ namespace RTree
             if (gain > best) { best = gain; bestBranch = branch; bestInside = inside; }
         }
 
+        /// <summary>替换 At 父节点。</summary>
         private void ReplaceAtParent(int oldChild, int newChild)
         {
             int parent = nodes[oldChild].Parent;
@@ -670,11 +708,13 @@ namespace RTree
             else nodes[parent].Right = newChild;
         }
 
+        /// <summary>根据传入参数取得对键。</summary>
         private static long PairKey(int a, int b)
         {
             return a < b ? ((long)a << 32) | (uint)b : ((long)b << 32) | (uint)a;
         }
 
+        /// <summary>检查并确保对缓存可用。</summary>
         private void EnsurePairCache()
         {
             if (pairsEnabled) return;
@@ -689,6 +729,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>添加对。</summary>
         private void AddPair(int a, int b)
         {
             if (!candidatePairs.Add(PairKey(a, b))) return;
@@ -697,6 +738,7 @@ namespace RTree
             neighbors[a].Add(b); neighbors[b].Add(a);
         }
 
+        /// <summary>移除配对。</summary>
         private void RemovePairs(int slot)
         {
             HashSet<int> adjacent = neighbors[slot];
@@ -709,6 +751,7 @@ namespace RTree
             adjacent.Clear();
         }
 
+        /// <summary>调用 PushWriter 完成缓存配对。</summary>
         private void CachePairs(int leaf)
         {
             writerStackCount = 0;
@@ -724,6 +767,7 @@ namespace RTree
             }
         }
 
+        /// <summary>压入写入器。</summary>
         private void PushWriter(int id)
         {
             if (writerStackCount == writerStack.Length) Array.Resize(ref writerStack, checked(writerStack.Length * 2));

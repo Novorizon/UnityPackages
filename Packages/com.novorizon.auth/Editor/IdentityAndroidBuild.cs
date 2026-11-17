@@ -4,10 +4,12 @@ using UnityEditor.Android;
 
 namespace Game.Framework.Auth.Editor
 {
+    /// <summary>提供身份 AndroidBuild的实现。</summary>
     public sealed class IdentityAndroidBuild : IPostGenerateGradleAndroidProject
     {
         public int callbackOrder => 1000;
 
+        /// <summary>响应 PostGenerateGradleAndroid 项目。</summary>
         public void OnPostGenerateGradleAndroidProject(string path)
         {
             string rules = "novorizon-auth.pro";

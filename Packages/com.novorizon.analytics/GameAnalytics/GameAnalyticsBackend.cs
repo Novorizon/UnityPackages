@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Game.Framework.Analytics.GameAnalytics
 {
+    /// <summary>定义进度状态可选的枚举值。</summary>
     public enum ProgressionStatus
     {
         Start,
@@ -14,6 +15,7 @@ namespace Game.Framework.Analytics.GameAnalytics
         Fail
     }
 
+    /// <summary>定义资源 Flow可选的枚举值。</summary>
     public enum ResourceFlow
     {
         Source,
@@ -21,11 +23,13 @@ namespace Game.Framework.Analytics.GameAnalytics
     }
 
     /// <summary>GameAnalytics 8.3. Configure official SDK Settings keys/build/resource lists in the project.</summary>
+    /// <remarks>游戏统计对应的后端。承接上层请求，调用具体平台或实现。</remarks>
     public sealed class GameAnalyticsBackend : AnalyticsBackend
     {
         private GameObject ownedRoot;
         public override string Id => "gameanalytics";
 
+        /// <summary>响应 Initialize。</summary>
         protected override void OnInitialize(string initialUserId)
         {
             if (!Application.isPlaying)
@@ -56,14 +60,18 @@ namespace Game.Framework.Analytics.GameAnalytics
             OnSetUserId(initialUserId);
         }
 
+        /// <summary>响应集合采集开启。</summary>
         protected override void OnSetCollectionEnabled(bool enabled) => GaSdk.SetEnabledEventSubmission(enabled, false);
+        /// <summary>响应集合用户标识。</summary>
         protected override void OnSetUserId(string userId) => GaSdk.SetExternalUserId(userId ?? "");
 
+        /// <summary>响应 Log 事件。</summary>
         protected override void OnLogEvent(string name, IReadOnlyDictionary<string, object> properties)
         {
             GaSdk.NewDesignEvent(name, new Dictionary<string, object>(properties));
         }
 
+        /// <summary>记录进度。</summary>
         public void LogProgression(ProgressionStatus status, string progression, string level, string phase = null, int? score = null)
         {
             Ready(true);
@@ -97,6 +105,7 @@ namespace Game.Framework.Analytics.GameAnalytics
             }
         }
 
+        /// <summary>记录资源。</summary>
         public void LogResource(ResourceFlow flow, string currency, float amount, string itemType, string itemId)
         {
             Ready(true);
@@ -113,6 +122,7 @@ namespace Game.Framework.Analytics.GameAnalytics
         }
 
         /// <summary>GameAnalytics expects integer cents; report only after the game backend verifies fulfillment.</summary>
+        /// <remarks>记录 Business。</remarks>
         public void LogBusiness(string currency, int amountInCents, string itemType, string itemId, string cartType)
         {
             Ready(true);
@@ -127,6 +137,7 @@ namespace Game.Framework.Analytics.GameAnalytics
             GaSdk.NewBusinessEvent(currency, amountInCents, itemType, itemId, cartType);
         }
 
+        /// <summary>响应 Dispose。</summary>
         protected override void OnDispose()
         {
             if (ownedRoot != null)

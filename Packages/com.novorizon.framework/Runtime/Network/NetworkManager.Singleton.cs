@@ -5,6 +5,7 @@ using Game.Framework.Network.Dispatching;
 
 namespace Game.Framework.Network
 {
+    /// <summary>网络对应的管理器。管理对应模块的状态和操作入口。</summary>
     public sealed partial class NetworkManager
     {
         private static readonly object instanceGate = new object();
@@ -13,6 +14,7 @@ namespace Game.Framework.Network
         private static bool releasing;
 
 #if UNITY_EDITOR
+        /// <summary>为 NetworkManager 准备类型首次使用时所需的静态状态。</summary>
         static NetworkManager()
         {
             EditorStaticReset.Register(ReleaseCurrent);
@@ -33,6 +35,7 @@ namespace Game.Framework.Network
 
         public static bool IsCreated => TryGetInstance(out _);
 
+        /// <summary>尝试取得实例，返回是否成功。</summary>
         public static bool TryGetInstance(out NetworkManager value)
         {
             lock (instanceGate)
@@ -42,16 +45,19 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>配置网络管理器。</summary>
         public static void Configure(TcpClientOptions transportOptions, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null)
         {
             Configure(() => new NetworkManager(transportOptions, options, dispatcher, authenticate));
         }
 
+        /// <summary>配置网络管理器。</summary>
         public static void Configure(INetworkTransport transport, NetworkClientOptions options = null, INetworkDispatcher dispatcher = null, Func<AuthenticationContext, CancellationToken, Task> authenticate = null)
         {
             Configure(() => new NetworkManager(transport, options, dispatcher, authenticate));
         }
 
+        /// <summary>配置网络管理器。</summary>
         private static void Configure(Func<NetworkManager> create)
         {
             lock (instanceGate)
@@ -74,6 +80,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>结束网络管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public static void Release()
         {
             try
@@ -86,6 +93,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>释放当前。</summary>
         private static void ReleaseCurrent()
         {
             NetworkManager previous;
@@ -119,6 +127,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>检查并确保实例可用可用。</summary>
         private static void EnsureInstanceAvailable()
         {
             if (configuring || releasing)

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
+    /// <summary>更新对应的设置。保存本模块使用的配置。</summary>
     [Serializable]
     public sealed class UpdateSettings
     {
@@ -33,6 +34,7 @@ namespace Game.Framework.HotUpdate
         public int prepareTimeoutSeconds = 120;
         public int startupTimeoutSeconds = 60;
         public TrustedKey[] trustedKeys = Array.Empty<TrustedKey>();
+        /// <summary>验证更新设置。</summary>
         public void Validate()
         {
             ReleasePolicy.Require(!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(channel), "Application ID and channel are required.");

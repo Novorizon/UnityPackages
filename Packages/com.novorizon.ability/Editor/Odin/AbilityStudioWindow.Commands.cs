@@ -12,8 +12,10 @@ using UnityEngine;
 
 namespace Game.Ability.Editor.Odin
 {
+    /// <summary>技能编辑工作台对应的窗口。提供此模块的 Unity 编辑器窗口。</summary>
     public sealed partial class AbilityStudioWindow
     {
+        /// <summary>选择工作区。</summary>
         private void ChooseWorkspace()
         {
             string folder = EditorUtility.OpenFolderPanel("选择技能 JSON 目录", workspace?.RootDirectory ?? Application.dataPath, string.Empty);
@@ -21,6 +23,7 @@ namespace Game.Ability.Editor.Odin
             LoadWorkspace(folder, false);
         }
 
+        /// <summary>确认 Leave。</summary>
         private bool ConfirmLeave()
         {
             if (workspace == null || !workspace.Documents.Any(value => value.IsDirty) && retainedRecovery.Count == 0) return true;
@@ -29,6 +32,7 @@ namespace Game.Ability.Editor.Odin
             return choice == 2 || SaveAll();
         }
 
+        /// <summary>加载工作区。</summary>
         private void LoadWorkspace(string folder, bool restoreRecovery)
         {
             try
@@ -57,11 +61,13 @@ namespace Game.Ability.Editor.Odin
             catch (Exception exception) { Notify("无法打开技能库：" + exception.Message, true); }
         }
 
+        /// <summary>刷新工作区。</summary>
         private void RefreshWorkspace()
         {
             if (workspace != null && ConfirmLeave()) LoadWorkspace(workspace.RootDirectory, false);
         }
 
+        /// <summary>选择技能编辑工作台窗口。</summary>
         private void Select(AbilityDocumentSession document, EntryKind kind, int index = 0)
         {
             selected = document;
@@ -78,6 +84,7 @@ namespace Game.Ability.Editor.Odin
             RebuildInspector();
         }
 
+        /// <summary>重建检视面板。</summary>
         private void RebuildInspector()
         {
             inspector?.Dispose();
@@ -92,6 +99,7 @@ namespace Game.Ability.Editor.Odin
             UpdateJsonPreview();
         }
 
+        /// <summary>根据传入参数取得状态 For。</summary>
         private AbilityStudioDraft StateFor(AbilityDocumentSession document)
         {
             if (!undoStates.TryGetValue(document.FilePath, out AbilityStudioDraft state) || state == null)
@@ -104,6 +112,7 @@ namespace Game.Ability.Editor.Odin
             return state;
         }
 
+        /// <summary>采集变更。</summary>
         private void CaptureChanges(AbilityStudioDraft state)
         {
             try
@@ -120,6 +129,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>调用 StateFor 完成Mutate。</summary>
         private void Mutate(string label, Action action)
         {
             if (selected == null || selected.IsReadOnly) return;
@@ -130,6 +140,7 @@ namespace Game.Ability.Editor.Odin
             RebuildInspector();
         }
 
+        /// <summary>调用 RefreshLibrary 完成草稿变化。</summary>
         private void DraftChanged()
         {
             validationAt = EditorApplication.timeSinceStartup + 0.35;
@@ -141,6 +152,7 @@ namespace Game.Ability.Editor.Odin
             Repaint();
         }
 
+        /// <summary>响应 UndoRedo。</summary>
         private void OnUndoRedo()
         {
             if (workspace == null) return;
@@ -152,6 +164,7 @@ namespace Game.Ability.Editor.Odin
             DraftChanged();
         }
 
+        /// <summary>响应编辑器更新。</summary>
         private void OnEditorUpdate()
         {
             if (validationAt >= 0 && EditorApplication.timeSinceStartup >= validationAt)
@@ -162,12 +175,14 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>响应 Play Mode 变化。</summary>
         private void OnPlayModeChanged(PlayModeStateChange state)
         {
             PersistRecovery();
             sandboxReport = null;
         }
 
+        /// <summary>验证工作区。</summary>
         private void ValidateWorkspace()
         {
             try { diagnostics = workspace?.Validate() ?? Array.Empty<AbilityEditorDiagnostic>(); }
@@ -176,6 +191,7 @@ namespace Game.Ability.Editor.Odin
             Repaint();
         }
 
+        /// <summary>保存当前。</summary>
         private void SaveCurrent()
         {
             if (selected == null || workspace == null) return;
@@ -188,6 +204,7 @@ namespace Game.Ability.Editor.Odin
             ValidateWorkspace();
         }
 
+        /// <summary>保存全部。</summary>
         private bool SaveAll()
         {
             if (workspace == null) return true;
@@ -212,17 +229,20 @@ namespace Game.Ability.Editor.Odin
             return true;
         }
 
+        /// <summary>保存变更。</summary>
         public override void SaveChanges()
         {
             if (SaveAll()) base.SaveChanges();
         }
 
+        /// <summary>调用 LoadWorkspace 完成Discard 变更。</summary>
         public override void DiscardChanges()
         {
             if (workspace != null) LoadWorkspace(workspace.RootDirectory, false);
             base.DiscardChanges();
         }
 
+        /// <summary>创建文档。</summary>
         private void CreateDocument()
         {
             if (workspace == null) return;
@@ -237,6 +257,7 @@ namespace Game.Ability.Editor.Odin
             catch (Exception exception) { Notify("无法创建配置：" + exception.Message, true); }
         }
 
+        /// <summary>添加条目。</summary>
         private void AddEntry(EntryKind kind)
         {
             Mutate("新增配置条目", () =>
@@ -261,6 +282,7 @@ namespace Game.Ability.Editor.Odin
             });
         }
 
+        /// <summary>调用 Mutate 完成重复项条目。</summary>
         private void DuplicateEntry()
         {
             Mutate("复制配置条目", () =>
@@ -293,6 +315,7 @@ namespace Game.Ability.Editor.Odin
             });
         }
 
+        /// <summary>删除条目。</summary>
         private void DeleteEntry()
         {
             if (!EditorUtility.DisplayDialog("删除配置条目", "从当前草稿移除「" + SelectedTitle() + "」？仍然引用它的配置会显示校验错误。", "删除", "取消")) return;
@@ -305,6 +328,7 @@ namespace Game.Ability.Editor.Odin
             });
         }
 
+        /// <summary>保存 RecoveredCopy。</summary>
         private void SaveRecoveredCopy()
         {
             if (selected == null) return;

@@ -6,17 +6,20 @@ namespace Game.Ability
     /// <summary>
     /// Dota-style level-scaled number. If no per-level values are provided, BaseValue is used.
     /// </summary>
+    /// <remarks>提供等级值的实现。</remarks>
     [Serializable]
     public sealed class LevelValue
     {
         public float BaseValue;
         public readonly List<float> ValuesByLevel = new List<float>();
 
+        /// <summary>根据传入参数取得Constant。</summary>
         public static LevelValue Constant(float value)
         {
             return new LevelValue { BaseValue = value };
         }
 
+        /// <summary>获取值。</summary>
         public float GetValue(int level)
         {
             if (ValuesByLevel.Count == 0)
@@ -37,6 +40,7 @@ namespace Game.Ability
     /// <summary>
     /// Charge and replenish rules for abilities such as stored casts.
     /// </summary>
+    /// <remarks>提供充能定义的实现。</remarks>
     [Serializable]
     public sealed class ChargeDefinition
     {
@@ -49,6 +53,7 @@ namespace Game.Ability
     /// <summary>
     /// Data-only ability configuration. Runtime state lives in Ability, not in this definition.
     /// </summary>
+    /// <remarks>提供技能定义的实现。</remarks>
     [Serializable]
     public sealed class AbilityDefinition
     {
@@ -80,6 +85,7 @@ namespace Game.Ability
         public readonly List<ActionDefinition> OnToggleOnActions = new List<ActionDefinition>();
         public readonly List<ActionDefinition> OnToggleOffActions = new List<ActionDefinition>();
 
+        /// <summary>获取特殊值。</summary>
         public float GetSpecialValue(string name, int level)
         {
             if (string.IsNullOrEmpty(name) || !SpecialValues.TryGetValue(name, out LevelValue value))
@@ -94,6 +100,7 @@ namespace Game.Ability
     /// <summary>
     /// One data-driven operation executed by ActionRunner.
     /// </summary>
+    /// <remarks>提供动作定义的实现。</remarks>
     [Serializable]
     public sealed class ActionDefinition
     {
@@ -116,17 +123,20 @@ namespace Game.Ability
         public string EffectName;
         public string SoundName;
 
+        /// <summary>解析值。</summary>
         public float ResolveValue(Ability ability)
         {
             if (ValueSource != ActionValueSource.LevelOrSpecial) throw new InvalidOperationException("Event-valued actions must be resolved with a CastContext.");
             return ResolveNumber(ValueSpecialName, Value, ability, ability != null ? ability.Level : 1);
         }
 
+        /// <summary>解析时长。</summary>
         public float ResolveDuration(Ability ability)
         {
             return ResolveNumber(DurationSpecialName, Duration, ability, ability != null ? ability.Level : 1);
         }
 
+        /// <summary>解析值。</summary>
         public float ResolveValue(CastContext context)
         {
             float value = ResolveNumber(ValueSpecialName, Value, context.Ability, context.Level);
@@ -147,11 +157,13 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>解析时长。</summary>
         public float ResolveDuration(CastContext context)
         {
             return ResolveNumber(DurationSpecialName, Duration, context.Ability, context.Level);
         }
 
+        /// <summary>解析数值。</summary>
         private static float ResolveNumber(string specialName, LevelValue value, Ability ability, int level)
         {
             if (string.IsNullOrEmpty(specialName))
@@ -172,6 +184,7 @@ namespace Game.Ability
     /// <summary>
     /// Data-only modifier configuration. The runtime Modifier owns duration, stacks, and timers.
     /// </summary>
+    /// <remarks>提供状态修饰器定义的实现。</remarks>
     [Serializable]
     public sealed class ModifierDefinition
     {
@@ -212,6 +225,7 @@ namespace Game.Ability
         public UnitType AuraTargetType = UnitType.All;
         public TargetFlags AuraTargetFlags = TargetFlags.None;
 
+        /// <summary>获取属性值。</summary>
         public float GetPropertyValue(ModifierProperty property, int level)
         {
             if (LevelProperties.TryGetValue(property, out LevelValue value)) return value != null ? value.GetValue(Math.Max(1, level)) : 0f;
@@ -222,6 +236,7 @@ namespace Game.Ability
     /// <summary>
     /// Runtime projectile tuning shared by tracking and linear projectiles.
     /// </summary>
+    /// <remarks>提供投射物定义的实现。</remarks>
     [Serializable]
     public sealed class ProjectileDefinition
     {

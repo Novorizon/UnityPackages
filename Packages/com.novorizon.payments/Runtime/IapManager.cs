@@ -17,6 +17,7 @@ namespace Game.Framework.Payments
         public bool IsBusy => busy;
         public IReadOnlyList<StoreProduct> Products => store.Products;
 
+        /// <summary>注入商店接口和验单发货接口。ownsStore 为 true 时由管理器释放商店。</summary>
         public IapManager(IPaymentStore store, IPurchaseFulfillment fulfillment, bool ownsStore = false)
         {
             this.store = store ?? throw new ArgumentNullException(nameof(store));
@@ -24,6 +25,7 @@ namespace Game.Framework.Payments
             this.ownsStore = ownsStore;
         }
 
+        /// <summary>初始化商店连接和商品信息，完成后才接受购买及恢复请求。</summary>
         public Task InitializeAsync(CancellationToken token = default)
         {
             return Run(async stop =>
@@ -67,17 +69,20 @@ namespace Game.Framework.Payments
         }
 
         /// <summary>Redelivered pending orders are verified again; the server must deduplicate by store/transaction.</summary>
+        /// <remarks>向商店发起显式恢复，返回各笔可处理订单的验单结果。</remarks>
         public Task<IReadOnlyList<PaymentResult>> RestoreAsync(CancellationToken token = default)
         {
             return Reconcile(true, token);
         }
 
         /// <summary>Startup recovery without invoking Apple's explicit RestoreTransactions flow.</summary>
+        /// <remarks>主动拉取未处理购买，供启动恢复使用。</remarks>
         public Task<IReadOnlyList<PaymentResult>> RecoverAsync(CancellationToken token = default)
         {
             return Reconcile(false, token);
         }
 
+        // 拉取订单并在本批内去重，按顺序验单和发货。
         private Task<IReadOnlyList<PaymentResult>> Reconcile(bool restore, CancellationToken token)
         {
             if (!ready)
@@ -109,6 +114,7 @@ namespace Game.Framework.Payments
             }, token);
         }
 
+        // 完成发货后才确认商店订单。发货或等待取消时保留待处理订单。
         private async Task<PaymentResult> Fulfill(PurchaseReceipt receipt, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -123,6 +129,7 @@ namespace Game.Framework.Payments
             return new PaymentResult(StorePurchaseStatus.PendingVerification, true, receipt.TransactionId);
         }
 
+        // 只允许同时执行一个商店操作，调用方等待可以取消。
         private Task<T> Run<T>(Func<CancellationToken, Task<T>> action, CancellationToken caller)
         {
             MainThread();
@@ -140,6 +147,7 @@ namespace Game.Framework.Payments
             return TaskUtil.WaitAsync(Execute(action, stop), caller);
         }
 
+        // 商店操作实际结束后清掉忙碌状态。
         private async Task<T> Execute<T>(Func<CancellationToken, Task<T>> action, CancellationTokenSource stop)
         {
             try
@@ -157,6 +165,7 @@ namespace Game.Framework.Payments
             }
         }
 
+        // 校验原生商店操作在 Unity 主线程调用。
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -165,6 +174,7 @@ namespace Game.Framework.Payments
             }
         }
 
+        /// <summary>停止接受新操作并取消已有操作。进行中的操作退出后再释放自有商店。</summary>
         public void Dispose()
         {
             MainThread();
@@ -186,6 +196,7 @@ namespace Game.Framework.Payments
             }
         }
 
+        // 释放管理器拥有的取消资源和商店接口。
         private void Release()
         {
             if (released)

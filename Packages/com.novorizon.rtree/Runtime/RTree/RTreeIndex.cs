@@ -12,6 +12,7 @@ namespace RTree
     /// <remarks>使用 R 树索引对象的三维包围盒，支持增删、移动和空间查询。</remarks>
     public sealed class RTreeIndex<T> : IMutableBoundsIndex3<T>, IRayQuery3<T>
     {
+        /// <summary>表示R 树索引中的工作区。</summary>
         private sealed class Workspace
         {
             internal readonly List<ProxyHandle> Items = new List<ProxyHandle>();
@@ -25,8 +26,10 @@ namespace RTree
         private readonly ThreadLocal<Workspace> workspaces = new ThreadLocal<Workspace>(delegate { return new Workspace(); });
         private readonly RTree<ProxyHandle> tree;
 
+        /// <summary>用默认配置创建 RTreeIndex，其余初始化交给完整构造函数。</summary>
         public RTreeIndex() : this(10, 5) { }
 
+        /// <summary>使用调用方提供的maxNodeEntries、minNodeEntries创建 RTreeIndex。</summary>
         public RTreeIndex(int maxNodeEntries, int minNodeEntries)
         {
             ValidateCapacity(maxNodeEntries, minNodeEntries);
@@ -34,13 +37,16 @@ namespace RTree
         }
 
         /// <summary>Builds STR storage and returns live handles in input order.</summary>
+        /// <remarks>根据传入参数取得批量 Load。</remarks>
         public static RTreeIndex<T> BulkLoad(IEnumerable<KeyValuePair<Bounds3, T>> items, out ProxyHandle[] handles)
         { return new RTreeIndex<T>(items, 10, 5, out handles); }
 
+        /// <summary>根据传入参数取得批量 Load。</summary>
         public static RTreeIndex<T> BulkLoad(IEnumerable<KeyValuePair<Bounds3, T>> items,
             int maxNodeEntries, int minNodeEntries, out ProxyHandle[] handles)
         { return new RTreeIndex<T>(items, maxNodeEntries, minNodeEntries, out handles); }
 
+        /// <summary>使用调用方提供的items、maxNodeEntries、minNodeEntries创建 RTreeIndex。</summary>
         private RTreeIndex(IEnumerable<KeyValuePair<Bounds3, T>> items, int maxNodeEntries, int minNodeEntries, out ProxyHandle[] handles)
         {
             if (items == null) throw new ArgumentNullException("items");
@@ -50,12 +56,14 @@ namespace RTree
             handles = sourceHandles.ToArray();
         }
 
+        /// <summary>验证容量。</summary>
         private static void ValidateCapacity(int maximum, int minimum)
         {
             if (maximum < 2) throw new ArgumentOutOfRangeException("maxNodeEntries");
             if (minimum < 1 || minimum > maximum / 2) throw new ArgumentOutOfRangeException("minNodeEntries");
         }
 
+        /// <summary>根据传入参数取得Pack。</summary>
         private IEnumerable<KeyValuePair<Rectangle, ProxyHandle>> Pack(IEnumerable<KeyValuePair<Bounds3, T>> items, List<ProxyHandle> handles)
         {
             foreach (KeyValuePair<Bounds3, T> item in items)
@@ -71,6 +79,7 @@ namespace RTree
             get { sync.EnterReadLock(); try { return proxies.Count; } finally { sync.ExitReadLock(); } }
         }
 
+        /// <summary>插入 R 树索引。</summary>
         public ProxyHandle Insert(Bounds3 bounds, T item)
         {
             if ((object)item == null) throw new ArgumentNullException("item");
@@ -104,6 +113,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>移除 R 树索引。</summary>
         public bool Remove(ProxyHandle handle)
         {
             sync.EnterWriteLock();
@@ -118,6 +128,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>尝试取得包围盒，返回是否成功。</summary>
         public bool TryGetBounds(ProxyHandle handle, out Bounds3 bounds)
         {
             sync.EnterReadLock();
@@ -139,25 +150,33 @@ namespace RTree
         }
 
         /// <summary>Repacks tree nodes without invalidating live proxy handles.</summary>
+        /// <remarks>重建 R 树索引。</remarks>
         public void Rebuild()
         { sync.EnterWriteLock(); try { tree.Rebuild(); } finally { sync.ExitWriteLock(); } }
 
+        /// <summary>查询 R 树索引。</summary>
         public int Query(Bounds3 bounds, List<T> results)
         { return Query(bounds, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>查询 R 树索引。</summary>
         public int Query(Bounds3 bounds, List<T> results, QueryContext context)
         { return QueryVolume(bounds, default(Sphere3), null, 0, results, context); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results)
         { return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         { return QueryVolume(default(Bounds3), sphere, null, 1, results, context); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results)
         { return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QueryVolume(default(Bounds3), default(Sphere3), frustum, 2, results, context);
         }
 
+        /// <summary>按体积查询匹配结果。</summary>
         private int QueryVolume(Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, int kind, List<T> results, QueryContext context)
         {
             SpatialQueryWorkspaces.ValidateResults(results, context);
@@ -182,15 +201,20 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit)
         { return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context)
         { return RaycastOne(ray, false, out hit, context); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit)
         { return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context)
         { return RaycastOne(ray, true, out hit, context); }
 
+        /// <summary>对一个执行射线检测。</summary>
         private bool RaycastOne(Ray3 ray, bool closest, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -214,8 +238,10 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results)
         { return RaycastAll(ray, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context)
         {
             ray.Validate(); SpatialQueryWorkspaces.ValidateResults(results, context);
@@ -239,6 +265,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>复制 Statistics。</summary>
         private static void CopyStatistics(QueryContext source, QueryContext target)
         {
             target.NodesVisited = source.NodesVisited;

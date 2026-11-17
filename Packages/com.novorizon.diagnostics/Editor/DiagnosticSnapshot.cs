@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace Game.Framework.Diagnostics.Editor
 {
+    /// <summary>提供诊断指标的实现。</summary>
     [Serializable]
     public sealed class DiagnosticMetric
     {
@@ -13,6 +14,7 @@ namespace Game.Framework.Diagnostics.Editor
         public string value;
     }
 
+    /// <summary>诊断对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     [Serializable]
     public sealed class DiagnosticSnapshot
     {
@@ -21,6 +23,7 @@ namespace Game.Framework.Diagnostics.Editor
         public DiagnosticLease[] leases = Array.Empty<DiagnosticLease>();
     }
 
+    /// <summary>诊断对应的租约。记录资源的使用权，由持有者在使用结束时归还。</summary>
     [Serializable]
     public sealed class DiagnosticLease
     {
@@ -38,10 +41,12 @@ namespace Game.Framework.Diagnostics.Editor
     }
 
     /// <summary>Editor-main-thread sampling of public, read-only package APIs. Never accesses Instance.</summary>
+    /// <remarks>提供包诊断的实现。</remarks>
     public static class PackageDiagnostics
     {
         private const BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
+        /// <summary>采集包诊断。</summary>
         public static DiagnosticSnapshot Capture()
         {
             var metrics = new List<DiagnosticMetric>();
@@ -65,6 +70,7 @@ namespace Game.Framework.Diagnostics.Editor
             };
         }
 
+        /// <summary>采集所有权。</summary>
         private static DiagnosticLease[] CaptureOwnership(List<DiagnosticMetric> metrics)
         {
             Type type = FindType("Game.Resource.ResourceManager");
@@ -118,6 +124,7 @@ namespace Game.Framework.Diagnostics.Editor
             }
         }
 
+        /// <summary>表示包诊断中的租约读取器。</summary>
         private sealed class LeaseReader
         {
             private static readonly string[] names =
@@ -126,6 +133,7 @@ namespace Game.Framework.Diagnostics.Editor
             };
             private readonly PropertyInfo[] properties = new PropertyInfo[names.Length];
 
+            /// <summary>使用调用方提供的type创建 LeaseReader。</summary>
             internal LeaseReader(Type type)
             {
                 for (int index = 0; index < properties.Length; index++)
@@ -134,6 +142,7 @@ namespace Game.Framework.Diagnostics.Editor
                 }
             }
 
+            /// <summary>读取传入的 record。</summary>
             internal DiagnosticLease Read(object record)
             {
                 return new DiagnosticLease
@@ -152,6 +161,7 @@ namespace Game.Framework.Diagnostics.Editor
             }
         }
 
+        /// <summary>根据传入参数取得Readable 属性。</summary>
         private static PropertyInfo ReadableProperty(Type type, string name, BindingFlags flags)
         {
             var property = type.GetProperty(name, flags);
@@ -162,6 +172,7 @@ namespace Game.Framework.Diagnostics.Editor
             return property;
         }
 
+        /// <summary>查找类型。</summary>
         private static Type FindType(string typeName)
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -175,6 +186,7 @@ namespace Game.Framework.Diagnostics.Editor
             return null;
         }
 
+        /// <summary>采集服务。</summary>
         private static void CaptureService(List<DiagnosticMetric> metrics, string typeName, bool singleton, params string[] properties)
         {
             Type type = null;
@@ -200,6 +212,7 @@ namespace Game.Framework.Diagnostics.Editor
         }
 
         /// <summary>Only TryGetInstance is permitted for singleton acquisition. Errors remain visible as metrics.</summary>
+        /// <remarks>读取传入的 type、singleton。</remarks>
         public static DiagnosticMetric[] Read(Type type, bool singleton, params string[] paths)
         {
             if (type == null || paths == null)
@@ -268,6 +281,7 @@ namespace Game.Framework.Diagnostics.Editor
             return metrics.ToArray();
         }
 
+        /// <summary>添加包诊断。</summary>
         private static void Add(List<DiagnosticMetric> metrics, string name, string value)
         {
             metrics.Add(new DiagnosticMetric { name = name, value = value });

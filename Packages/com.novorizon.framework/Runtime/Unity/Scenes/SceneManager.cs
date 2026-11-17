@@ -21,6 +21,7 @@ namespace Game.Framework.Scenes
 
         public event Action<Scene> Loaded;
         public event Action<Scene> Unloaded;
+        /// <summary>恢复该类型约定的初始状态。</summary>
         public static void Reset()
         {
             if (TryGetInstance(out var current))
@@ -29,6 +30,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>初始化场景管理器。</summary>
         public override void Initialize()
         {
             Initialize((ISceneLoader)null);
@@ -52,6 +54,7 @@ namespace Game.Framework.Scenes
             NativeSceneManager.sceneUnloaded += OnSceneUnloaded;
         }
 
+        /// <summary>异步加载场景管理器。</summary>
         public Task<Scene> LoadAsync(string location, LoadSceneMode mode = LoadSceneMode.Single, bool setActive = true, IProgress<float> progress = null, CancellationToken token = default)
         {
             Ready();
@@ -69,6 +72,7 @@ namespace Game.Framework.Scenes
             return WaitForLoadAsync(location, mode, setActive, progress, token);
         }
 
+        /// <summary>异步等待 ForLoad。</summary>
         private async Task<Scene> WaitForLoadAsync(string location, LoadSceneMode mode, bool setActive, IProgress<float> progress, CancellationToken token)
         {
             using (var cancellation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token))
@@ -77,6 +81,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>异步加载场景管理器。</summary>
         private async Task<Scene> LoadCoreAsync(string location, LoadSceneMode mode, bool setActive, IProgress<float> progress, CancellationToken token)
         {
             await operations.WaitAsync(token);
@@ -116,6 +121,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>异步卸载场景管理器。</summary>
         public Task UnloadAsync(Scene scene, CancellationToken token = default)
         {
             Ready();
@@ -123,6 +129,7 @@ namespace Game.Framework.Scenes
             return WaitForUnloadAsync(scene, token);
         }
 
+        /// <summary>异步等待 ForUnload。</summary>
         private async Task WaitForUnloadAsync(Scene scene, CancellationToken token)
         {
             using (var cancellation = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token))
@@ -131,6 +138,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>异步卸载场景管理器。</summary>
         private async Task UnloadCoreAsync(Scene scene, CancellationToken token)
         {
             await operations.WaitAsync(token);
@@ -156,6 +164,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>响应场景已卸载。</summary>
         private void OnSceneUnloaded(Scene scene)
         {
             if (loaded.Remove(scene.handle))
@@ -164,6 +173,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>通知场景管理器。</summary>
         private static void Notify(Action<Scene> listeners, Scene scene)
         {
             if (listeners == null)
@@ -184,6 +194,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private void MainThread()
         {
             if (disposed)
@@ -197,6 +208,7 @@ namespace Game.Framework.Scenes
             }
         }
 
+        /// <summary>调用 MainThread 完成就绪。</summary>
         private void Ready()
         {
             MainThread();

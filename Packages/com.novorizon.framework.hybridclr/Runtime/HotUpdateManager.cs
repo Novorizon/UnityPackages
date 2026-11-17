@@ -32,6 +32,7 @@ namespace Game.Framework.HotUpdate
             throw new InvalidOperationException("Pass UpdateSettings to Initialize, then await StartAsync.");
         }
 
+        /// <summary>获取平台标识。</summary>
         public static string GetPlatformId() => UpdateCoordinator.PlatformId();
 
         /// <summary>只保存配置和本次启动上下文，不检查更新、不下载或加载代码。</summary>
@@ -221,6 +222,7 @@ namespace Game.Framework.HotUpdate
                         // 模块初始化有独立时限，等待超时后取消当前启动尝试。
                         if (await Task.WhenAny(initialize, deadline) != initialize)
                         {
+                            // 超时后仍观察模块初始化任务的最终状态，避免迟到的异常无人处理。
                             _ = ObserveInitializationAsync(initialize);
                             stopToken.ThrowIfCancellationRequested();
                             throw new TimeoutException("Game initialization exceeded its time budget.");
@@ -291,6 +293,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>异步观察初始化。</summary>
         private static async Task ObserveInitializationAsync(Task initialize)
         {
             try
@@ -306,16 +309,19 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>记录热更管理器。</summary>
         public void Log(string message)
         {
             Debug.Log("[Startup] " + message);
         }
 
+        /// <summary>表示热更管理器中的会话宿主。</summary>
         private sealed class SessionHost : IGameContextHost
         {
             private readonly HotUpdateManager owner;
             private readonly CancellationTokenSource session;
             public object StartupContext { get; }
+            /// <summary>使用调用方提供的owner、session、startupContext创建 SessionHost。</summary>
             internal SessionHost(HotUpdateManager owner, CancellationTokenSource session, object startupContext)
             {
                 this.owner = owner;
@@ -323,6 +329,7 @@ namespace Game.Framework.HotUpdate
                 StartupContext = startupContext;
             }
 
+            /// <summary>记录会话宿主。</summary>
             public void Log(string message)
             {
                 if (ReferenceEquals(owner.lifetime, session))
@@ -331,6 +338,7 @@ namespace Game.Framework.HotUpdate
                 }
             }
 
+            /// <summary>上报就绪。</summary>
             public void ReportReady(string version)
             {
                 if (!ReferenceEquals(owner.lifetime, session))
@@ -342,6 +350,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>上报就绪。</summary>
         private void ReportReady(string version)
         {
             if (ready || initializationReturned || startupClosed || lifetime == null || lifetime.IsCancellationRequested || string.IsNullOrWhiteSpace(version))
@@ -353,6 +362,7 @@ namespace Game.Framework.HotUpdate
             hotGameVersion = version;
         }
 
+        /// <summary>通知应用 Pause。</summary>
         public void NotifyApplicationPause(bool paused)
         {
             if (IsReady && hotGame is IGameApplicationEvents events)
@@ -361,6 +371,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>通知应用焦点。</summary>
         public void NotifyApplicationFocus(bool focused)
         {
             if (IsReady && hotGame is IGameApplicationEvents events)
@@ -396,6 +407,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>取消热更管理器。</summary>
         private static void Cancel(CancellationTokenSource source)
         {
             try
@@ -408,6 +420,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>停止 Hot 游戏。</summary>
         private void StopHotGame()
         {
             if (hotGameStopped)

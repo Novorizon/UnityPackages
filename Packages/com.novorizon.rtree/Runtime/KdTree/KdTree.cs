@@ -9,8 +9,10 @@ namespace RTree
     /// index atomically; queries can run concurrently with other queries. Points
     /// and payloads may repeat. Equal-distance results retain input order.
     /// </summary>
+    /// <remarks>提供Kd 树的实现。</remarks>
     public sealed class KdTree<T> : IPointQuery3<T>
     {
+        /// <summary>点对应的记录。记录一次操作及其相关数据。</summary>
         private struct PointRecord
         {
             internal Vector3d Position;
@@ -18,12 +20,14 @@ namespace RTree
             internal int SourceIndex;
         }
 
+        /// <summary>节点对应的记录。记录一次操作及其相关数据。</summary>
         private struct NodeRecord
         {
             internal Aabb Bounds;
             internal int Start, Count, Left, Right, MinSourceIndex;
         }
 
+        /// <summary>表示Kd 树中的快照。</summary>
         private sealed class Snapshot
         {
             internal PointRecord[] Points;
@@ -31,11 +35,14 @@ namespace RTree
             internal int Root;
         }
 
+        /// <summary>轴向对应的比较器。定义排序或相等比较规则。</summary>
         private sealed class AxisComparer : IComparer<PointRecord>
         {
             private readonly int axis;
+            /// <summary>使用调用方提供的axis创建 AxisComparer。</summary>
             internal AxisComparer(int axis) { this.axis = axis; }
 
+            /// <summary>比较传入的 left、right。</summary>
             public int Compare(PointRecord left, PointRecord right)
             {
                 double a = Coordinate(left.Position, axis), b = Coordinate(right.Position, axis);
@@ -44,6 +51,7 @@ namespace RTree
             }
         }
 
+        /// <summary>表示Kd 树中的构建器。</summary>
         private sealed class Builder
         {
             private readonly PointRecord[] points;
@@ -52,18 +60,21 @@ namespace RTree
             private static readonly AxisComparer[] comparers =
                 { new AxisComparer(0), new AxisComparer(1), new AxisComparer(2) };
 
+            /// <summary>使用调用方提供的points、leafCapacity创建 Builder。</summary>
             internal Builder(PointRecord[] points, int leafCapacity)
             {
                 this.points = points;
                 this.leafCapacity = leafCapacity;
             }
 
+            /// <summary>构建构建器。</summary>
             internal Snapshot Build()
             {
                 int root = points.Length == 0 ? -1 : BuildNode(0, points.Length);
                 return new Snapshot { Points = points, Nodes = nodes.ToArray(), Root = root };
             }
 
+            /// <summary>构建节点。</summary>
             private int BuildNode(int start, int count)
             {
                 Vector3d first = points[start].Position;
@@ -94,6 +105,7 @@ namespace RTree
 
             // Median-of-three selection avoids sorting whole subtrees. A bounded
             // partition budget falls back to introsort on adversarial inputs.
+            /// <summary>选择 Median。</summary>
             private void SelectMedian(int first, int last, int middle, AxisComparer comparer)
             {
                 int budget = 0;
@@ -124,11 +136,13 @@ namespace RTree
                 }
             }
 
+            /// <summary>处理Swap。</summary>
             private static void Swap(PointRecord[] records, int left, int right)
             {
                 PointRecord value = records[left]; records[left] = records[right]; records[right] = value;
             }
 
+            /// <summary>根据传入参数取得Largest 轴向。</summary>
             private static int LargestAxis(Aabb bounds)
             {
                 double x = bounds.MaxX - bounds.MinX, y = bounds.MaxY - bounds.MinY, z = bounds.MaxZ - bounds.MinZ;
@@ -146,8 +160,10 @@ namespace RTree
         private readonly ReaderWriterLockSlim sync = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         private Snapshot snapshot;
 
+        /// <summary>用默认配置创建 KdTree，其余初始化交给完整构造函数。</summary>
         public KdTree(IEnumerable<KeyValuePair<Vector3d, T>> points) : this(points, 8) { }
 
+        /// <summary>使用调用方提供的points、leafCapacity创建 KdTree。</summary>
         public KdTree(IEnumerable<KeyValuePair<Vector3d, T>> points, int leafCapacity)
         {
             if (leafCapacity < 1) throw new ArgumentOutOfRangeException("leafCapacity");
@@ -166,6 +182,7 @@ namespace RTree
         }
 
         /// <summary>Validates and builds privately before publishing the new index.</summary>
+        /// <remarks>重建 Kd 树。</remarks>
         public void Rebuild(IEnumerable<KeyValuePair<Vector3d, T>> points)
         {
             Snapshot replacement = BuildSnapshot(points);
@@ -174,6 +191,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>构建快照。</summary>
         private Snapshot BuildSnapshot(IEnumerable<KeyValuePair<Vector3d, T>> points)
         {
             if (points == null) throw new ArgumentNullException("points");
@@ -186,12 +204,14 @@ namespace RTree
             return new Builder(records.ToArray(), leafCapacity).Build();
         }
 
+        /// <summary>根据传入参数取得半径。</summary>
         public int Radius(Vector3d point, double maxDistance, List<Neighbor<T>> results)
         {
             return Radius(point, maxDistance, results, SpatialQueryWorkspaces.Get());
         }
 
         /// <summary>Returns every point within the inclusive radius, ordered by distance and input order.</summary>
+        /// <remarks>根据传入参数取得半径。</remarks>
         public int Radius(Vector3d point, double maxDistance, List<Neighbor<T>> results, QueryContext context)
         {
             ValidateResults(results, context);
@@ -241,12 +261,14 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>根据传入参数取得K 最近。</summary>
         public int KNearest(Vector3d point, int k, double maxDistance, List<Neighbor<T>> results)
         {
             return KNearest(point, k, maxDistance, results, SpatialQueryWorkspaces.Get());
         }
 
         /// <summary>Returns up to k points within the inclusive distance limit.</summary>
+        /// <remarks>根据传入参数取得K 最近。</remarks>
         public int KNearest(Vector3d point, int k, double maxDistance, List<Neighbor<T>> results, QueryContext context)
         {
             if (k < 0) throw new ArgumentOutOfRangeException("k");
@@ -300,12 +322,14 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>验证结果。</summary>
         private static void ValidateResults(List<Neighbor<T>> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
             if (context == null) throw new ArgumentNullException("context");
         }
 
+        /// <summary>压入节点。</summary>
         private static void PushNode(Snapshot data, int nodeId, Vector3d point, DistanceKey threshold, QueryContext context, bool full)
         {
             NodeRecord node = data.Nodes[nodeId];
@@ -317,6 +341,7 @@ namespace RTree
                 context.Push(nodeId, distance);
         }
 
+        /// <summary>调用 CompareCandidate 完成Offer 候选项。</summary>
         private static void OfferCandidate(QueryContext context, PointRecord[] points, int pointId, DistanceKey distance, int k)
         {
             if (context.candidateCount < k)
@@ -341,12 +366,14 @@ namespace RTree
             }
         }
 
+        /// <summary>比较候选项。</summary>
         private static int CompareCandidate(PointRecord[] points, int left, DistanceKey leftDistance, int right, DistanceKey rightDistance)
         {
             int order = leftDistance.CompareTo(rightDistance);
             return order != 0 ? order : points[left].SourceIndex.CompareTo(points[right].SourceIndex);
         }
 
+        /// <summary>筛排 Down。</summary>
         private static void SiftDown(QueryContext context, PointRecord[] points, int parent, int count)
         {
             int pointId = context.candidates[parent];
@@ -365,6 +392,7 @@ namespace RTree
             context.candidateDistances[parent] = distance;
         }
 
+        /// <summary>排序候选项。</summary>
         private static void SortCandidates(QueryContext context, PointRecord[] points)
         {
             int count = context.candidateCount;
@@ -381,6 +409,7 @@ namespace RTree
             }
         }
 
+        /// <summary>写入结果。</summary>
         private static int WriteResults(QueryContext context, PointRecord[] points, List<Neighbor<T>> results)
         {
             int count = context.candidateCount;
@@ -390,10 +419,13 @@ namespace RTree
             return count;
         }
 
+        /// <summary>根据传入参数取得坐标。</summary>
         private static double Coordinate(Vector3d point, int axis) { return axis == 0 ? point.X : axis == 1 ? point.Y : point.Z; }
 
+        /// <summary>根据传入参数取得点包围盒。</summary>
         private static Aabb PointBounds(Vector3d point) { return new Aabb(point.X, point.Y, point.Z, point.X, point.Y, point.Z); }
 
+        /// <summary>根据传入参数取得点距离。</summary>
         private static DistanceKey PointDistance(Vector3d point, Vector3d query) { return PointBounds(point).Distance(query.X, query.Y, query.Z); }
     }
 }

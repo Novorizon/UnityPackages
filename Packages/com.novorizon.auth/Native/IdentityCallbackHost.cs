@@ -5,8 +5,10 @@ using UnityEngine;
 namespace Game.Framework.Auth.Native
 {
     /// <summary>Runtime-only callback receiver. No token is sent to Unity's logger.</summary>
+    /// <remarks>提供身份回调宿主的实现。</remarks>
     public sealed class IdentityCallbackHost : MonoBehaviour
     {
+        /// <summary>表示身份回调宿主中的响应。</summary>
         [Serializable]
         public sealed class Response
         {
@@ -20,6 +22,7 @@ namespace Game.Framework.Auth.Native
         private TaskCompletionSource<Response> pending;
         private string request;
 
+        /// <summary>开始身份回调宿主。</summary>
         public Task<Response> Begin(string requestId)
         {
             if (string.IsNullOrWhiteSpace(requestId))
@@ -35,6 +38,7 @@ namespace Game.Framework.Auth.Native
             return pending.Task;
         }
 
+        /// <summary>响应原生身份结果。</summary>
         [UnityEngine.Scripting.Preserve]
         public void OnNativeIdentityResult(string json)
         {
@@ -58,6 +62,7 @@ namespace Game.Framework.Auth.Native
             completion.TrySetResult(value);
         }
 
+        /// <summary>标记失败 Start。</summary>
         public void FailStart()
         {
             var completion = pending;
@@ -66,6 +71,7 @@ namespace Game.Framework.Auth.Native
             completion?.TrySetException(new InvalidOperationException("The native identity request could not start."));
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             pending?.TrySetException(new ObjectDisposedException(nameof(IdentityCallbackHost)));

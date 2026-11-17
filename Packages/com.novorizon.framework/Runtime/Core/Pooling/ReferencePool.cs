@@ -4,8 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace Game.Framework.Pooling
 {
-    public interface IReferencePoolable { void Reset(); }
+    /// <summary>定义引用 Poolable的调用契约。</summary>
+    public interface IReferencePoolable { /* 恢复该类型约定的初始状态。 */ void Reset(); }
 
+    /// <summary>提供引用池的实现。</summary>
     public static class ReferencePool
     {
         private static readonly object gate = new object();
@@ -20,8 +22,10 @@ namespace Game.Framework.Pooling
                 }
             }
         }
+        /// <summary>登记引用池。</summary>
         internal static ReferencePool<T> Register<T>(ReferencePool<T> pool) where T : class, IReferencePoolable, new()
         { lock (gate) sharedResets.Add(pool.Clear); return pool; }
+        /// <summary>清空全部。</summary>
         public static void ClearAll()
         {
             Action[] snapshot; lock (gate) snapshot = sharedResets.ToArray();
@@ -30,9 +34,12 @@ namespace Game.Framework.Pooling
     }
 
     // Identity-based ownership checks, bounded retention, and no strong roots for forgotten rentals.
+    /// <summary>提供引用池的实现。</summary>
     public sealed class ReferencePool<T> where T : class, IReferencePoolable, new()
     {
+        /// <summary>定义状态可选的枚举值。</summary>
         private enum State { Rented, Returning, Cached, Retired }
+        /// <summary>表示引用池中的条目。</summary>
         private sealed class Entry { internal T Value; internal State State; internal long Generation; }
         private static readonly Lazy<ReferencePool<T>> shared = new Lazy<ReferencePool<T>>(() => ReferencePool.Register(new ReferencePool<T>()));
         private readonly object gate = new object();
@@ -42,11 +49,13 @@ namespace Game.Framework.Pooling
         public static ReferencePool<T> Shared => shared.Value;
         public int MaximumRetained { get; }
         public int CountInactive { get { lock (gate) return cached.Count; } }
+        /// <summary>使用调用方提供的maximumRetained创建 ReferencePool。</summary>
         public ReferencePool(int maximumRetained = 256)
         {
             if (maximumRetained < 0) throw new ArgumentOutOfRangeException(nameof(maximumRetained));
             MaximumRetained = maximumRetained;
         }
+        /// <summary>租用引用池。</summary>
         public T Rent()
         {
             lock (gate)
@@ -62,6 +71,7 @@ namespace Game.Framework.Pooling
             lock (gate) { created.Generation = generation; ownership.Add(created.Value, created); }
             return created.Value;
         }
+        /// <summary>归还当前租用的对象。</summary>
         public void Return(T value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
@@ -81,6 +91,7 @@ namespace Game.Framework.Pooling
                 else { entry.State = State.Retired; ownership.Remove(value); }
             }
         }
+        /// <summary>预热引用池。</summary>
         public void Prewarm(int count)
         {
             if (count < 0 || count > MaximumRetained) throw new ArgumentOutOfRangeException(nameof(count));
@@ -96,6 +107,7 @@ namespace Game.Framework.Pooling
                 }
             }
         }
+        /// <summary>裁剪引用池。</summary>
         public void Trim(int retainedCount = 0)
         {
             if (retainedCount < 0) throw new ArgumentOutOfRangeException(nameof(retainedCount));
@@ -106,6 +118,7 @@ namespace Game.Framework.Pooling
                 cached.TrimExcess();
             }
         }
+        /// <summary>清空引用池。</summary>
         public void Clear()
         {
             lock (gate)

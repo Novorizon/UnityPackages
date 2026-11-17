@@ -4,8 +4,10 @@ using UnityEngine;
 
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
+        /// <summary>查找单位核心。</summary>
         private void FindUnitsCore(Vector3 center, float radius, TargetQuery query, IList<IUnit> results)
         {
             using (BeginExecution())
@@ -50,10 +52,13 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>表示技能系统中的Query 身份对象池。</summary>
         private static class QueryIdentityPool
         {
             [ThreadStatic] private static Stack<HashSet<int>> available;
+            /// <summary>租用 Query 身份对象池。</summary>
             internal static HashSet<int> Rent() => available != null && available.Count > 0 ? available.Pop() : new HashSet<int>();
+            /// <summary>结束Query 身份对象池对相关资源的持有，并执行该类型的清理流程。</summary>
             internal static void Release(HashSet<int> values)
             {
                 bool retain = values.Count <= 4096;

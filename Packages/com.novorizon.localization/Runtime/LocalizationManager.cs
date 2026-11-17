@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Game.Framework.Localization
 {
     /// <summary>Main-thread service. Prepare fonts/assets before committing a language change.</summary>
+    /// <remarks>本地化对应的管理器。管理对应模块的状态和操作入口。</remarks>
     public sealed class LocalizationManager : Singleton<LocalizationManager>, IDisposable
     {
         private LocalizationCatalog catalog;
@@ -21,11 +22,13 @@ namespace Game.Framework.Localization
         public int KeyCount => catalog?.KeyCount ?? 0;
         public event Action<string> LanguageChanged;
 
+        /// <summary>初始化本地化管理器。</summary>
         public override void Initialize()
         {
             RequireInitialized();
         }
 
+        /// <summary>初始化本地化管理器。</summary>
         public void Initialize(LocalizationCatalog translations, string language, string fallbackLanguage = "en")
         {
             MainThread();
@@ -63,12 +66,14 @@ namespace Game.Framework.Localization
             return catalog.TryGet(key, current, out var text) || catalog.TryGet(key, fallback, out text) ? text : key;
         }
 
+        /// <summary>格式化传入的 key、arguments。</summary>
         public string Format(string key, params object[] arguments)
         {
             string text = Get(key);
             return string.Format(current, text, arguments ?? throw new ArgumentNullException(nameof(arguments)));
         }
 
+        /// <summary>设置语言。</summary>
         public void SetLanguage(string language)
         {
             RequireInitialized();
@@ -122,6 +127,7 @@ namespace Game.Framework.Localization
             }
         }
 
+        /// <summary>提交本地化管理器。</summary>
         private void Commit(CultureInfo selected)
         {
             if (current.Name == selected.Name)
@@ -174,6 +180,7 @@ namespace Game.Framework.Localization
             }
         }
 
+        /// <summary>根据传入参数取得区域设置。</summary>
         private static CultureInfo Culture(string language)
         {
             var culture = CultureInfo.GetCultureInfo(language);
@@ -185,6 +192,7 @@ namespace Game.Framework.Localization
             return culture;
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -193,6 +201,7 @@ namespace Game.Framework.Localization
             }
         }
 
+        /// <summary>检查已初始化是否满足前置条件。</summary>
         private void RequireInitialized()
         {
             MainThread();
@@ -202,6 +211,7 @@ namespace Game.Framework.Localization
             }
         }
 
+        /// <summary>结束本地化管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public override void Dispose()
         {
             if (disposed)

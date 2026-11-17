@@ -11,8 +11,10 @@ using UnityEngine;
 namespace Game.Ability.Editor.Odin
 {
     // Drawers stay in the optional Editor assembly. Public runtime DTOs carry no Odin attributes.
+    /// <summary>提供技能 JSON 技能绘制器的实现。</summary>
     public sealed class AbilityJsonAbilityDrawer : OdinValueDrawer<JsonAbility>
     {
+        /// <summary>绘制属性布局。</summary>
         protected override void DrawPropertyLayout(GUIContent label)
         {
             if (AbilityFormContext.Current == null) { CallNextDrawer(label); return; }
@@ -20,8 +22,10 @@ namespace Game.Ability.Editor.Odin
         }
     }
 
+    /// <summary>提供技能 JSON 状态修饰器绘制器的实现。</summary>
     public sealed class AbilityJsonModifierDrawer : OdinValueDrawer<JsonModifier>
     {
+        /// <summary>绘制属性布局。</summary>
         protected override void DrawPropertyLayout(GUIContent label)
         {
             if (AbilityFormContext.Current == null) { CallNextDrawer(label); return; }
@@ -29,8 +33,10 @@ namespace Game.Ability.Editor.Odin
         }
     }
 
+    /// <summary>提供技能 JSON 投射物绘制器的实现。</summary>
     public sealed class AbilityJsonProjectileDrawer : OdinValueDrawer<JsonProjectile>
     {
+        /// <summary>绘制属性布局。</summary>
         protected override void DrawPropertyLayout(GUIContent label)
         {
             if (AbilityFormContext.Current == null) { CallNextDrawer(label); return; }
@@ -38,8 +44,10 @@ namespace Game.Ability.Editor.Odin
         }
     }
 
+    /// <summary>提供技能 JSON 文档绘制器的实现。</summary>
     public sealed class AbilityJsonDocumentDrawer : OdinValueDrawer<JsonAbilityDocument>
     {
+        /// <summary>绘制属性布局。</summary>
         protected override void DrawPropertyLayout(GUIContent label)
         {
             if (AbilityFormContext.Current == null) { CallNextDrawer(label); return; }
@@ -47,41 +55,53 @@ namespace Game.Ability.Editor.Odin
         }
     }
 
+    /// <summary>技能表单对应的上下文。携带一次操作所需的上下文。</summary>
     internal sealed class AbilityFormContext
     {
         [ThreadStatic] internal static AbilityFormContext Current;
         internal Func<string, IEnumerable<string>> References;
         private readonly Dictionary<string, bool> expanded = new Dictionary<string, bool>(StringComparer.Ordinal);
 
+        /// <summary>返回展开后的的判断结果。</summary>
         internal bool Expanded(string key, bool fallback)
         {
             return expanded.TryGetValue(key, out bool value) ? value : fallback;
         }
 
+        /// <summary>设置展开后的。</summary>
         internal void SetExpanded(string key, bool value) => expanded[key] = value;
+        /// <summary>恢复该类型约定的初始状态。</summary>
         internal void Reset() => expanded.Clear();
+        /// <summary>压入技能表单上下文。</summary>
         internal static IDisposable Push(AbilityFormContext value) => new Scope(value);
 
+        /// <summary>表示技能表单上下文中的作用域。</summary>
         private sealed class Scope : IDisposable
         {
             private readonly AbilityFormContext previous;
+            /// <summary>使用调用方提供的value创建 Scope。</summary>
             internal Scope(AbilityFormContext value) { previous = Current; Current = value; }
+            /// <summary>结束作用域对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose() { Current = previous; }
         }
     }
 
     /// <summary>Schema-tree renderer: a modifier reference is always a name, never recursive content.</summary>
+    /// <remarks>提供技能 JSON 表单的实现。</remarks>
     internal static class AbilityJsonForm
     {
+        /// <summary>表示技能 JSON 表单中的区段。</summary>
         private sealed class Section
         {
             internal string Title;
             internal string Detail;
             internal string[] Fields;
             internal bool Open;
+            /// <summary>使用调用方提供的title、detail、open创建 Section。</summary>
             internal Section(string title, string detail, bool open, params string[] fields) { Title = title; Detail = detail; Open = open; Fields = fields; }
         }
 
+        /// <summary>表示技能 JSON 表单中的Enum 选项。</summary>
         private sealed class EnumChoices
         {
             internal bool Flags;
@@ -167,6 +187,7 @@ namespace Game.Ability.Editor.Odin
         private static Color Accent => EditorGUIUtility.isProSkin ? new Color(0.27f, 0.82f, 0.73f) : new Color(0.04f, 0.48f, 0.45f);
         private static AbilityFormContext Context => AbilityFormContext.Current;
 
+        /// <summary>绘制技能 JSON 表单。</summary>
         internal static void Draw(object value, string path)
         {
             EnsureStyles();
@@ -190,6 +211,7 @@ namespace Game.Ability.Editor.Odin
             else DrawFields(value, path, Fields(value.GetType()).Keys);
         }
 
+        /// <summary>绘制区段。</summary>
         private static void DrawSection(object owner, string path, Section group)
         {
             string key = path + "/" + group.Title;
@@ -208,6 +230,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.Space(7f);
         }
 
+        /// <summary>绘制字段。</summary>
         private static void DrawFields(object owner, string path, IEnumerable<string> names)
         {
             Dictionary<string, FieldInfo> map = Fields(owner.GetType());
@@ -215,6 +238,7 @@ namespace Game.Ability.Editor.Odin
                 if (map.TryGetValue(name, out FieldInfo field)) DrawField(owner, field, path + "/" + name);
         }
 
+        /// <summary>绘制字段。</summary>
         private static void DrawField(object owner, FieldInfo field, string path)
         {
             GUIContent label = Label(field.Name);
@@ -231,6 +255,7 @@ namespace Game.Ability.Editor.Odin
             if (!Equals(current, next)) field.SetValue(owner, next);
         }
 
+        /// <summary>绘制字符串。</summary>
         private static string DrawString(string name, GUIContent label, string value)
         {
             if (name == "description")
@@ -262,6 +287,7 @@ namespace Game.Ability.Editor.Odin
             return result;
         }
 
+        /// <summary>绘制整数。</summary>
         private static int DrawInteger(Type owner, string name, GUIContent label, int value)
         {
             Type enumeration = EnumType(owner, name);
@@ -303,6 +329,7 @@ namespace Game.Ability.Editor.Odin
             return choices[Math.Max(0, Math.Min(index, choices.Length - 1))];
         }
 
+        /// <summary>绘制等级。</summary>
         private static JsonLevelValue DrawLevel(GUIContent label, JsonLevelValue value, string path, bool duration)
         {
             EditorGUILayout.BeginVertical();
@@ -368,6 +395,7 @@ namespace Game.Ability.Editor.Odin
             return value;
         }
 
+        /// <summary>绘制可选。</summary>
         private static object DrawOptional(GUIContent label, object value, Type type, string path)
         {
             EditorGUILayout.BeginVertical(itemStyle);
@@ -391,6 +419,7 @@ namespace Game.Ability.Editor.Odin
             return value;
         }
 
+        /// <summary>绘制数组。</summary>
         private static Array DrawArray(GUIContent label, Array value, Type element, string path)
         {
             int count = value?.Length ?? 0;
@@ -457,6 +486,7 @@ namespace Game.Ability.Editor.Odin
             return value;
         }
 
+        /// <summary>绘制动作。</summary>
         private static void DrawAction(JsonAction action, string path)
         {
             DrawFields(action, path, new[] { "actionType", "target" });
@@ -476,6 +506,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>根据传入参数取得新值。</summary>
         private static object NewValue(Type type)
         {
             object result = Activator.CreateInstance(type);
@@ -486,6 +517,7 @@ namespace Game.Ability.Editor.Odin
             return result;
         }
 
+        /// <summary>根据传入参数取得条目标题。</summary>
         private static string ItemTitle(object item, int index)
         {
             string prefix = (index + 1).ToString("00") + "  ";
@@ -500,6 +532,7 @@ namespace Game.Ability.Editor.Odin
             return prefix + "新条目";
         }
 
+        /// <summary>根据传入参数取得字段。</summary>
         private static Dictionary<string, FieldInfo> Fields(Type type)
         {
             if (!fields.TryGetValue(type, out Dictionary<string, FieldInfo> result))
@@ -510,6 +543,7 @@ namespace Game.Ability.Editor.Odin
             return result;
         }
 
+        /// <summary>根据传入参数取得Additional 字段。</summary>
         private static string[] AdditionalFields(Type type, Section[] groups)
         {
             if (!additionalFields.TryGetValue(type, out string[] result))
@@ -522,6 +556,7 @@ namespace Game.Ability.Editor.Odin
             return result;
         }
 
+        /// <summary>根据传入参数取得选项。</summary>
         private static EnumChoices Choices(Type type)
         {
             if (!enumChoices.TryGetValue(type, out EnumChoices result))
@@ -538,6 +573,7 @@ namespace Game.Ability.Editor.Odin
             return result;
         }
 
+        /// <summary>绘制可折叠区域，返回当前是否展开。</summary>
         private static bool Foldout(string path, string title, bool fallback)
         {
             bool value = Context?.Expanded(path, fallback) ?? fallback;
@@ -548,6 +584,7 @@ namespace Game.Ability.Editor.Odin
             return next;
         }
 
+        /// <summary>根据传入参数取得标签。</summary>
         private static GUIContent Label(string name)
         {
             string text = labels.TryGetValue(name, out string label) ? label : name;
@@ -559,6 +596,7 @@ namespace Game.Ability.Editor.Odin
             return new GUIContent(text, hint);
         }
 
+        /// <summary>根据传入参数取得Enum 类型。</summary>
         private static Type EnumType(Type owner, string name)
         {
             if (name == "behavior") return typeof(AbilityBehavior);
@@ -579,6 +617,7 @@ namespace Game.Ability.Editor.Odin
             return null;
         }
 
+        /// <summary>根据传入参数取得EnumCaption。</summary>
         private static string EnumCaption(Type type, int value)
         {
             string name = Enum.GetName(type, value);
@@ -586,6 +625,7 @@ namespace Game.Ability.Editor.Odin
             return enumLabels.TryGetValue(name, out string translation) ? translation + " · " + name : name;
         }
 
+        /// <summary>根据传入参数取得引用种类。</summary>
         private static string ReferenceKind(string name)
         {
             if (name == "modifierName" || name == "intrinsicModifierName" || name == "auraModifierName") return "modifier";
@@ -594,12 +634,14 @@ namespace Game.Ability.Editor.Odin
             return null;
         }
 
+        /// <summary>根据传入参数取得引用选项。</summary>
         private static string[] ReferenceOptions(string kind)
         {
             IEnumerable<string> values = Context?.References?.Invoke(kind);
             return values?.Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.Ordinal).OrderBy(value => value, StringComparer.Ordinal).ToArray() ?? Array.Empty<string>();
         }
 
+        /// <summary>根据传入参数取得Finite 字段。</summary>
         private static float FiniteField(GUIContent label, float value)
         {
             float edited = EditorGUILayout.FloatField(label, value);
@@ -608,6 +650,7 @@ namespace Game.Ability.Editor.Odin
             return value;
         }
 
+        /// <summary>检查并确保 Styles 可用。</summary>
         private static void EnsureStyles()
         {
             bool dark = EditorGUIUtility.isProSkin;

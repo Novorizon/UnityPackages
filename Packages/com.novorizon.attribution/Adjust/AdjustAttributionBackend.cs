@@ -7,6 +7,7 @@ using AdjustApi = AdjustSdk.Adjust;
 
 namespace Game.Framework.Attribution.Adjust
 {
+    /// <summary>Adjust 归因对应的后端。承接上层请求，调用具体平台或实现。</summary>
     public sealed class AdjustAttributionBackend : AttributionBackend
     {
         private readonly string appToken;
@@ -14,6 +15,7 @@ namespace Game.Framework.Attribution.Adjust
         private readonly Dictionary<string, string> eventTokens;
         public override string Id => "adjust";
 
+        /// <summary>使用调用方提供的appToken、eventTokens、sandbox创建 AdjustAttributionBackend。</summary>
         public AdjustAttributionBackend(string appToken, IReadOnlyDictionary<string, string> eventTokens, bool sandbox = true, bool collectAdvertisingIdentifiers = false)
         {
             if (string.IsNullOrWhiteSpace(appToken))
@@ -35,6 +37,7 @@ namespace Game.Framework.Attribution.Adjust
             }
         }
 
+        /// <summary>响应 Initialize。</summary>
         protected override void OnInitialize(string initialUserId)
         {
             if (Application.isEditor || (Application.platform != RuntimePlatform.Android && Application.platform != RuntimePlatform.IPhonePlayer))
@@ -58,6 +61,7 @@ namespace Game.Framework.Attribution.Adjust
             AdjustApi.Enable();
         }
 
+        /// <summary>响应集合采集开启。</summary>
         protected override void OnSetCollectionEnabled(bool enabled)
         {
             if (enabled)
@@ -70,6 +74,7 @@ namespace Game.Framework.Attribution.Adjust
             }
         }
 
+        /// <summary>响应集合用户标识。</summary>
         protected override void OnSetUserId(string userId)
         {
             AdjustApi.RemoveGlobalCallbackParameter("game_user_id");
@@ -79,12 +84,14 @@ namespace Game.Framework.Attribution.Adjust
             }
         }
 
+        /// <summary>响应 Log 事件。</summary>
         protected override void OnLogEvent(string name, IReadOnlyDictionary<string, object> properties)
         {
             var value = Event(name, properties);
             AdjustApi.TrackEvent(value);
         }
 
+        /// <summary>根据传入参数取得事件。</summary>
         private AdjustEvent Event(string name, IReadOnlyDictionary<string, object> properties)
         {
             if (!eventTokens.TryGetValue(name, out var token))
@@ -103,11 +110,13 @@ namespace Game.Framework.Attribution.Adjust
             return value;
         }
 
+        /// <summary>响应 Log 收入。</summary>
         protected override void OnLogRevenue(RevenueEvent revenue)
         {
             AdjustApi.TrackEvent(BuildRevenueEvent(revenue));
         }
 
+        /// <summary>构建收入事件。</summary>
         internal AdjustEvent BuildRevenueEvent(RevenueEvent revenue)
         {
             var value = Event(revenue.EventName, revenue.Properties);
@@ -116,6 +125,7 @@ namespace Game.Framework.Attribution.Adjust
             return value;
         }
 
+        /// <summary>响应归因。</summary>
         private void OnAttribution(AdjustAttribution value)
         {
             if (value != null)

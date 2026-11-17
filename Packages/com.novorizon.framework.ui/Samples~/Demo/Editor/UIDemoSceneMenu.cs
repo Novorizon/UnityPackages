@@ -8,8 +8,10 @@ using UnityEngine;
 
 namespace UI.Demo.Editor
 {
+    /// <summary>提供界面示例场景菜单的实现。</summary>
     public static class UIDemoSceneMenu
     {
+        /// <summary>创建场景。</summary>
         [MenuItem("Tools/Novorizon/Demos/Create UI Demo Scene")]
         public static void CreateScene()
         {

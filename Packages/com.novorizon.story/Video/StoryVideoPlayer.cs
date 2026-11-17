@@ -20,9 +20,11 @@ namespace Game.Framework.Story.Video
     /// Stop cancels the operation. Await the returned task before starting another video or releasing its owner.
     /// The default direct audio output has its own volume; projects needing mixer routing can supply another IStoryVideo.
     /// </remarks>
+    /// <remarks>提供剧情视频 Player的实现。</remarks>
     [DisallowMultipleComponent]
     public sealed class StoryVideoPlayer : MonoBehaviour, IStoryVideo
     {
+        /// <summary>表示剧情视频 Player中的操作。</summary>
         private sealed class Operation
         {
             internal readonly CancellationTokenSource Cancellation;
@@ -46,6 +48,7 @@ namespace Game.Framework.Story.Video
             internal VideoPlayer.ErrorEventHandler ErrorHandler;
             internal VideoPlayer.FrameReadyEventHandler FrameHandler;
 
+            /// <summary>使用调用方提供的token、canSkip创建 Operation。</summary>
             internal Operation(CancellationToken token, bool canSkip)
             {
                 CallerToken = token;
@@ -53,6 +56,7 @@ namespace Game.Framework.Story.Video
                 Cancellation = CancellationTokenSource.CreateLinkedTokenSource(token);
             }
 
+            /// <summary>取得信号。</summary>
             private static TaskCompletionSource<bool> Signal()
             {
                 return new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -73,6 +77,7 @@ namespace Game.Framework.Story.Video
         public RenderTexture OutputTexture => current?.Texture;
         public long DecodedFrameCount => current?.FrameCount ?? 0;
 
+        /// <summary>配置剧情视频 Player。</summary>
         public void Configure(IStoryAssets provider)
         {
             MainThread();
@@ -84,6 +89,7 @@ namespace Game.Framework.Story.Video
             assets = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
+        /// <summary>配置图像。</summary>
         public void ConfigureImage(RawImage image, AspectRatioFitter ratio = null)
         {
             MainThread();
@@ -96,6 +102,7 @@ namespace Game.Framework.Story.Video
             aspect = ratio;
         }
 
+        /// <summary>异步播放剧情视频 Player。</summary>
         public async Task PlayAsync(
             string resourceId,
             float prepareTimeoutSeconds,
@@ -215,6 +222,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>跳过当前。</summary>
         public bool SkipCurrent()
         {
             MainThread();
@@ -228,12 +236,14 @@ namespace Game.Framework.Story.Video
             return true;
         }
 
+        /// <summary>停止剧情视频 Player。</summary>
         public void Stop()
         {
             MainThread();
             RequestStop();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         private void Update()
         {
             if (current != null)
@@ -242,11 +252,13 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         private void OnDisable()
         {
             RequestStop();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             destroyed = true;
@@ -258,6 +270,7 @@ namespace Game.Framework.Story.Video
             assets = null;
         }
 
+        /// <summary>调用 Cancel 完成请求 Stop。</summary>
         private void RequestStop()
         {
             if (current == null)
@@ -268,6 +281,7 @@ namespace Game.Framework.Story.Video
             Cancel(current);
         }
 
+        /// <summary>取消剧情视频 Player。</summary>
         private static void Cancel(Operation operation)
         {
             try
@@ -280,6 +294,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>异步取得剧情视频 Player。</summary>
         private static async Task<StoryAssetLease<VideoClip>> AcquireAsync(
             IStoryAssets provider,
             string resourceId,
@@ -302,6 +317,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>异步释放延后。</summary>
         private static async Task ReleaseLateAsync(Task<StoryAssetLease<VideoClip>> loading)
         {
             StoryAssetLease<VideoClip> lease;
@@ -316,6 +332,7 @@ namespace Game.Framework.Story.Video
             lease?.Dispose();
         }
 
+        /// <summary>创建 Player。</summary>
         private void CreatePlayer(Operation operation)
         {
             operation.Object = new GameObject("Story video operation");
@@ -370,12 +387,14 @@ namespace Game.Framework.Story.Video
             player.frameReady += operation.FrameHandler;
         }
 
+        /// <summary>检查输入是否仍是当前有效值。</summary>
         private bool IsCurrent(Operation operation, VideoPlayer player)
         {
             return !destroyed && ReferenceEquals(current, operation) && !operation.Cleaned
                 && !operation.Cancellation.IsCancellationRequested && ReferenceEquals(operation.Player, player);
         }
 
+        /// <summary>创建目标。</summary>
         private void CreateTarget(Operation operation)
         {
             var player = operation.Player;
@@ -400,6 +419,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>发布图像。</summary>
         private void PublishImage(Operation operation)
         {
             if (output == null)
@@ -417,6 +437,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>调用 Attempt 完成清理。</summary>
         private void Cleanup(Operation operation)
         {
             if (operation.Cleaned)
@@ -467,6 +488,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>调用 action 完成Attempt。</summary>
         private static void Attempt(Action action, List<Exception> failures)
         {
             try
@@ -479,12 +501,14 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>设置截止时间。</summary>
         private static void SetDeadline(Operation operation, double seconds, string message)
         {
             operation.Deadline = Stopwatch.GetTimestamp() / (double)Stopwatch.Frequency + seconds;
             operation.TimeoutMessage = message;
         }
 
+        /// <summary>调用 ReferenceEquals 完成Expire 截止时间。</summary>
         private void ExpireDeadline(Operation operation)
         {
             if (!ReferenceEquals(current, operation) || operation.Cleaned || operation.Cancellation.IsCancellationRequested ||
@@ -502,6 +526,7 @@ namespace Game.Framework.Story.Video
             operation.Finished.TrySetResult(true);
         }
 
+        /// <summary>抛出异常视频失败原因。</summary>
         private void ThrowVideoFailure(Operation operation)
         {
             operation.Cancellation.Token.ThrowIfCancellationRequested();
@@ -512,11 +537,13 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         private static bool Finite(float value)
         {
             return !float.IsNaN(value) && !float.IsInfinity(value);
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsInitialized || !UnityThread.IsMainThread)
@@ -525,6 +552,7 @@ namespace Game.Framework.Story.Video
             }
         }
 
+        /// <summary>在已销毁时抛出异常。</summary>
         private void ThrowIfDestroyed()
         {
             if (destroyed)

@@ -1,5 +1,6 @@
 namespace UI
 {
+    /// <summary>定义界面层级可选的枚举值。</summary>
     public enum UILayer
     {
         Background = 0,

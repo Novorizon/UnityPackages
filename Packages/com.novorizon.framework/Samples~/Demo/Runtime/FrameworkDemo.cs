@@ -12,16 +12,20 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.Samples.Demo
 {
     /// <summary>An offline dashboard. It owns only its own subscriptions, tasks, timers and pools.</summary>
+    /// <remarks>框架对应的示例。演示该模块的典型调用方式。</remarks>
     public sealed class FrameworkDemo : MonoBehaviour
     {
+        /// <summary>定义示例事件可选的枚举值。</summary>
         enum DemoEvent
         {
             ScoreChanged
         }
 
+        /// <summary>表示框架示例中的得分变化。</summary>
         sealed class ScoreChanged : IMessage
         {
             internal readonly int Delta;
+            /// <summary>使用调用方提供的delta创建 ScoreChanged。</summary>
             internal ScoreChanged(int delta)
             {
                 Delta = delta;
@@ -56,6 +60,7 @@ namespace Game.Framework.Samples.Demo
         public Task? TaskWaitOperation { get; private set; }
         public string Status { get; private set; } = "Ready to start.";
 
+        /// <summary>响应 Unity 组件启用。</summary>
         void OnEnable()
         {
             if (Application.isPlaying)
@@ -64,6 +69,7 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>开始示例。</summary>
         public void BeginDemo()
         {
             if (IsRunning)
@@ -90,12 +96,14 @@ namespace Game.Framework.Samples.Demo
             Status = "Offline demo running. No server, UI package, YooAsset or prefab is required.";
         }
 
+        /// <summary>调用 EndDemo 完成Restart 示例。</summary>
         public void RestartDemo()
         {
             EndDemo();
             BeginDemo();
         }
 
+        /// <summary>订阅事件。</summary>
         public void SubscribeEvents()
         {
             RequireRunning();
@@ -103,6 +111,7 @@ namespace Game.Framework.Samples.Demo
             Status = "Subscribed to the demo's typed score event.";
         }
 
+        /// <summary>取消订阅事件。</summary>
         public void UnsubscribeEvents()
         {
             eventSubscription?.Dispose();
@@ -110,18 +119,21 @@ namespace Game.Framework.Samples.Demo
             Status = "Unsubscribed. Publishing no longer changes this dashboard.";
         }
 
+        /// <summary>发布得分。</summary>
         public void PublishScore(int delta = 1)
         {
             RequireRunning();
             EventManager.Instance.Notify(DemoEvent.ScoreChanged, new ScoreChanged(delta));
         }
 
+        /// <summary>响应得分变化。</summary>
         void OnScoreChanged(ScoreChanged change)
         {
             EventReceivedCount++;
             Score += change.Delta;
         }
 
+        /// <summary>启动定时器。</summary>
         public void StartTimers()
         {
             RequireRunning();
@@ -132,18 +144,22 @@ namespace Game.Framework.Samples.Demo
             Status = "Two one-second timers started: scaled and unscaled time.";
         }
 
+        /// <summary>响应已缩放调度。</summary>
         void OnScaledTick() => ScaledTicks++;
+        /// <summary>响应未缩放调度。</summary>
         void OnUnscaledTick()
         {
             UnscaledTicks++;
         }
 
+        /// <summary>停止定时器。</summary>
         public void StopTimers()
         {
             CancelOwnTimers();
             Status = "This demo's timers were cancelled. Other framework timers are unchanged.";
         }
 
+        /// <summary>取消 Own 定时器。</summary>
         void CancelOwnTimers()
         {
             scaledTimer.Cancel();
@@ -151,6 +167,7 @@ namespace Game.Framework.Samples.Demo
             scaledTimer = unscaledTimer = default;
         }
 
+        /// <summary>暂停游戏时间。</summary>
         public void PauseGameTime()
         {
             RequireRunning();
@@ -165,6 +182,7 @@ namespace Game.Framework.Samples.Demo
             Status = "Game time paused. The unscaled timer continues.";
         }
 
+        /// <summary>恢复游戏时间。</summary>
         public void ResumeGameTime()
         {
             if (!ownsPause)
@@ -181,6 +199,7 @@ namespace Game.Framework.Samples.Demo
             ownsPause = false;
         }
 
+        /// <summary>租用 AndReturn 引用。</summary>
         public void RentAndReturnReference()
         {
             RequireRunning();
@@ -200,6 +219,7 @@ namespace Game.Framework.Samples.Demo
             Status = "Reference object rented, used and returned in finally; Reset removes its GameObject reference.";
         }
 
+        /// <summary>生成对象。</summary>
         public void SpawnObject()
         {
             RequireRunning();
@@ -225,6 +245,7 @@ namespace Game.Framework.Samples.Demo
             Status = "Spawned an empty marker GameObject. Inspect its pool callbacks and reuse in the Hierarchy.";
         }
 
+        /// <summary>移除对象。</summary>
         public void DespawnObject()
         {
             RequireRunning();
@@ -240,6 +261,7 @@ namespace Game.Framework.Samples.Demo
             objects!.Despawn(instance);
         }
 
+        /// <summary>移除全部。</summary>
         public void DespawnAll()
         {
             RequireRunning();
@@ -249,6 +271,7 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>移除已销毁 Spawns。</summary>
         void RemoveDestroyedSpawns()
         {
             for (int i = spawned.Count - 1; i >= 0; i--)
@@ -260,6 +283,7 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>异步调度 Worker。</summary>
         public Task DispatchWorkerAsync()
         {
             RequireRunning();
@@ -285,6 +309,7 @@ namespace Game.Framework.Samples.Demo
             return operation;
         }
 
+        /// <summary>启动任务 Wait。</summary>
         public Task StartTaskWait()
         {
             RequireRunning();
@@ -298,7 +323,9 @@ namespace Game.Framework.Samples.Demo
             return operation;
         }
 
+        /// <summary>完成任务 Wait。</summary>
         public void CompleteTaskWait() => taskCompletion?.TrySetResult(true);
+        /// <summary>取消任务 Wait。</summary>
         public void CancelTaskWait()
         {
             CancellationTokenSource? cancellation = taskWaitCancellation;
@@ -327,6 +354,7 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>观察故障。</summary>
         static void ObserveFault(Task operation)
         {
             _ = operation.ContinueWith(completed =>
@@ -335,6 +363,7 @@ namespace Game.Framework.Samples.Demo
             }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
+        /// <summary>写入 Log。</summary>
         public void WriteLog()
         {
             RequireRunning();
@@ -343,6 +372,7 @@ namespace Game.Framework.Samples.Demo
             Status = "Check the Console. Warn is always emitted; Info is conditional on ENABLE_DEBUG_LOG.";
         }
 
+        /// <summary>结束示例。</summary>
         public void EndDemo()
         {
             if (!IsRunning)
@@ -383,7 +413,9 @@ namespace Game.Framework.Samples.Demo
             Status = "Demo stopped. Only this demo's subscriptions, timers, tasks and pools were cleaned.";
         }
 
+        /// <summary>返回持有会话的判断结果。</summary>
         bool OwnsSession(int expectedGeneration, CancellationToken token) => IsRunning && generation == expectedGeneration && !token.IsCancellationRequested;
+        /// <summary>检查正在运行是否满足前置条件。</summary>
         void RequireRunning()
         {
             if (!IsRunning)
@@ -392,8 +424,11 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         void OnDisable() => EndDemo();
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         void OnDestroy() => EndDemo();
+        /// <summary>运行当前操作。</summary>
         void Run(Action action)
         {
             try
@@ -407,6 +442,7 @@ namespace Game.Framework.Samples.Demo
             }
         }
 
+        /// <summary>绘制当前界面并响应对应的 GUI 事件。</summary>
         void OnGUI()
         {
             float width = Math.Max(240, Math.Min(Screen.width - 24, 760));

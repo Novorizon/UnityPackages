@@ -28,8 +28,10 @@ namespace ECS
 
         public float TimePerFrame { get; set; }
         public static World Self { get; private set; }
+        /// <summary>创建 World 并采用默认配置。</summary>
         internal World() { }
 
+        /// <summary>初始化世界。</summary>
         public virtual void Initialize()
         {
             if (!ReferenceEquals(owner, null) && owner.IsStopping)
@@ -42,6 +44,7 @@ namespace ECS
             Self = this;
         }
 
+        /// <summary>检查管理器是否满足前置条件。</summary>
         private WorldManager RequireManager()
         {
             if (destroyed) throw new ObjectDisposedException(nameof(World));
@@ -51,6 +54,7 @@ namespace ECS
             return owner;
         }
 
+        /// <summary>回收 Or 发布版本系统。</summary>
         private void RecycleOrReleaseSystem(ISystemBase system)
         {
             ReferencePool.TryGetInstance(out var pool);
@@ -58,6 +62,7 @@ namespace ECS
             else system.OnRecycle();
         }
 
+        /// <summary>销毁世界。</summary>
         public virtual void Destroy()
         {
             var manager = owner;
@@ -90,6 +95,7 @@ namespace ECS
         }
 
         /// <summary>Rechecks all systems, including user systems without a component filter.</summary>
+        /// <remarks>注入实体。</remarks>
         public void InjectEntity(Entity entity)
         {
             if (destroyed) return;
@@ -132,6 +138,7 @@ namespace ECS
             Rethrow(firstError);
         }
 
+        /// <summary>注入组件变化。</summary>
         internal void InjectComponentChanged(Entity entity, int componentTypeId)
         {
             if (destroyed) return;
@@ -142,6 +149,7 @@ namespace ECS
             Rethrow(firstError);
         }
 
+        /// <summary>注入 GameObject 变化。</summary>
         internal void InjectGameObjectChanged(Entity entity)
         {
             if (destroyed) return;
@@ -151,28 +159,33 @@ namespace ECS
             Rethrow(firstError);
         }
 
+        /// <summary>调用 routedSystems.Add 完成Route。</summary>
         private void Route(ISystemBase system, Entity entity, ref Exception firstError)
         {
             if (routedSystems.Add(system)) InjectSafely(system, entity, ref firstError);
         }
 
+        /// <summary>注入安全地。</summary>
         private static void InjectSafely(ISystemBase system, Entity entity, ref Exception firstError)
         {
             try { system.InjectEntity(entity); }
             catch (Exception error) { if (firstError == null) firstError = error; }
         }
 
+        /// <summary>重新抛出世界。</summary>
         private static void Rethrow(Exception error)
         {
             if (error != null) ExceptionDispatchInfo.Capture(error).Throw();
         }
 
+        /// <summary>登记系统。</summary>
         public T RegisterSystem<T>() where T : ISystemBase, new()
         {
             RequireManager();
             return (T)Register(ReferencePool.Instance.SpawnInstanceUninitialized<T>());
         }
 
+        /// <summary>登记系统。</summary>
         public ISystemBase RegisterSystem(Type type)
         {
             if (type == null || !typeof(ISystemBase).IsAssignableFrom(type))
@@ -181,12 +194,14 @@ namespace ECS
             return Register((ISystemBase)ReferencePool.Instance.SpawnInstanceUninitialized(type));
         }
 
+        /// <summary>登记系统。</summary>
         public ISystemBase RegisterSystem(string typeName)
         {
             RequireManager();
             return RegisterSystem(ReferencePool.Instance.ResolveType(typeName));
         }
 
+        /// <summary>登记世界。</summary>
         private ISystemBase Register(ISystemBase system)
         {
             if (system == null) throw new ArgumentException("The system type could not be created.");
@@ -209,6 +224,7 @@ namespace ECS
             return system;
         }
 
+        /// <summary>登记立即。</summary>
         private void RegisterNow(ISystemBase system, ulong generation)
         {
             // A pending registration can have been canceled by Destroy or an earlier removal.
@@ -272,6 +288,7 @@ namespace ECS
             if (filter.RequiresGameObject) gameObjectSystems.Add(system);
         }
 
+        /// <summary>移除索引世界。</summary>
         private void Unindex(ISystemBase system)
         {
             unfilteredSystems.Remove(system);
@@ -279,6 +296,7 @@ namespace ECS
             foreach (var pair in componentSystems) pair.Value.Remove(system);
         }
 
+        /// <summary>移除系统。</summary>
         public void RemoveSystem(ISystemBase system)
         {
             if (system == null || !systemGenerations.TryGetValue(system, out var generation)) return;
@@ -291,6 +309,7 @@ namespace ECS
             RemoveSystemNow(system, generation);
         }
 
+        /// <summary>移除系统立即。</summary>
         private void RemoveSystemNow(ISystemBase system, ulong generation)
         {
             if (!systemGenerations.TryGetValue(system, out var current) || current != generation) return;

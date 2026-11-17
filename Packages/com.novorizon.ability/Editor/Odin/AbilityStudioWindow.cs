@@ -13,8 +13,10 @@ using UnityEngine;
 namespace Game.Ability.Editor.Odin
 {
     /// <summary>A project-independent JSON workspace. Scene objects and business scripts never enter this window.</summary>
+    /// <remarks>技能编辑工作台对应的窗口。提供此模块的 Unity 编辑器窗口。</remarks>
     public sealed partial class AbilityStudioWindow : OdinEditorWindow
     {
+        /// <summary>定义条目种类可选的枚举值。</summary>
         private enum EntryKind { Document, Ability, Modifier, Projectile }
         private AbilityWorkspace workspace;
         private AbilityDocumentSession selected;
@@ -44,6 +46,7 @@ namespace Game.Ability.Editor.Odin
         private string SettingsKey => "AbilityStudio.Workspace." + Application.dataPath;
         private string RecoveryKey => "AbilityStudio.Recovery." + Application.dataPath;
 
+        /// <summary>打开技能编辑工作台窗口。</summary>
         [MenuItem("Tools/Ability/Skill Studio", priority = 100)]
         public static void Open()
         {
@@ -53,6 +56,7 @@ namespace Game.Ability.Editor.Odin
             window.Show();
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -62,6 +66,7 @@ namespace Game.Ability.Editor.Odin
             EditorApplication.playModeStateChanged += OnPlayModeChanged;
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         protected override void OnDisable()
         {
             PersistRecovery();
@@ -78,6 +83,7 @@ namespace Game.Ability.Editor.Odin
             base.OnDisable();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         protected override void OnDestroy()
         {
             foreach (AbilityStudioDraft state in undoStates.Values)
@@ -86,6 +92,7 @@ namespace Game.Ability.Editor.Odin
             base.OnDestroy();
         }
 
+        /// <summary>绘制 Editors。</summary>
         protected override void DrawEditors()
         {
             EnsureInitialized();
@@ -113,6 +120,7 @@ namespace Game.Ability.Editor.Odin
             HandleShortcuts();
         }
 
+        /// <summary>检查并确保已初始化可用。</summary>
         private void EnsureInitialized()
         {
             if (initialized) return;
@@ -126,6 +134,7 @@ namespace Game.Ability.Editor.Odin
             if (Directory.Exists(folder)) LoadWorkspace(folder, true);
         }
 
+        /// <summary>绘制头部。</summary>
         private void DrawHeader()
         {
             GUILayout.Space(10);
@@ -154,6 +163,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>绘制工作区 Bar。</summary>
         private void DrawWorkspaceBar()
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Height(29));
@@ -167,6 +177,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>绘制库。</summary>
         private void DrawLibrary(float width, float height)
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(width), GUILayout.Height(height));
@@ -192,6 +203,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndVertical();
         }
 
+        /// <summary>绘制库文档。</summary>
         private void DrawLibraryDocument(LibraryFile file)
         {
             AbilityDocumentSession document = file.Session;
@@ -211,6 +223,7 @@ namespace Game.Ability.Editor.Odin
             GUILayout.Space(5);
         }
 
+        /// <summary>绘制条目。</summary>
         private void DrawEntries(LibraryFile file, bool showAll)
         {
             foreach (LibraryEntry entry in file.Entries)
@@ -230,6 +243,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>绘制中心点。</summary>
         private void DrawCenter(float height)
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.Height(height));
@@ -273,6 +287,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndVertical();
         }
 
+        /// <summary>绘制选择结果 Summary。</summary>
         private void DrawSelectionSummary()
         {
             EditorGUILayout.BeginHorizontal();
@@ -305,6 +320,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>绘制检视面板。</summary>
         private void DrawInspector()
         {
             using (new EditorGUI.DisabledScope(selected.IsReadOnly || EditorApplication.isCompiling))
@@ -338,6 +354,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>绘制 JSON。</summary>
         private void DrawJson()
         {
             EditorGUILayout.BeginHorizontal();
@@ -351,6 +368,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndScrollView();
         }
 
+        /// <summary>绘制引用。</summary>
         private void DrawReferences()
         {
             inspectorScroll = EditorGUILayout.BeginScrollView(inspectorScroll);
@@ -370,6 +388,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndScrollView();
         }
 
+        /// <summary>绘制工具。</summary>
         private void DrawTools(float width, float height)
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(width), GUILayout.Height(height));
@@ -386,6 +405,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndVertical();
         }
 
+        /// <summary>绘制诊断。</summary>
         private void DrawDiagnostics()
         {
             int errors = diagnostics.Count(value => value.Severity == AbilityValidationSeverity.Error);
@@ -425,6 +445,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>绘制沙盒。</summary>
         private void DrawSandbox()
         {
             EditorGUILayout.BeginVertical(theme.Card);
@@ -466,6 +487,7 @@ namespace Game.Ability.Editor.Odin
             if (sandboxReport.LogTruncated) GUILayout.Label("事件记录已按上限截断。", theme.Small);
         }
 
+        /// <summary>绘制 Welcome。</summary>
         private void DrawWelcome()
         {
             GUILayout.Space(45);
@@ -480,6 +502,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndVertical();
         }
 
+        /// <summary>绘制 Footer。</summary>
         private void DrawFooter()
         {
             theme.Rule();
@@ -492,6 +515,7 @@ namespace Game.Ability.Editor.Odin
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>运行沙盒。</summary>
         private void RunSandbox()
         {
             try
@@ -504,12 +528,14 @@ namespace Game.Ability.Editor.Odin
             catch (Exception exception) { Notify("试运行未完成：" + exception.Message, true); }
         }
 
+        /// <summary>取得沙盒上限等级。</summary>
         private int SandboxMaxLevel()
         {
             JsonAbility ability = workspace?.Documents.Where(value => value.Document != null).SelectMany(value => Items(value.Document.abilities)).FirstOrDefault(value => value.name == sandboxAbility);
             return ability?.maxLevel ?? 1;
         }
 
+        /// <summary>处理 Shortcuts。</summary>
         private void HandleShortcuts()
         {
             Event current = Event.current;
@@ -521,6 +547,7 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>通知技能编辑工作台窗口。</summary>
         private void Notify(string text, bool error)
         {
             notice = text;
@@ -528,6 +555,7 @@ namespace Game.Ability.Editor.Odin
             Repaint();
         }
 
+        /// <summary>根据传入参数取得Relative。</summary>
         private static string Relative(string root, string path)
         {
             string prefix = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
@@ -537,6 +565,7 @@ namespace Game.Ability.Editor.Odin
             return full.Substring(prefix.Length);
         }
 
+        /// <summary>收集引用。</summary>
         private static void CollectReferences(object value, ICollection<KeyValuePair<string, string>> references)
         {
             if (value == null || value is string || value.GetType().IsPrimitive) return;
@@ -550,8 +579,11 @@ namespace Game.Ability.Editor.Odin
             }
         }
 
+        /// <summary>根据传入参数取得条目。</summary>
         private static IEnumerable<T> Items<T>(T[] values) where T : class => (values ?? Array.Empty<T>()).Where(value => value != null);
+        /// <summary>判断是否匹配技能编辑工作台窗口。</summary>
         private bool Matches(string value) => string.IsNullOrWhiteSpace(search) || value != null && value.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
+        /// <summary>归一化选择结果。</summary>
         private void NormalizeSelection()
         {
             object value = SelectedObject();
@@ -561,8 +593,10 @@ namespace Game.Ability.Editor.Odin
                 selectedIndex = 0;
             }
         }
+        /// <summary>返回已缓存已修改的判断结果。</summary>
         private bool CachedDirty(AbilityDocumentSession session) => libraryFiles.FirstOrDefault(value => value.Session == session)?.Dirty ?? false;
 
+        /// <summary>刷新库。</summary>
         private void RefreshLibrary(bool all)
         {
             if (workspace == null) { libraryFiles.Clear(); return; }
@@ -588,18 +622,25 @@ namespace Game.Ability.Editor.Odin
             sandboxNames = libraryFiles.SelectMany(value => value.Entries).Where(value => value.Kind == EntryKind.Ability && !string.IsNullOrEmpty(value.Name)).Select(value => value.Name).Distinct().ToArray();
         }
 
+        /// <summary>表示技能编辑工作台窗口中的库文件。</summary>
         private sealed class LibraryFile
         {
             public AbilityDocumentSession Session;
             public bool Dirty;
             public readonly List<LibraryEntry> Entries = new List<LibraryEntry>();
         }
+        /// <summary>表示技能编辑工作台窗口中的库条目。</summary>
         private sealed class LibraryEntry { public EntryKind Kind; public int Index; public string Id; public string Name; public string Label; }
+        /// <summary>追加技能编辑工作台窗口。</summary>
         private static T[] Append<T>(T[] values, T value) => (values ?? Array.Empty<T>()).Concat(new[] { value }).ToArray();
+        /// <summary>移除 At。</summary>
         private static T[] RemoveAt<T>(T[] values, int index) => values.Where((value, i) => i != index).ToArray();
+        /// <summary>根据传入参数取得种类标签。</summary>
         private static string KindLabel(EntryKind kind) => kind == EntryKind.Ability ? "技能" : kind == EntryKind.Modifier ? "效果" : kind == EntryKind.Projectile ? "弹道" : "文档";
 
+        /// <summary>表示技能编辑工作台窗口中的恢复数据。</summary>
         [Serializable] private sealed class RecoveryData { public string root; public RecoveryEntry[] entries; }
+        /// <summary>表示技能编辑工作台窗口中的恢复条目。</summary>
         [Serializable] private sealed class RecoveryEntry { public string path; public string sourceHash; public bool sourceExisted; public string json; }
     }
 }

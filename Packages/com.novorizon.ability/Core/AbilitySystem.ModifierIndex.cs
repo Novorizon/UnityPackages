@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
         private readonly Dictionary<int, List<Modifier>> modifiersByParent = new Dictionary<int, List<Modifier>>();
@@ -17,9 +18,12 @@ namespace Game.Ability
         private static readonly Dictionary<Type, bool> customEventOverrides = new Dictionary<Type, bool>();
         private long nextListenerOrder;
 
+        /// <summary>判断是否为状态修饰器已登记。</summary>
         internal bool IsModifierRegistered(Modifier modifier) => modifier != null && registeredModifiers.Contains(modifier);
+        /// <summary>检查是否包含投射物。</summary>
         internal bool ContainsProjectile(Projectile projectile) => projectile != null && registeredProjectiles.Contains(projectile);
 
+        /// <summary>建立索引状态修饰器。</summary>
         private void IndexModifier(Modifier modifier)
         {
             registeredModifiers.Add(modifier);
@@ -62,6 +66,7 @@ namespace Game.Ability
             listenerOrder.Add(modifier, registration);
         }
 
+        /// <summary>移除索引状态修饰器。</summary>
         private void UnindexModifier(Modifier modifier)
         {
             registeredModifiers.Remove(modifier);
@@ -88,6 +93,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>清空运行时 Indexes。</summary>
         private void ClearRuntimeIndexes()
         {
             modifiersByParent.Clear();
@@ -101,12 +107,14 @@ namespace Game.Ability
             nextListenerOrder = 0;
         }
 
+        /// <summary>租用单位状态修饰器。</summary>
         private List<Modifier> RentUnitModifiers(IUnit unit)
         {
             modifiersByParent.TryGetValue(unit.EntityId, out List<Modifier> bucket);
             return RuntimeSnapshotPool<Modifier>.Rent(bucket);
         }
 
+        /// <summary>租用状态修饰器事件 Listeners。</summary>
         private List<Modifier> RentModifierEventListeners(ModifierEvent value)
         {
             var snapshot = RuntimeSnapshotPool<Modifier>.Rent();
@@ -134,6 +142,7 @@ namespace Game.Ability
             return snapshot;
         }
 
+        /// <summary>选择监听器。</summary>
         private void ChooseListener(List<Modifier> values, int index, int candidateStream, ref Modifier next, ref int stream)
         {
             if (values == null || index >= values.Count) return;
@@ -141,6 +150,7 @@ namespace Game.Ability
             if (next == null || listenerOrder[candidate].Order < listenerOrder[next].Order) { next = candidate; stream = candidateStream; }
         }
 
+        /// <summary>建立索引相关。</summary>
         private void IndexRelated(ModifierEventType type, int id, Modifier modifier)
         {
             if (!relatedListeners.TryGetValue(type, out Dictionary<int, List<Modifier>> byUnit)) relatedListeners.Add(type, byUnit = new Dictionary<int, List<Modifier>>());
@@ -148,6 +158,7 @@ namespace Game.Ability
             listeners.Add(modifier);
         }
 
+        /// <summary>移除索引相关。</summary>
         private void UnindexRelated(ModifierEventType type, int id, Modifier modifier)
         {
             if (!relatedListeners.TryGetValue(type, out Dictionary<int, List<Modifier>> byUnit) || !byUnit.TryGetValue(id, out List<Modifier> listeners)) return;
@@ -156,6 +167,7 @@ namespace Game.Ability
             if (byUnit.Count == 0) relatedListeners.Remove(type);
         }
 
+        /// <summary>获取相关事件列表。</summary>
         private void GetRelatedEventLists(ModifierEvent value, out List<Modifier> first, out List<Modifier> second)
         {
             first = second = null;
@@ -177,8 +189,10 @@ namespace Game.Ability
             if (secondary != null && (primary == null || secondary.EntityId != primary.EntityId)) byUnit.TryGetValue(secondary.EntityId, out second);
         }
 
+        /// <summary>判断是否为技能生命周期事件。</summary>
         private static bool IsAbilityLifecycleEvent(ModifierEventType type) => type == ModifierEventType.AbilityExecuted || type == ModifierEventType.AbilityFullyCast || type == ModifierEventType.ChannelFinished;
 
+        /// <summary>返回覆盖值状态修饰器事件的判断结果。</summary>
         private static bool OverridesModifierEvent(Type type)
         {
             lock (customEventOverrides)
@@ -198,6 +212,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>保存监听器登记所需的数据与配套操作。</summary>
         private struct ListenerRegistration
         {
             public long Order;

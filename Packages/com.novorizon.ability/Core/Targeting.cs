@@ -6,6 +6,7 @@ namespace Game.Ability
     /// <summary>
     /// Canonical target filter shared by casts, auras, projectiles, and business helpers.
     /// </summary>
+    /// <remarks>提供目标查询的实现。</remarks>
     public sealed class TargetQuery
     {
         public AbilitySystem Engine;
@@ -14,6 +15,7 @@ namespace Game.Ability
         public UnitType Types = UnitType.All;
         public TargetFlags Flags = TargetFlags.None;
 
+        /// <summary>检查当前值是否满足此类型的有效条件。</summary>
         public bool IsValid(IUnit target)
         {
             if (target == null || (Engine != null && (Engine.IsUnitRemoving(target) || Engine.HasTargetState(target, UnitState.OutOfGame))))
@@ -75,6 +77,7 @@ namespace Game.Ability
             return true;
         }
 
+        /// <summary>判断是否为阵营有效。</summary>
         private bool IsTeamValid(IUnit target)
         {
             if (Caster == null)
@@ -90,9 +93,11 @@ namespace Game.Ability
     /// <summary>
     /// Builds a cast context from a raw order and validates Dota-like targeting rules.
     /// </summary>
+    /// <remarks>提供选目标的实现。</remarks>
     public static class Targeting
     {
         /// <summary>Copies only the target shape supported by the definition.</summary>
+        /// <remarks>归一化指令。</remarks>
         internal static CastOrder NormalizeOrder(Ability ability, CastOrder source)
         {
             CastOrder order = AbilitySystem.CopyOrder(source);
@@ -119,6 +124,7 @@ namespace Game.Ability
             return order;
         }
 
+        /// <summary>构建施法上下文。</summary>
         public static bool BuildCastContext(AbilitySystem engine, Ability ability, CastOrder order, out CastContext context, out CastResult result)
         {
             context = null;
@@ -167,9 +173,12 @@ namespace Game.Ability
             return true;
         }
 
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         private static bool IsFinite(Vector3 value) => IsFinite(value.x) && IsFinite(value.y) && IsFinite(value.z);
 
+        /// <summary>创建 Query。</summary>
         public static TargetQuery CreateQuery(Ability ability)
         {
             AbilityDefinition definition = ability.Definition;
@@ -183,6 +192,7 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>添加面积目标。</summary>
         private static void AddAreaTargets(AbilitySystem engine, CastContext context, TargetQuery query, Vector3 center, float radius)
         {
             if (engine.World == null || radius <= 0f)
@@ -198,11 +208,13 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>检查是否存在直线 Of 视线。</summary>
         private static bool HasLineOfSight(AbilitySystem engine, IUnit caster, Vector3 position, TargetFlags flags)
         {
             return (flags & TargetFlags.IgnoreLineOfSight) != 0 || engine.World == null || engine.World.HasLineOfSight(caster, position);
         }
 
+        /// <summary>判断是否为 In 范围。</summary>
         private static bool IsInRange(Vector3 from, Vector3 to, float range)
         {
             return range <= 0f || AbilityGeometry.WithinDistance(from, to, range);

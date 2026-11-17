@@ -2,8 +2,10 @@ using System;
 
 namespace ECS
 {
+    /// <summary>保存实体原型所需的数据与配套操作。</summary>
     public struct EntityArchetype
     {
+        /// <summary>使用调用方提供的typeNames创建 EntityArchetype。</summary>
         public EntityArchetype(params string[] typeNames)
         {
             if (typeNames == null) throw new ArgumentNullException(nameof(typeNames));
@@ -13,6 +15,7 @@ namespace ECS
                 hash[i] = ComponentType.GetId(ComponentType.Resolve(typeNames[i]));
         }
 
+        /// <summary>使用调用方提供的types创建 EntityArchetype。</summary>
         public EntityArchetype(params Type[] types)
         {
             if (types == null) throw new ArgumentNullException(nameof(types));

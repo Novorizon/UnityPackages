@@ -6,13 +6,16 @@ using System.Linq;
 namespace Game.Framework.HotUpdate.Editor
 {
     // Build-time graph, independent of Unity's assembly representation for deterministic validation.
+    /// <summary>提供程序集计划的实现。</summary>
     public static class AssemblyPlan
     {
+        /// <summary>根据传入参数取得指令。</summary>
         public static string[] Order(IReadOnlyDictionary<string, string[]> dependencies, string entry)
         {
             if (!dependencies.ContainsKey(entry)) throw new InvalidDataException("Entry assembly is outside the hot update folder: " + entry);
             var states = new Dictionary<string, int>(StringComparer.Ordinal);
             var ordered = new List<string>();
+            // 遍历程序集计划。
             void Visit(string name)
             {
                 if (states.TryGetValue(name, out int state))
@@ -30,6 +33,7 @@ namespace Game.Framework.HotUpdate.Editor
             return ordered.ToArray();
         }
 
+        /// <summary>根据传入参数取得下一个版本。</summary>
         public static long NextVersion(long baseline, IEnumerable<string> exportedDirectories)
         {
             long maximum = baseline;

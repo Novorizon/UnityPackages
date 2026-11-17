@@ -8,16 +8,22 @@ using Object = UnityEngine.Object;
 
 namespace Game.Framework.Pooling
 {
+    /// <summary>定义GameObject 对象池 Callbacks的调用契约。</summary>
     public interface IGameObjectPoolCallbacks
     {
+        /// <summary>响应 Spawn。</summary>
         void OnSpawn();
+        /// <summary>响应 Despawn。</summary>
         void OnDespawn();
     }
 
     // One pool per prefab. Cache retention is bounded; active instances belong to their callers.
+    /// <summary>提供GameObject 对象池的实现。</summary>
     public sealed class GameObjectPool : IDisposable
     {
+        /// <summary>定义状态可选的枚举值。</summary>
         private enum State { Spawning, Active, Returning, Cached, Destroyed }
+        /// <summary>表示GameObject 对象池中的条目。</summary>
         private sealed class Entry
         {
             internal GameObject Value;
@@ -78,6 +84,7 @@ namespace Game.Framework.Pooling
             }
         }
 
+        /// <summary>使用调用方提供的prefab、maximumRetained、prewarm创建 GameObjectPool。</summary>
         public GameObjectPool(GameObject prefab, int maximumRetained = 64, int prewarm = 0)
         {
             MainThread();
@@ -90,9 +97,12 @@ namespace Game.Framework.Pooling
             pools.Add(this);
             try { Prewarm(prewarm); } catch { DisposeCore(); throw; }
         }
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         { if (!UnityThread.IsMainThread) throw new InvalidOperationException("GameObjectPool must run on the initialized Unity main thread."); }
+        /// <summary>调用 nameof 完成就绪。</summary>
         private void Ready() { if (disposed) throw new ObjectDisposedException(nameof(GameObjectPool)); MainThread(); }
+        /// <summary>创建 GameObject 对象池。</summary>
         private Entry Create()
         {
             if (prefab == null) throw new InvalidOperationException("Keep the prefab asset alive until the pool is disposed.");
@@ -111,8 +121,11 @@ namespace Game.Framework.Pooling
             }
             catch { if (value != null) Object.Destroy(value); throw; }
         }
+        /// <summary>生成 GameObject 对象池。</summary>
         public GameObject Spawn(Transform parent = null) => SpawnCore(parent, false, default, default);
+        /// <summary>生成 GameObject 对象池。</summary>
         public GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent = null) => SpawnCore(parent, true, position, rotation);
+        /// <summary>生成 GameObject 对象池。</summary>
         private GameObject SpawnCore(Transform parent, bool worldPosition, Vector3 position, Quaternion rotation)
         {
             Ready(); Entry entry = null;
@@ -139,11 +152,13 @@ namespace Game.Framework.Pooling
             }
             catch { DestroyEntry(entry); throw; }
         }
+        /// <summary>检查 Spawning。</summary>
         private void CheckSpawning(Entry entry)
         {
             if (disposed) throw new ObjectDisposedException(nameof(GameObjectPool));
             if (entry.State == State.Destroyed || entry.Value == null) throw new InvalidOperationException("A spawn callback destroyed the pooled object.");
         }
+        /// <summary>移除 GameObject 对象池。</summary>
         public void Despawn(GameObject value)
         {
             Ready();
@@ -167,6 +182,7 @@ namespace Game.Framework.Pooling
             }
             catch { DestroyEntry(entry); throw; }
         }
+        /// <summary>预热 GameObject 对象池。</summary>
         public void Prewarm(int count)
         {
             Ready();
@@ -177,6 +193,7 @@ namespace Game.Framework.Pooling
             }
         }
         // Loading-screen alternative: create at most this many instances per main-thread batch.
+        /// <summary>异步预热 GameObject 对象池。</summary>
         public Task PrewarmAsync(int count, int maximumPerFrame = 4, CancellationToken ct = default)
         {
             Ready();
@@ -188,6 +205,7 @@ namespace Game.Framework.Pooling
             lock (prewarmGate) prewarming.Add(request);
             request.Step(); return request.Task;
         }
+        /// <summary>表示GameObject 对象池中的预热请求。</summary>
         private sealed class PrewarmRequest
         {
             private GameObjectPool owner;
@@ -197,8 +215,10 @@ namespace Game.Framework.Pooling
             private readonly Action<Exception> rejected;
             private readonly TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             internal Task Task => completion.Task;
+            /// <summary>使用调用方提供的owner、count、budget创建 PrewarmRequest。</summary>
             internal PrewarmRequest(GameObjectPool owner, int count, int budget, CancellationToken cancellation)
             { this.owner = owner; this.count = count; this.budget = budget; this.cancellation = cancellation; step = Step; rejected = Reject; }
+            /// <summary>调用 Volatile.Read 完成步骤。</summary>
             internal void Step()
             {
                 var pool = Volatile.Read(ref owner);
@@ -213,18 +233,22 @@ namespace Game.Framework.Pooling
                 catch (OperationCanceledException) { Cancel(); }
                 catch (Exception error) { Detach(); completion.TrySetException(error); }
             }
+            /// <summary>分离预热请求。</summary>
             private void Detach()
             {
                 var previous = Interlocked.Exchange(ref owner, null);
                 if (previous != null) lock (previous.prewarmGate) previous.prewarming.Remove(this);
             }
+            /// <summary>拒绝预热请求。</summary>
             private void Reject(Exception error)
             {
                 Detach();
                 if (error is OperationCanceledException) completion.TrySetCanceled(); else completion.TrySetException(error);
             }
+            /// <summary>取消预热请求。</summary>
             internal void Cancel() { Detach(); completion.TrySetCanceled(); }
         }
+        /// <summary>裁剪 GameObject 对象池。</summary>
         public void Trim(int retainedCount = 0)
         {
             Ready();
@@ -233,8 +257,11 @@ namespace Game.Framework.Pooling
             if (inactive == 0) cached.Clear();
             cached.TrimExcess(); entries.TrimExcess();
         }
+        /// <summary>清空 GameObject 对象池。</summary>
         public void Clear() { Trim(); }
+        /// <summary>调用 cached.Add 完成缓存。</summary>
         private void Cache(Entry entry) { entry.CachedIndex = cached.Count; cached.Add(entry); }
+        /// <summary>移除已缓存。</summary>
         private void RemoveCached(Entry entry)
         {
             int index = entry.CachedIndex;
@@ -242,6 +269,7 @@ namespace Game.Framework.Pooling
             var last = cached[cached.Count - 1]; cached[index] = last; last.CachedIndex = index;
             cached.RemoveAt(cached.Count - 1); entry.CachedIndex = -1;
         }
+        /// <summary>销毁条目。</summary>
         private void DestroyEntry(Entry entry, bool destroyNative = true)
         {
             if (entry.State == State.Destroyed) return;
@@ -252,11 +280,14 @@ namespace Game.Framework.Pooling
             var value = entry.Value; entry.Callbacks = Array.Empty<IGameObjectPoolCallbacks>(); entry.Value = null; entry.Member = null;
             if (destroyNative && value != null) Object.Destroy(value);
         }
+        /// <summary>通知已销毁。</summary>
         internal void NotifyDestroyed(GameObject value)
         {
             if (entries.TryGetValue(value, out var entry)) DestroyEntry(entry, false);
         }
+        /// <summary>结束GameObject 对象池对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose() { if (disposed) return; MainThread(); DisposeCore(); }
+        /// <summary>释放当前对象内部拥有的资源。</summary>
         private void DisposeCore()
         {
             if (disposed) return;
@@ -278,6 +309,7 @@ namespace Game.Framework.Pooling
             cached.Clear(); cached.TrimExcess(); entries.Clear(); entries.TrimExcess();
             if (root != null) Object.Destroy(root);
         }
+        /// <summary>批量释放 GameObject 对象池。</summary>
         internal static void DisposeAll()
         {
             foreach (var pool in new List<GameObjectPool>(pools)) pool.DisposeCore();

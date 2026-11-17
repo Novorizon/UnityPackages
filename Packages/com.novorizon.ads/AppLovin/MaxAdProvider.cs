@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 namespace Game.Framework.Ads.AppLovin
 {
     /// <summary>MAX 8.6.6 rewarded/interstitial adapter. Configure the SDK key with MAX Integration Manager.</summary>
+    /// <remarks>上限广告对应的厂商适配器。提供此模块需要的能力或数据。</remarks>
     public sealed class MaxAdProvider : IAdProvider
     {
         private static MaxAdProvider owner;
         private readonly bool userConsent;
         private readonly string userId;
+        /// <summary>表示上限广告厂商适配器中的Show。</summary>
         private sealed class Show
         {
             internal AdPlacement Placement;
@@ -25,12 +27,14 @@ namespace Game.Framework.Ads.AppLovin
         public string Id => "applovin-max";
         public event Action<AdReward> RewardEarned;
 
+        /// <summary>使用调用方提供的hasUserConsent、rewardUserId创建 MaxAdProvider。</summary>
         public MaxAdProvider(bool hasUserConsent, string rewardUserId = "")
         {
             userConsent = hasUserConsent;
             userId = rewardUserId ?? "";
         }
 
+        /// <summary>异步初始化上限广告厂商适配器。</summary>
         public async Task InitializeAsync(CancellationToken token)
         {
             ReadyForCall();
@@ -56,6 +60,7 @@ namespace Game.Framework.Ads.AppLovin
             token.ThrowIfCancellationRequested();
         }
 
+        /// <summary>异步加载上限广告厂商适配器。</summary>
         public async Task LoadAsync(AdPlacement placement, CancellationToken token)
         {
             Ready();
@@ -86,6 +91,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>检查当前资源或操作是否已就绪。</summary>
         public bool IsReady(AdPlacement placement)
         {
             Ready();
@@ -96,6 +102,7 @@ namespace Game.Framework.Ads.AppLovin
             return placement.Format == AdFormat.Rewarded ? MaxSdk.IsRewardedAdReady(placement.UnitId) : MaxSdk.IsInterstitialReady(placement.UnitId);
         }
 
+        /// <summary>异步显示上限广告厂商适配器。</summary>
         public async Task ShowAsync(AdPlacement placement, CancellationToken token)
         {
             Ready();
@@ -135,6 +142,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>订阅上限广告厂商适配器。</summary>
         private void Subscribe()
         {
             if (subscribed)
@@ -154,10 +162,14 @@ namespace Game.Framework.Ads.AppLovin
             MaxSdkCallbacks.Interstitial.OnAdDisplayFailedEvent += DisplayFailed;
         }
 
+        /// <summary>调用 .TrySetResult 完成已初始化。</summary>
         private void Initialized(MaxSdkBase.SdkConfiguration _) => initialization?.TrySetResult(true);
+        /// <summary>调用 ResolveLoad 完成已加载。</summary>
         private void Loaded(string unit, MaxSdkBase.AdInfo _) => ResolveLoad(unit, null);
+        /// <summary>加载失败。</summary>
         private void LoadFailed(string unit, MaxSdkBase.ErrorInfo error) => ResolveLoad(unit, new InvalidOperationException("MAX load failed: " + error.Code));
 
+        /// <summary>解析 Load。</summary>
         private void ResolveLoad(string unit, Exception error)
         {
             if (disposed || unit != loadingPlacement?.UnitId)
@@ -174,6 +186,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>调用 .TrySetResult 完成已隐藏。</summary>
         private void Hidden(string unit, MaxSdkBase.AdInfo info)
         {
             if (!disposed && unit == showingPlacement?.UnitId && info?.Placement == showId)
@@ -182,6 +195,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>调用 string.IsNullOrEmpty 完成显示失败。</summary>
         private void DisplayFailed(string unit, MaxSdkBase.ErrorInfo error, MaxSdkBase.AdInfo info)
         {
             if (!disposed && unit == showingPlacement?.UnitId && (string.IsNullOrEmpty(info?.Placement) || info.Placement == showId))
@@ -191,6 +205,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>调用 string.IsNullOrEmpty 完成奖励。</summary>
         private void Reward(string unit, MaxSdkBase.Reward reward, MaxSdkBase.AdInfo info)
         {
             if (!disposed && info != null && !string.IsNullOrEmpty(info.Placement) && shows.TryGetValue(info.Placement, out var show) &&
@@ -217,6 +232,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>调用 nameof 完成就绪 ForCall。</summary>
         private void ReadyForCall()
         {
             if (!UnityThread.IsMainThread)
@@ -229,6 +245,7 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>调用 ReadyForCall 完成就绪。</summary>
         private void Ready()
         {
             ReadyForCall();
@@ -238,8 +255,10 @@ namespace Game.Framework.Ads.AppLovin
             }
         }
 
+        /// <summary>取得信号。</summary>
         private static TaskCompletionSource<bool> Signal() => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
+        /// <summary>结束上限广告厂商适配器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

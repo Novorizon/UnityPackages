@@ -11,6 +11,7 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace Game.Framework.All.Editor
 {
+    /// <summary>提供全部包安装器的实现。</summary>
     [InitializeOnLoad]
     public static class AllPackagesInstaller
     {
@@ -28,6 +29,7 @@ namespace Game.Framework.All.Editor
         private static string StatePath => Path.Combine(projectRoot, "ProjectSettings/NovorizonFrameworkAll.install.json");
         private static string ReportPath => Path.Combine(projectRoot, "Library/NovorizonFrameworkAll/verification.json");
 
+        /// <summary>Install对应的状态。保存状态或定义允许的状态值。</summary>
         [Serializable]
         private sealed class InstallState
         {
@@ -39,12 +41,14 @@ namespace Game.Framework.All.Editor
             public long deadline;
         }
 
+        /// <summary>为 AllPackagesInstaller 准备类型首次使用时所需的静态状态。</summary>
         static AllPackagesInstaller()
         {
             EditorApplication.update += Tick;
             CompilationPipeline.assemblyCompilationFinished += OnAssemblyCompiled;
         }
 
+        /// <summary>响应程序集 Compiled。</summary>
         private static void OnAssemblyCompiled(string assemblyPath, CompilerMessage[] messages)
         {
             if (state == null || state.phase == "Complete" || state.phase == "Failed" || !messages.Any(m => m.type == CompilerMessageType.Error))
@@ -59,6 +63,7 @@ namespace Game.Framework.All.Editor
             ExitBatch(1);
         }
 
+        /// <summary>加载全部包安装器。</summary>
         private static bool Load()
         {
             if (state != null)
@@ -126,6 +131,7 @@ namespace Game.Framework.All.Editor
             }
         }
 
+        /// <summary>推进全部包安装器。</summary>
         private static void Advance(string phase)
         {
             state.phase = phase;
@@ -294,6 +300,7 @@ namespace Game.Framework.All.Editor
             }
         }
 
+        /// <summary>安装全部包安装器。</summary>
         private static void Install(PackageInfo[] installed)
         {
             var missing = catalog.packages.Where(p => !installed.Any(i => i.name == p.name && i.version == p.version)).ToArray();
@@ -377,6 +384,7 @@ namespace Game.Framework.All.Editor
             Advance("Configure");
         }
 
+        /// <summary>配置全部包安装器。</summary>
         private static void Configure()
         {
             var type = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType(SetupType, false)).FirstOrDefault(t => t != null);
@@ -445,12 +453,14 @@ namespace Game.Framework.All.Editor
         }
 
         // Unity CLI entry point. Do not pass -quit while UPM is running.
+        /// <summary>安装批次。</summary>
         public static void InstallBatch()
         {
             batch = true;
             Tick();
         }
 
+        /// <summary>表示全部包安装器中的Verification 报告。</summary>
         [Serializable]
         private sealed class VerificationReport
         {
@@ -461,6 +471,7 @@ namespace Game.Framework.All.Editor
             public bool hotUpdateProjectConfigured;
         }
 
+        /// <summary>核验批次。</summary>
         private static void VerifyBatch()
         {
             var installed = PackageInfo.GetAllRegisteredPackages();
@@ -477,6 +488,7 @@ namespace Game.Framework.All.Editor
             ExitBatch(0);
         }
 
+        /// <summary>调用 EditorApplication.Exit 完成退出批次。</summary>
         private static void ExitBatch(int code)
         {
             if (batch)

@@ -5,6 +5,7 @@ using System.Threading;
 namespace Game.Framework.Analytics
 {
     /// <summary>One explicit owner per SDK. Does not destroy a vendor's global objects or default app.</summary>
+    /// <remarks>统计对应的后端。承接上层请求，调用具体平台或实现。</remarks>
     public abstract class AnalyticsBackend : IAnalyticsBackend
     {
         private static readonly Dictionary<string, AnalyticsBackend> owners = new Dictionary<string, AnalyticsBackend>(StringComparer.Ordinal);
@@ -18,6 +19,7 @@ namespace Game.Framework.Analytics
         protected long CollectionEpoch => Interlocked.Read(ref collectionEpoch);
         public virtual bool CanFlush => false;
 
+        /// <summary>初始化统计后端。</summary>
         public void Initialize(string initialUserId)
         {
             Ready();
@@ -42,6 +44,7 @@ namespace Game.Framework.Analytics
             enabled = true;
         }
 
+        /// <summary>设置采集开启。</summary>
         public void SetCollectionEnabled(bool value)
         {
             Ready(true);
@@ -57,6 +60,7 @@ namespace Game.Framework.Analytics
             }
         }
 
+        /// <summary>设置用户标识。</summary>
         public void SetUserId(string value)
         {
             Ready(true);
@@ -67,6 +71,7 @@ namespace Game.Framework.Analytics
             }
         }
 
+        /// <summary>记录事件。</summary>
         public void LogEvent(string name, IReadOnlyDictionary<string, object> properties)
         {
             Ready(true);
@@ -78,8 +83,10 @@ namespace Game.Framework.Analytics
             OnLogEvent(name, AnalyticsValues.Copy(properties));
         }
 
+        /// <summary>检查是否支持统计后端。</summary>
         public virtual bool Supports(UserPropertyOperation operation) => false;
 
+        /// <summary>应用用户属性。</summary>
         public void ApplyUserProperties(UserPropertyChange change)
         {
             Ready(true);
@@ -90,6 +97,7 @@ namespace Game.Framework.Analytics
             OnApplyUserProperties(change);
         }
 
+        /// <summary>刷新缓冲区统计后端。</summary>
         public void Flush()
         {
             Ready(true);
@@ -100,17 +108,26 @@ namespace Game.Framework.Analytics
             OnFlush();
         }
 
+        /// <summary>响应 Initialize。</summary>
         protected abstract void OnInitialize(string initialUserId);
+        /// <summary>响应集合采集开启。</summary>
         protected abstract void OnSetCollectionEnabled(bool enabled);
+        /// <summary>响应集合用户标识。</summary>
         protected abstract void OnSetUserId(string userId);
+        /// <summary>响应 Log 事件。</summary>
         protected abstract void OnLogEvent(string name, IReadOnlyDictionary<string, object> properties);
+        /// <summary>响应 Apply 用户属性。</summary>
         protected virtual void OnApplyUserProperties(UserPropertyChange change) => throw new NotSupportedException();
+        /// <summary>响应 Flush。</summary>
         protected virtual void OnFlush() => throw new NotSupportedException();
+        /// <summary>响应 Dispose。</summary>
         protected virtual void OnDispose()
         {
         }
+        /// <summary>响应 Shutdown。</summary>
         protected virtual void OnShutdown() => OnSetCollectionEnabled(false);
 
+        /// <summary>调用 MainThread 完成就绪。</summary>
         protected void Ready(bool requireStarted = false)
         {
             MainThread();
@@ -124,6 +141,7 @@ namespace Game.Framework.Analytics
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         public static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -132,6 +150,7 @@ namespace Game.Framework.Analytics
             }
         }
 
+        /// <summary>结束统计后端对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             MainThread();

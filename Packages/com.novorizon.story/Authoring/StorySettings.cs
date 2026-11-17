@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Game.Framework.Story.Unity
 {
+    /// <summary>剧情对应的设置。保存本模块使用的配置。</summary>
     [CreateAssetMenu(menuName = "Novorizon/Story/Settings", fileName = "StorySettings")]
     public sealed class StorySettings : ScriptableObject
     {

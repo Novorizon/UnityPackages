@@ -6,11 +6,13 @@ using UnityEngine.UI;
 
 namespace UI.Demo
 {
+    /// <summary>提供界面示例弹窗的实现。</summary>
     public sealed class UIDemoPopup : UIPopup
     {
         UIDemoLauncher? owner;
         public override bool CloseOnBlockerClick => true;
 
+        /// <summary>响应 Create。</summary>
         protected override void OnCreate()
         {
             RectTransform card = UIDemoWidgets.CenterCard(transform, "PopupCard", 680, 320);
@@ -20,8 +22,11 @@ namespace UI.Demo
             UIDemoWidgets.Top((RectTransform)close.transform, 228, 64);
         }
 
+        /// <summary>响应打开。</summary>
         protected override void OnOpen(object? args) => owner = args as UIDemoLauncher ?? throw new ArgumentException("Demo controller is required.", nameof(args));
+        /// <summary>响应 Close。</summary>
         protected override void OnClose() => owner = null;
+        /// <summary>关闭界面示例弹窗。</summary>
         void Close()
         {
             if (owner != null)

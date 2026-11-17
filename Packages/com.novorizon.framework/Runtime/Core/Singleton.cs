@@ -15,6 +15,7 @@ namespace Game.Framework
         private static Lazy<T> lazy = CreateLazy();
 
 #if UNITY_EDITOR
+        /// <summary>为 Singleton 准备类型首次使用时所需的静态状态。</summary>
         static Singleton()
         {
             EditorStaticReset.Register(() =>
@@ -32,6 +33,7 @@ namespace Game.Framework
         }
 #endif
 
+        /// <summary>创建 Lazy。</summary>
         private static Lazy<T> CreateLazy()
         {
             return new Lazy<T>(() => new T());
@@ -59,6 +61,7 @@ namespace Game.Framework
             }
         }
 
+        /// <summary>初始化单例。</summary>
         public virtual void Initialize()
         {
         }
@@ -68,6 +71,7 @@ namespace Game.Framework
         {
         }
 
+        /// <summary>结束单例对相关资源的持有，并执行该类型的清理流程。</summary>
         public virtual void Dispose()
         {
         }

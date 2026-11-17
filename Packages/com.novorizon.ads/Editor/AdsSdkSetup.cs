@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace Game.Framework.Ads.Editor
 {
+    /// <summary>提供广告 SDK 配置的实现。</summary>
     public static class AdsSdkSetup
     {
+        /// <summary>安装原生。</summary>
         [MenuItem("Novorizon/Platform SDKs/Install domestic CSJ")]
         public static void InstallNative()
         {
@@ -33,6 +35,7 @@ namespace Game.Framework.Ads.Editor
             Debug.Log("Native SDK bridge installed. Run External Dependency Manager resolution for your build target; see this package README.");
         }
 
+        /// <summary>启用上限。</summary>
         [MenuItem("Novorizon/Platform SDKs/Enable installed AppLovin MAX")]
         public static void EnableMax()
         {
@@ -43,6 +46,7 @@ namespace Game.Framework.Ads.Editor
             Enable("NOVORIZON_MAX");
         }
 
+        /// <summary>启用广告 SDK 配置。</summary>
         private static void Enable(string symbol)
         {
             var group = EditorUserBuildSettings.selectedBuildTargetGroup;

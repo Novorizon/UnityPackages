@@ -7,6 +7,7 @@ using UnityEngine;
 namespace UI
 {
     /// <summary>A cancellation and subscription lifetime. Cancellation sources and lists are lazy.</summary>
+    /// <remarks>界面生命周期对应的作用域。保存作用域内需要统一管理的信息。</remarks>
     public sealed class UILifetimeScope : IDisposable
     {
         readonly object gate = new();
@@ -26,6 +27,7 @@ namespace UI
                 }
             }
         }
+        /// <summary>跟踪界面生命周期作用域。</summary>
         public T Track<T>(T subscription) where T : IDisposable
         {
             if (subscription is null) throw new ArgumentNullException(nameof(subscription));
@@ -40,6 +42,7 @@ namespace UI
             DisposeOne(subscription);
             return subscription;
         }
+        /// <summary>结束界面生命周期作用域对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             CancellationTokenSource? source;
@@ -60,6 +63,7 @@ namespace UI
             if (snapshot == null) return;
             for (int i = snapshot.Count - 1; i >= 0; i--) DisposeOne(snapshot[i]);
         }
+        /// <summary>释放一个。</summary>
         static void DisposeOne(IDisposable subscription)
         {
             try { subscription.Dispose(); }

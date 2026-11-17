@@ -9,6 +9,7 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.Attribution.AppsFlyer
 {
     /// <summary>AppsFlyer 6.18.x. v7 requires a newer Unity baseline and is deliberately excluded.</summary>
+    /// <remarks>AppsFlyer 归因对应的后端。承接上层请求，调用具体平台或实现。</remarks>
     public sealed class AppsFlyerAttributionBackend : AttributionBackend
     {
         private readonly string devKey, iosAppId;
@@ -17,6 +18,7 @@ namespace Game.Framework.Attribution.AppsFlyer
         private AppsFlyerCallbackHost host;
         public override string Id => "appsflyer";
 
+        /// <summary>使用调用方提供的devKey、iosAppId、eventNames创建 AppsFlyerAttributionBackend。</summary>
         public AppsFlyerAttributionBackend(string devKey, string iosAppId = null, IReadOnlyDictionary<string, string> eventNames = null, bool collectAdvertisingIdentifiers = false)
         {
             if (string.IsNullOrWhiteSpace(devKey))
@@ -38,6 +40,7 @@ namespace Game.Framework.Attribution.AppsFlyer
             advertisingIdentifiers = collectAdvertisingIdentifiers;
         }
 
+        /// <summary>响应 Initialize。</summary>
         protected override void OnInitialize(string initialUserId)
         {
             if (Application.isEditor || (Application.platform != RuntimePlatform.Android && Application.platform != RuntimePlatform.IPhonePlayer))
@@ -63,6 +66,7 @@ namespace Game.Framework.Attribution.AppsFlyer
             AfSdk.startSDK();
         }
 
+        /// <summary>响应集合采集开启。</summary>
         protected override void OnSetCollectionEnabled(bool enabled)
         {
             AfSdk.stopSDK(!enabled);
@@ -72,15 +76,19 @@ namespace Game.Framework.Attribution.AppsFlyer
             }
         }
 
+        /// <summary>响应集合用户标识。</summary>
         protected override void OnSetUserId(string userId) => AfSdk.setCustomerUserId(userId ?? "");
 
+        /// <summary>响应 Log 事件。</summary>
         protected override void OnLogEvent(string name, IReadOnlyDictionary<string, object> properties)
         {
             AfSdk.sendEvent(NativeName(name), Strings(properties));
         }
 
+        /// <summary>根据传入参数取得原生平台名称。</summary>
         private string NativeName(string name) => eventNames.TryGetValue(name, out var value) ? value : name;
 
+        /// <summary>根据传入参数取得Strings。</summary>
         internal static Dictionary<string, string> Strings(IReadOnlyDictionary<string, object> properties)
         {
             var result = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -91,11 +99,13 @@ namespace Game.Framework.Attribution.AppsFlyer
             return result;
         }
 
+        /// <summary>响应 Log 收入。</summary>
         protected override void OnLogRevenue(RevenueEvent revenue)
         {
             AfSdk.sendEvent(NativeName(revenue.EventName), RevenueValues(revenue));
         }
 
+        /// <summary>根据传入参数取得收入值。</summary>
         internal static Dictionary<string, string> RevenueValues(RevenueEvent revenue)
         {
             var values = Strings(revenue.Properties);
@@ -105,6 +115,7 @@ namespace Game.Framework.Attribution.AppsFlyer
             return values;
         }
 
+        /// <summary>接收 AppsFlyer 归因后端。</summary>
         private void Receive(string json)
         {
             if (IsDisposed || !CollectionEnabled)
@@ -129,8 +140,10 @@ namespace Game.Framework.Attribution.AppsFlyer
             Publish(new AttributionSnapshot(Id, Text(values, "media_source"), Text(values, "campaign"), Text(values, "af_adset"), Text(values, "af_ad"), organic));
         }
 
+        /// <summary>根据传入参数取得文本。</summary>
         private static string Text(Dictionary<string, object> values, string key) => values.TryGetValue(key, out var value) ? value as string : null;
 
+        /// <summary>响应 Dispose。</summary>
         protected override void OnDispose()
         {
             base.OnDispose();

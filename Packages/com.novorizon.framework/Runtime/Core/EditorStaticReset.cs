@@ -7,6 +7,7 @@ namespace Game.Framework
     /// <summary>生成代码登记入口，仅编辑器存在；登记表跨越关闭 Domain Reload 的多次 Play。</summary>
     public static class EditorStaticReset
     {
+        /// <summary>表示编辑器静态字段重置中的条目。</summary>
         private sealed class Entry
         {
             internal Action Clear;
@@ -84,6 +85,7 @@ namespace Game.Framework
             }
         }
 
+        /// <summary>调用已经登记的处理逻辑。</summary>
         private static void Invoke(Action action, List<Exception> errors)
         {
             if (action == null)

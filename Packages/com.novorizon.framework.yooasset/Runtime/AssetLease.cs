@@ -12,18 +12,21 @@ namespace Game.Resource
         public bool IsValid => release != null && asset != null;
         public T Asset => IsValid ? asset : throw new ObjectDisposedException(nameof(AssetLease<T>));
 
+        /// <summary>使用调用方提供的asset、release创建 AssetLease。</summary>
         internal AssetLease(T asset, Action release)
         {
             this.asset = asset;
             this.release = release;
         }
 
+        /// <summary>使失效资源租约。</summary>
         internal void Invalidate()
         {
             asset = null;
             release = null;
         }
 
+        /// <summary>结束资源租约对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (release == null)

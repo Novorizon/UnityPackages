@@ -24,6 +24,7 @@ namespace Game.Framework.Input
         public InputActionAsset Actions => Initialized ? actions : throw new InvalidOperationException("Initialize InputManager first.");
         public string CurrentControlScheme { get; private set; }
 
+        /// <summary>清理已经存在的输入管理器，未使用输入时不会创建实例。</summary>
         public static void Reset()
         {
             if (TryGetInstance(out var current))
@@ -31,6 +32,7 @@ namespace Game.Framework.Input
                 current.Dispose();
             }
         }
+        /// <summary>使用默认配置初始化输入入口。</summary>
         public override void Initialize()
         {
             Initialize(null, null);
@@ -65,12 +67,14 @@ namespace Game.Framework.Input
             }
         }
 
+        /// <summary>按名称查找运行时副本中的 Action，不存在时抛出异常。</summary>
         public InputAction FindAction(string name)
         {
             Ready();
             return actions.FindAction(name, true);
         }
 
+        /// <summary>将指定 Action Map 标记为启用。若仍有屏蔽作用域，它会在屏蔽结束后生效。</summary>
         public void EnableMap(string name)
         {
             Ready();
@@ -79,6 +83,7 @@ namespace Game.Framework.Input
             ApplyMap(map);
         }
 
+        /// <summary>取消指定 Action Map 的启用请求，解除临时屏蔽后也不会恢复它。</summary>
         public void DisableMap(string name)
         {
             Ready();
@@ -118,6 +123,7 @@ namespace Game.Framework.Input
             CurrentControlScheme = name;
         }
 
+        /// <summary>指定输入资产可接收的设备列表，null 取消设备限制。</summary>
         public void SetDevices(params InputDevice[] devices)
         {
             Ready();
@@ -144,6 +150,7 @@ namespace Game.Framework.Input
             return new BlockLease(this, mapName);
         }
 
+        // 按屏蔽句柄对应的范围减少一层计数，再重新计算 Map 状态。
         private void Unblock(string mapName)
         {
             if (disposed)
@@ -172,6 +179,7 @@ namespace Game.Framework.Input
             ApplyMaps();
         }
 
+        /// <summary>订阅 Action 的触发或取消事件，释放返回值时撤销订阅。</summary>
         public IDisposable Subscribe(string action, Action<InputAction.CallbackContext> performed, Action<InputAction.CallbackContext> canceled = null)
         {
             Ready();
@@ -185,12 +193,14 @@ namespace Game.Framework.Input
             return subscription;
         }
 
+        /// <summary>将运行时覆盖的按键配置导出为 JSON，可用于持久化。</summary>
         public string SaveBindingOverrides()
         {
             Ready();
             return actions.SaveBindingOverridesAsJson();
         }
 
+        /// <summary>从 JSON 恢复输入绑定。交互改键进行中不能加载另一份绑定。</summary>
         public void LoadBindingOverrides(string json)
         {
             Ready();
@@ -271,6 +281,7 @@ namespace Game.Framework.Input
             }
         }
 
+        // 将启用请求和全局、单 Map 的屏蔽状态合并应用。
         private void ApplyMap(InputActionMap map)
         {
             if (enabledMaps.Contains(map.name) && allBlocks == 0 && !mapBlocks.ContainsKey(map.name))
@@ -285,6 +296,7 @@ namespace Game.Framework.Input
             rebindingAction?.Disable();
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private void MainThread()
         {
             if (disposed)
@@ -298,6 +310,7 @@ namespace Game.Framework.Input
             }
         }
 
+        /// <summary>调用 MainThread 完成就绪。</summary>
         private void Ready()
         {
             MainThread();
@@ -307,6 +320,7 @@ namespace Game.Framework.Input
             }
         }
 
+        /// <summary>结束输入管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public override void Dispose()
         {
             if (disposed)
@@ -336,16 +350,19 @@ namespace Game.Framework.Input
             base.Release();
         }
 
+        /// <summary>屏蔽对应的租约。记录资源的使用权，由持有者在使用结束时归还。</summary>
         private sealed class BlockLease : IDisposable
         {
             private InputManager owner;
             private readonly string map;
+            /// <summary>使用调用方提供的owner、map创建 BlockLease。</summary>
             internal BlockLease(InputManager owner, string map)
             {
                 this.owner = owner;
                 this.map = map;
             }
 
+            /// <summary>结束屏蔽租约对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose()
             {
                 var current = owner;
@@ -359,11 +376,13 @@ namespace Game.Framework.Input
             }
         }
 
+        /// <summary>表示输入管理器中的订阅。</summary>
         private sealed class Subscription : IDisposable
         {
             private InputManager owner;
             private readonly InputAction action;
             private readonly Action<InputAction.CallbackContext> performed, canceled;
+            /// <summary>使用调用方提供的owner、action、performed创建 Subscription。</summary>
             internal Subscription(InputManager owner, InputAction action, Action<InputAction.CallbackContext> performed, Action<InputAction.CallbackContext> canceled)
             {
                 this.owner = owner;
@@ -374,6 +393,7 @@ namespace Game.Framework.Input
                 action.canceled += OnCanceled;
             }
 
+            /// <summary>响应 Performed。</summary>
             private void OnPerformed(InputAction.CallbackContext context)
             {
                 if (owner != null && !owner.disposed)
@@ -382,6 +402,7 @@ namespace Game.Framework.Input
                 }
             }
 
+            /// <summary>响应 Canceled。</summary>
             private void OnCanceled(InputAction.CallbackContext context)
             {
                 if (owner != null && !owner.disposed)
@@ -390,6 +411,7 @@ namespace Game.Framework.Input
                 }
             }
 
+            /// <summary>结束订阅对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose()
             {
                 if (owner == null)

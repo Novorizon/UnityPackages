@@ -5,11 +5,13 @@ using UnityEngine;
 
 namespace Game.Framework.All.Editor
 {
+    /// <summary>提供包目录的实现。</summary>
     [Serializable]
     internal sealed class PackageCatalog
     {
         public PackageDependency[] packages;
         public string[] obsoletePackages = Array.Empty<string>();
+        /// <summary>验证包目录。</summary>
         internal void Validate()
         {
             if (packages == null || packages.Length == 0) throw new InvalidDataException("Empty package catalog.");
@@ -23,6 +25,7 @@ namespace Game.Framework.All.Editor
         }
     }
 
+    /// <summary>提供包依赖的实现。</summary>
     [Serializable]
     internal sealed class PackageDependency
     {
@@ -32,6 +35,7 @@ namespace Game.Framework.All.Editor
         public bool external;
         public bool embed;
 
+        /// <summary>表示包依赖中的包身份。</summary>
         [Serializable]
         private sealed class PackageIdentity
         {
@@ -39,6 +43,7 @@ namespace Game.Framework.All.Editor
             public string version;
         }
 
+        /// <summary>准备来源。</summary>
         internal string PrepareSource(string packageRoot, string projectRoot, string release)
         {
             // Third-party sources are always resolved by UPM, never copied into this package.

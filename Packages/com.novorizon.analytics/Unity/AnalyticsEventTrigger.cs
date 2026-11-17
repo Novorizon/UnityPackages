@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Framework.Analytics.Unity
 {
+    /// <summary>定义统计参数类型可选的枚举值。</summary>
     public enum AnalyticsParameterType
     {
         Text,
@@ -12,6 +13,7 @@ namespace Game.Framework.Analytics.Unity
         Boolean
     }
 
+    /// <summary>提供统计参数的实现。</summary>
     [Serializable]
     public sealed class AnalyticsParameter
     {
@@ -22,6 +24,7 @@ namespace Game.Framework.Analytics.Unity
         public double number;
         public bool boolean;
 
+        /// <summary>取得值。</summary>
         internal object Value()
         {
             switch (type)
@@ -41,6 +44,7 @@ namespace Game.Framework.Analytics.Unity
     }
 
     /// <summary>Wire Track to Button/UnityEvent. The startup layer injects the project's AnalyticsManager.</summary>
+    /// <remarks>提供统计事件 Trigger的实现。</remarks>
     public sealed class AnalyticsEventTrigger : MonoBehaviour
     {
         public string eventName = "button_click";
@@ -48,17 +52,20 @@ namespace Game.Framework.Analytics.Unity
         private AnalyticsManager manager;
         public TelemetryReport LastReport { get; private set; }
 
+        /// <summary>配置统计事件 Trigger。</summary>
         public void Configure(AnalyticsManager value)
         {
             AnalyticsBackend.MainThread();
             manager = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        /// <summary>跟踪统计事件 Trigger。</summary>
         public void Track()
         {
             Emit();
         }
 
+        /// <summary>生成统计事件 Trigger。</summary>
         public TelemetryReport Emit()
         {
             if (manager == null)

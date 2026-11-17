@@ -22,6 +22,7 @@ using UnityEngine.SceneManagement;
 
 namespace Game.Framework.HotUpdate.Editor
 {
+    /// <summary>提供游戏 Build的实现。</summary>
     public static class GameBuild
     {
         private const string BuiltinPath = "Assets/StreamingAssets/HotUpdate";
@@ -46,6 +47,7 @@ namespace Game.Framework.HotUpdate.Editor
 
         internal static bool IsConfigured => HybridCLRSettings.instance.enable && HybridCLRSettings.instance.outputLinkFile == "NovorizonHotUpdateGenerated/link.xml" && Directory.Exists(Settings.hotUpdateRoot) && Directory.GetFiles(Settings.hotUpdateRoot, "*.asmdef", SearchOption.AllDirectories).Length != 0;
 
+        /// <summary>配置游戏 Build。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/1. Setup Project")]
         public static void Configure()
         {
@@ -76,6 +78,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("PROJECT_CONFIGURED. Put game code and asmdefs beneath " + settings.hotUpdateRoot + ". Build New Player automatically configures assemblies and installs the matching native runtime.");
         }
 
+        /// <summary>查找程序集。</summary>
         private static string[] DiscoverAssemblies()
         {
             var settings = Settings;
@@ -95,6 +98,7 @@ namespace Game.Framework.HotUpdate.Editor
             return AssemblyPlan.Order(selected.ToDictionary(a => a.name, a => a.assemblyReferences.Select(d => d.name).ToArray(), StringComparer.Ordinal), settings.entryAssembly);
         }
 
+        /// <summary>配置 Build。</summary>
         private static void ConfigureBuild()
         {
             ReleasePolicy.Require(!EditorApplication.isCompiling && !EditorApplication.isUpdating, "Wait for Unity compilation/import to finish, then build again.");
@@ -119,6 +123,7 @@ namespace Game.Framework.HotUpdate.Editor
             InstallRuntime();
         }
 
+        /// <summary>构建新 Player。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/2. Build New Player")]
         public static void BuildNewPlayer()
         {
@@ -130,6 +135,7 @@ namespace Game.Framework.HotUpdate.Editor
             BuildPlayer();
         }
 
+        /// <summary>安装运行时。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/Advanced/Install Native Runtime")]
         public static void InstallRuntime()
         {
@@ -142,6 +148,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("HYBRIDCLR_INSTALLED");
         }
 
+        /// <summary>取得平台。</summary>
         internal static string Platform()
         {
             switch (Target)
@@ -157,6 +164,7 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>准备基准。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/Advanced/Prepare Baseline")]
         public static void PrepareBaseline()
         {
@@ -231,6 +239,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("BASELINE_PREPARED " + archive);
         }
 
+        /// <summary>构建 Player。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/Advanced/Build Prepared Player")]
         public static void BuildPlayer()
         {
@@ -256,6 +265,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("PLAYER_BUILD_VERIFIED " + output);
         }
 
+        /// <summary>核验 Built 基准。</summary>
         internal static void VerifyBuiltBaseline(bool recordSuccess = false)
         {
             var baseline = ReadBaseline();
@@ -274,12 +284,14 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>导出更新。</summary>
         [MenuItem("Tools/Novorizon/Hot Update/3. Export Patch")]
         public static void ExportUpdate()
         {
             ExportUpdateToDirectory();
         }
 
+        /// <summary>导出更新 To 目录。</summary>
         public static string ExportUpdateToDirectory()
         {
             RequireConfigured();
@@ -327,6 +339,7 @@ namespace Game.Framework.HotUpdate.Editor
             return output;
         }
 
+        /// <summary>根据传入参数取得必须 AOT。</summary>
         private static List<string> RequiredAot(string hot, string aot)
         {
             var resolver = new CombinedAssemblyResolver(new FixedSetAssemblyResolver(hot, HotAssemblies), new PathAssemblyResolver(aot));
@@ -335,6 +348,7 @@ namespace Game.Framework.HotUpdate.Editor
             return analyzer.AotGenericTypes.Select(t => t.Type.Module.Name.ToString()).Concat(analyzer.AotGenericMethods.Select(m => m.Method.Module.Name.ToString())).Select(Path.GetFileNameWithoutExtension).Distinct().OrderBy(n => n, StringComparer.Ordinal).ToList();
         }
 
+        /// <summary>生成 BridgeCheck。</summary>
         private static void GenerateBridgeCheck(string hot, string aot, string output)
         {
             var analyzer = new MethodBridgeAnalyzer(new MethodBridgeAnalyzer.Options { Collector = new AssemblyReferenceDeepCollector(new PathAssemblyResolver(aot), Directory.GetFiles(aot, "*.dll").Select(Path.GetFileNameWithoutExtension).ToList()), MaxIterationCount = 10 });
@@ -347,6 +361,7 @@ namespace Game.Framework.HotUpdate.Editor
             MethodBridgeGeneratorCommand.GenerateMethodBridgeCppFile(analyzer.GenericMethods, callbacks.ReversePInvokeMethods, calli.CalliMethodSignatures.ToList(), output);
         }
 
+        /// <summary>检查已配置是否满足前置条件。</summary>
         internal static void RequireConfigured()
         {
             Platform();
@@ -359,6 +374,7 @@ namespace Game.Framework.HotUpdate.Editor
             _ = Settings;
         }
 
+        /// <summary>检查原生 Support 是否满足前置条件。</summary>
         private static void RequireNativeSupport()
         {
             if (Target == BuildTarget.StandaloneWindows64)
@@ -367,6 +383,7 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>读取基准。</summary>
         private static ReleaseManifest ReadBaseline()
         {
             var baseline = JsonUtility.FromJson<ReleaseManifest>(ReleasePolicy.ReadBoundedText(Path.Combine(BuiltinPath, "builtin.json")));
@@ -378,6 +395,7 @@ namespace Game.Framework.HotUpdate.Editor
             return baseline;
         }
 
+        /// <summary>取得AOTInputsFingerprint。</summary>
         private static string AotInputsFingerprint()
         {
             var hot = new HashSet<string>(HotAssemblies);
@@ -391,7 +409,9 @@ namespace Game.Framework.HotUpdate.Editor
             return ReleasePolicy.Sha256(Encoding.UTF8.GetBytes(JsonUtility.ToJson(settings) + "\n" + string.Join("\n", files.Select(f => f.Name + ":" + f.Hash))));
         }
 
+        /// <summary>根据传入参数取得Archive。</summary>
         private static string Archive(ReleaseManifest baseline) => Path.Combine(Root, "Artifacts", "Baselines", baseline.platform, baseline.baselineId);
+        /// <summary>根据传入参数取得Describe。</summary>
         private static ReleaseFile Describe(string path) => new ReleaseFile
         {
             assemblyName = Path.GetFileNameWithoutExtension(path),
@@ -399,6 +419,7 @@ namespace Game.Framework.HotUpdate.Editor
             size = new FileInfo(path).Length,
             sha256 = ReleasePolicy.Sha256File(path)
         };
+        /// <summary>验证内置。</summary>
         internal static void ValidateBuiltin(ReleaseManifest baseline)
         {
             if (baseline.content?.codeInResources == true)
@@ -414,6 +435,7 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>验证项目。</summary>
         public static void ValidateProject()
         {
             Configure();
@@ -421,6 +443,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("PROJECT_VALIDATION_OK");
         }
 
+        /// <summary>验证 PlayerScripts。</summary>
         public static void ValidatePlayerScripts()
         {
             Configure();
@@ -434,6 +457,7 @@ namespace Game.Framework.HotUpdate.Editor
             Debug.Log("PLAYER_SCRIPTS_COMPILED");
         }
 
+        /// <summary>调用 EditorSmokeProbe.Begin 完成冒烟编辑器 Startup。</summary>
         public static void SmokeEditorStartup()
         {
             EditorSmokeProbe.Begin();
@@ -442,6 +466,7 @@ namespace Game.Framework.HotUpdate.Editor
             EditorApplication.isPlaying = true;
         }
 
+        /// <summary>表示游戏 Build中的Build 信息。</summary>
         [Serializable]
         private sealed class BuildInfo
         {
@@ -456,11 +481,13 @@ namespace Game.Framework.HotUpdate.Editor
         }
     }
 
+    /// <summary>提供编辑器冒烟探测的实现。</summary>
     [InitializeOnLoad]
     internal static class EditorSmokeProbe
     {
         private const string Flag = "Game.EditorSmokeRunning";
         private const string Deadline = "Game.EditorSmokeDeadline";
+        /// <summary>为 EditorSmokeProbe 准备类型首次使用时所需的静态状态。</summary>
         static EditorSmokeProbe()
         {
             if (SessionState.GetBool(Flag, false))
@@ -469,6 +496,7 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>开始编辑器冒烟探测。</summary>
         internal static void Begin()
         {
             SessionState.SetBool(Flag, true);
@@ -477,6 +505,7 @@ namespace Game.Framework.HotUpdate.Editor
             EditorApplication.update += Poll;
         }
 
+        /// <summary>轮询编辑器冒烟探测。</summary>
         private static void Poll()
         {
             bool active = HotUpdateManager.TryGetInstance(out var hotUpdate);
@@ -507,10 +536,12 @@ namespace Game.Framework.HotUpdate.Editor
     }
 
     // Protect builds launched through Unity's default Build Settings as well as our own menu.
+    /// <summary>提供发布版本构建前置检查的实现。</summary>
     public sealed class ReleaseBuildGuard : IPreprocessBuildWithReport
     {
         public int callbackOrder => -100;
 
+        /// <summary>响应 PreprocessBuild。</summary>
         public void OnPreprocessBuild(BuildReport report)
         {
             if (!GameBuild.IsConfigured)
@@ -537,10 +568,12 @@ namespace Game.Framework.HotUpdate.Editor
         }
     }
 
+    /// <summary>提供发布版本 BuildVerifier的实现。</summary>
     public sealed class ReleaseBuildVerifier : IPostprocessBuildWithReport
     {
         public int callbackOrder => 10000;
 
+        /// <summary>响应 PostprocessBuild。</summary>
         public void OnPostprocessBuild(BuildReport report)
         {
             if (!GameBuild.IsConfigured)

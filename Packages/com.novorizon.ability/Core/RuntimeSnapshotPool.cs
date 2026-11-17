@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Game.Ability
 {
     /// <summary>Each nested operation owns a separate snapshot until its finally block returns it.</summary>
+    /// <remarks>提供运行时快照对象池的实现。</remarks>
     internal static class RuntimeSnapshotPool<T>
     {
         private const int MaximumRetainedLists = 8;
@@ -13,6 +14,7 @@ namespace Game.Ability
         [ThreadStatic] private static Stack<List<T>> available;
         [ThreadStatic] private static int retainedCapacity;
 
+        /// <summary>租用运行时快照对象池。</summary>
         internal static List<T> Rent(List<T> source = null)
         {
             List<T> snapshot;
@@ -32,6 +34,7 @@ namespace Game.Ability
             return snapshot;
         }
 
+        /// <summary>结束运行时快照对象池对相关资源的持有，并执行该类型的清理流程。</summary>
         internal static void Release(List<T> snapshot)
         {
             if (snapshot == null)

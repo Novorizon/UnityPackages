@@ -6,10 +6,12 @@ using UnityEngine.UI;
 
 namespace UI
 {
+    /// <summary>提供界面屏蔽项的实现。</summary>
     public sealed class UIBlocker : MonoBehaviour, IPointerClickHandler
     {
         public event Action? Clicked;
 
+        /// <summary>创建界面屏蔽项。</summary>
         public static UIBlocker Create(Transform parent, string name = "ModalBlocker")
         {
             var go = new GameObject(name);
@@ -28,6 +30,7 @@ namespace UI
             return go.AddComponent<UIBlocker>();
         }
 
+        /// <summary>响应指针 Click。</summary>
         public void OnPointerClick(PointerEventData eventData)
         {
             Clicked?.Invoke();

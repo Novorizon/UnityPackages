@@ -3,8 +3,10 @@ namespace Game.Ability
     /// <summary>
     /// Default script used when an ability is fully described by configured actions.
     /// </summary>
+    /// <remarks>提供已配置技能脚本的实现。</remarks>
     public sealed class ConfiguredAbilityScript : AbilityScript
     {
+        /// <summary>响应法术 Start。</summary>
         public override void OnSpellStart(CastContext context)
         {
             if (Ability == null || Ability.Definition == null)
@@ -15,6 +17,7 @@ namespace Game.Ability
             ActionRunner.Execute(Ability.Definition.Actions, context);
         }
 
+        /// <summary>响应投射物命中。</summary>
         public override bool OnProjectileHit(Projectile projectile, IUnit target, UnityEngine.Vector3 position)
         {
             if (Ability == null || projectile == null || !ReferenceEquals(projectile.Ability, Ability) || target == null) return false;

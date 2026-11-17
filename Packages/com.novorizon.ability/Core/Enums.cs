@@ -5,6 +5,7 @@ namespace Game.Ability
     /// <summary>
     /// Bit flags describing how an ability is aimed and executed.
     /// </summary>
+    /// <remarks>定义技能 Behavior可选的枚举值。</remarks>
     [Flags]
     public enum AbilityBehavior
     {
@@ -27,6 +28,7 @@ namespace Game.Ability
     /// <summary>
     /// Team relationship allowed by a target query.
     /// </summary>
+    /// <remarks>定义目标阵营可选的枚举值。</remarks>
     [Flags]
     public enum TargetTeam
     {
@@ -39,6 +41,7 @@ namespace Game.Ability
     /// <summary>
     /// Broad unit categories used by target filters.
     /// </summary>
+    /// <remarks>定义单位类型可选的枚举值。</remarks>
     [Flags]
     public enum UnitType
     {
@@ -55,6 +58,7 @@ namespace Game.Ability
     /// <summary>
     /// Additional targeting exceptions and restrictions.
     /// </summary>
+    /// <remarks>定义目标标志位可选的枚举值。</remarks>
     [Flags]
     public enum TargetFlags
     {
@@ -72,6 +76,7 @@ namespace Game.Ability
     /// <summary>
     /// States contributed by units or modifiers.
     /// </summary>
+    /// <remarks>定义单位状态可选的枚举值。</remarks>
     [Flags]
     public enum UnitState
     {
@@ -93,6 +98,7 @@ namespace Game.Ability
     /// <summary>
     /// Damage category used by immunity and modifier calculations.
     /// </summary>
+    /// <remarks>定义伤害类型可选的枚举值。</remarks>
     public enum DamageType
     {
         None = 0,
@@ -104,6 +110,7 @@ namespace Game.Ability
     /// <summary>
     /// Per-damage-call exceptions for the damage pipeline.
     /// </summary>
+    /// <remarks>定义伤害标志位可选的枚举值。</remarks>
     [Flags]
     public enum DamageFlags
     {
@@ -121,6 +128,7 @@ namespace Game.Ability
     /// <summary>
     /// Runtime behavior flags for modifier stacking, persistence, and aura semantics.
     /// </summary>
+    /// <remarks>定义状态修饰器 Attribute可选的枚举值。</remarks>
     [Flags]
     public enum ModifierAttribute
     {
@@ -136,6 +144,7 @@ namespace Game.Ability
     /// <summary>
     /// Additive property channels queried by business systems and damage calculations.
     /// </summary>
+    /// <remarks>定义状态修饰器属性可选的枚举值。</remarks>
     public enum ModifierProperty
     {
         None = 0,
@@ -153,6 +162,7 @@ namespace Game.Ability
     /// <summary>
     /// Events broadcast to modifiers for reactive behavior.
     /// </summary>
+    /// <remarks>定义状态修饰器事件类型可选的枚举值。</remarks>
     public enum ModifierEventType
     {
         None = 0,
@@ -177,6 +187,7 @@ namespace Game.Ability
     /// Configured modifiers are relation-scoped by default. Global delivery must be explicit;
     /// custom ModifierScript implementations may still inspect every broadcast themselves.
     /// </summary>
+    /// <remarks>定义状态修饰器事件作用域可选的枚举值。</remarks>
     public enum ModifierEventScope
     {
         Related = 0,
@@ -186,6 +197,7 @@ namespace Game.Ability
     /// <summary>
     /// Stable cast rejection reasons for UI, AI, and tests.
     /// </summary>
+    /// <remarks>定义施法失败原因原因可选的枚举值。</remarks>
     public enum CastFailureReason
     {
         None = 0,
@@ -215,6 +227,7 @@ namespace Game.Ability
     /// <summary>
     /// Runtime phase for a single ability instance.
     /// </summary>
+    /// <remarks>定义技能阶段可选的枚举值。</remarks>
     public enum AbilityPhase
     {
         Idle = 0,
@@ -226,6 +239,7 @@ namespace Game.Ability
     /// <summary>
     /// Public event stream emitted by AbilitySystem.
     /// </summary>
+    /// <remarks>定义运行时事件类型可选的枚举值。</remarks>
     public enum RuntimeEventType
     {
         AbilityAdded = 1,
@@ -259,6 +273,7 @@ namespace Game.Ability
     /// <summary>
     /// Data-driven operation kinds supported by ActionRunner.
     /// </summary>
+    /// <remarks>定义动作类型可选的枚举值。</remarks>
     public enum ActionType
     {
         None = 0,
@@ -275,6 +290,7 @@ namespace Game.Ability
     /// <summary>
     /// Target resolution mode for a data-driven action.
     /// </summary>
+    /// <remarks>定义动作目标可选的枚举值。</remarks>
     public enum ActionTarget
     {
         None = 0,
@@ -287,6 +303,7 @@ namespace Game.Ability
         EventTarget = 7
     }
 
+    /// <summary>定义动作值来源可选的枚举值。</summary>
     public enum ActionValueSource
     {
         LevelOrSpecial = 0,

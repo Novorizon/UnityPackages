@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Game.Framework.Samples.Resources.Editor
 {
+    /// <summary>提供资源示例场景菜单的实现。</summary>
     public static class ResourceDemoSceneMenu
     {
+        /// <summary>创建场景。</summary>
         [MenuItem("Tools/Novorizon/Demos/Create Resource Demo Scene")]
         public static void CreateScene()
         {

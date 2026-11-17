@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 namespace Game.Framework.Story.UGUI
 {
+    /// <summary>提供剧情立绘槽位的实现。</summary>
     [Serializable]
     public sealed class StoryPortraitSlot
     {
@@ -20,6 +21,7 @@ namespace Game.Framework.Story.UGUI
     }
 
     /// <summary>A presentation component; the core StoryPlayer owns flow and terminal results.</summary>
+    /// <remarks>提供剧情暂存的实现。</remarks>
     public sealed class StoryStage : MonoBehaviour, IStoryPresenter
     {
         [SerializeField] private TMP_Text speaker;
@@ -35,6 +37,7 @@ namespace Game.Framework.Story.UGUI
         [SerializeField, Min(0)] private float charactersPerSecond = 40;
         [SerializeField, Min(.1f)] private float videoPrepareTimeoutSeconds = 15;
 
+        /// <summary>表示剧情暂存中的选项按钮。</summary>
         private sealed class ChoiceButton
         {
             internal Button button;
@@ -70,6 +73,7 @@ namespace Game.Framework.Story.UGUI
         public int OwnedAssetCount => portraitLeases.Count + (backgroundLease == null ? 0 : 1) + (voiceLease == null ? 0 : 1);
         public bool IsRevealing => typing;
 
+        /// <summary>配置剧情暂存。</summary>
         public void Configure(IStoryAssets provider, LocalizationManager translations = null, IStoryVideo media = null)
         {
             MainThread();
@@ -82,6 +86,7 @@ namespace Game.Framework.Story.UGUI
             video = media ?? videoProvider as IStoryVideo;
         }
 
+        /// <summary>配置 Ui。</summary>
         public void ConfigureUi(
             TMP_Text speakerLabel,
             TMP_Text bodyLabel,
@@ -106,6 +111,7 @@ namespace Game.Framework.Story.UGUI
             dialogueRoot = dialogue;
         }
 
+        /// <summary>配置 Timing。</summary>
         public void ConfigureTiming(float typingCharactersPerSecond, float prepareTimeoutSeconds = 15)
         {
             if (float.IsNaN(typingCharactersPerSecond) || float.IsInfinity(typingCharactersPerSecond) || typingCharactersPerSecond < 0 ||
@@ -117,6 +123,7 @@ namespace Game.Framework.Story.UGUI
             videoPrepareTimeoutSeconds = prepareTimeoutSeconds;
         }
 
+        /// <summary>异步打开剧情暂存。</summary>
         public Task OpenAsync(StorySequence sequence, Guid id, CancellationToken cancellationToken)
         {
             MainThread();
@@ -161,6 +168,7 @@ namespace Game.Framework.Story.UGUI
             return Task.CompletedTask;
         }
 
+        /// <summary>异步执行当前操作。</summary>
         public async Task<StoryStepOutcome> ExecuteAsync(StoryNode node, StoryStepContext step, CancellationToken cancellationToken)
         {
             MainThread();
@@ -237,6 +245,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>推进剧情暂存。</summary>
         public void Advance(StoryStepContext step)
         {
             MainThread();
@@ -254,6 +263,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>选择剧情暂存。</summary>
         public bool Choose(StoryStepContext step, string choiceId)
         {
             MainThread();
@@ -271,12 +281,14 @@ namespace Game.Framework.Story.UGUI
             return false;
         }
 
+        /// <summary>跳过视频。</summary>
         public bool SkipVideo()
         {
             MainThread();
             return open && currentNode?.Kind == StoryNodeKind.PlayVideo && video != null && video.SkipCurrent();
         }
 
+        /// <summary>异步关闭剧情暂存。</summary>
         public Task CloseAsync(Guid id)
         {
             MainThread();
@@ -325,6 +337,7 @@ namespace Game.Framework.Story.UGUI
             return failures.Count == 0 ? Task.CompletedTask : Task.FromException(new AggregateException("Story stage cleanup failed.", failures));
         }
 
+        /// <summary>异步设置立绘。</summary>
         private async Task SetPortraitAsync(StoryNode node, StoryStepContext step, CancellationToken token)
         {
             StoryPortraitSlot selected = null;
@@ -369,6 +382,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>异步设置 Background。</summary>
         private async Task SetBackgroundAsync(StoryNode node, StoryStepContext step, CancellationToken token)
         {
             if (background == null)
@@ -400,6 +414,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>根据传入参数取得SayAsync。</summary>
         private async Task<StoryStepOutcome> SayAsync(StoryNode node, StoryStepContext step, CancellationToken token)
         {
             if (!string.IsNullOrEmpty(node.ResourceId))
@@ -440,6 +455,7 @@ namespace Game.Framework.Story.UGUI
             return await waiter.Task;
         }
 
+        /// <summary>异步选择剧情暂存。</summary>
         private async Task<StoryStepOutcome> ChooseAsync(StoryNode node, StoryStepContext step, CancellationToken token)
         {
             if (choiceRoot == null || choicePrefab == null)
@@ -471,6 +487,7 @@ namespace Game.Framework.Story.UGUI
             return await waiter.Task;
         }
 
+        /// <summary>根据传入参数取得新等待方。</summary>
         private TaskCompletionSource<StoryStepOutcome> NewWaiter(CancellationToken token)
         {
             var completion = new TaskCompletionSource<StoryStepOutcome>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -479,6 +496,7 @@ namespace Game.Framework.Story.UGUI
             return completion;
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         private void Update()
         {
             if (!open || currentNode?.Kind != StoryNodeKind.Say || waiter == null || stepCancellation.IsCancellationRequested)
@@ -504,6 +522,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>处理Reveal 全部。</summary>
         private void RevealAll()
         {
             typing = false;
@@ -511,6 +530,7 @@ namespace Game.Framework.Story.UGUI
             body.maxVisibleCharacters = int.MaxValue;
         }
 
+        /// <summary>绑定文本。</summary>
         private void BindText(TMP_Text label, ref LocalizedText binding, string key)
         {
             if (label == null)
@@ -546,6 +566,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>响应语言变化。</summary>
         private void OnLanguageChanged(string language)
         {
             if (!open || currentNode?.Kind != StoryNodeKind.Say || body == null)
@@ -561,6 +582,7 @@ namespace Game.Framework.Story.UGUI
             body.maxVisibleCharacters = typing ? (int)visibleCharacters : int.MaxValue;
         }
 
+        /// <summary>清空文本。</summary>
         private void ClearText()
         {
             if (bodyBinding != null)
@@ -582,6 +604,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>设置 Dialogue 可见。</summary>
         private void SetDialogueVisible(bool visible)
         {
             if (dialogueRoot != null)
@@ -590,6 +613,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>停止音源。</summary>
         private void StopVoice()
         {
             if (voiceSource != null)
@@ -602,6 +626,7 @@ namespace Game.Framework.Story.UGUI
             previous?.Dispose();
         }
 
+        /// <summary>清空选项。</summary>
         private void ClearChoices()
         {
             foreach (var choice in buttons)
@@ -616,6 +641,7 @@ namespace Game.Framework.Story.UGUI
             buttons.Clear();
         }
 
+        /// <summary>移除 Advance。</summary>
         private void RemoveAdvance()
         {
             if (advanceButton != null && advanceAction != null)
@@ -625,12 +651,14 @@ namespace Game.Framework.Story.UGUI
             advanceAction = null;
         }
 
+        /// <summary>判断是否匹配剧情暂存。</summary>
         private bool Matches(StoryStepContext step)
         {
             return open && context != null && step != null && sessionId == step.SessionId &&
                 context.StepVersion == step.StepVersion && stepCancellation != null && !stepCancellation.IsCancellationRequested;
         }
 
+        /// <summary>检查并确保当前可用。</summary>
         private void EnsureCurrent(StoryStepContext step, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -640,11 +668,13 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>Unity 创建组件时执行本组件的初始化逻辑。</summary>
         private void Awake()
         {
             ownerThreadId = Thread.CurrentThread.ManagedThreadId;
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         private void OnEnable()
         {
             if (lifetime.IsCancellationRequested)
@@ -654,11 +684,13 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         private void OnDisable()
         {
             CancelLifetime();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             destroyed = true;
@@ -678,6 +710,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>结束剧情暂存对相关资源的持有，并执行该类型的清理流程。</summary>
         private static void Release(Action action, List<Exception> failures)
         {
             try
@@ -690,6 +723,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>取消生命周期。</summary>
         private void CancelLifetime()
         {
             try
@@ -702,6 +736,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private void MainThread()
         {
             if (ownerThreadId == 0 || Thread.CurrentThread.ManagedThreadId != ownerThreadId)

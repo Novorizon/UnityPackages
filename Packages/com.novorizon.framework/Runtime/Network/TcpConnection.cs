@@ -10,6 +10,7 @@ using Google.Protobuf;
 
 namespace Game.Framework.Network
 {
+    /// <summary>提供TCP 连接的实现。</summary>
     internal sealed class TcpConnection
     {
         private readonly object sync = new object();
@@ -25,6 +26,7 @@ namespace Game.Framework.Network
         private readonly TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource<bool> aborted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         private int stopped, pendingCount, pendingBytes;
+        /// <summary>使用调用方提供的generation、socket、stream创建 TcpConnection。</summary>
         internal TcpConnection(long generation, TcpClient socket, NetworkStream stream, PacketCipher cipher,
             TcpClientOptions options, Action<TcpConnection, NetworkPacket> received, Action<TcpConnection, Exception> closed)
         { Generation = generation; this.socket = socket; this.stream = stream; this.cipher = cipher; this.options = options; this.received = received; this.closed = closed; }
@@ -33,8 +35,10 @@ namespace Game.Framework.Network
         internal Task Completion => completion.Task;
         internal int PendingSendCount { get { lock (sync) return pendingCount; } }
         internal int PendingSendBytes { get { lock (sync) return pendingBytes; } }
+        /// <summary>启动 TCP 连接。</summary>
         internal void Start() { _ = RunAsync(); }
 
+        /// <summary>异步发送 TCP 连接。</summary>
         internal Task SendAsync(int id, long requestId, IMessage message, byte[] payload, CancellationToken ct)
         {
             lock (sync)
@@ -49,6 +53,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>中止 TCP 连接。</summary>
         internal void Abort(Exception error)
         {
             if (Interlocked.Exchange(ref stopped, 1) != 0) return;
@@ -68,6 +73,7 @@ namespace Game.Framework.Network
             finally { aborted.TrySetResult(true); }
         }
 
+        /// <summary>异步运行当前操作。</summary>
         private async Task RunAsync()
         {
             try
@@ -86,6 +92,7 @@ namespace Game.Framework.Network
             }
         }
 
+        /// <summary>异步发送循环。</summary>
         private async Task SendLoopAsync()
         {
             Exception failure = null;
@@ -133,6 +140,7 @@ namespace Game.Framework.Network
             finally { Abort(failure); }
         }
 
+        /// <summary>异步接收循环。</summary>
         private async Task ReceiveLoopAsync()
         {
             Exception failure = null;
@@ -169,6 +177,7 @@ namespace Game.Framework.Network
             finally { Abort(failure); }
         }
 
+        /// <summary>异步读取 Exactly。</summary>
         internal static async Task ReadExactlyAsync(Stream stream, byte[] bytes, int offset, int length, CancellationToken ct)
         {
             while (length != 0)

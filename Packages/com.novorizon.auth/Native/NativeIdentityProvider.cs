@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.Auth.Native
 {
     /// <summary>Apple AuthenticationServices on iOS; Google native SDK on iOS and Credential Manager on Android.</summary>
+    /// <remarks>原生身份对应的厂商适配器。提供此模块需要的能力或数据。</remarks>
     public sealed class NativeIdentityProvider : IIdentityProvider
     {
         private readonly string googleWebClientId;
@@ -17,6 +18,7 @@ namespace Game.Framework.Auth.Native
         private bool busy, disposed;
         public IdentityProvider Provider { get; }
 
+        /// <summary>使用调用方提供的provider、googleWebClientId、googleIosClientId创建 NativeIdentityProvider。</summary>
         public NativeIdentityProvider(IdentityProvider provider, string googleWebClientId = null, string googleIosClientId = null)
         {
             if (provider != IdentityProvider.Apple && provider != IdentityProvider.Google)
@@ -28,6 +30,7 @@ namespace Game.Framework.Auth.Native
             this.googleIosClientId = googleIosClientId;
         }
 
+        /// <summary>异步取得原生身份厂商适配器。</summary>
         public async Task<IdentityProof> AcquireAsync(CancellationToken token)
         {
             MainThread();
@@ -87,6 +90,7 @@ namespace Game.Framework.Auth.Native
             }
         }
 
+        /// <summary>启动原生。</summary>
         private void StartNative(string receiver, string request, string nonce)
         {
 #if UNITY_IOS && !UNITY_EDITOR && NOVORIZON_NATIVE_AUTH
@@ -114,14 +118,18 @@ namespace Game.Framework.Auth.Native
         }
 
 #if UNITY_IOS && !UNITY_EDITOR && NOVORIZON_NATIVE_AUTH
+        /// <summary>处理NovorizonAppleSignIn。</summary>
         [DllImport("__Internal")]
         private static extern void NovorizonAppleSignIn(string receiver, string request, string hashedNonce);
+        /// <summary>处理NovorizonGoogleSignIn。</summary>
         [DllImport("__Internal")]
         private static extern void NovorizonGoogleSignIn(string receiver, string request, string iosClientId, string webClientId, string nonce);
+        /// <summary>处理NovorizonGoogle 句柄 URL。</summary>
         [DllImport("__Internal")]
         private static extern void NovorizonGoogleHandleUrl(string url);
 #endif
 
+        /// <summary>处理 URL。</summary>
         private void HandleUrl(string url)
         {
 #if UNITY_IOS && !UNITY_EDITOR && NOVORIZON_NATIVE_AUTH
@@ -132,6 +140,7 @@ namespace Game.Framework.Auth.Native
 #endif
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -140,6 +149,7 @@ namespace Game.Framework.Auth.Native
             }
         }
 
+        /// <summary>结束原生身份厂商适配器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             MainThread();

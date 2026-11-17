@@ -9,12 +9,14 @@ using Credential = global::Firebase.Auth.Credential;
 namespace Game.Framework.Firebase.Unity
 {
     /// <summary>Uses the project's Firebase Auth instance; disposal never signs out another owner.</summary>
+    /// <remarks>Firebase 认证对应的后端。承接上层请求，调用具体平台或实现。</remarks>
     public sealed class FirebaseAuthBackend : IAuthBackend
     {
         private static FirebaseAuthBackend owner;
         private readonly AuthSdk sdk;
         private bool disposed, busy;
 
+        /// <summary>使用调用方提供的runtime创建 FirebaseAuthBackend。</summary>
         public FirebaseAuthBackend(FirebaseManager runtime)
         {
             FirebaseManager.MainThread();
@@ -36,6 +38,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>根据传入参数取得SignIn 以匿名身份 Async。</summary>
         public async Task<AuthUser> SignInAnonymouslyAsync(CancellationToken token)
         {
             using var operation = Begin(token);
@@ -47,6 +50,7 @@ namespace Game.Framework.Firebase.Unity
             return CurrentUser;
         }
 
+        /// <summary>根据传入参数取得SignInAsync。</summary>
         public async Task<AuthUser> SignInAsync(IdentityProof proof, CancellationToken token)
         {
             using var operation = Begin(token);
@@ -58,6 +62,7 @@ namespace Game.Framework.Firebase.Unity
             return CurrentUser;
         }
 
+        /// <summary>异步关联 Firebase 认证后端。</summary>
         public async Task<AuthUser> LinkAsync(string expectedUserId, IdentityProof proof, CancellationToken token)
         {
             using var operation = Begin(token);
@@ -74,6 +79,7 @@ namespace Game.Framework.Firebase.Unity
             return CurrentUser;
         }
 
+        /// <summary>异步解除关联 Firebase 认证后端。</summary>
         public async Task<AuthUser> UnlinkAsync(string expectedUserId, string providerId, CancellationToken token)
         {
             using var operation = Begin(token);
@@ -84,6 +90,7 @@ namespace Game.Framework.Firebase.Unity
             return CurrentUser;
         }
 
+        /// <summary>异步获取会话令牌。</summary>
         public async Task<string> GetSessionTokenAsync(bool forceRefresh, CancellationToken token)
         {
             using var operation = Begin(token);
@@ -97,6 +104,7 @@ namespace Game.Framework.Firebase.Unity
             return result;
         }
 
+        /// <summary>根据传入参数取得预期用户。</summary>
         private global::Firebase.Auth.FirebaseUser ExpectedUser(string id)
         {
             Ready();
@@ -108,6 +116,7 @@ namespace Game.Framework.Firebase.Unity
             return user;
         }
 
+        /// <summary>构建 Credential。</summary>
         private static Credential BuildCredential(IdentityProof proof)
         {
             if (proof == null)
@@ -129,6 +138,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>结束当前登录会话。</summary>
         public void SignOut()
         {
             Ready();
@@ -139,6 +149,7 @@ namespace Game.Framework.Firebase.Unity
             sdk.SignOut();
         }
 
+        /// <summary>开始 Firebase 认证后端。</summary>
         private Operation Begin(CancellationToken token)
         {
             Ready();
@@ -151,15 +162,18 @@ namespace Game.Framework.Firebase.Unity
             return new Operation(this);
         }
 
+        /// <summary>表示Firebase 认证后端中的操作。</summary>
         private sealed class Operation : IDisposable
         {
             private FirebaseAuthBackend backend;
 
+            /// <summary>使用调用方提供的backend创建 Operation。</summary>
             internal Operation(FirebaseAuthBackend backend)
             {
                 this.backend = backend;
             }
 
+            /// <summary>结束操作对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose()
             {
                 if (backend != null)
@@ -174,6 +188,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>调用 FirebaseManager.MainThread 完成就绪。</summary>
         private void Ready()
         {
             FirebaseManager.MainThread();
@@ -183,6 +198,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>结束Firebase 认证后端对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             FirebaseManager.MainThread();

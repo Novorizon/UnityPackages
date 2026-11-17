@@ -4,21 +4,29 @@ using System.Collections.Generic;
 namespace RTree
 {
     /// <summary>Common 3D bounds/ray adapters, retaining all original RTree APIs.</summary>
+    /// <remarks>提供R 树的实现。</remarks>
     public partial class RTree<T> : IBoundsQuery3<T>, IRayQuery3<T>
     {
+        /// <summary>查询 R 树。</summary>
         public int Query(Bounds3 bounds, List<T> results, QueryContext context)
         { return QueryRangeValue(bounds.Box, results, context, false); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         { return QuerySpatial(default(Bounds3), sphere, null, 1, results, context); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QuerySpatial(default(Bounds3), default(Sphere3), frustum, 2, results, context);
         }
+        /// <summary>查询 R 树。</summary>
         public int Query(Bounds3 bounds, List<T> results) { return Query(bounds, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results) { return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results) { return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get()); }
 
+        /// <summary>返回空间索引 Matches的判断结果。</summary>
         private static bool SpatialMatches(Aabb box, Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, int kind)
         {
             if (kind == 0) return box.Intersects(bounds.Box);
@@ -26,6 +34,7 @@ namespace RTree
             return kind == 1 ? SpatialMath.Intersects(value, sphere) : frustum.Intersects(value);
         }
 
+        /// <summary>按空间索引查询匹配结果。</summary>
         private int QuerySpatial(Bounds3 bounds, Sphere3 sphere, Frustum3 frustum, int kind, List<T> results, QueryContext context)
         {
             SpatialQueryWorkspaces.ValidateResults(results, context);
@@ -65,15 +74,20 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context)
         { return RaycastOne(ray, false, out hit, context); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context)
         { return RaycastOne(ray, true, out hit, context); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit)
         { return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit)
         { return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get()); }
 
+        /// <summary>对一个执行射线检测。</summary>
         private bool RaycastOne(Ray3 ray, bool closest, out RayHit<T> hit, QueryContext context)
         {
             ray.Validate();
@@ -123,8 +137,10 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results)
         { return RaycastAll(ray, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context)
         {
             ray.Validate(); SpatialQueryWorkspaces.ValidateResults(results, context);
@@ -165,8 +181,10 @@ namespace RTree
         }
     }
 
+    /// <summary>提供空间索引结果 Sort的实现。</summary>
     internal static class SpatialResultSort
     {
+        /// <summary>调用 Sift 完成射线命中列表。</summary>
         internal static void RayHits<T>(List<RayHit<T>> hits)
         {
             for (int i = hits.Count / 2 - 1; i >= 0; i--) Sift(hits, i, hits.Count);
@@ -176,6 +194,7 @@ namespace RTree
                 Sift(hits, 0, end);
             }
         }
+        /// <summary>筛排空间索引结果 Sort。</summary>
         private static void Sift<T>(List<RayHit<T>> hits, int root, int count)
         {
             RayHit<T> value = hits[root];

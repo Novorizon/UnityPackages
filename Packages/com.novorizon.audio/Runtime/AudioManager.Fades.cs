@@ -4,6 +4,7 @@ using UnityEngine.Audio;
 
 namespace Game.Framework.Audio
 {
+    /// <summary>定义音频淡化曲线可选的枚举值。</summary>
     public enum AudioFadeCurve
     {
         Linear,
@@ -11,8 +12,10 @@ namespace Game.Framework.Audio
         EqualPower
     }
 
+    /// <summary>音频对应的管理器。管理对应模块的状态和操作入口。</summary>
     public sealed partial class AudioManager
     {
+        /// <summary>淡化对应的状态。保存状态或定义允许的状态值。</summary>
         private struct FadeState
         {
             internal bool Active, StopAtEnd;
@@ -100,6 +103,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 为指定播放建立新的音量渐变。时长为零时立即生效，播放已结束时返回 false。
         internal bool FadeTo(long id, float volume, float seconds, bool stopAtEnd, AudioFadeCurve curve)
         {
             MainThread();
@@ -167,6 +171,7 @@ namespace Game.Framework.Audio
                         continue;
                     }
 
+                    // 剪辑还在加载时，尚未播放不能视为自然结束。
                     if (!voice.Source.isPlaying && voice.Source.clip != null && voice.Source.clip.loadState == AudioDataLoadState.Loading)
                     {
                         continue;
@@ -182,6 +187,7 @@ namespace Game.Framework.Audio
                     }
                 }
 
+                // 先收集已结束的播放，再在独立步骤回收和调用回调，允许回调启动或停止声音。
                 foreach (var item in finished)
                 {
                     if (!voices.TryGetValue(item.Id, out var voice))
@@ -189,6 +195,7 @@ namespace Game.Framework.Audio
                         continue;
                     }
 
+                    // 只有自然结束需要发出完成回调。回调执行前句柄已经失效。
                     var callback = item.Natural ? voice.Completed : null;
                     Stop(item.Id);
                     try
@@ -231,6 +238,7 @@ namespace Game.Framework.Audio
             return !fade.Active && fade.StopAtEnd;
         }
 
+        // 淡化时长必须是有限的非负数，曲线必须是已定义的枚举值。
         private static void ValidateFade(float seconds, AudioFadeCurve curve)
         {
             if (seconds < 0 || float.IsNaN(seconds) || float.IsInfinity(seconds))

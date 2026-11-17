@@ -17,12 +17,14 @@ namespace Game.Resource
         private readonly Dictionary<int, SceneHandle> handles = new Dictionary<int, SceneHandle>();
         private readonly HashSet<SceneHandle> pending = new HashSet<SceneHandle>();
         private bool disposed;
+        /// <summary>使用调用方提供的package创建 YooAssetSceneLoader。</summary>
         public YooAssetSceneLoader(ResourcePackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;
         }
 
+        /// <summary>异步加载 Yoo 资源场景加载器。</summary>
         public async Task<Scene> LoadAsync(string location, LoadSceneMode mode, IProgress<float> progress)
         {
             EnsureAvailable();
@@ -60,6 +62,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步卸载 Yoo 资源场景加载器。</summary>
         public async Task UnloadAsync(Scene scene)
         {
             EnsureAvailable();
@@ -78,6 +81,7 @@ namespace Game.Resource
             OnSceneUnloaded(scene);
         }
 
+        /// <summary>响应场景已卸载。</summary>
         private void OnSceneUnloaded(Scene scene)
         {
             if (handles.TryGetValue(scene.handle, out var handle))
@@ -90,6 +94,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>释放 If 场景已卸载。</summary>
         internal static void ReleaseIfSceneUnloaded(SceneHandle handle)
         {
             if (!handle.IsValid)
@@ -105,6 +110,7 @@ namespace Game.Resource
             handle.Release();
         }
 
+        /// <summary>上报 Yoo 资源场景加载器。</summary>
         private static void Report(IProgress<float> progress, float value)
         {
             try
@@ -117,6 +123,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>检查并确保可用可用。</summary>
         private void EnsureAvailable()
         {
             if (disposed)
@@ -130,6 +137,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>结束Yoo 资源场景加载器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

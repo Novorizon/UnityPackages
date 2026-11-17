@@ -26,6 +26,7 @@ using System.Threading;
 namespace RTree
 {
     // Metadata and entries contain inline value boxes, never Rectangle objects.
+    /// <summary>保存树节点所需的数据与配套操作。</summary>
     internal struct TreeNode
     {
         internal Aabb Bounds;
@@ -33,10 +34,12 @@ namespace RTree
         internal bool Live;
     }
 
+    /// <summary>保存树条目所需的数据与配套操作。</summary>
     internal struct TreeEntry
     {
         internal Aabb Bounds;
         internal int Id;
+        /// <summary>使用调用方提供的bounds、id创建 TreeEntry。</summary>
         internal TreeEntry(Aabb bounds, int id) { Bounds = bounds; Id = id; }
     }
 
@@ -45,6 +48,7 @@ namespace RTree
     /// concurrently; writers are serialized and exclude readers. Item equality
     /// and hash codes must remain stable while the item is indexed.
     /// </summary>
+    /// <remarks>提供R 树的实现。</remarks>
     public partial class RTree<T>
     {
         private const string version = "1.0b2p1";
@@ -72,8 +76,10 @@ namespace RTree
         private readonly List<int> deletePathEntries = new List<int>(8);
         private readonly List<OrphanEntry> deleteOrphans = new List<OrphanEntry>(16);
 
+        /// <summary>用默认配置创建 RTree，其余初始化交给完整构造函数。</summary>
         public RTree() : this(DefaultCapacity, DefaultCapacity / 2) { }
 
+        /// <summary>使用调用方提供的MaxNodeEntries、MinNodeEntries创建 RTree。</summary>
         public RTree(int MaxNodeEntries, int MinNodeEntries)
         {
             maxNodeEntries = MaxNodeEntries < 2 ? DefaultCapacity : MaxNodeEntries;
@@ -96,6 +102,7 @@ namespace RTree
         }
 
         /// <summary>Adds a unique non-null item and copies its geometric bounds.</summary>
+        /// <remarks>添加 R 树。</remarks>
         public void Add(Rectangle r, T item)
         {
             if (r == null) throw new ArgumentNullException("r");
@@ -104,6 +111,7 @@ namespace RTree
             AddValue(bounds, item);
         }
 
+        /// <summary>添加值。</summary>
         internal void AddValue(Aabb bounds, T item)
         {
             if (ReferenceEquals(item, null)) throw new ArgumentNullException("item");
@@ -130,6 +138,7 @@ namespace RTree
         }
 
         /// <summary>Deletes a matching item and exact box, or returns false.</summary>
+        /// <remarks>删除 R 树。</remarks>
         public bool Delete(Rectangle r, T item)
         {
             if (r == null) throw new ArgumentNullException("r");
@@ -138,6 +147,7 @@ namespace RTree
             return DeleteValue(bounds, item);
         }
 
+        /// <summary>删除值。</summary>
         internal bool DeleteValue(Aabb bounds, T item)
         {
             if (ReferenceEquals(item, null)) throw new ArgumentNullException("item");
@@ -198,6 +208,7 @@ namespace RTree
             get { sync.EnterReadLock(); try { return msize; } finally { sync.ExitReadLock(); } }
         }
 
+        /// <summary>通过当前接口读取包围盒。</summary>
         public Rectangle getBounds()
         {
             sync.EnterReadLock();
@@ -205,6 +216,7 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>通过当前接口读取根节点标识。</summary>
         public int getRootNodeId()
         {
             sync.EnterReadLock();
@@ -212,14 +224,17 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>通过当前接口读取版本。</summary>
         public string getVersion() { return "RTree-" + version; }
 
         /// <summary>Builds a packed, balanced tree using three-dimensional STR ordering.</summary>
+        /// <remarks>根据传入参数取得批量 Load。</remarks>
         public static RTree<T> BulkLoad(IEnumerable<KeyValuePair<Rectangle, T>> items)
         {
             return BulkLoad(items, DefaultCapacity, DefaultCapacity / 2);
         }
 
+        /// <summary>根据传入参数取得批量 Load。</summary>
         public static RTree<T> BulkLoad(IEnumerable<KeyValuePair<Rectangle, T>> items, int maxNodeEntries, int minNodeEntries)
         {
             if (items == null) throw new ArgumentNullException("items");
@@ -247,6 +262,7 @@ namespace RTree
         }
 
         /// <summary>Repacks existing items with STR ordering without changing their identities.</summary>
+        /// <remarks>重建 R 树。</remarks>
         public void Rebuild()
         {
             sync.EnterWriteLock();
@@ -270,6 +286,7 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>分配条目。</summary>
         private int AllocateItem()
         {
             if (freeItemIds.Count != 0) return freeItemIds.Pop();
@@ -284,11 +301,13 @@ namespace RTree
             return nextItemId++;
         }
 
+        /// <summary>释放条目。</summary>
         private void ReleaseItem(int id)
         {
             itemValues[id] = default(T); itemLive[id] = false; freeItemIds.Push(id);
         }
 
+        /// <summary>分配节点。</summary>
         private int AllocateNode(int level)
         {
             int id;
@@ -302,6 +321,7 @@ namespace RTree
             return id;
         }
 
+        // 按需扩充节点存储，避免插入时超过当前容量。
         private void EnsureNodeCapacity(int required)
         {
             if (required <= nodes.Length) return;
@@ -313,6 +333,7 @@ namespace RTree
             nodes = newNodes; entries = newEntries;
         }
 
+        /// <summary>扩大 R 树。</summary>
         private static int Grow(int current, int required, int limit)
         {
             if (required > limit) throw new InvalidOperationException("The index has reached its storage limit.");
@@ -320,6 +341,7 @@ namespace RTree
             return (int)Math.Min(limit, Math.Max(required, doubled));
         }
 
+        /// <summary>释放节点。</summary>
         private void ReleaseNode(int id)
         {
             Array.Clear(entries, id * maxNodeEntries, maxNodeEntries);
@@ -327,6 +349,7 @@ namespace RTree
             freeNodeIds.Push(id);
         }
 
+        /// <summary>添加条目。</summary>
         private void AddEntry(int nodeId, TreeEntry entry)
         {
             int count = nodes[nodeId].Count;
@@ -335,6 +358,7 @@ namespace RTree
             nodes[nodeId].Count = count + 1;
         }
 
+        /// <summary>移除条目。</summary>
         private void RemoveEntry(int nodeId, int index)
         {
             int last = --nodes[nodeId].Count;
@@ -344,6 +368,7 @@ namespace RTree
             Recalculate(nodeId);
         }
 
+        /// <summary>调用 Aabb.Union 完成Recalculate。</summary>
         private void Recalculate(int nodeId)
         {
             int count = nodes[nodeId].Count;
@@ -354,6 +379,7 @@ namespace RTree
             nodes[nodeId].Bounds = bounds;
         }
 
+        /// <summary>插入根节点。</summary>
         private void InsertRoot(TreeEntry entry, int level)
         {
             if (nodes[rootNodeId].Count == 0)
@@ -369,6 +395,7 @@ namespace RTree
             AddEntry(rootNodeId, new TreeEntry(nodes[sibling].Bounds, sibling));
         }
 
+        /// <summary>插入 R 树。</summary>
         private int Insert(int nodeId, TreeEntry entry, int level)
         {
             if (nodes[nodeId].Level > level)
@@ -387,6 +414,7 @@ namespace RTree
             return Split(nodeId, entry);
         }
 
+        /// <summary>选择条目。</summary>
         private int ChooseEntry(int nodeId, Aabb addition)
         {
             int offset = nodeId * maxNodeEntries, chosen = 0;
@@ -405,6 +433,7 @@ namespace RTree
             return chosen;
         }
 
+        /// <summary>比较增长 Ties。</summary>
         private static int CompareGrowthTies(Aabb left, Aabb right, Aabb addition)
         {
             int comparison = left.SurfaceGrowth(addition).CompareTo(right.SurfaceGrowth(addition));
@@ -418,6 +447,7 @@ namespace RTree
             return left.Margin().CompareTo(right.Margin());
         }
 
+        /// <summary>拆分 R 树。</summary>
         private int Split(int nodeId, TreeEntry addition)
         {
             int total = maxNodeEntries + 1, offset = nodeId * maxNodeEntries;
@@ -478,6 +508,7 @@ namespace RTree
             return sibling;
         }
 
+        /// <summary>准备 Split。</summary>
         private void PrepareSplit(int axis, bool upper, int total)
         {
             for (int i = 0; i < total; i++) splitOrder[i] = i;
@@ -491,6 +522,7 @@ namespace RTree
             for (int i = total - 2; i >= 0; i--) { bounds = Aabb.Union(bounds, splitEntries[splitOrder[i]].Bounds); suffixBounds[i] = bounds; }
         }
 
+        /// <summary>查找叶节点。</summary>
         private bool FindLeaf(int nodeId, Aabb bounds, int itemId, List<int> path, List<int> pathEntries, out int leaf, out int index)
         {
             int offset = nodeId * maxNodeEntries;
@@ -512,6 +544,7 @@ namespace RTree
             return false;
         }
 
+        /// <summary>调用 ReleaseNode 完成Collapse 根节点。</summary>
         private void CollapseRoot()
         {
             while (nodes[rootNodeId].Level > 1 && nodes[rootNodeId].Count == 1)
@@ -524,6 +557,7 @@ namespace RTree
             treeHeight = nodes[rootNodeId].Level;
         }
 
+        /// <summary>调用 Array.Clear 完成Pack。</summary>
         private void Pack(TreeEntry[] records)
         {
             // Called only on an unpublished builder (BulkLoad or Rebuild).
@@ -554,6 +588,7 @@ namespace RTree
             }
         }
 
+        /// <summary>调用 records[0].Bounds.Center 完成指令 Str。</summary>
         private static void OrderStr(TreeEntry[] records, int[] groupSizes)
         {
             if (groupSizes.Length <= 1) return;
@@ -587,6 +622,7 @@ namespace RTree
             if (dimensions != 0) OrderStrRange(records, groupSizes, 0, groupSizes.Length, 0, axes, 0, dimensions);
         }
 
+        /// <summary>调用 Sum 完成指令 Str 范围。</summary>
         private static void OrderStrRange(TreeEntry[] records, int[] groupSizes, int firstGroup, int groups,
             int entryStart, int[] axes, int axisIndex, int remainingDimensions)
         {
@@ -606,6 +642,7 @@ namespace RTree
             }
         }
 
+        /// <summary>根据传入参数取得Sum。</summary>
         private static int Sum(int[] values, int start, int count)
         {
             int sum = 0;
@@ -613,25 +650,32 @@ namespace RTree
             return sum;
         }
 
+        /// <summary>保存残留项条目所需的数据与配套操作。</summary>
         private struct OrphanEntry
         {
             internal TreeEntry Entry;
             internal int Level;
+            /// <summary>使用调用方提供的entry、level创建 OrphanEntry。</summary>
             internal OrphanEntry(TreeEntry entry, int level) { Entry = entry; Level = level; }
         }
 
+        /// <summary>残留项对应的比较器。定义排序或相等比较规则。</summary>
         private sealed class OrphanComparer : IComparer<OrphanEntry>
         {
             internal static readonly OrphanComparer Instance = new OrphanComparer();
+            /// <summary>比较传入的 left、right。</summary>
             public int Compare(OrphanEntry left, OrphanEntry right) { return right.Level.CompareTo(left.Level); }
         }
 
+        /// <summary>Split对应的比较器。定义排序或相等比较规则。</summary>
         private sealed class SplitComparer : IComparer<int>
         {
             private readonly TreeEntry[] source;
             internal int Axis;
             internal bool Upper;
+            /// <summary>使用调用方提供的source创建 SplitComparer。</summary>
             internal SplitComparer(TreeEntry[] source) { this.source = source; }
+            /// <summary>比较传入的 left、right。</summary>
             public int Compare(int left, int right)
             {
                 Aabb a = source[left].Bounds, b = source[right].Bounds;
@@ -642,11 +686,14 @@ namespace RTree
             }
         }
 
+        /// <summary>中心点对应的比较器。定义排序或相等比较规则。</summary>
         private sealed class CenterComparer : IComparer<TreeEntry>
         {
             internal static readonly CenterComparer X = new CenterComparer(0), Y = new CenterComparer(1), Z = new CenterComparer(2);
             private readonly int axis;
+            /// <summary>使用调用方提供的axis创建 CenterComparer。</summary>
             private CenterComparer(int axis) { this.axis = axis; }
+            /// <summary>比较传入的 left、right。</summary>
             public int Compare(TreeEntry left, TreeEntry right)
             {
                 int comparison = left.Bounds.Center(axis).CompareTo(right.Bounds.Center(axis));

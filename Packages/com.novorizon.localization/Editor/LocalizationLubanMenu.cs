@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace Game.Framework.Localization.Editor
 {
+    /// <summary>提供本地化 Luban 菜单的实现。</summary>
     public static class LocalizationLubanMenu
     {
+        /// <summary>创建项目。</summary>
         [MenuItem("Novorizon/Localization/Create Luban Project")]
         public static void CreateProject()
         {

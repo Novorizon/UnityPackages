@@ -10,10 +10,12 @@ using UnityEngine.SceneManagement;
 /// Validates and samples a model without changing source objects or writing assets.
 /// The writer owns persistence and the caller owns the returned result.
 /// </summary>
+/// <remarks>提供GPU 蒙皮生成器的实现。</remarks>
 internal static class GpuSkinningGenerator
 {
     private const double WeightSumTolerance = 0.0001;
 
+    /// <summary>烘焙 GPU 蒙皮生成器。</summary>
     internal static GpuAnimationBakeResult Bake(GpuAnimationBakeRequest request, GpuAnimationBakeProgress progress = null)
     {
         if (request == null)
@@ -196,6 +198,7 @@ internal static class GpuSkinningGenerator
         }
     }
 
+    /// <summary>验证模型。</summary>
     private static SourceModel ValidateModel(GameObject model, List<string> warnings)
     {
         SkinnedMeshRenderer[] renderers = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
@@ -346,6 +349,7 @@ internal static class GpuSkinningGenerator
         return source;
     }
 
+    /// <summary>准备 Clips。</summary>
     private static BakedClip[] PrepareClips(GpuAnimationBakeRequest request, List<string> warnings, out int totalFrames)
     {
         if (request.Clips == null || request.Clips.Length == 0)
@@ -385,6 +389,7 @@ internal static class GpuSkinningGenerator
         return bakedClips;
     }
 
+    /// <summary>验证片段绑定。</summary>
     private static void ValidateClipBindings(GameObject model, AnimationClip clip, List<string> warnings)
     {
         if (AnimationUtility.GetObjectReferenceCurveBindings(clip).Length != 0)
@@ -413,6 +418,7 @@ internal static class GpuSkinningGenerator
             warnings.Add("Clip '" + clip.name + "' has Animator/muscle curves. Humanoid retargeting and IK require validation in the target Unity project.");
     }
 
+    /// <summary>调用 bounds.Encapsulate 完成IncludeBoneVertex。</summary>
     private static void IncludeBoneVertex(SourceModel source, int boneIndex, Vector3 vertex)
     {
         if (!source.UsedBones[boneIndex])
@@ -428,32 +434,38 @@ internal static class GpuSkinningGenerator
         }
     }
 
+    /// <summary>判断是否为 In 模型。</summary>
     private static bool IsInModel(Transform bone, Transform modelRoot)
     {
         return bone == modelRoot || bone.IsChildOf(modelRoot);
     }
 
+    /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
     private static bool IsFinite(float value)
     {
         return !float.IsNaN(value) && !float.IsInfinity(value);
     }
 
+    /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
     private static bool IsFinite(Vector3 value)
     {
         return IsFinite(value.x) && IsFinite(value.y) && IsFinite(value.z);
     }
 
+    /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
     private static bool IsFinite(Vector4 value)
     {
         return IsFinite(value.x) && IsFinite(value.y) && IsFinite(value.z) && IsFinite(value.w);
     }
 
+    /// <summary>上报进度。</summary>
     private static void ReportProgress(GpuAnimationBakeProgress progress, float value, string message)
     {
         if (progress != null && progress(value, message))
             throw new OperationCanceledException("GPU animation baking was canceled.");
     }
 
+    /// <summary>表示GPU 蒙皮生成器中的来源模型。</summary>
     private sealed class SourceModel
     {
         internal Mesh Mesh;
@@ -466,12 +478,14 @@ internal static class GpuSkinningGenerator
         internal bool[] UsedBones;
     }
 
+    /// <summary>表示GPU 蒙皮生成器中的Baked 片段。</summary>
     private sealed class BakedClip
     {
         internal AnimationClip Source;
         internal AnimationClipData Data;
     }
 
+    /// <summary>变换对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
     private sealed class TransformSnapshot
     {
         private readonly Transform[] transforms;
@@ -479,6 +493,7 @@ internal static class GpuSkinningGenerator
         private readonly Quaternion[] rotations;
         private readonly Vector3[] scales;
 
+        /// <summary>使用调用方提供的model创建 TransformSnapshot。</summary>
         internal TransformSnapshot(GameObject model)
         {
             transforms = model.GetComponentsInChildren<Transform>(true);
@@ -493,6 +508,7 @@ internal static class GpuSkinningGenerator
             }
         }
 
+        /// <summary>恢复变换快照。</summary>
         internal void Restore()
         {
             for (int i = 0; i < transforms.Length; i++)

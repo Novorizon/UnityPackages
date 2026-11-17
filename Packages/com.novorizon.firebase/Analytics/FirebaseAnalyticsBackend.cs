@@ -6,17 +6,20 @@ using AnalyticsSdk = global::Firebase.Analytics.FirebaseAnalytics;
 namespace Game.Framework.Firebase.Unity
 {
     /// <summary>Optional bridge to AnalyticsManager; the original Firebase IAnalytics API remains available.</summary>
+    /// <remarks>Firebase 统计对应的后端。承接上层请求，调用具体平台或实现。</remarks>
     public sealed class FirebaseAnalyticsBackend : AnalyticsBackend, IRevenueAnalytics
     {
         private readonly FirebaseManager runtime;
         private FirebaseAnalyticsAdapter adapter;
         public override string Id => "firebase-analytics";
 
+        /// <summary>使用调用方提供的runtime创建 FirebaseAnalyticsBackend。</summary>
         public FirebaseAnalyticsBackend(FirebaseManager runtime)
         {
             this.runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
         }
 
+        /// <summary>响应 Initialize。</summary>
         protected override void OnInitialize(string initialUserId)
         {
             adapter = new FirebaseAnalyticsAdapter(runtime);
@@ -24,9 +27,12 @@ namespace Game.Framework.Firebase.Unity
             adapter.SetUserId(initialUserId);
         }
 
+        /// <summary>响应集合采集开启。</summary>
         protected override void OnSetCollectionEnabled(bool enabled) => adapter.SetCollectionEnabled(enabled);
+        /// <summary>响应集合用户标识。</summary>
         protected override void OnSetUserId(string userId) => adapter.SetUserId(userId);
 
+        /// <summary>响应 Log 事件。</summary>
         protected override void OnLogEvent(string name, IReadOnlyDictionary<string, object> properties)
         {
             if (name.Length > 40 || Reserved(name) || properties.Count > 25)
@@ -43,9 +49,12 @@ namespace Game.Framework.Firebase.Unity
             adapter.LogEvent(name, properties);
         }
 
+        /// <summary>返回Reserved的判断结果。</summary>
         private static bool Reserved(string name) => name.StartsWith("firebase_", StringComparison.Ordinal) || name.StartsWith("google_", StringComparison.Ordinal) || name.StartsWith("ga_", StringComparison.Ordinal);
+        /// <summary>检查是否支持 Firebase 统计后端。</summary>
         public override bool Supports(UserPropertyOperation operation) => operation == UserPropertyOperation.Set || operation == UserPropertyOperation.Unset;
 
+        /// <summary>响应 Apply 用户属性。</summary>
         protected override void OnApplyUserProperties(UserPropertyChange change)
         {
             var values = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -65,6 +74,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>记录收入。</summary>
         public void LogRevenue(RevenueEvent revenue)
         {
             Ready(true);

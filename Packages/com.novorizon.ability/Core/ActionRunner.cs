@@ -8,8 +8,10 @@ namespace Game.Ability
     /// Executes simple data-driven actions. Custom AbilityScript/ModifierScript code can still
     /// call the same primitives when a skill needs logic beyond config.
     /// </summary>
+    /// <remarks>提供动作 Runner的实现。</remarks>
     public static class ActionRunner
     {
+        /// <summary>执行当前操作。</summary>
         public static void Execute(IReadOnlyList<ActionDefinition> actions, CastContext context)
         {
             if (actions == null || context == null)
@@ -28,6 +30,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行当前操作。</summary>
         public static void Execute(ActionDefinition action, CastContext context)
         {
             if (action == null || context == null || context.Engine == null || !context.Engine.IsRuntimeAvailable)
@@ -41,6 +44,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行 With 预算。</summary>
         private static bool ExecuteWithBudget(ActionDefinition action, CastContext context)
         {
             if (action == null) return true;
@@ -50,6 +54,7 @@ namespace Game.Ability
             return true;
         }
 
+        /// <summary>执行动作。</summary>
         private static void ExecuteAction(ActionDefinition action, CastContext context)
         {
             ActionLifetime lifetime = new ActionLifetime(context);
@@ -105,6 +110,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>创建单个目标上下文。</summary>
         public static CastContext CreateSingleTargetContext(AbilitySystem engine, Ability ability, IUnit caster, IUnit target, Vector3 position)
         {
             CastContext context = new CastContext
@@ -125,6 +131,7 @@ namespace Game.Ability
             return context;
         }
 
+        /// <summary>执行伤害。</summary>
         private static void ExecuteDamage(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             ActionLifetime lifetime = new ActionLifetime(context);
@@ -144,6 +151,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行治疗。</summary>
         private static void ExecuteHeal(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             ActionLifetime lifetime = new ActionLifetime(context);
@@ -160,6 +168,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行 Add 状态修饰器。</summary>
         private static void ExecuteAddModifier(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             if (string.IsNullOrEmpty(action.ModifierName))
@@ -175,6 +184,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行 Purge。</summary>
         private static void ExecutePurge(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             ActionLifetime lifetime = new ActionLifetime(context);
@@ -184,6 +194,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行跟踪投射物。</summary>
         private static void ExecuteTrackingProjectile(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             if (action.Projectile == null)
@@ -198,6 +209,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行线性投射物。</summary>
         private static void ExecuteLinearProjectile(ActionDefinition action, CastContext context)
         {
             if (action.Projectile == null)
@@ -220,6 +232,7 @@ namespace Game.Ability
             context.Engine.CreateLinearProjectile(context.Ability, context.Caster, origin, direction, action.Projectile);
         }
 
+        /// <summary>执行效果。</summary>
         private static void ExecuteEffect(ActionDefinition action, CastContext context, List<IUnit> targets)
         {
             if (context.Engine.Presentation == null || string.IsNullOrEmpty(action.EffectName))
@@ -240,6 +253,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>执行音效。</summary>
         private static void ExecuteSound(ActionDefinition action, CastContext context)
         {
             if (context.Engine.Presentation == null || string.IsNullOrEmpty(action.SoundName))
@@ -250,6 +264,7 @@ namespace Game.Ability
             context.Engine.Presentation.PlaySound(action.SoundName, ResolvePoint(action.Target, context));
         }
 
+        /// <summary>解析目标。</summary>
         private static void ResolveTargets(ActionTarget target, CastContext context, List<IUnit> targets)
         {
             // ContextTargets are pre-filtered by Targeting for AOE/no-target casts.
@@ -280,6 +295,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>解析点。</summary>
         private static Vector3 ResolvePoint(ActionTarget target, CastContext context)
         {
             switch (target)
@@ -299,6 +315,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>添加目标。</summary>
         private static void AddTarget(IUnit target, List<IUnit> targets)
         {
             if (target == null) return;
@@ -312,6 +329,7 @@ namespace Game.Ability
 
         // Destroy actions intentionally start with a destroyed modifier. Other lifecycle
         // actions stop if their source is removed by an earlier callback in the same list.
+        /// <summary>保存动作生命周期所需的数据与配套操作。</summary>
         private readonly struct ActionLifetime
         {
             private readonly CastContext context;
@@ -319,6 +337,7 @@ namespace Game.Ability
             private readonly Modifier modifier;
             private readonly bool allowDestroyedModifier;
 
+            /// <summary>使用调用方提供的context创建 ActionLifetime。</summary>
             public ActionLifetime(CastContext context)
             {
                 this.context = context;

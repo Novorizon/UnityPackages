@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using RTree;
 
+/// <summary>提供空间索引 Query 示例的实现。</summary>
 public sealed class SpatialQueryExample : MonoBehaviour
 {
+    /// <summary>运行当前操作。</summary>
     [ContextMenu("Run Spatial Query Example")]
     public void Run()
     {

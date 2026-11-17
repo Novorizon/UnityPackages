@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Demo
 {
+    /// <summary>提供界面示例 Widgets的实现。</summary>
     internal static class UIDemoWidgets
     {
         internal static TMP_FontAsset Font
@@ -25,6 +26,7 @@ namespace UI.Demo
         internal static readonly Color Background = new(.055f, .075f, .115f, 1);
         internal static readonly Color Card = new(.11f, .15f, .22f, 1);
         internal static readonly Color Accent = new(.16f, .38f, .65f, 1);
+        /// <summary>根据传入参数取得模板。</summary>
         internal static GameObject Template<T>(string name, Color background)
             where T : UIView
         {
@@ -38,6 +40,7 @@ namespace UI.Demo
             return go;
         }
 
+        /// <summary>根据传入参数取得矩形。</summary>
         internal static RectTransform Rect(string name, Transform parent)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -45,6 +48,7 @@ namespace UI.Demo
             return (RectTransform)go.transform;
         }
 
+        /// <summary>处理拉伸。</summary>
         internal static void Stretch(RectTransform rect)
         {
             rect.anchorMin = Vector2.zero;
@@ -52,6 +56,7 @@ namespace UI.Demo
             rect.offsetMin = rect.offsetMax = Vector2.zero;
         }
 
+        /// <summary>根据传入参数取得安全内容。</summary>
         internal static RectTransform SafeContent(Transform parent)
         {
             RectTransform safe = Rect("SafeContent", parent);
@@ -60,6 +65,7 @@ namespace UI.Demo
             return safe;
         }
 
+        /// <summary>处理顶部。</summary>
         internal static void Top(RectTransform rect, float top, float height, float left = 24, float right = 24, float minX = 0, float maxX = 1)
         {
             rect.anchorMin = new Vector2(minX, 1);
@@ -69,6 +75,7 @@ namespace UI.Demo
             rect.offsetMax = new Vector2(-right, -top);
         }
 
+        /// <summary>根据传入参数取得文本。</summary>
         internal static TMP_Text Text(string name, Transform parent, string message, int size = 22)
         {
             RectTransform rect = Rect(name, parent);
@@ -84,6 +91,7 @@ namespace UI.Demo
             return text;
         }
 
+        /// <summary>根据传入参数取得按钮。</summary>
         internal static Button Button(string name, Transform parent, string caption, UnityAction action)
         {
             RectTransform rect = Rect(name, parent);
@@ -98,6 +106,7 @@ namespace UI.Demo
             return button;
         }
 
+        /// <summary>根据传入参数取得中心点 Card。</summary>
         internal static RectTransform CenterCard(Transform parent, string name, float width, float height)
         {
             RectTransform rect = Rect(name, parent);

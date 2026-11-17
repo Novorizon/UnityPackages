@@ -4,11 +4,13 @@ using System.Threading;
 
 namespace RTree
 {
+    /// <summary>提供R 树的实现。</summary>
     public partial class RTree<T>
     {
         private static readonly ThreadLocal<QueryContext> queryWorkspace =
             new ThreadLocal<QueryContext>(delegate { return new QueryContext(); });
 
+        /// <summary>判断是否相交 R 树。</summary>
         public List<T> Intersects(Rectangle r)
         {
             var results = new List<T>();
@@ -16,6 +18,7 @@ namespace RTree
             return results;
         }
 
+        /// <summary>检查是否包含 R 树。</summary>
         public List<T> Contains(Rectangle r)
         {
             var results = new List<T>();
@@ -24,6 +27,7 @@ namespace RTree
         }
 
         /// <summary>Returns every tied nearest item within the inclusive limit.</summary>
+        /// <remarks>根据传入参数取得最近。</remarks>
         public List<T> Nearest(Point p, double furthestDistance)
         {
             var results = new List<T>();
@@ -32,33 +36,39 @@ namespace RTree
         }
 
         /// <summary>Clears and fills results, returning the number of matches.</summary>
+        /// <remarks>判断是否相交 R 树。</remarks>
         public int Intersects(Rectangle rectangle, List<T> results)
         {
             return Intersects(rectangle, results, queryWorkspace.Value);
         }
 
+        /// <summary>判断是否相交 R 树。</summary>
         public int Intersects(Rectangle rectangle, List<T> results, QueryContext context)
         {
             return QueryRange(rectangle, results, context, false);
         }
 
         /// <summary>Clears and fills results with boxes contained by rectangle.</summary>
+        /// <remarks>检查是否包含 R 树。</remarks>
         public int Contains(Rectangle rectangle, List<T> results)
         {
             return Contains(rectangle, results, queryWorkspace.Value);
         }
 
+        /// <summary>检查是否包含 R 树。</summary>
         public int Contains(Rectangle rectangle, List<T> results, QueryContext context)
         {
             return QueryRange(rectangle, results, context, true);
         }
 
+        /// <summary>按范围查询匹配结果。</summary>
         private int QueryRange(Rectangle rectangle, List<T> results, QueryContext context, bool containedOnly)
         {
             if (rectangle == null) throw new ArgumentNullException("rectangle");
             return QueryRangeValue(Aabb.FromRectangle(rectangle), results, context, containedOnly);
         }
 
+        /// <summary>按范围值查询匹配结果。</summary>
         private int QueryRangeValue(Aabb query, List<T> results, QueryContext context, bool containedOnly)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -119,6 +129,7 @@ namespace RTree
             finally { context.Exit(); }
         }
 
+        /// <summary>根据传入参数取得最近。</summary>
         public int Nearest(Point point, double maximumDistance, List<T> results)
         {
             return Nearest(point, maximumDistance, results, queryWorkspace.Value);
@@ -128,6 +139,7 @@ namespace RTree
         /// Clears and fills results with all tied nearest items. Uses a reusable
         /// best-first node heap and squared-distance comparisons on the fast path.
         /// </summary>
+        /// <remarks>根据传入参数取得最近。</remarks>
         public int Nearest(Point point, double maximumDistance, List<T> results, QueryContext context)
         {
             if (point == null) throw new ArgumentNullException("point");

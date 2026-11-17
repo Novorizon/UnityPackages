@@ -11,6 +11,7 @@ namespace Game.Framework.Scenes
     /// <summary>加载 Build Settings 中的场景。资源包场景通过 ISceneLoader 接入。</summary>
     public sealed class BuildSceneLoader : ISceneLoader
     {
+        /// <summary>异步加载 Build 场景加载器。</summary>
         public async Task<Scene> LoadAsync(string location, LoadSceneMode mode, IProgress<float> progress)
         {
             var previous = new HashSet<int>();
@@ -39,6 +40,7 @@ namespace Game.Framework.Scenes
             throw new InvalidOperationException("Loaded scene was not found: " + location);
         }
 
+        /// <summary>异步卸载 Build 场景加载器。</summary>
         public async Task UnloadAsync(Scene scene)
         {
             if (!scene.IsValid() || !scene.isLoaded)
@@ -55,6 +57,7 @@ namespace Game.Framework.Scenes
             await WaitAsync(operation, null);
         }
 
+        /// <summary>异步等待当前操作完成。</summary>
         private static async Task WaitAsync(AsyncOperation operation, IProgress<float> progress)
         {
             while (!operation.isDone)
@@ -66,6 +69,7 @@ namespace Game.Framework.Scenes
             Report(progress, 1);
         }
 
+        /// <summary>上报 Build 场景加载器。</summary>
         internal static void Report(IProgress<float> progress, float value)
         {
             try

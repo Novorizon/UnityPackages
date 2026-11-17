@@ -5,8 +5,10 @@ using Parameter = global::Firebase.Analytics.Parameter;
 
 namespace Game.Framework.Firebase.Unity
 {
+    /// <summary>Firebase 统计对应的适配器。将外部接口转换为当前模块约定。</summary>
     public sealed class FirebaseAnalyticsAdapter : IAnalytics
     {
+        /// <summary>使用调用方提供的runtime创建 FirebaseAnalyticsAdapter。</summary>
         public FirebaseAnalyticsAdapter(FirebaseManager runtime)
         {
             FirebaseManager.MainThread();
@@ -16,18 +18,21 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>设置采集开启。</summary>
         public void SetCollectionEnabled(bool enabled)
         {
             FirebaseManager.MainThread();
             AnalyticsSdk.SetAnalyticsCollectionEnabled(enabled);
         }
 
+        /// <summary>设置用户标识。</summary>
         public void SetUserId(string userId)
         {
             FirebaseManager.MainThread();
             AnalyticsSdk.SetUserId(userId);
         }
 
+        /// <summary>记录事件。</summary>
         public void LogEvent(string name, IReadOnlyDictionary<string, object> parameters = null)
         {
             FirebaseManager.MainThread();

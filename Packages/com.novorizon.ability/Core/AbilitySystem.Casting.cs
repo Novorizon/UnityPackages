@@ -3,12 +3,14 @@ using System.Collections.Generic;
 
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
         public const int MaximumQueuedOrdersPerUnit = 32;
         private long nextCastId;
         private readonly Dictionary<int, Queue<PendingCast>> queuedCasts = new Dictionary<int, Queue<PendingCast>>();
 
+        /// <summary>表示技能系统中的待处理施法。</summary>
         private sealed class PendingCast
         {
             public Ability Ability;
@@ -32,14 +34,17 @@ namespace Game.Ability
             };
         }
 
+        /// <summary>检查是否包含技能。</summary>
         internal bool ContainsAbility(Ability ability) => ability != null && !ability.IsRemoved && IsAbilityRegistered(ability);
 
+        /// <summary>检查是否存在 Conflicting 施法。</summary>
         internal bool HasConflictingCast(Ability requested)
         {
             if ((requested.Definition.Behavior & AbilityBehavior.Immediate) != 0) return false;
             return HasOrdinaryCast(requested.Owner, requested);
         }
 
+        /// <summary>检查是否存在普通施法。</summary>
         private bool HasOrdinaryCast(IUnit owner, Ability except = null)
         {
             if (owner == null || !abilitiesByUnit.TryGetValue(owner.EntityId, out List<Ability> abilities)) return false;
@@ -93,6 +98,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>标记失败指令。</summary>
         private CastResult FailOrder(Ability ability, CastOrder order, long id, CastFailureReason reason)
         {
             CastResult result = CastResult.Fail(reason);
@@ -120,6 +126,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>获取排队的指令列表。</summary>
         public IReadOnlyList<CastOrder> GetQueuedOrders(IUnit owner)
         {
             List<CastOrder> snapshot = new List<CastOrder>();
@@ -129,16 +136,19 @@ namespace Game.Ability
             return snapshot.AsReadOnly();
         }
 
+        // 清除该单位指定施法序号以前的排队指令。
         internal void ClearQueuedOrdersForUnit(IUnit owner, long beforeCastId = long.MaxValue)
         {
             ClearQueuedOrders(owner, pending => pending.CastId < beforeCastId);
         }
 
+        /// <summary>清空排队指令（按对象筛选）技能。</summary>
         internal void ClearQueuedOrdersForAbility(Ability ability)
         {
             if (ability != null) ClearQueuedOrders(ability.Owner, pending => ReferenceEquals(pending.Ability, ability));
         }
 
+        /// <summary>清空排队的指令列表。</summary>
         private void ClearQueuedOrders(IUnit owner, Predicate<PendingCast> shouldCancel)
         {
             if (owner == null || !queuedCasts.TryGetValue(owner.EntityId, out Queue<PendingCast> queue)) return;
@@ -214,6 +224,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>重置施法状态。</summary>
         internal void ResetCastingState()
         {
             Queue<PendingCast>[] queues = new Queue<PendingCast>[queuedCasts.Count];

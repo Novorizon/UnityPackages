@@ -7,11 +7,13 @@ using UnityEngine;
 
 namespace UI
 {
+    /// <summary>提示对应的选项。定义可由调用方设置的选项。</summary>
     public sealed class ToastOptions
     {
         public string? MergeKey { get; set; }
     }
 
+    /// <summary>提示对应的管理器。管理对应模块的状态和操作入口。</summary>
     public sealed class ToastManager : IDisposable
     {
         readonly UIInstanceFactory factory;
@@ -21,12 +23,14 @@ namespace UI
         bool disposed;
         int generation;
         CancellationTokenSource? runningCancellation;
+        /// <summary>使用调用方提供的factory创建 ToastManager。</summary>
         public ToastManager(UIInstanceFactory factory)
         {
             this.factory = factory;
             factory.Disposed += Dispose;
         }
 
+        /// <summary>入队提示管理器。</summary>
         public void Enqueue(string prefabPath, object? args = null, ToastOptions? options = null)
         {
             if (disposed || factory.IsDisposed)
@@ -38,6 +42,7 @@ namespace UI
             StartIfNeeded();
         }
 
+        /// <summary>启动 IfNeeded。</summary>
         void StartIfNeeded()
         {
             if (isRunning || disposed || factory.IsDisposed || queue.Count == 0)
@@ -51,6 +56,7 @@ namespace UI
             _ = RunAsync(generation, cancellation);
         }
 
+        /// <summary>异步运行当前操作。</summary>
         async Task RunAsync(int runGeneration, CancellationTokenSource cancellation)
         {
             try
@@ -116,6 +122,7 @@ namespace UI
             }
         }
 
+        /// <summary>关闭条目。</summary>
         void CloseItem(UIHandle handle, bool destroy = false)
         {
             try
@@ -137,6 +144,7 @@ namespace UI
         }
 
         /// <summary>Discard queued toasts and finish the currently displayed toast.</summary>
+        /// <remarks>清空提示管理器。</remarks>
         public void Clear()
         {
             generation++;
@@ -158,6 +166,7 @@ namespace UI
             factory.CloseApproved(handle, false, true, UICloseReason.Cancelled);
         }
 
+        /// <summary>结束提示管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

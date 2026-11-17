@@ -8,15 +8,19 @@ using UnityEngine;
 namespace UI
 {
     /// <summary>Await a result while owning exactly one popup open handle.</summary>
+    /// <remarks>对话框对应的管理器。管理对应模块的状态和操作入口。</remarks>
     public sealed class DialogManager
     {
+        /// <summary>表示对话框管理器中的已跟踪请求。</summary>
         abstract class TrackedRequest
         {
             internal readonly CancellationToken Cancellation;
             internal readonly TaskCompletionSource<bool> Cleaned = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            /// <summary>使用调用方提供的cancellation创建 TrackedRequest。</summary>
             protected TrackedRequest(CancellationToken cancellation) { Cancellation = cancellation; }
         }
 
+        /// <summary>表示对话框管理器中的打开请求。</summary>
         sealed class OpenRequest<TResult> : TrackedRequest, IUIOpenContext
         {
             readonly string path;
@@ -24,9 +28,11 @@ namespace UI
             internal UIHandle Handle { get; private set; }
             internal Task<UIDialogResult<TResult>>? Result { get; private set; }
 
+            /// <summary>使用调用方提供的path、args、cancellation创建 OpenRequest。</summary>
             internal OpenRequest(string path, object? args, CancellationToken cancellation) : base(cancellation)
             { this.path = path; Args = args; }
 
+            /// <summary>返回演出或播放是否已经准备就绪。</summary>
             public void Prepared(UIView view)
             {
                 if (!(view is UIResultPopup<TResult> popup))
@@ -40,6 +46,7 @@ namespace UI
         readonly PopupManager popups;
         readonly HashSet<TrackedRequest> requests = new();
 
+        /// <summary>使用调用方提供的popups创建 DialogManager。</summary>
         public DialogManager(PopupManager popups)
         {
             this.popups = popups ?? throw new ArgumentNullException(nameof(popups));
@@ -50,6 +57,7 @@ namespace UI
         /// Caller cancellation throws OperationCanceledException and closes only this dialog.
         /// Call on Unity's main thread; cancellation callbacks only signal a task.
         /// </summary>
+        /// <remarks>异步显示对话框管理器。</remarks>
         public async Task<UIDialogResult<TResult>> ShowAsync<TResult>(string prefabPath, object? args = null,
             PopupOptions? options = null, CancellationToken cancellationToken = default)
         {
@@ -122,6 +130,7 @@ namespace UI
         /// Does not wait for uncancelled dialogs, user guards, or an unabortable underlying load.
         /// Use the owner's lifetime token here, never the cancelled close-request token.
         /// </summary>
+        /// <remarks>异步取出并处理 Cancelled。</remarks>
         internal async Task DrainCancelledAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -135,6 +144,7 @@ namespace UI
             await UICancellation.WaitAsync(Task.WhenAll(pending), cancellationToken);
         }
 
+        /// <summary>调用 popups.ForceClose 完成清理。</summary>
         void Cleanup(UIHandle handle, UICloseReason reason, bool destroy = false)
         {
             try { popups.ForceClose(handle, reason, destroy); }

@@ -6,6 +6,7 @@ using UnityEngine;
 namespace ECS
 {
     /// <summary>Owns ECS startup without loading MVC or scanning user assemblies.</summary>
+    /// <remarks>提供Ecs的实现。</remarks>
     public static class Ecs
     {
         public static bool IsQuitting
@@ -16,6 +17,7 @@ namespace ECS
             }
         }
 
+        /// <summary>初始化 Ecs。</summary>
         public static World Initialize()
         {
             if (IsQuitting)
@@ -37,6 +39,7 @@ namespace ECS
             return manager.DefaultWorld;
         }
 
+        /// <summary>观察应用退出。</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void ObserveApplicationQuit()
         {
@@ -44,11 +47,13 @@ namespace ECS
             Application.quitting += OnApplicationQuit;
         }
 
+        /// <summary>响应 Unity 应用退出通知。</summary>
         private static void OnApplicationQuit()
         {
             SingletonRuntimeState.IsQuitting = true;
         }
 
+        /// <summary>响应 Subsystem 登记。</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void OnSubsystemRegistration()
         {

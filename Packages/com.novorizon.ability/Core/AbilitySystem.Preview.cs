@@ -1,5 +1,6 @@
 namespace Game.Ability
 {
+    /// <summary>提供技能系统的实现。</summary>
     public sealed partial class AbilitySystem
     {
         /// <summary>
@@ -7,6 +8,7 @@ namespace Game.Ability
         /// change queues, run phase callbacks or consume resources. Script filters/getters must be read-only.
         /// A successful preview is advisory: world state may change before the real order is issued.
         /// </summary>
+        /// <remarks>评估指令。</remarks>
         public CastResult EvaluateOrder(CastOrder source)
         {
             using (BeginExecution())
@@ -20,6 +22,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>评估指令上下文。</summary>
         internal CastResult EvaluateOrderContext(Ability ability, CastOrder order, out CastContext context, long castId = 0)
         {
             context = null;

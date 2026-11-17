@@ -3,6 +3,7 @@ using System;
 namespace ECS.Samples.QuickStart
 {
     /// <summary>Owns one demo entity and one system; the shared default World owns the frame loop.</summary>
+    /// <remarks>提供快速入门会话的实现。</remarks>
     public sealed class QuickStartSession : IDisposable
     {
         private static long nextOwnerId;
@@ -13,6 +14,7 @@ namespace ECS.Samples.QuickStart
         public World World { get; private set; }
         public ulong EntityId { get; private set; }
 
+        /// <summary>使用调用方提供的speed创建 QuickStartSession。</summary>
         public QuickStartSession(float speed = 1)
         {
             if (float.IsNaN(speed) || float.IsInfinity(speed))
@@ -59,11 +61,13 @@ namespace ECS.Samples.QuickStart
             }
         }
 
+        /// <summary>暂停快速入门会话。</summary>
         public void Pause()
         {
             EntityManager.Instance.RemoveComponentData<DemoVelocity>(GetEntity());
         }
 
+        /// <summary>恢复快速入门会话。</summary>
         public void Resume()
         {
             var entity = GetEntity();
@@ -73,6 +77,7 @@ namespace ECS.Samples.QuickStart
             }
         }
 
+        /// <summary>获取实体。</summary>
         private Entity GetEntity()
         {
             if (disposed)
@@ -88,6 +93,7 @@ namespace ECS.Samples.QuickStart
             return entity;
         }
 
+        /// <summary>结束快速入门会话对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

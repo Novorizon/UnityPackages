@@ -1,6 +1,7 @@
 namespace Game.Ability
 {
     /// <summary>Area/runtime object for persistent ground logic, similar to Dota thinkers.</summary>
+    /// <remarks>提供持续效果对象的实现。</remarks>
     public sealed class Thinker
     {
         private const float TimeEpsilon = 0.000001f;
@@ -18,6 +19,7 @@ namespace Game.Ability
         private float intervalTimer;
         private bool isRegistered;
 
+        /// <summary>使用调用方提供的engine、request创建 Thinker。</summary>
         internal Thinker(AbilitySystem engine, ThinkerRequest request)
         {
             Engine = engine;
@@ -33,6 +35,7 @@ namespace Game.Ability
             Script.Bind(this);
         }
 
+        /// <summary>响应已登记。</summary>
         internal void OnRegistered()
         {
             if (isRegistered || IsDestroyed) return;
@@ -40,6 +43,7 @@ namespace Game.Ability
             Script.OnCreated();
         }
 
+        /// <summary>推进持续效果对象。</summary>
         internal void Tick(float deltaTime)
         {
             using (Engine.BeginExecution())
@@ -48,6 +52,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进活跃时间。</summary>
         private void TickActiveTime(float deltaTime)
         {
             if (IsDestroyed || !Engine.IsRuntimeAvailable || deltaTime <= 0f || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
@@ -85,11 +90,13 @@ namespace Game.Ability
             if (Duration > 0f && IsDue(remainingTime, Duration)) Engine.RemoveThinker(this);
         }
 
+        /// <summary>判断是否为到期时间。</summary>
         private static bool IsDue(float timer, float period)
         {
             return timer <= UnityEngine.Mathf.Min(TimeEpsilon, period * 0.00001f);
         }
 
+        /// <summary>销毁持续效果对象。</summary>
         internal void Destroy()
         {
             if (IsDestroyed) return;

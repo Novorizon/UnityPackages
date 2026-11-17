@@ -14,6 +14,7 @@ namespace Game.Resource
         public IProgress<ResourceDownloadProgress> Progress;
     }
 
+    /// <summary>保存资源 Download 进度所需的数据与配套操作。</summary>
     public readonly struct ResourceDownloadProgress
     {
         public readonly int TotalCount;
@@ -22,6 +23,7 @@ namespace Game.Resource
         public readonly long CompletedBytes;
         public float Fraction => TotalBytes == 0 ? 1 : (float)CompletedBytes / TotalBytes;
 
+        /// <summary>使用调用方提供的totalCount、completedCount、totalBytes创建 ResourceDownloadProgress。</summary>
         public ResourceDownloadProgress(int totalCount, int completedCount, long totalBytes, long completedBytes)
         {
             TotalCount = totalCount;

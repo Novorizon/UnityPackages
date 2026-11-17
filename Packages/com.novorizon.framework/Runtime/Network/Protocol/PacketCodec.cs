@@ -4,15 +4,18 @@ using System.Buffers.Binary;
 namespace Game.Framework.Network.Protocol
 {
     // GWS1/v2 is the existing binary TCP application protocol.
+    /// <summary>提供数据包编解码器的实现。</summary>
     public static class PacketCodec
     {
         public const int HeaderSize = 28;
         public const uint Magic = 0x31535747;
         public const byte Version = 2;
         public const int NotificationMessageIdStart = 2100000000;
+        /// <summary>判断是否为通知。</summary>
         public static bool IsNotification(PacketHeader header) => header.RequestId == 0 &&
             header.MessageId >= NotificationMessageIdStart && header.ResultCode == 0;
 
+        /// <summary>尝试读取头部，返回是否成功。</summary>
         public static bool TryReadHeader(ReadOnlySpan<byte> bytes, int maximumApplicationBytes, out PacketHeader header)
         {
             header = default;
@@ -27,6 +30,7 @@ namespace Game.Framework.Network.Protocol
             return true;
         }
 
+        /// <summary>写入头部。</summary>
         public static void WriteHeader(Span<byte> bytes, PacketHeader header)
         {
             if (bytes.Length < HeaderSize || header.PayloadLength < 0) throw new ArgumentException("Invalid packet size.");

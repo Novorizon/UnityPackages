@@ -11,13 +11,16 @@ namespace Game.Ability.Configuration
     /// keys and invalid types are errors. Constructing DTOs preserves explicit authoring defaults
     /// for omitted fields without relying on Unity serializer initialization behavior.
     /// </summary>
+    /// <remarks>提供技能 JSONSchema 校验器的实现。</remarks>
     public static class AbilityJsonSchemaValidator
     {
+        /// <summary>尝试校验技能 JSONSchema 校验器，返回是否成功。</summary>
         public static bool TryValidate(string json, Type documentType, out string error)
         {
             return TryRead(json, documentType, out _, out error);
         }
 
+        /// <summary>尝试处理 Deserialize，返回是否成功。</summary>
         public static bool TryDeserialize<T>(string json, out T document, out string error) where T : class
         {
             bool success = TryRead(json, typeof(T), out object value, out error);
@@ -25,6 +28,7 @@ namespace Game.Ability.Configuration
             return success;
         }
 
+        /// <summary>尝试读取技能 JSONSchema 校验器，返回是否成功。</summary>
         private static bool TryRead(string json, Type documentType, out object document, out string error)
         {
             try
@@ -42,14 +46,17 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>表示技能 JSONSchema 校验器中的读取器。</summary>
         private sealed class Reader
         {
             private readonly string source;
             private int position;
             private int depth;
 
+            /// <summary>使用调用方提供的source创建 Reader。</summary>
             public Reader(string source) { this.source = source; }
 
+            /// <summary>根据传入参数取得文档。</summary>
             public object Document(Type type)
             {
                 White();
@@ -60,6 +67,7 @@ namespace Game.Ability.Configuration
                 return result;
             }
 
+            /// <summary>根据传入参数取得值。</summary>
             private object Value(Type type, string path, bool nullable = true)
             {
                 White();
@@ -87,6 +95,7 @@ namespace Game.Ability.Configuration
 
             private static readonly Dictionary<Type, Dictionary<string, FieldInfo>> schemas = new Dictionary<Type, Dictionary<string, FieldInfo>>();
 
+            /// <summary>根据传入参数取得字段。</summary>
             private static Dictionary<string, FieldInfo> Fields(Type type)
             {
                 lock (schemas)
@@ -99,6 +108,7 @@ namespace Game.Ability.Configuration
                 }
             }
 
+            /// <summary>根据传入参数取得对象。</summary>
             private object Object(Type type, string path)
             {
                 Expect('{');
@@ -121,6 +131,7 @@ namespace Game.Ability.Configuration
                 }
             }
 
+            /// <summary>根据传入参数取得数组。</summary>
             private object Array(Type elementType, string path)
             {
                 Expect('['); White();
@@ -139,6 +150,7 @@ namespace Game.Ability.Configuration
                 return result;
             }
 
+            /// <summary>根据传入参数取得数值。</summary>
             private object Number(Type type, string path)
             {
                 int start = position;
@@ -169,6 +181,7 @@ namespace Game.Ability.Configuration
                 return value;
             }
 
+            /// <summary>取得字符串。</summary>
             private string String()
             {
                 Expect('"');
@@ -200,6 +213,7 @@ namespace Game.Ability.Configuration
                 return null;
             }
 
+            /// <summary>取得Unicode。</summary>
             private char Unicode()
             {
                 int value = 0;
@@ -214,17 +228,25 @@ namespace Game.Ability.Configuration
                 return (char)value;
             }
 
+            /// <summary>调用 Expect 完成Literal。</summary>
             private void Literal(string text)
             {
                 for (int i = 0; i < text.Length; i++) Expect(text[i]);
             }
 
+            /// <summary>调用 Digit 完成Digits。</summary>
             private void Digits() { while (Digit(Peek())) position++; }
+            /// <summary>返回Digit的判断结果。</summary>
             private static bool Digit(char c) => c >= '0' && c <= '9';
+            /// <summary>查看读取器。</summary>
             private char Peek() => position < source.Length ? source[position] : '\0';
+            /// <summary>取出读取器。</summary>
             private bool Take(char c) { if (Peek() != c) return false; position++; return true; }
+            /// <summary>调用 Take 完成Expect。</summary>
             private void Expect(char c) { if (!Take(c)) Fail("Expected '" + c + "'."); }
+            /// <summary>调用 Peek 完成White。</summary>
             private void White() { while (Peek() == ' ' || Peek() == '\t' || Peek() == '\r' || Peek() == '\n') position++; }
+            /// <summary>标记失败读取器。</summary>
             private void Fail(string message) { throw new FormatException(message + " (offset " + position + ")"); }
         }
     }

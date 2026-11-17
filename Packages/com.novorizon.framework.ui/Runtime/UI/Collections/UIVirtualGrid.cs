@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 namespace UI
 {
     /// <summary>Vertical, fixed-column grid. Reuses UIVirtualList's bounded row window.</summary>
+    /// <remarks>提供界面虚拟网格的实现。</remarks>
     public sealed class UIVirtualGrid : MonoBehaviour
     {
         private UIVirtualList rows;
@@ -40,6 +41,7 @@ namespace UI
             }
         }
 
+        /// <summary>配置界面虚拟网格。</summary>
         public void Configure(
             ScrollRect scrollRect,
             GameObject itemPrefab,
@@ -90,6 +92,7 @@ namespace UI
             rows.enabled = isActiveAndEnabled;
         }
 
+        /// <summary>设置条目数量。</summary>
         public void SetItemCount(int itemCount, Action<GameObject, int> bindItem, Action<GameObject> unbindItem = null)
         {
             RequireConfigured();
@@ -112,6 +115,7 @@ namespace UI
             rows.SetItemCount(rowCount, BindRow, UnbindRow);
         }
 
+        /// <summary>设置数据。</summary>
         public void SetData<T>(IReadOnlyList<T> data, Action<GameObject, T, int> bindItem, Action<GameObject> unbindItem = null)
         {
             if (data == null || bindItem == null)
@@ -122,6 +126,7 @@ namespace UI
             SetItemCount(data.Count, (cell, index) => bindItem(cell, data[index], index), unbindItem);
         }
 
+        /// <summary>调用 RequireConfigured 完成滚动 To。</summary>
         public void ScrollTo(int index)
         {
             RequireConfigured();
@@ -133,6 +138,7 @@ namespace UI
             rows.ScrollTo(index / columns);
         }
 
+        /// <summary>刷新条目。</summary>
         public void RefreshItems()
         {
             RequireConfigured();
@@ -140,6 +146,7 @@ namespace UI
             rows.RefreshItems();
         }
 
+        /// <summary>清空界面虚拟网格。</summary>
         public void Clear()
         {
             if (destroyed)
@@ -159,6 +166,7 @@ namespace UI
             unbind = null;
         }
 
+        /// <summary>绑定行。</summary>
         private void BindRow(GameObject instance, int rowIndex)
         {
             int operation = revision;
@@ -247,6 +255,7 @@ namespace UI
             }
         }
 
+        /// <summary>解除绑定行。</summary>
         private void UnbindRow(GameObject instance)
         {
             if (rowLookup.TryGetValue(instance, out var row))
@@ -255,12 +264,14 @@ namespace UI
             }
         }
 
+        /// <summary>观察无需等待的任务，防止故障无人处理。</summary>
         internal void Forget(UIVirtualGridRow row)
         {
             liveRows.Remove(row);
             rowLookup.Remove(row.gameObject);
         }
 
+        /// <summary>终止使用行。</summary>
         private void RetireRow(GameObject instance)
         {
             if (rowLookup.TryGetValue(instance, out var row))
@@ -272,6 +283,7 @@ namespace UI
                 rowLookup.Remove(instance);
             }
         }
+        /// <summary>响应 Unity 组件启用。</summary>
         private void OnEnable()
         {
             if (rows != null)
@@ -280,6 +292,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         private void OnDisable()
         {
             if (rows != null)
@@ -288,6 +301,7 @@ namespace UI
             }
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             if (destroyed)
@@ -318,6 +332,7 @@ namespace UI
             rowLookup.Clear();
         }
 
+        /// <summary>检查已配置是否满足前置条件。</summary>
         private void RequireConfigured()
         {
             ThrowIfDestroyed();
@@ -327,6 +342,7 @@ namespace UI
             }
         }
 
+        /// <summary>在已销毁时抛出异常。</summary>
         private void ThrowIfDestroyed()
         {
             if (destroyed)
@@ -335,6 +351,7 @@ namespace UI
             }
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

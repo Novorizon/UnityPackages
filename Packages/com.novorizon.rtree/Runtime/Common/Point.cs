@@ -26,6 +26,7 @@ namespace RTree
     /// author  aled@sourceforge.net
     /// version 1.0b2p1
     /// </summary>
+    /// <remarks>提供点的实现。</remarks>
     public class Point
     {
       
@@ -49,6 +50,7 @@ namespace RTree
         /// <param name="x">The x coordinate of the point</param>
         /// <param name="y">The y coordinate of the point</param>
         /// <param name="z">The z coordinate of the point</param>
+        /// <remarks>使用调用方提供的x、y、z创建 Point。</remarks>
         public Point(double x, double y, double z)
         {
             Rectangle.ValidateCoordinate(x, "x");

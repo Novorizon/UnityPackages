@@ -13,6 +13,7 @@ namespace Game.Ability.Editor.Core
     /// remain absent; an explicit empty level value remains an object, including for duration.
     /// Runtime definitions, editor state and Odin metadata never enter the saved document.
     /// </summary>
+    /// <remarks>提供技能 JSON 编解码器的实现。</remarks>
     public static class AbilityJsonCodec
     {
         private const int MaximumDepth = 64;
@@ -24,6 +25,7 @@ namespace Game.Ability.Editor.Core
             typeof(JsonModifierProperty), typeof(JsonModifierLevelProperty)
         };
 
+        /// <summary>尝试读取技能 JSON 编解码器，返回是否成功。</summary>
         public static bool TryRead(string json, out JsonAbilityDocument document, out string error)
         {
             if (!AbilityJsonSchemaValidator.TryDeserialize(json, out document, out error)) return false;
@@ -33,6 +35,7 @@ namespace Game.Ability.Editor.Core
             return false;
         }
 
+        /// <summary>写入传入的 document。</summary>
         public static string Write(JsonAbilityDocument document)
         {
             if (document == null) throw new ArgumentNullException(nameof(document));
@@ -43,6 +46,7 @@ namespace Game.Ability.Editor.Core
             return output.ToString();
         }
 
+        /// <summary>根据传入参数取得哈希。</summary>
         public static string Hash(string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
@@ -55,6 +59,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>克隆技能 JSON 编解码器。</summary>
         public static JsonAbilityDocument Clone(JsonAbilityDocument document)
         {
             if (!TryRead(Write(document), out JsonAbilityDocument copy, out string error))
@@ -62,6 +67,7 @@ namespace Game.Ability.Editor.Core
             return copy;
         }
 
+        /// <summary>写入值。</summary>
         private static void WriteValue(StringBuilder output, object value, Type type, int depth, string path)
         {
             if (depth > MaximumDepth) throw new ArgumentException("Maximum JSON nesting depth exceeded at " + path + ".");
@@ -101,6 +107,7 @@ namespace Game.Ability.Editor.Core
             output.Append('}');
         }
 
+        /// <summary>写入数组。</summary>
         private static void WriteArray(StringBuilder output, Array values, Type elementType, int depth, string path)
         {
             output.Append('[');
@@ -116,6 +123,7 @@ namespace Game.Ability.Editor.Core
             output.Append(']');
         }
 
+        /// <summary>根据传入参数取得字段。</summary>
         private static FieldInfo[] Fields(Type type)
         {
             lock (FieldsByType)
@@ -130,11 +138,13 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>调用 output.Append 完成Indent。</summary>
         private static void Indent(StringBuilder output, int depth)
         {
             output.Append(' ', depth * 2);
         }
 
+        /// <summary>写入字符串。</summary>
         private static void WriteString(StringBuilder output, string value)
         {
             output.Append('"');

@@ -4,11 +4,13 @@ using System.Globalization;
 
 namespace Game.Framework.Localization
 {
+    /// <summary>提供翻译列的实现。</summary>
     public sealed class TranslationColumn<T>
     {
         public string Language { get; }
         internal Func<T, string> Read { get; }
 
+        /// <summary>使用调用方提供的language、read创建 TranslationColumn。</summary>
         public TranslationColumn(string language, Func<T, string> read)
         {
             Language = CultureInfo.GetCultureInfo(language).Name;
@@ -21,6 +23,7 @@ namespace Game.Framework.Localization
     }
 
     /// <summary>An immutable copy of project-owned rows, including generated Luban rows.</summary>
+    /// <remarks>提供本地化目录的实现。</remarks>
     public sealed class LocalizationCatalog
     {
         private static readonly object[] formatProbes = CreateFormatProbes();
@@ -30,6 +33,7 @@ namespace Game.Framework.Localization
         public int KeyCount => Keys.Count;
         public IReadOnlyList<string> Keys { get; }
 
+        /// <summary>使用调用方提供的languages、keys创建 LocalizationCatalog。</summary>
         private LocalizationCatalog(Dictionary<string, Dictionary<string, string>> languages, List<string> keys)
         {
             this.languages = languages;
@@ -38,6 +42,7 @@ namespace Game.Framework.Localization
             this.keys = new HashSet<string>(keys, StringComparer.Ordinal);
         }
 
+        /// <summary>按提供的行构建返回值。</summary>
         public static LocalizationCatalog FromRows<T>(IEnumerable<T> rows, Func<T, string> key, params TranslationColumn<T>[] columns)
         {
             if (rows == null || key == null || columns == null)
@@ -95,11 +100,14 @@ namespace Game.Framework.Localization
             return new LocalizationCatalog(result, orderedKeys);
         }
 
+        /// <summary>表示本地化目录中的Format 探测。</summary>
         private sealed class FormatProbe : IFormattable
         {
+            /// <summary>格式化当前值，供显示或诊断使用。</summary>
             public string ToString(string format, IFormatProvider provider) => string.Empty;
         }
 
+        /// <summary>创建 FormatProbes。</summary>
         private static object[] CreateFormatProbes()
         {
             var values = new object[64];
@@ -111,6 +119,7 @@ namespace Game.Framework.Localization
             return values;
         }
 
+        /// <summary>根据传入参数取得参数。</summary>
         private static ulong Arguments(string text)
         {
             ulong indices = 0;
@@ -148,14 +157,17 @@ namespace Game.Framework.Localization
             return indices;
         }
 
+        /// <summary>检查是否包含语言。</summary>
         public bool ContainsLanguage(string language) => languages.ContainsKey(CultureInfo.GetCultureInfo(language).Name);
 
+        /// <summary>检查是否包含键。</summary>
         public bool ContainsKey(string key)
         {
             return key != null && keys.Contains(key);
         }
 
         /// <summary>Read an exact authored cell without parent/fallback substitution; empty cells return false.</summary>
+        /// <remarks>尝试取得精确，返回是否成功。</remarks>
         public bool TryGetExact(string key, string language, out string text)
         {
             if (key == null || language == null)
@@ -170,6 +182,7 @@ namespace Game.Framework.Localization
             return false;
         }
 
+        /// <summary>尝试取得本地化目录，返回是否成功。</summary>
         internal bool TryGet(string key, CultureInfo culture, out string text)
         {
             while (culture.Name.Length != 0)

@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Game.Framework.Data
 {
+    /// <summary>提供Luban 清单的实现。</summary>
     [Serializable]
     public sealed class LubanManifest
     {
@@ -16,6 +17,7 @@ namespace Game.Framework.Data
         public LubanFile[] files;
     }
 
+    /// <summary>提供Luban 文件的实现。</summary>
     [Serializable]
     public sealed class LubanFile
     {
@@ -36,11 +38,13 @@ namespace Game.Framework.Data
         public int Count => tables.Count;
         public bool Initialized => loadBytes != null && !disposed;
 
+        /// <summary>保留本实例的生命周期令牌，异步加载使用同一令牌。</summary>
         public DataManager()
         {
             lifetimeToken = lifetime.Token;
         }
 
+        /// <summary>清理已有数据管理器，尚未用过本模块时不会创建实例。</summary>
         public static void Reset()
         {
             if (TryGetInstance(out var current))
@@ -49,6 +53,7 @@ namespace Game.Framework.Data
             }
         }
 
+        /// <summary>初始化数据管理器。</summary>
         public override void Initialize()
         {
             Initialize(null);
@@ -147,6 +152,7 @@ namespace Game.Framework.Data
             return snapshot;
         }
 
+        /// <summary>读取该类型最新发布的配置表，未加载时抛出异常。</summary>
         public TTables Get<TTables>()
             where TTables : class
         {
@@ -187,6 +193,7 @@ namespace Game.Framework.Data
             }
         }
 
+        // 拒绝操作已经销毁的数据管理器。
         private void EnsureAvailable()
         {
             if (disposed)
@@ -195,6 +202,7 @@ namespace Game.Framework.Data
             }
         }
 
+        /// <summary>取消尚未完成的加载并清空配置表快照。</summary>
         public override void Dispose()
         {
             if (disposed)
@@ -217,6 +225,7 @@ namespace Game.Framework.Data
             }
         }
 
+        /// <summary>异步加载资源字节数据。</summary>
         private static async Task<byte[]> LoadResourcesBytesAsync(string location, CancellationToken token)
         {
             if (!UnityThread.IsMainThread)

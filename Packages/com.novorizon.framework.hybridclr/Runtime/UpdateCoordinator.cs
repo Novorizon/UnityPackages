@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace Game.Framework.HotUpdate
 {
+    /// <summary>提供已准备发布版本的实现。</summary>
     internal sealed class PreparedRelease
     {
         public ReleaseManifest Manifest;
@@ -21,6 +22,7 @@ namespace Game.Framework.HotUpdate
         public long AcceptedVersion;
     }
 
+    /// <summary>提供更新协调器的实现。</summary>
     internal sealed class UpdateCoordinator
     {
         private readonly UpdateSettings settings;
@@ -30,6 +32,7 @@ namespace Game.Framework.HotUpdate
         private ReleaseManifest baseline;
         private ReleaseCache cache;
 
+        /// <summary>使用调用方提供的settings、log、transport创建 UpdateCoordinator。</summary>
         public UpdateCoordinator(UpdateSettings settings, Action<string> log, IUpdateTransport transport = null)
         {
             this.settings = settings;
@@ -38,12 +41,14 @@ namespace Game.Framework.HotUpdate
             builtinRoot = Application.streamingAssetsPath.TrimEnd('/') + "/HotUpdate";
         }
 
+        /// <summary>根据传入参数取得内置 URL。</summary>
         private string BuiltinUrl(string fileName)
         {
             string path = builtinRoot + "/" + fileName;
             return path.Contains("://") ? path : new Uri(Path.GetFullPath(path)).AbsoluteUri;
         }
 
+        /// <summary>认证更新协调器。</summary>
         private ReleaseManifest Authenticate(string text, out string id)
         {
             ReleasePolicy.Require(Encoding.UTF8.GetByteCount(text) <= ReleasePolicy.MaxManifestBytes, "Oversized envelope.");
@@ -55,6 +60,7 @@ namespace Game.Framework.HotUpdate
             return manifest;
         }
 
+        /// <summary>准备更新协调器。</summary>
         public async Task<PreparedRelease> Prepare(CancellationToken token)
         {
             try
@@ -104,6 +110,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>准备内容。</summary>
         private async Task PrepareContent(PreparedRelease release, CancellationToken token)
         {
             var context = new ReleaseContentContext(
@@ -132,6 +139,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>读取资源代码。</summary>
         private async Task<byte[]> ReadResourceCode(ReleaseContentContext context, ReleaseFile file, CancellationToken token)
         {
             byte[] bytes = await settings.loadCodeAsync(context, file, token);
@@ -139,6 +147,7 @@ namespace Game.Framework.HotUpdate
             return await VerifyCodeBytesAsync(bytes, file, "Code resource failed verification: " + file.fileName, token);
         }
 
+        /// <summary>准备更新协调器。</summary>
         private async Task<PreparedRelease> PrepareInternal(CancellationToken token)
         {
             baseline = JsonUtility.FromJson<ReleaseManifest>(await transport.ReadText(BuiltinUrl("builtin.json"), token));
@@ -272,6 +281,7 @@ namespace Game.Framework.HotUpdate
             return selected;
         }
 
+        /// <summary>准备 Packaged。</summary>
         private async Task<PreparedRelease> PreparePackaged(CancellationToken token)
         {
             var release = new PreparedRelease { Manifest = baseline, AcceptedVersion = baseline.version };
@@ -287,6 +297,7 @@ namespace Game.Framework.HotUpdate
             return release;
         }
 
+        /// <summary>读取程序集。</summary>
         private async Task<byte[][]> ReadAssemblies(PreparedRelease release, CancellationToken token)
         {
             var result = new byte[release.Manifest.assemblies.Length][];
@@ -302,12 +313,14 @@ namespace Game.Framework.HotUpdate
             return result;
         }
 
+        /// <summary>读取内置已校验。</summary>
         private async Task<byte[]> ReadBuiltinVerified(ReleaseFile file, CancellationToken token)
         {
             byte[] bytes = await transport.ReadBytes(BuiltinUrl(file.fileName), file.size, token);
             return await VerifyCodeBytesAsync(bytes, file, "Packaged content failed verification: " + file.fileName, token);
         }
 
+        /// <summary>异步核验代码字节数据。</summary>
         private static async Task<byte[]> VerifyCodeBytesAsync(byte[] bytes, ReleaseFile file, string message, CancellationToken token)
         {
             // Hashing is pure CPU work. Keep transport/resource acquisition and Assembly.Load
@@ -321,11 +334,13 @@ namespace Game.Framework.HotUpdate
             return verified;
         }
 
+        /// <summary>核验目录。</summary>
         private static void VerifyDirectory(string directory, ReleaseManifest manifest)
         {
             foreach (var file in manifest.assemblies) ReleasePolicy.VerifyFile(Path.Combine(directory, file.fileName), file);
         }
 
+        /// <summary>拉取更新。</summary>
         private async Task<PreparedRelease> FetchUpdate(long floor, string acceptedId, CancellationToken token)
         {
             Uri root = ReleasePolicy.HttpsDirectory(settings.remoteBaseUrl);
@@ -382,6 +397,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>取得平台标识。</summary>
         internal static string PlatformId()
         {
 #if UNITY_ANDROID

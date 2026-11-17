@@ -4,8 +4,10 @@ using UnityEngine;
 namespace Game.Ability
 {
     /// <summary>Keep finite float-world geometry finite while comparing distances and normalizing directions.</summary>
+    /// <remarks>提供技能 Geometry的实现。</remarks>
     internal static class AbilityGeometry
     {
+        /// <summary>返回Within 距离的判断结果。</summary>
         internal static bool WithinDistance(Vector3 from, Vector3 to, float distance)
         {
             double x = (double)to.x - from.x;
@@ -14,6 +16,7 @@ namespace Game.Ability
             return x * x + y * y + z * z <= (double)distance * distance;
         }
 
+        /// <summary>归一化技能 Geometry。</summary>
         internal static Vector3 Normalize(Vector3 direction)
         {
             double x = direction.x, y = direction.y, z = direction.z;

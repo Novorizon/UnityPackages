@@ -8,8 +8,10 @@ using UnityEngine;
 
 namespace UI
 {
+    /// <summary>提供界面视图的实现。</summary>
     public abstract class UIView : MonoBehaviour
     {
+        /// <summary>表示界面视图中的保护条件请求。</summary>
         sealed class GuardRequest
         {
             readonly object gate = new();
@@ -21,6 +23,7 @@ namespace UI
             internal readonly UICloseReason Reason;
             internal readonly CancellationToken Token;
             internal readonly TaskCompletionSource<bool> Completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            /// <summary>使用调用方提供的guard、reason、scopeToken创建 GuardRequest。</summary>
             internal GuardRequest(Func<UICloseReason, CancellationToken, Task<bool>> guard, UICloseReason reason,
                 CancellationToken scopeToken, List<GuardRequest> pending)
             {
@@ -28,6 +31,7 @@ namespace UI
                 cancellation = CancellationTokenSource.CreateLinkedTokenSource(scopeToken, CancellationToken.None);
                 Token = cancellation.Token;
             }
+            /// <summary>尝试添加等待方，返回是否成功。</summary>
             internal bool TryAddWaiter(out GuardWaiter? waiter)
             {
                 lock (gate)
@@ -36,6 +40,7 @@ namespace UI
                     waiters++; waiter = new GuardWaiter(this); return true;
                 }
             }
+            /// <summary>移除等待方。</summary>
             internal void RemoveWaiter()
             {
                 CancellationTokenSource? source = null;
@@ -64,6 +69,7 @@ namespace UI
                     dispose?.Dispose();
                 }
             }
+            /// <summary>完成保护条件请求。</summary>
             internal void Complete(bool approved, Exception? failure)
             {
                 CancellationTokenSource? dispose = null;
@@ -78,12 +84,16 @@ namespace UI
                 if (failure != null) Completion.TrySetException(failure);
                 else Completion.TrySetResult(approved);
             }
+            /// <summary>移除待处理。</summary>
             void RemovePending() { lock (pending) pending.Remove(this); }
         }
+        /// <summary>表示界面视图中的保护条件等待方。</summary>
         sealed class GuardWaiter : IDisposable
         {
             GuardRequest? owner;
+            /// <summary>使用调用方提供的owner创建 GuardWaiter。</summary>
             internal GuardWaiter(GuardRequest owner) { this.owner = owner; }
+            /// <summary>结束保护条件等待方对相关资源的持有，并执行该类型的清理流程。</summary>
             public void Dispose() => Interlocked.Exchange(ref owner, null)?.RemoveWaiter();
         }
         bool destroyed;
@@ -109,18 +119,21 @@ namespace UI
 
         UILifetimeScope? CurrentTrackingScope => hasCallbackScope ? callbackScope : IsOpen ? openScope : null;
 
+        /// <summary>跟踪界面视图。</summary>
         protected T Track<T>(T subscription) where T : IDisposable
         {
             UILifetimeScope? scope = CurrentTrackingScope;
             if (scope != null) return scope.Track(subscription);
             return DisposeUntracked(subscription);
         }
+        /// <summary>跟踪 Until 已销毁。</summary>
         protected T TrackUntilDestroyed<T>(T subscription) where T : IDisposable
         {
             if (!destroyed) return (destroyScope ??= new UILifetimeScope()).Track(subscription);
             return DisposeUntracked(subscription);
         }
 
+        /// <summary>释放 Untracked。</summary>
         static T DisposeUntracked<T>(T subscription) where T : IDisposable
         {
             if (subscription is null) throw new ArgumentNullException(nameof(subscription));
@@ -129,8 +142,10 @@ namespace UI
             return subscription;
         }
 
+        /// <summary>调用 OnCreate 完成内部 OnCreate。</summary>
         internal void InternalOnCreate() => OnCreate();
 
+        /// <summary>调用 DisposeScope 完成内部 On 打开。</summary>
         internal void InternalOnOpen(object? args)
         {
             if (destroyed) return;
@@ -162,6 +177,7 @@ namespace UI
             });
         }
 
+        /// <summary>调用 gameObject.SetActive 完成内部集合可见。</summary>
         internal void InternalSetVisible(bool visible)
         {
             if (destroyed) return;
@@ -176,6 +192,7 @@ namespace UI
             if (visible) NotifyShown();
             else if (notifyHide) InvokeInScope(scope, OnHide);
         }
+        /// <summary>通知已显示。</summary>
         void NotifyShown()
         {
             if (!IsOpen || !IsVisible || shown || destroyed) return;
@@ -183,6 +200,7 @@ namespace UI
             InvokeInScope(openScope, OnShow);
         }
 
+        /// <summary>调用 DisposeScope 完成内部 OnClose。</summary>
         internal void InternalOnClose(UICloseReason reason = UICloseReason.Programmatic)
         {
             int id = InstanceId; long version = ++operation;
@@ -200,6 +218,7 @@ namespace UI
             if (failure != null) ExceptionDispatchInfo.Capture(failure).Throw();
         }
 
+        /// <summary>返回内部 CanClose的判断结果。</summary>
         internal bool InternalCanClose(UICloseReason reason)
         {
             if (!CanUseCurrentScope() || CloseGuard != null) return false;
@@ -207,6 +226,7 @@ namespace UI
             bool allowed = CanClose(reason);
             return allowed && OwnsOpen(id, version, scope);
         }
+        /// <summary>根据传入参数取得内部 CanCloseAsync。</summary>
         internal Task<bool> InternalCanCloseAsync(UICloseReason reason, CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<bool>(cancellationToken);
@@ -243,8 +263,10 @@ namespace UI
             if (start) _ = ConfirmCloseAsync(request, guard, reason, scope);
             return approval;
         }
+        /// <summary>检查是否可以设置并使用当前作用域。</summary>
         bool CanUseCurrentScope() => !destroyed && IsOpen && openScope != null &&
             (!hasCallbackScope || ReferenceEquals(callbackScope, openScope));
+        /// <summary>异步确认 Close。</summary>
         async Task ConfirmCloseAsync(GuardRequest request, Func<UICloseReason, CancellationToken, Task<bool>> guard,
             UICloseReason reason, UILifetimeScope scope)
         {
@@ -262,6 +284,7 @@ namespace UI
             catch (Exception exception) { failure = exception; }
             request.Complete(approved, failure);
         }
+        /// <summary>异步等待 Approval。</summary>
         async Task<bool> AwaitApprovalAsync(Task<bool> task, GuardWaiter waiter, Func<UICloseReason, CancellationToken, Task<bool>> guard,
             UILifetimeScope scope, int id, long version, UICloseReason reason, CancellationToken caller)
         {
@@ -280,6 +303,7 @@ namespace UI
             }
             finally { waiter.Dispose(); }
         }
+        /// <summary>异步等待 For 取消。</summary>
         static async Task<bool> WaitForCancellationAsync(Task<bool> task, CancellationToken token)
         {
             if (token.IsCancellationRequested)
@@ -299,19 +323,24 @@ namespace UI
                 return await task;
             }
         }
+        /// <summary>观察故障。</summary>
         static void ObserveFault(Task task)
         {
             _ = task.ContinueWith(completed => { _ = completed.Exception; }, CancellationToken.None,
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
 
+        /// <summary>返回持有操作的判断结果。</summary>
         bool OwnsOperation(int id, long version) => InstanceId == id && operation == version;
+        /// <summary>返回持有打开的判断结果。</summary>
         bool OwnsOpen(int id, long version, UILifetimeScope scope) => !destroyed && IsOpen &&
             OwnsOperation(id, version) && ReferenceEquals(openScope, scope) && !scope.IsDisposed;
+        /// <summary>释放作用域。</summary>
         void DisposeScope(UILifetimeScope? scope)
         {
             if (scope != null) InvokeInScope(scope, scope.Dispose);
         }
+        /// <summary>调用 callback 完成InvokeIn 作用域。</summary>
         void InvokeInScope(UILifetimeScope? scope, Action callback)
         {
             bool previousFlag = hasCallbackScope; var previousScope = callbackScope;
@@ -319,11 +348,13 @@ namespace UI
             try { callback(); }
             finally { hasCallbackScope = previousFlag; callbackScope = previousScope; }
         }
+        /// <summary>尝试处理 Invoke。</summary>
         void TryInvoke(UILifetimeScope? scope, Action callback, ref Exception? failure)
         {
             try { InvokeInScope(scope, callback); }
             catch (Exception exception) { RecordFailure(exception, ref failure); }
         }
+        /// <summary>调用 callbacks.GetInvocationList 完成Invoke 事件。</summary>
         void InvokeEvent(Action<UIView>? callbacks, int id, long version, ref Exception? failure)
         {
             if (callbacks == null) return;
@@ -334,6 +365,7 @@ namespace UI
                 catch (Exception exception) { RecordFailure(exception, ref failure); }
             }
         }
+        /// <summary>记录失败原因。</summary>
         static void RecordFailure(Exception exception, ref Exception? failure)
         {
             if (failure == null) failure = exception;
@@ -341,6 +373,7 @@ namespace UI
         }
 
         // Override OnDestroyed for cleanup; Unity's OnDestroy message belongs to the framework.
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         protected void OnDestroy()
         {
             if (destroyed) return;
@@ -357,12 +390,19 @@ namespace UI
             if (failure != null) ExceptionDispatchInfo.Capture(failure).Throw();
         }
 
+        /// <summary>检查是否可以关闭。</summary>
         protected virtual bool CanClose(UICloseReason reason) => true;
+        /// <summary>响应 Create。</summary>
         protected virtual void OnCreate() { }
+        /// <summary>响应打开。</summary>
         protected virtual void OnOpen(object? args) { }
+        /// <summary>响应 Show。</summary>
         protected virtual void OnShow() { }
+        /// <summary>响应 Hide。</summary>
         protected virtual void OnHide() { }
+        /// <summary>响应 Close。</summary>
         protected virtual void OnClose() { }
+        /// <summary>响应已销毁。</summary>
         protected virtual void OnDestroyed() { }
     }
 }

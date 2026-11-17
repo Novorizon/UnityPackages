@@ -8,8 +8,10 @@ using UnityEditor.iOS.Xcode;
 
 namespace Game.Framework.Auth.Editor
 {
+    /// <summary>提供身份 iOSBuild的实现。</summary>
     public static class IdentityIosBuild
     {
+        /// <summary>配置身份 iOSBuild。</summary>
         [PostProcessBuild(90)]
         public static void Configure(BuildTarget target, string path)
         {

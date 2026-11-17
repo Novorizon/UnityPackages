@@ -4,6 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>提供GPU 蒙皮工具的实现。</summary>
 public sealed class GpuSkinningTools : EditorWindow
 {
     public static readonly string DEFAULT_FBX_PATH = "Assets/Artworks/GpuRole/";
@@ -16,6 +17,7 @@ public sealed class GpuSkinningTools : EditorWindow
     public static readonly string DEFAULT_SAVE_MATERIAL_NAME = "_DynMat.mat";
     public static readonly string DEFAULT_SAVE_DEFAULT_MATERIAL_NAME = "_Default_DynMat.mat";
 
+    /// <summary>定义着色器模式可选的枚举值。</summary>
     private enum ShaderMode
     {
         Unlit,
@@ -35,12 +37,14 @@ public sealed class GpuSkinningTools : EditorWindow
     private string summary;
     private bool running;
 
+    /// <summary>表示GPU 蒙皮工具中的报告条目。</summary>
     private sealed class ReportEntry
     {
         public string Message;
         public MessageType Type;
     }
 
+    /// <summary>显示窗口。</summary>
     [MenuItem("GpuSkinning/Baker")]
     private static void ShowWindow()
     {
@@ -50,24 +54,29 @@ public sealed class GpuSkinningTools : EditorWindow
         window.Show();
     }
 
+    /// <summary>调用 BakeDefaults 完成GPU 蒙皮。</summary>
     [MenuItem("GpuSkinning/No PBR")]
     public static void GPUSkinning() { BakeDefaults(ShaderMode.Unlit); }
 
+    /// <summary>调用 BakeDefaults 完成GenGPU 蒙皮 PBR。</summary>
     [MenuItem("GpuSkinning/PBR")]
     public static void GenGPUSkinningPBR() { BakeDefaults(ShaderMode.PBR); }
 
+    /// <summary>调用 BakeDefaults 完成GenGPU 蒙皮 URP。</summary>
     [MenuItem("GpuSkinning/URP Unlit")]
     public static void GenGPUSkinningURP()
     {
         BakeDefaults(ShaderMode.URPUnlit);
     }
 
+    /// <summary>调用 BakeDefaults 完成GenGPU 蒙皮 URPLit。</summary>
     [MenuItem("GpuSkinning/URP Lit")]
     public static void GenGPUSkinningURPLit()
     {
         BakeDefaults(ShaderMode.URPLit);
     }
 
+    /// <summary>烘焙 Defaults。</summary>
     private static void BakeDefaults(ShaderMode mode)
     {
         ShowWindow();
@@ -79,6 +88,7 @@ public sealed class GpuSkinningTools : EditorWindow
         window.RunBatch(false);
     }
 
+    /// <summary>绘制当前界面并响应对应的 GUI 事件。</summary>
     private void OnGUI()
     {
         EditorGUILayout.LabelField("GPU Animation Baker", EditorStyles.boldLabel);
@@ -112,6 +122,7 @@ public sealed class GpuSkinningTools : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
+    /// <summary>绘制目录字段。</summary>
     private static void DrawDirectoryField(string label, ref string value)
     {
         EditorGUILayout.BeginHorizontal();
@@ -136,6 +147,7 @@ public sealed class GpuSkinningTools : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
+    /// <summary>获取目录错误。</summary>
     private string GetDirectoryError()
     {
         try
@@ -146,6 +158,7 @@ public sealed class GpuSkinningTools : EditorWindow
         catch (Exception exception) { return exception.Message; }
     }
 
+    /// <summary>运行批次。</summary>
     private void RunBatch(bool validateOnly)
     {
         if (running) return;
@@ -237,6 +250,7 @@ public sealed class GpuSkinningTools : EditorWindow
         }
     }
 
+    /// <summary>添加报告。</summary>
     private void AddReport(string message, MessageType type)
     {
         report.Add(new ReportEntry { Message = message, Type = type });

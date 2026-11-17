@@ -9,8 +9,10 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.Ads.Csj
 {
     /// <summary>Domestic CSJ SDK, not the global Pangle SDK or the Ocean Engine campaign API.</summary>
+    /// <remarks>穿山甲广告对应的厂商适配器。提供此模块需要的能力或数据。</remarks>
     public sealed class CsjAdProvider : IAdProvider
     {
+        /// <summary>表示穿山甲广告厂商适配器中的条目。</summary>
         private sealed class Entry
         {
             internal string Id;
@@ -31,6 +33,7 @@ namespace Game.Framework.Ads.Csj
         public string Id => "bytedance-csj";
         public event Action<AdReward> RewardEarned;
 
+        /// <summary>使用调用方提供的appId、privacyConsent、rewardUserId创建 CsjAdProvider。</summary>
         public CsjAdProvider(string appId, bool privacyConsent, string rewardUserId = "")
         {
             if (string.IsNullOrWhiteSpace(appId))
@@ -42,6 +45,7 @@ namespace Game.Framework.Ads.Csj
             userId = rewardUserId ?? "";
         }
 
+        /// <summary>异步初始化穿山甲广告厂商适配器。</summary>
         public async Task InitializeAsync(CancellationToken token)
         {
             Ready(false);
@@ -84,6 +88,7 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>异步加载穿山甲广告厂商适配器。</summary>
         public async Task LoadAsync(AdPlacement placement, CancellationToken token)
         {
             Ready();
@@ -121,12 +126,14 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>检查当前资源或操作是否已就绪。</summary>
         public bool IsReady(AdPlacement placement)
         {
             Ready();
             return placement != null && loaded.TryGetValue(Key(placement), out var entry) && entry.Loaded && !entry.Shown;
         }
 
+        /// <summary>异步显示穿山甲广告厂商适配器。</summary>
         public async Task ShowAsync(AdPlacement placement, CancellationToken token)
         {
             Ready();
@@ -158,8 +165,10 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>根据传入参数取得键。</summary>
         private static string Key(AdPlacement placement) => ((int)placement.Format) + ":" + placement.UnitId;
 
+        /// <summary>开始穿山甲广告厂商适配器。</summary>
         private void Begin(string request, string kind)
         {
             if (completion != null)
@@ -171,6 +180,7 @@ namespace Game.Framework.Ads.Csj
             completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
+        /// <summary>结束穿山甲广告厂商适配器。</summary>
         private void End()
         {
             completion = null;
@@ -178,6 +188,7 @@ namespace Game.Framework.Ads.Csj
             activeKind = null;
         }
 
+        /// <summary>接收穿山甲广告厂商适配器。</summary>
         private void Receive(CsjCallbackHost.Response response)
         {
             if (disposed)
@@ -215,6 +226,7 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>发布穿山甲广告厂商适配器。</summary>
         private void Publish(AdReward reward)
         {
             var handlers = RewardEarned;
@@ -235,6 +247,7 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>处理原生。</summary>
         private void Native(string operation, string request, string value, int format)
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -250,10 +263,12 @@ namespace Game.Framework.Ads.Csj
         }
 
 #if UNITY_IOS && !UNITY_EDITOR
+        /// <summary>处理Novorizon 穿山甲。</summary>
         [DllImport("__Internal")]
         private static extern void NovorizonCsj(string receiver, string operation, string request, string value, int format, string userId);
 #endif
 
+        /// <summary>调用 nameof 完成就绪。</summary>
         private void Ready(bool requireInitialized = true)
         {
             if (!UnityThread.IsMainThread)
@@ -270,6 +285,7 @@ namespace Game.Framework.Ads.Csj
             }
         }
 
+        /// <summary>结束穿山甲广告厂商适配器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (disposed)

@@ -6,12 +6,14 @@ using MessagingSdk = global::Firebase.Messaging.FirebaseMessaging;
 
 namespace Game.Framework.Firebase.Unity
 {
+    /// <summary>提供FirebasePush 推送的实现。</summary>
     public sealed class FirebasePushMessaging : IPushMessaging
     {
         private bool disposed, permissionActive;
         public event Action<string> InstallationRegistered;
         public event Action<PushMessage> MessageReceived;
 
+        /// <summary>使用调用方提供的runtime创建 FirebasePushMessaging。</summary>
         public FirebasePushMessaging(FirebaseManager runtime)
         {
             FirebaseManager.MainThread();
@@ -23,6 +25,7 @@ namespace Game.Framework.Firebase.Unity
             MessagingSdk.MessageReceived += OnMessage;
         }
 
+        /// <summary>根据传入参数取得请求权限 Async。</summary>
         public async Task RequestPermissionAsync(CancellationToken token)
         {
             Ready();
@@ -62,6 +65,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>异步订阅 FirebasePush 推送。</summary>
         public async Task SubscribeAsync(string topic, CancellationToken token)
         {
             Ready();
@@ -71,6 +75,7 @@ namespace Game.Framework.Firebase.Unity
             token.ThrowIfCancellationRequested();
         }
 
+        /// <summary>异步登记 FirebasePush 推送。</summary>
         public async Task RegisterAsync(CancellationToken token)
         {
             Ready();
@@ -79,6 +84,7 @@ namespace Game.Framework.Firebase.Unity
             token.ThrowIfCancellationRequested();
         }
 
+        /// <summary>异步撤销登记 FirebasePush 推送。</summary>
         public async Task UnregisterAsync(CancellationToken token)
         {
             Ready();
@@ -87,6 +93,7 @@ namespace Game.Framework.Firebase.Unity
             token.ThrowIfCancellationRequested();
         }
 
+        /// <summary>异步取消订阅 FirebasePush 推送。</summary>
         public async Task UnsubscribeAsync(string topic, CancellationToken token)
         {
             Ready();
@@ -96,6 +103,7 @@ namespace Game.Framework.Firebase.Unity
             token.ThrowIfCancellationRequested();
         }
 
+        /// <summary>验证主题。</summary>
         private static void ValidateTopic(string topic)
         {
             if (string.IsNullOrWhiteSpace(topic))
@@ -104,12 +112,14 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>响应登记。</summary>
         private void OnRegistration(object sender, global::Firebase.Messaging.RegistrationReceivedEventArgs args)
         {
             string installation = args.InstallationId;
             Dispatch(() => Publish(InstallationRegistered, installation));
         }
 
+        /// <summary>响应消息。</summary>
         private void OnMessage(object sender, global::Firebase.Messaging.MessageReceivedEventArgs args)
         {
             var message = args.Message;
@@ -121,6 +131,7 @@ namespace Game.Framework.Firebase.Unity
             Dispatch(() => Publish(MessageReceived, copy));
         }
 
+        /// <summary>调度 FirebasePush 推送。</summary>
         private void Dispatch(Action action)
         {
             if (disposed)
@@ -143,6 +154,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>发布 FirebasePush 推送。</summary>
         private static void Publish<T>(Action<T> handlers, T value)
         {
             if (handlers == null)
@@ -162,6 +174,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>调用 FirebaseManager.MainThread 完成就绪。</summary>
         private void Ready()
         {
             FirebaseManager.MainThread();
@@ -171,6 +184,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>结束FirebasePush 推送对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             FirebaseManager.MainThread();

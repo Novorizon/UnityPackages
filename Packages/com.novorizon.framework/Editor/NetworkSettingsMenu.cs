@@ -6,8 +6,10 @@ using UnityEngine;
 
 namespace Game.Framework.Editor
 {
+    /// <summary>提供网络设置菜单的实现。</summary>
     public static class NetworkSettingsMenu
     {
+        /// <summary>创建默认值设置。</summary>
         [MenuItem("Tools/Novorizon/Create Default Network Settings")]
         public static void CreateDefaultSettings()
         {

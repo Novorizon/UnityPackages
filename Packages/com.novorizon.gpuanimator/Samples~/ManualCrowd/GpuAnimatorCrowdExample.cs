@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace GpuAnimatorSamples
 {
+    /// <summary>提供GPU 动画播放器群体示例的实现。</summary>
     public sealed class GpuAnimatorCrowdExample : MonoBehaviour
     {
         [SerializeField]
@@ -22,6 +23,7 @@ namespace GpuAnimatorSamples
         private readonly List<GpuAnimator> players = new List<GpuAnimator>();
         private TextAsset decodedAsset;
         private AnimationData decodedData;
+        /// <summary>生成群体。</summary>
         [ContextMenu("Spawn Crowd")]
         public void SpawnCrowd()
         {
@@ -94,6 +96,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>清空群体。</summary>
         [ContextMenu("Clear Crowd")]
         public void ClearCrowd()
         {
@@ -103,6 +106,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         private void Update()
         {
             float deltaTime = Time.deltaTime;
@@ -115,6 +119,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>检查 Play Mode 是否满足前置条件。</summary>
         private bool RequirePlayMode()
         {
             if (Application.isPlaying)
@@ -126,6 +131,7 @@ namespace GpuAnimatorSamples
             return false;
         }
 
+        /// <summary>清空自有 Instances。</summary>
         private void ClearOwnedInstances()
         {
             for (int i = 0; i < players.Count; i++)
@@ -159,6 +165,7 @@ namespace GpuAnimatorSamples
             spawnedObjects.Clear();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             ClearOwnedInstances();

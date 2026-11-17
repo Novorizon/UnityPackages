@@ -7,12 +7,14 @@ using UnityEngine;
 /// <remarks>管理 GPU 动画播放器的注册、逐帧调度和播放事件。</remarks>
 public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 {
+    /// <summary>保存条目所需的数据与配套操作。</summary>
     private struct Entry
     {
         internal GpuAnimator Player;
         internal long Version;
     }
 
+    /// <summary>保存登记所需的数据与配套操作。</summary>
     private struct Registration
     {
         internal long Version;
@@ -63,11 +65,13 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
+    /// <summary>响应 Start。</summary>
     protected override void OnStart()
     {
         Initialize();
     }
 
+    /// <summary>登记 GPU 动画播放器管理器。</summary>
     public bool Register(GpuAnimator player)
     {
         if (player == null || !player.AutomaticUpdate || !player.IsPlaying || !player.isActiveAndEnabled || IsDestroying)
@@ -93,6 +97,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         return true;
     }
 
+    /// <summary>撤销登记 GPU 动画播放器管理器。</summary>
     public bool Unregister(GpuAnimator player)
     {
         if (ReferenceEquals(player, null))
@@ -177,6 +182,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
+    /// <summary>检查输入是否仍是当前有效值。</summary>
     private bool IsCurrent(Entry entry)
     {
         return entry.Player != null && registered.TryGetValue(entry.Player, out Registration current) && current.Version == entry.Version;
@@ -214,6 +220,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         hasStaleEntries = false;
     }
 
+    /// <summary>推进该对象的一次更新。</summary>
     private void Update()
     {
         if (AutomaticUpdate)
@@ -222,6 +229,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
+    /// <summary>通知变化。</summary>
     internal void NotifyChanged(GpuAnimator player, string previous, string current)
     {
         try
@@ -234,21 +242,25 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
+    /// <summary>通知已启动。</summary>
     internal void NotifyStarted(GpuAnimator player, string clip)
     {
         Notify(AnimationStarted, player, clip);
     }
 
+    /// <summary>向监听器发出完成通知。</summary>
     internal void NotifyCompleted(GpuAnimator player, string clip)
     {
         Notify(AnimationCompleted, player, clip);
     }
 
+    /// <summary>向监听器发出停止通知。</summary>
     internal void NotifyStopped(GpuAnimator player, string clip)
     {
         Notify(AnimationStopped, player, clip);
     }
 
+    /// <summary>通知 GPU 动画播放器管理器。</summary>
     private static void Notify(Action<GpuAnimator, string> listeners, GpuAnimator player, string clip)
     {
         try
@@ -261,6 +273,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
+    /// <summary>响应退出。</summary>
     protected override void OnExit()
     {
         registered.Clear();

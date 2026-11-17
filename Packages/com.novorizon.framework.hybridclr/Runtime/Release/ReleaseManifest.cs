@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Game.Framework.HotUpdate
 {
+    /// <summary>提供发布版本文件的实现。</summary>
     [Serializable] public sealed class ReleaseFile
     {
         public string assemblyName;
@@ -16,6 +17,7 @@ namespace Game.Framework.HotUpdate
         public string sha256;
     }
 
+    /// <summary>提供发布版本清单的实现。</summary>
     [Serializable] public sealed class ReleaseManifest
     {
         public int schema = 1;
@@ -30,6 +32,7 @@ namespace Game.Framework.HotUpdate
         public ReleaseContent content;
     }
 
+    /// <summary>提供发布版本内容的实现。</summary>
     [Serializable]
     public sealed class ReleaseContent
     {
@@ -47,6 +50,7 @@ namespace Game.Framework.HotUpdate
         public bool IsPackaged { get; }
         public string BaselineId { get; }
 
+        /// <summary>使用调用方提供的platform、content、isPackaged创建 ReleaseContentContext。</summary>
         public ReleaseContentContext(string platform, ReleaseContent content, bool isPackaged, string baselineId = null)
         {
             Platform = platform;
@@ -56,6 +60,7 @@ namespace Game.Framework.HotUpdate
             BaselineId = baselineId;
         }
 
+        /// <summary>根据传入参数取得代码位置。</summary>
         public string CodeLocation(ReleaseFile file)
         {
             ReleasePolicy.Require(!string.IsNullOrEmpty(BaselineId), "Code resources require a player baseline.");
@@ -63,6 +68,7 @@ namespace Game.Framework.HotUpdate
         }
     }
 
+    /// <summary>提供已签名封装数据的实现。</summary>
     [Serializable] public sealed class SignedEnvelope
     {
         public string keyId;
@@ -70,6 +76,7 @@ namespace Game.Framework.HotUpdate
         public string signature;
     }
 
+    /// <summary>提供Trusted 键的实现。</summary>
     [Serializable] public sealed class TrustedKey
     {
         public string keyId;
@@ -77,6 +84,7 @@ namespace Game.Framework.HotUpdate
         public string exponent;
     }
 
+    /// <summary>发布版本对应的策略。集中定义此模块使用的判断规则。</summary>
     public static class ReleasePolicy
     {
         public const int MaxManifestBytes = 64 * 1024;
@@ -85,13 +93,16 @@ namespace Game.Framework.HotUpdate
         private static readonly Regex SafeName = new Regex(@"\A[A-Za-z0-9][A-Za-z0-9_.-]{0,100}\z");
         private static readonly Regex Hash = new Regex(@"\A[0-9a-f]{64}\z");
 
+        /// <summary>检查发布版本策略是否满足前置条件。</summary>
         public static void Require(bool condition, string message)
         {
             if (!condition) throw new InvalidDataException(message);
         }
 
+        /// <summary>判断是否为哈希。</summary>
         public static bool IsHash(string value) => value != null && Hash.IsMatch(value);
 
+        /// <summary>验证传入的 manifest。</summary>
         public static void Validate(ReleaseManifest manifest)
         {
             Require(manifest != null && manifest.schema == 1, "Unsupported release schema.");
@@ -124,6 +135,7 @@ namespace Game.Framework.HotUpdate
         }
 
         // An update may change hot code, but cannot replace the AOT baseline or its assembly topology.
+        /// <summary>匹配基准。</summary>
         public static void MatchBaseline(ReleaseManifest update, ReleaseManifest baseline)
         {
             Validate(update);
@@ -147,19 +159,23 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>根据传入参数取得Sha256。</summary>
         public static string Sha256(byte[] bytes)
         {
             using (var hash = SHA256.Create()) return Hex(hash.ComputeHash(bytes));
         }
 
+        /// <summary>根据传入参数取得Sha256 文件。</summary>
         public static string Sha256File(string path)
         {
             using (var stream = File.OpenRead(path))
             using (var hash = SHA256.Create()) return Hex(hash.ComputeHash(stream));
         }
 
+        /// <summary>根据传入参数取得十六进制。</summary>
         private static string Hex(byte[] bytes) => BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
 
+        /// <summary>核验文件。</summary>
         public static void VerifyFile(string path, ReleaseFile file)
         {
             var info = new FileInfo(path);
@@ -168,6 +184,7 @@ namespace Game.Framework.HotUpdate
             Require(Sha256File(path) == file.sha256, "SHA256 mismatch: " + file.fileName);
         }
 
+        /// <summary>读取并校验文件。</summary>
         public static byte[] ReadVerifiedFile(string path, ReleaseFile file)
         {
             Require((File.GetAttributes(path) & FileAttributes.ReparsePoint) == 0, "Code file must not be a link.");
@@ -187,6 +204,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>核验封装数据。</summary>
         public static byte[] VerifyEnvelope(SignedEnvelope envelope, IEnumerable<TrustedKey> trustedKeys)
         {
             Require(envelope != null && envelope.payload != null && envelope.signature != null
@@ -212,6 +230,7 @@ namespace Game.Framework.HotUpdate
             return payload;
         }
 
+        /// <summary>读取有上界的文本。</summary>
         public static string ReadBoundedText(string path)
         {
             Require((File.GetAttributes(path) & FileAttributes.ReparsePoint) == 0, "Manifest must not be a link.");
@@ -232,6 +251,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>根据传入参数取得Https 目录。</summary>
         public static Uri HttpsDirectory(string value)
         {
             Require(Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps

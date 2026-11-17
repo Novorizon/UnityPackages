@@ -7,11 +7,13 @@ namespace Game.Ability.Configuration
     /// JSON provider for complex, nested ability definitions. JSON source files are authored
     /// separately from Luban-generated JSON and converted into the same runtime definitions.
     /// </summary>
+    /// <remarks>JSON 技能定义对应的厂商适配器。提供此模块需要的能力或数据。</remarks>
     public sealed class JsonAbilityDefinitionProvider : IAbilityDefinitionProvider
     {
         private readonly string json;
         private readonly string sourcePath;
 
+        /// <summary>使用调用方提供的json、sourcePath、providerName创建 JsonAbilityDefinitionProvider。</summary>
         public JsonAbilityDefinitionProvider(string json, string sourcePath, string providerName = null)
         {
             this.json = json;
@@ -22,6 +24,7 @@ namespace Game.Ability.Configuration
         public string ProviderName { get; }
         public AbilityDefinitionSourceType SourceType => AbilityDefinitionSourceType.Json;
 
+        /// <summary>加载 JSON 技能定义厂商适配器。</summary>
         public AbilityDefinitionBundle Load()
         {
             AbilityDefinitionBundle bundle = new AbilityDefinitionBundle();
@@ -55,6 +58,7 @@ namespace Game.Ability.Configuration
             return bundle;
         }
 
+        /// <summary>构建投射物。</summary>
         private Dictionary<string, ProjectileDefinition> BuildProjectiles(JsonAbilityDocument document, AbilityDefinitionBundle bundle)
         {
             Dictionary<string, ProjectileDefinition> result = new Dictionary<string, ProjectileDefinition>(StringComparer.Ordinal);
@@ -101,6 +105,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>构建状态修饰器。</summary>
         private void BuildModifiers(JsonAbilityDocument document, AbilityDefinitionBundle bundle, IReadOnlyDictionary<string, ProjectileDefinition> projectiles)
         {
             JsonModifier[] modifiers = document.modifiers ?? Array.Empty<JsonModifier>();
@@ -183,6 +188,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>构建技能列表。</summary>
         private void BuildAbilities(JsonAbilityDocument document, AbilityDefinitionBundle bundle, IReadOnlyDictionary<string, ProjectileDefinition> projectiles)
         {
             JsonAbility[] abilities = document.abilities ?? Array.Empty<JsonAbility>();
@@ -252,6 +258,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>添加动作。</summary>
         private void AddActions(
             JsonAction[] sources,
             ICollection<ActionDefinition> target,
@@ -298,6 +305,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>根据传入参数取得起点。</summary>
         private AbilityDefinitionOrigin Origin(JsonAbilityDocument document, string stableId)
         {
             return new AbilityDefinitionOrigin
@@ -310,6 +318,7 @@ namespace Game.Ability.Configuration
             };
         }
 
+        /// <summary>取得来源。</summary>
         private AbilityConfigSource Source()
         {
             return new AbilityConfigSource
@@ -319,6 +328,7 @@ namespace Game.Ability.Configuration
             };
         }
 
+        /// <summary>根据传入参数取得等级。</summary>
         private static LevelValue Level(JsonLevelValue value, float fallback = 0f)
         {
             LevelValue result = LevelValue.Constant(value != null ? value.baseValue : fallback);
@@ -330,6 +340,7 @@ namespace Game.Ability.Configuration
         }
     }
 
+    /// <summary>提供JSON 技能文档的实现。</summary>
     [Serializable]
     public sealed class JsonAbilityDocument
     {
@@ -340,6 +351,7 @@ namespace Game.Ability.Configuration
         public JsonProjectile[] projectiles;
     }
 
+    /// <summary>提供JSON 技能的实现。</summary>
     [Serializable]
     public sealed class JsonAbility
     {
@@ -370,6 +382,7 @@ namespace Game.Ability.Configuration
         public JsonAction[] onToggleOff;
     }
 
+    /// <summary>提供JSON 状态修饰器的实现。</summary>
     [Serializable]
     public sealed class JsonModifier
     {
@@ -408,6 +421,7 @@ namespace Game.Ability.Configuration
         public int auraTargetFlags;
     }
 
+    /// <summary>提供JSON 投射物的实现。</summary>
     [Serializable]
     public sealed class JsonProjectile
     {
@@ -429,6 +443,7 @@ namespace Game.Ability.Configuration
         public string soundName;
     }
 
+    /// <summary>提供JSON 动作的实现。</summary>
     [Serializable]
     public sealed class JsonAction
     {
@@ -450,6 +465,7 @@ namespace Game.Ability.Configuration
         public string soundName;
     }
 
+    /// <summary>提供JSON 等级值的实现。</summary>
     [Serializable]
     public sealed class JsonLevelValue
     {
@@ -457,6 +473,7 @@ namespace Game.Ability.Configuration
         public float[] values;
     }
 
+    /// <summary>提供JSON 充能的实现。</summary>
     [Serializable]
     public sealed class JsonCharge
     {
@@ -466,6 +483,7 @@ namespace Game.Ability.Configuration
         public bool usesCooldown = true;
     }
 
+    /// <summary>提供JSON 特殊值的实现。</summary>
     [Serializable]
     public sealed class JsonSpecialValue
     {
@@ -473,6 +491,7 @@ namespace Game.Ability.Configuration
         public JsonLevelValue value;
     }
 
+    /// <summary>提供JSON 状态修饰器属性的实现。</summary>
     [Serializable]
     public sealed class JsonModifierProperty
     {
@@ -480,6 +499,7 @@ namespace Game.Ability.Configuration
         public float value;
     }
 
+    /// <summary>提供JSON 状态修饰器等级属性的实现。</summary>
     [Serializable]
     public sealed class JsonModifierLevelProperty
     {

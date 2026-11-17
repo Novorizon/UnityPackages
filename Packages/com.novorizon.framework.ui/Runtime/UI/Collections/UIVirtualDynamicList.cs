@@ -17,14 +17,17 @@ namespace UI
     /// LayoutUtility.GetPreferredHeight), not the list-assigned RectTransform height.
     /// Retain the prefab's resource lease until all owned cells have actually been destroyed by Unity.
     /// </remarks>
+    /// <remarks>提供界面虚拟动态列表的实现。</remarks>
     public sealed class UIVirtualDynamicList : MonoBehaviour
     {
+        /// <summary>表示界面虚拟动态列表中的单元格。</summary>
         sealed class Cell
         {
             internal readonly GameObject Object;
             internal readonly RectTransform Rect;
             internal int Index = -1;
 
+            /// <summary>使用调用方提供的value创建 Cell。</summary>
             internal Cell(GameObject value)
             {
                 Object = value;
@@ -55,6 +58,7 @@ namespace UI
         public int FirstVisibleIndex { get; private set; } = -1;
         public int LastVisibleIndex { get; private set; } = -1;
 
+        /// <summary>配置界面虚拟动态列表。</summary>
         public void Configure(
             ScrollRect scrollRect,
             GameObject itemPrefab,
@@ -112,6 +116,7 @@ namespace UI
         }
 
         /// <summary>Keys are copied and must be nonempty/unique. Heights reset unless explicitly retained.</summary>
+        /// <remarks>设置条目。</remarks>
         public void SetItems(
             IReadOnlyList<string> itemKeys,
             Action<GameObject, int> bindItem,
@@ -164,6 +169,7 @@ namespace UI
         }
 
         /// <summary>Retains data for binding; keys are snapshotted. Reassign after mutating the source.</summary>
+        /// <remarks>设置数据。</remarks>
         public void SetData<T>(
             IReadOnlyList<T> data,
             Func<T, string> keySelector,
@@ -209,6 +215,7 @@ namespace UI
         }
 
         /// <summary>Reset cached heights after text/font/width changes. Existing async reports become stale.</summary>
+        /// <remarks>使失效高度。</remarks>
         public void InvalidateHeights()
         {
             RequireConfigured();
@@ -224,6 +231,7 @@ namespace UI
             RequestRefresh(true);
         }
 
+        /// <summary>刷新条目。</summary>
         public void RefreshItems()
         {
             RequireConfigured();
@@ -232,6 +240,7 @@ namespace UI
             RequestRefresh(true);
         }
 
+        /// <summary>调用 RequireConfigured 完成滚动 To。</summary>
         public void ScrollTo(int index)
         {
             RequireConfigured();
@@ -244,6 +253,7 @@ namespace UI
             RequestRefresh(false);
         }
 
+        /// <summary>清空界面虚拟动态列表。</summary>
         public void Clear()
         {
             if (destroyed)
@@ -272,6 +282,7 @@ namespace UI
             LayoutContent(0);
         }
 
+        /// <summary>更新高度。</summary>
         void UpdateHeight(int index, float height)
         {
             double delta = height - heights[index];
@@ -282,6 +293,7 @@ namespace UI
             }
         }
 
+        /// <summary>构建树。</summary>
         void BuildTree()
         {
             tree = new double[heights.Length + 1];
@@ -296,6 +308,7 @@ namespace UI
             }
         }
 
+        /// <summary>根据传入参数取得Prefix。</summary>
         double Prefix(int count)
         {
             double sum = 0;
@@ -306,6 +319,7 @@ namespace UI
             return sum;
         }
 
+        /// <summary>查找索引。</summary>
         int FindIndex(double offset)
         {
             int index = 0;
@@ -327,6 +341,7 @@ namespace UI
             return Math.Min(index, ItemCount - 1);
         }
 
+        /// <summary>采集锚点。</summary>
         void CaptureAnchor(out string? key, out double inside, out double offset)
         {
             offset = Math.Max(0, Math.Min(CurrentOffset(), MaximumOffset()));
@@ -335,23 +350,27 @@ namespace UI
             inside = index < 0 ? 0 : offset - Prefix(index);
         }
 
+        /// <summary>恢复锚点。</summary>
         double RestoreAnchor(string? key, double inside, double fallback)
         {
             return key != null && indices.TryGetValue(key, out int index)
                 ? Prefix(index) + Math.Min(inside, Math.Max(0, heights[index] - .01)) : fallback;
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         void OnEnable()
         {
             Subscribe();
             RequestRefresh(true);
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         void OnDisable()
         {
             Unsubscribe();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         void OnDestroy()
         {
             if (destroyed)
@@ -386,6 +405,7 @@ namespace UI
             staging = null;
         }
 
+        /// <summary>订阅界面虚拟动态列表。</summary>
         void Subscribe()
         {
             if (destroyed || subscribed || scroll == null || !isActiveAndEnabled)
@@ -397,6 +417,7 @@ namespace UI
             subscribed = true;
         }
 
+        /// <summary>取消订阅界面虚拟动态列表。</summary>
         void Unsubscribe()
         {
             if (subscribed && scroll != null && scrollChanged != null)
@@ -406,11 +427,13 @@ namespace UI
             subscribed = false;
         }
 
+        /// <summary>响应滚动变化。</summary>
         void OnScrollChanged(Vector2 value)
         {
             RequestRefresh(false);
         }
 
+        /// <summary>在常规帧更新以后执行本组件的处理。</summary>
         void LateUpdate()
         {
             if (destroyed || viewport == null)
@@ -437,6 +460,7 @@ namespace UI
             MeasureVisibleHeights();
         }
 
+        /// <summary>调用 Prefix 完成Measure 可见高度。</summary>
         void MeasureVisibleHeights()
         {
             if (measure == null)
@@ -503,6 +527,7 @@ namespace UI
             RequestRefresh(false);
         }
 
+        /// <summary>调用 Render 完成请求 Refresh。</summary>
         void RequestRefresh(bool force)
         {
             if (destroyed || scroll == null || content == null || viewport == null)
@@ -533,6 +558,7 @@ namespace UI
             }
         }
 
+        /// <summary>调用 ViewportLength 完成渲染。</summary>
         void Render(bool force)
         {
             int operation = revision;
@@ -659,6 +685,7 @@ namespace UI
             }
         }
 
+        /// <summary>创建单元格。</summary>
         bool CreateCell(int operation)
         {
             if (staging == null)
@@ -683,6 +710,7 @@ namespace UI
             return operation == revision && !destroyed;
         }
 
+        /// <summary>解除绑定单元格。</summary>
         void UnbindCell(Cell cell)
         {
             if (cell.Index < 0)
@@ -703,6 +731,7 @@ namespace UI
             }
         }
 
+        /// <summary>解除绑定全部。</summary>
         void UnbindAll(int operation)
         {
             for (int i = 0; i < cells.Count; i++)
@@ -715,6 +744,7 @@ namespace UI
             }
         }
 
+        /// <summary>裁剪单元格。</summary>
         void TrimCells(int needed, int operation)
         {
             while (cells.Count > needed)
@@ -730,6 +760,7 @@ namespace UI
             }
         }
 
+        /// <summary>销毁单元格。</summary>
         static void DestroyCell(Cell cell)
         {
             if (cell.Object != null)
@@ -739,6 +770,7 @@ namespace UI
             }
         }
 
+        /// <summary>调用 Extent 完成布局内容。</summary>
         void LayoutContent(double offset)
         {
             if (content != null)
@@ -752,18 +784,25 @@ namespace UI
             }
         }
 
+        /// <summary>取得范围。</summary>
         double Extent() => Math.Max(0, Prefix(ItemCount) - (ItemCount == 0 ? 0 : spacing));
+        /// <summary>取得上限偏移。</summary>
         double MaximumOffset() => Math.Max(0, Extent() - ViewportLength());
+        /// <summary>取得当前偏移。</summary>
         double CurrentOffset() => content == null || !Finite(content.anchoredPosition.y) ? 0 : content.anchoredPosition.y;
+        /// <summary>取得视口长度。</summary>
         float ViewportLength() => viewport == null || !Finite(viewport.rect.height) ? 0 : Math.Max(0, viewport.rect.height);
 
+        /// <summary>设置偏移。</summary>
         void SetOffset(double offset)
         {
             content!.anchoredPosition = new Vector2(0, (float)Math.Max(0, Math.Min(offset, MaximumOffset())));
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
+        /// <summary>验证高度。</summary>
         static void ValidateHeight(float height)
         {
             if (!Finite(height) || height <= 0)
@@ -772,6 +811,7 @@ namespace UI
             }
         }
 
+        /// <summary>验证 Total。</summary>
         static void ValidateTotal(double total)
         {
             if (total > float.MaxValue)
@@ -780,6 +820,7 @@ namespace UI
             }
         }
 
+        /// <summary>检查已配置是否满足前置条件。</summary>
         void RequireConfigured()
         {
             ThrowIfDestroyed();
@@ -789,6 +830,7 @@ namespace UI
             }
         }
 
+        /// <summary>在已销毁时抛出异常。</summary>
         void ThrowIfDestroyed()
         {
             if (destroyed)

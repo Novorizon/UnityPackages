@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Game.Ability.Configuration
 {
+    /// <summary>定义技能校验 Severity可选的枚举值。</summary>
     public enum AbilityValidationSeverity
     {
         Info = 0,
@@ -10,6 +11,7 @@ namespace Game.Ability.Configuration
         Error = 2
     }
 
+    /// <summary>提供技能配置来源的实现。</summary>
     [Serializable]
     public sealed class AbilityConfigSource
     {
@@ -19,6 +21,7 @@ namespace Game.Ability.Configuration
         public int Row;
         public string Field;
 
+        /// <summary>格式化当前值，供显示或诊断使用。</summary>
         public override string ToString()
         {
             string location = string.IsNullOrEmpty(Path) ? SourceType : Path;
@@ -41,6 +44,7 @@ namespace Game.Ability.Configuration
         }
     }
 
+    /// <summary>提供技能校验 Issue的实现。</summary>
     [Serializable]
     public sealed class AbilityValidationIssue
     {
@@ -51,6 +55,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>提供技能校验报告的实现。</summary>
     public sealed class AbilityValidationReport
     {
         private readonly List<AbilityValidationIssue> issues = new List<AbilityValidationIssue>();
@@ -61,6 +66,7 @@ namespace Game.Ability.Configuration
         public int InfoCount { get; private set; }
         public bool IsValid => ErrorCount == 0;
 
+        /// <summary>添加技能校验报告。</summary>
         public void Add(AbilityValidationSeverity severity, string code, string message, AbilityConfigSource source = null, string referenceChain = null)
         {
             issues.Add(new AbilityValidationIssue
@@ -86,6 +92,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>合并技能校验报告。</summary>
         public void Merge(AbilityValidationReport other)
         {
             if (other == null)
@@ -101,6 +108,7 @@ namespace Game.Ability.Configuration
         }
     }
 
+    /// <summary>提供技能配置目录的实现。</summary>
     public sealed class AbilityConfigCatalog
     {
         public readonly List<AbilityConfigRecord> Abilities = new List<AbilityConfigRecord>();
@@ -112,6 +120,7 @@ namespace Game.Ability.Configuration
         public readonly HashSet<int> UsedAbilityIds = new HashSet<int>();
     }
 
+    /// <summary>技能配置对应的记录。记录一次操作及其相关数据。</summary>
     public sealed class AbilityConfigRecord
     {
         public int Id;
@@ -125,6 +134,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>技能动作配置对应的记录。记录一次操作及其相关数据。</summary>
     public sealed class AbilityActionConfigRecord
     {
         public int Id;
@@ -138,6 +148,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>技能状态修饰器配置对应的记录。记录一次操作及其相关数据。</summary>
     public sealed class AbilityModifierConfigRecord
     {
         public int Id;
@@ -153,6 +164,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>技能投射物配置对应的记录。记录一次操作及其相关数据。</summary>
     public sealed class AbilityProjectileConfigRecord
     {
         public int Id;
@@ -160,6 +172,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>塔技能绑定对应的记录。记录一次操作及其相关数据。</summary>
     public sealed class TowerAbilityBindingRecord
     {
         public int TowerId;
@@ -169,6 +182,7 @@ namespace Game.Ability.Configuration
         public AbilityConfigSource Source;
     }
 
+    /// <summary>技能校验对应的选项。定义可由调用方设置的选项。</summary>
     public sealed class AbilityValidationOptions
     {
         /// <summary>Called only for path-like resource names such as Assets/... .</summary>
@@ -179,8 +193,10 @@ namespace Game.Ability.Configuration
     /// Source-neutral semantic validation shared by Excel and future JSON providers.
     /// Providers preserve their source locations in records so every issue can be traced back.
     /// </summary>
+    /// <remarks>提供技能配置校验器的实现。</remarks>
     public static class AbilityConfigurationValidator
     {
+        /// <summary>验证传入的 catalog、options。</summary>
         public static AbilityValidationReport Validate(AbilityConfigCatalog catalog, AbilityValidationOptions options = null)
         {
             AbilityValidationReport report = new AbilityValidationReport();
@@ -210,6 +226,7 @@ namespace Game.Ability.Configuration
             return report;
         }
 
+        /// <summary>建立索引技能列表。</summary>
         private static Dictionary<int, AbilityConfigRecord> IndexAbilities(IReadOnlyList<AbilityConfigRecord> records, AbilityValidationReport report)
         {
             Dictionary<int, AbilityConfigRecord> result = new Dictionary<int, AbilityConfigRecord>();
@@ -239,6 +256,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>建立索引状态修饰器。</summary>
         private static Dictionary<int, AbilityModifierConfigRecord> IndexModifiers(IReadOnlyList<AbilityModifierConfigRecord> records, AbilityValidationReport report)
         {
             Dictionary<int, AbilityModifierConfigRecord> result = new Dictionary<int, AbilityModifierConfigRecord>();
@@ -268,6 +286,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>建立索引投射物。</summary>
         private static Dictionary<int, AbilityProjectileConfigRecord> IndexProjectiles(IReadOnlyList<AbilityProjectileConfigRecord> records, AbilityValidationReport report)
         {
             Dictionary<int, AbilityProjectileConfigRecord> result = new Dictionary<int, AbilityProjectileConfigRecord>();
@@ -297,6 +316,7 @@ namespace Game.Ability.Configuration
             return result;
         }
 
+        /// <summary>建立索引动作。</summary>
         private static Dictionary<int, List<AbilityActionConfigRecord>> IndexActions(IReadOnlyList<AbilityActionConfigRecord> records, AbilityValidationReport report)
         {
             Dictionary<int, List<AbilityActionConfigRecord>> groups = new Dictionary<int, List<AbilityActionConfigRecord>>();
@@ -339,6 +359,7 @@ namespace Game.Ability.Configuration
             return groups;
         }
 
+        /// <summary>验证技能名称列表。</summary>
         private static void ValidateAbilityNames(IReadOnlyList<AbilityConfigRecord> records, AbilityValidationReport report)
         {
             HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -357,6 +378,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证状态修饰器名称列表。</summary>
         private static void ValidateModifierNames(IReadOnlyList<AbilityModifierConfigRecord> records, AbilityValidationReport report)
         {
             HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -375,6 +397,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证投射物名称列表。</summary>
         private static void ValidateProjectileNames(IReadOnlyList<AbilityProjectileConfigRecord> records, AbilityValidationReport report)
         {
             HashSet<string> names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -393,6 +416,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证技能列表。</summary>
         private static void ValidateAbilities(
             AbilityConfigCatalog catalog,
             IReadOnlyDictionary<int, AbilityConfigRecord> abilities,
@@ -484,6 +508,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证动作。</summary>
         private static void ValidateActions(
             IReadOnlyList<AbilityActionConfigRecord> actions,
             IReadOnlyDictionary<int, AbilityModifierConfigRecord> modifiers,
@@ -539,6 +564,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证状态修饰器。</summary>
         private static void ValidateModifiers(
             IReadOnlyList<AbilityModifierConfigRecord> modifiers,
             IReadOnlyDictionary<int, List<AbilityActionConfigRecord>> actionGroups,
@@ -597,6 +623,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证投射物。</summary>
         private static void ValidateProjectiles(IReadOnlyList<AbilityProjectileConfigRecord> projectiles, AbilityValidationReport report, AbilityValidationOptions options)
         {
             for (int i = 0; i < projectiles.Count; i++)
@@ -618,6 +645,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证 Periodic 目标。</summary>
         private static void ValidatePeriodicTargets(
             IReadOnlyList<AbilityModifierConfigRecord> modifiers,
             IReadOnlyDictionary<int, List<AbilityActionConfigRecord>> actionGroups,
@@ -649,6 +677,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证状态修饰器图。</summary>
         private static void ValidateModifierGraph(
             IReadOnlyList<AbilityModifierConfigRecord> modifiers,
             IReadOnlyDictionary<int, List<AbilityActionConfigRecord>> actionGroups,
@@ -689,6 +718,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>遍历状态修饰器。</summary>
         private static void VisitModifier(
             int id,
             IReadOnlyDictionary<int, AbilityModifierConfigRecord> modifiers,
@@ -742,12 +772,15 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>保存状态修饰器图 Visit所需的数据与配套操作。</summary>
         private struct ModifierGraphVisit
         {
             public readonly int Id;
             private HashSet<int>.Enumerator targets;
             private readonly bool hasTargets;
+            /// <summary>使用调用方提供的id、targets创建 ModifierGraphVisit。</summary>
             public ModifierGraphVisit(int id, HashSet<int> targets) { Id = id; hasTargets = targets != null; this.targets = targets != null ? targets.GetEnumerator() : default; }
+            /// <summary>尝试处理下一个，返回是否成功。</summary>
             public bool TryNext(out int target)
             {
                 if (hasTargets && targets.MoveNext()) { target = targets.Current; return true; }
@@ -756,6 +789,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证未使用记录。</summary>
         private static void ValidateUnusedRecords(
             AbilityConfigCatalog catalog,
             IReadOnlyDictionary<int, AbilityConfigRecord> abilities,
@@ -828,6 +862,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证塔绑定。</summary>
         private static void ValidateTowerBindings(IReadOnlyList<TowerAbilityBindingRecord> bindings, IReadOnlyDictionary<int, AbilityConfigRecord> abilities, AbilityValidationReport report)
         {
             for (int i = 0; i < bindings.Count; i++)
@@ -857,6 +892,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证 RepeatedEffects。</summary>
         private static void ValidateRepeatedEffects(IReadOnlyDictionary<int, List<AbilityActionConfigRecord>> actionGroups, AbilityValidationReport report)
         {
             foreach (KeyValuePair<int, List<AbilityActionConfigRecord>> pair in actionGroups)
@@ -889,6 +925,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证分组引用。</summary>
         private static void ValidateGroupReference(
             int modifierId,
             string purpose,
@@ -903,6 +940,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>添加状态修饰器 Edges。</summary>
         private static void AddModifierEdges(int groupId, IReadOnlyDictionary<int, List<AbilityActionConfigRecord>> actionGroups, ISet<int> targets)
         {
             if (groupId <= 0 || !actionGroups.TryGetValue(groupId, out List<AbilityActionConfigRecord> actions))
@@ -920,6 +958,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证资源。</summary>
         private static void ValidateAsset(string asset, string purpose, AbilityConfigSource source, AbilityValidationReport report, AbilityValidationOptions options)
         {
             if (string.IsNullOrWhiteSpace(asset) || options?.AssetExists == null || !LooksLikeAssetPath(asset))
@@ -933,12 +972,14 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>返回LooksLike 资源路径的判断结果。</summary>
         private static bool LooksLikeAssetPath(string value)
         {
             return value.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) ||
                    value.StartsWith("Assets\\", StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>添加正值。</summary>
         private static void AddPositive(ISet<int> values, int value)
         {
             if (value > 0)

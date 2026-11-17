@@ -20,11 +20,13 @@ namespace UI
     /// <remarks>按可见范围复用列表条目，适合高度固定的大量数据。</remarks>
     public sealed class UIVirtualList : MonoBehaviour
     {
+        /// <summary>表示界面虚拟列表中的单元格。</summary>
         sealed class Cell
         {
             internal readonly GameObject Object;
             internal readonly RectTransform Rect;
             internal int Index = -1;
+            /// <summary>使用调用方提供的value、rect创建 Cell。</summary>
             internal Cell(GameObject value, RectTransform rect) { Object = value; Rect = rect; }
         }
 
@@ -46,6 +48,7 @@ namespace UI
         internal event Action<GameObject>? CellRetiring;
 
         /// <summary>Configure before SetData/SetItemCount. The component does not load or release the prefab.</summary>
+        /// <remarks>配置界面虚拟列表。</remarks>
         public void Configure(ScrollRect scrollRect, GameObject itemPrefab, float itemExtent,
             bool horizontal = false, int overscan = 1, float spacing = 0, int maxVisibleItems = 512)
         {
@@ -76,6 +79,7 @@ namespace UI
         }
 
         /// <summary>Set a logical count and bind cells by index. Unbind clears listeners/async cell work before reuse.</summary>
+        /// <remarks>设置条目数量。</remarks>
         public void SetItemCount(int itemCount, Action<GameObject, int> bindItem,
             Action<GameObject>? unbindItem = null, bool resetPosition = true)
         {
@@ -92,6 +96,7 @@ namespace UI
         }
 
         /// <summary>Convenience binding. Retains data without copying; replace/refresh after changing the source.</summary>
+        /// <remarks>设置数据。</remarks>
         public void SetData<T>(IReadOnlyList<T> data, Action<GameObject, T, int> bindItem,
             Action<GameObject>? unbindItem = null, bool resetPosition = true)
         {
@@ -121,6 +126,7 @@ namespace UI
         }
 
         /// <summary>Release instantiated cells and data/binding references, retaining the ScrollRect configuration.</summary>
+        /// <remarks>清空界面虚拟列表。</remarks>
         public void Clear()
         {
             if (destroyed) return;
@@ -134,8 +140,11 @@ namespace UI
             if (content != null) LayoutContent(true);
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         void OnEnable() { Subscribe(); if (scroll != null) RequestRefresh(true); }
+        /// <summary>响应 Unity 组件停用。</summary>
         void OnDisable() => Unsubscribe();
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         void OnDestroy()
         {
             if (destroyed) return;
@@ -153,19 +162,23 @@ namespace UI
             staging = null;
         }
 
+        /// <summary>订阅界面虚拟列表。</summary>
         void Subscribe()
         {
             if (destroyed || subscribed || scroll == null || !isActiveAndEnabled) return;
             scrollChanged ??= OnScrollChanged;
             scroll.onValueChanged.AddListener(scrollChanged); subscribed = true;
         }
+        /// <summary>取消订阅界面虚拟列表。</summary>
         void Unsubscribe()
         {
             if (!subscribed) return;
             if (scroll != null && scrollChanged != null) scroll.onValueChanged.RemoveListener(scrollChanged);
             subscribed = false;
         }
+        /// <summary>响应滚动变化。</summary>
         void OnScrollChanged(Vector2 value) => RequestRefresh(false);
+        /// <summary>在常规帧更新以后执行本组件的处理。</summary>
         void LateUpdate()
         {
             if (destroyed || scroll == null || viewport == null) return;
@@ -177,6 +190,7 @@ namespace UI
             }
         }
 
+        /// <summary>调用 Render 完成请求 Refresh。</summary>
         void RequestRefresh(bool force)
         {
             if (destroyed || scroll == null || content == null || viewport == null) return;
@@ -186,6 +200,7 @@ namespace UI
             finally { rendering = false; }
         }
 
+        /// <summary>调用 ViewportLength 完成渲染。</summary>
         void Render(bool force)
         {
             int operation = revision;
@@ -242,6 +257,7 @@ namespace UI
             }
         }
 
+        /// <summary>创建单元格。</summary>
         bool CreateCell(int operation)
         {
             if (staging == null)
@@ -261,6 +277,7 @@ namespace UI
             rect.SetParent(content, false);
             return operation == revision && !destroyed;
         }
+        /// <summary>解除绑定单元格。</summary>
         void UnbindCell(Cell cell)
         {
             if (cell.Index < 0) return;
@@ -269,6 +286,7 @@ namespace UI
             try { unbind?.Invoke(cell.Object); } catch (Exception exception) { Debug.LogException(exception); }
             // A recycled cell stays active: moving/rebinding it must not repeat OnDisable/OnEnable.
         }
+        /// <summary>解除绑定全部。</summary>
         void UnbindAll(int operation)
         {
             for (int i = 0; i < cells.Count; i++)
@@ -277,6 +295,7 @@ namespace UI
                 if (operation != revision || destroyed) return;
             }
         }
+        /// <summary>裁剪单元格。</summary>
         void TrimCells(int needed, int operation)
         {
             while (cells.Count > needed)
@@ -287,6 +306,7 @@ namespace UI
                 if (operation != revision || destroyed) return;
             }
         }
+        /// <summary>通知 Retiring。</summary>
         void NotifyRetiring(GameObject instance)
         {
             try
@@ -299,6 +319,7 @@ namespace UI
             }
         }
 
+        /// <summary>销毁单元格。</summary>
         void DestroyCell(Cell cell)
         {
             if (cell.Object == null)
@@ -310,6 +331,7 @@ namespace UI
             cell.Object.SetActive(false);
             Object.Destroy(cell.Object);
         }
+        /// <summary>调用 SetOffset 完成布局内容。</summary>
         void LayoutContent(bool reset)
         {
             if (content == null) return;
@@ -317,30 +339,37 @@ namespace UI
             content.sizeDelta = horizontal ? new Vector2(extent, 0) : new Vector2(0, extent);
             SetOffset(reset ? 0 : Math.Max(0, Math.Min(CurrentOffset(), MaximumOffset())));
         }
+        /// <summary>设置偏移。</summary>
         void SetOffset(double value)
         {
             content!.anchoredPosition = horizontal ? new Vector2(-(float)value, 0) : new Vector2(0, (float)value);
         }
+        /// <summary>取得当前偏移。</summary>
         double CurrentOffset()
         {
             if (content == null) return 0;
             float value = horizontal ? -content.anchoredPosition.x : content.anchoredPosition.y;
             return Finite(value) ? value : 0;
         }
+        /// <summary>取得上限偏移。</summary>
         double MaximumOffset() => Math.Max(0, count == 0 ? 0 : (double)count * itemSize + (double)(count - 1) * spacing - ViewportLength());
+        /// <summary>取得视口长度。</summary>
         float ViewportLength()
         {
             if (viewport == null) return 0;
             float value = horizontal ? viewport.rect.width : viewport.rect.height;
             return Finite(value) ? Math.Max(0, value) : 0;
         }
+        /// <summary>返回Finite的判断结果。</summary>
         static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+        /// <summary>检查已配置是否满足前置条件。</summary>
         void RequireConfigured()
         {
             ThrowIfDestroyed();
             if (scroll == null || content == null || viewport == null || prefab == null)
                 throw new InvalidOperationException("Configure the virtual list before assigning data.");
         }
+        /// <summary>在已销毁时抛出异常。</summary>
         void ThrowIfDestroyed() { if (destroyed) throw new ObjectDisposedException(nameof(UIVirtualList)); }
     }
 }

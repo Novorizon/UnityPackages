@@ -6,12 +6,14 @@ using UnityEngine;
 
 namespace Game.Framework.Localization.Editor
 {
+    /// <summary>本地化表数据资源对应的编辑器。提供相应资源或组件的 Unity 编辑界面。</summary>
     [CustomEditor(typeof(LocalizationTableAsset))]
     public sealed class LocalizationTableAssetEditor : UnityEditor.Editor
     {
         private string validation;
         private MessageType severity;
 
+        /// <summary>绘制当前对象的检视面板并处理用户编辑。</summary>
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
@@ -44,6 +46,7 @@ namespace Game.Framework.Localization.Editor
             EditorGUILayout.HelpBox("Table cells are baked into this asset. Editing it does not mutate an already initialized runtime catalog; restart its explicit owner to load a new snapshot.", MessageType.Info);
         }
 
+        /// <summary>验证传入的 table。</summary>
         private void Validate(LocalizationTableAsset table)
         {
             try
@@ -69,12 +72,14 @@ namespace Game.Framework.Localization.Editor
         }
     }
 
+    /// <summary>本地化设置对应的编辑器。提供相应资源或组件的 Unity 编辑界面。</summary>
     [CustomEditor(typeof(LocalizationSettings))]
     public sealed class LocalizationSettingsEditor : UnityEditor.Editor
     {
         private string result;
         private MessageType severity;
 
+        /// <summary>绘制当前对象的检视面板并处理用户编辑。</summary>
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();

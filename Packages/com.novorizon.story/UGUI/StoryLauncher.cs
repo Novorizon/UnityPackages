@@ -9,6 +9,7 @@ using UnityEngine.Events;
 namespace Game.Framework.Story.UGUI
 {
     /// <summary>Inspector-first playback. Project code can inject command/assets adapters once.</summary>
+    /// <remarks>提供剧情启动器的实现。</remarks>
     public sealed class StoryLauncher : MonoBehaviour
     {
         [SerializeField] private StorySettings settings;
@@ -29,6 +30,7 @@ namespace Game.Framework.Story.UGUI
         public StoryResult LastResult { get; private set; }
         public event Action<StoryResult> Finished;
 
+        /// <summary>配置剧情启动器。</summary>
         public void Configure(
             StorySettings value,
             StoryStage presentation,
@@ -51,6 +53,7 @@ namespace Game.Framework.Story.UGUI
             player = null;
         }
 
+        /// <summary>异步播放剧情启动器。</summary>
         public async Task<StoryResult> PlayAsync(CancellationToken cancellationToken = default, StoryCheckpoint checkpoint = null)
         {
             if (destroyed || !isActiveAndEnabled || settings == null || settings.sequence == null || stage == null)
@@ -90,6 +93,7 @@ namespace Game.Framework.Story.UGUI
         }
 
         /// <summary>UnityEvent/button boundary. Errors are observed; business flows should await PlayAsync.</summary>
+        /// <remarks>播放剧情启动器。</remarks>
         public async void Play()
         {
             try
@@ -102,11 +106,16 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>推进剧情启动器。</summary>
         public bool Advance() => session != null && session.Advance();
+        /// <summary>跳过剧情启动器。</summary>
         public bool Skip() => session != null && session.Skip();
+        /// <summary>取消剧情启动器。</summary>
         public bool Cancel() => session != null && session.Cancel();
+        /// <summary>发出停止请求，返回可等待的停止任务。</summary>
         public Task StopAsync() => player == null ? Task.CompletedTask : player.StopAsync();
 
+        /// <summary>启动剧情启动器。</summary>
         private void Start()
         {
             if (playOnStart)
@@ -115,6 +124,7 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         private void OnEnable()
         {
             if (lifetime.IsCancellationRequested)
@@ -124,11 +134,13 @@ namespace Game.Framework.Story.UGUI
             }
         }
 
+        /// <summary>响应 Unity 组件停用。</summary>
         private void OnDisable()
         {
             CancelLifetime();
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             destroyed = true;
@@ -137,6 +149,7 @@ namespace Game.Framework.Story.UGUI
             lifetime.Dispose();
         }
 
+        /// <summary>取消生命周期。</summary>
         private void CancelLifetime()
         {
             try

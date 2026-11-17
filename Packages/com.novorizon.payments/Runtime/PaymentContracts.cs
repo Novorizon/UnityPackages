@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Game.Framework.Payments
 {
+    /// <summary>定义商店商品种类可选的枚举值。</summary>
     public enum StoreProductKind
     {
         Consumable,
@@ -12,6 +13,7 @@ namespace Game.Framework.Payments
         Subscription
     }
 
+    /// <summary>定义商店购买状态可选的枚举值。</summary>
     public enum StorePurchaseStatus
     {
         PendingVerification,
@@ -19,6 +21,7 @@ namespace Game.Framework.Payments
         Cancelled
     }
 
+    /// <summary>提供商店商品的实现。</summary>
     public sealed class StoreProduct
     {
         public string Id { get; }
@@ -27,6 +30,7 @@ namespace Game.Framework.Payments
         public string LocalizedPrice { get; }
         public string Currency { get; }
 
+        /// <summary>使用调用方提供的id、storeId、kind创建 StoreProduct。</summary>
         public StoreProduct(string id, string storeId, StoreProductKind kind, string localizedPrice = null, string currency = null)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(storeId) || !Enum.IsDefined(typeof(StoreProductKind), kind))
@@ -41,6 +45,7 @@ namespace Game.Framework.Payments
         }
     }
 
+    /// <summary>提供购买收据的实现。</summary>
     public sealed class PurchaseReceipt
     {
         public string Store { get; }
@@ -51,6 +56,7 @@ namespace Game.Framework.Payments
         public bool RequiresConfirmation { get; }
         public string IdempotencyKey => Store + ":" + TransactionId;
 
+        /// <summary>使用调用方提供的store、productId、transactionId创建 PurchaseReceipt。</summary>
         public PurchaseReceipt(string store, string productId, string transactionId, string receipt, string appleJws = null, bool requiresConfirmation = true)
         {
             if (string.IsNullOrWhiteSpace(store) || string.IsNullOrWhiteSpace(productId) || string.IsNullOrWhiteSpace(transactionId))
@@ -69,14 +75,17 @@ namespace Game.Framework.Payments
             RequiresConfirmation = requiresConfirmation;
         }
 
+        /// <summary>格式化当前值，供显示或诊断使用。</summary>
         public override string ToString() => Store + " purchase (receipt redacted)";
     }
 
+    /// <summary>提供商店购买的实现。</summary>
     public sealed class StorePurchase
     {
         public StorePurchaseStatus Status { get; }
         public PurchaseReceipt Receipt { get; }
 
+        /// <summary>使用调用方提供的status、receipt创建 StorePurchase。</summary>
         public StorePurchase(StorePurchaseStatus status, PurchaseReceipt receipt = null)
         {
             if (!Enum.IsDefined(typeof(StorePurchaseStatus), status) ||
@@ -89,28 +98,38 @@ namespace Game.Framework.Payments
         }
     }
 
+    /// <summary>定义支付商店的调用契约。</summary>
     public interface IPaymentStore : IDisposable
     {
         IReadOnlyList<StoreProduct> Products { get; }
+        /// <summary>异步初始化支付商店。</summary>
         Task InitializeAsync(CancellationToken cancellationToken);
+        /// <summary>异步发起购买支付商店。</summary>
         Task<StorePurchase> PurchaseAsync(string productId, CancellationToken cancellationToken);
         /// <summary>Fetch known pending orders/entitlements without explicitly invoking Apple's restore UI.</summary>
+        /// <remarks>异步拉取购买记录。</remarks>
         Task<IReadOnlyList<PurchaseReceipt>> FetchPurchasesAsync(CancellationToken cancellationToken);
+        /// <summary>异步恢复支付商店。</summary>
         Task<IReadOnlyList<PurchaseReceipt>> RestoreAsync(CancellationToken cancellationToken);
+        /// <summary>异步确认支付商店。</summary>
         Task ConfirmAsync(PurchaseReceipt receipt, CancellationToken cancellationToken);
     }
 
     /// <summary>Call a trusted backend. Success means verification AND durable idempotent fulfilment completed.</summary>
+    /// <remarks>定义购买 Fulfillment的调用契约。</remarks>
     public interface IPurchaseFulfillment
     {
+        /// <summary>异步核验 AndGrant。</summary>
         Task VerifyAndGrantAsync(PurchaseReceipt receipt, CancellationToken cancellationToken);
     }
 
+    /// <summary>支付对应的结果。携带操作执行结果和相关数据。</summary>
     public sealed class PaymentResult
     {
         public StorePurchaseStatus StoreStatus { get; }
         public bool Confirmed { get; }
         public string TransactionId { get; }
+        /// <summary>使用调用方提供的status、confirmed、transactionId创建 PaymentResult。</summary>
         internal PaymentResult(StorePurchaseStatus status, bool confirmed, string transactionId)
         {
             StoreStatus = status;

@@ -8,9 +8,11 @@ using UnityEngine;
 
 namespace Game.Framework.Localization.Editor
 {
+    /// <summary>提供本地化表数据导入器的实现。</summary>
     public static class LocalizationTableImporter
     {
         /// <summary>Validate all cells before modifying an existing asset; failed parsing retains its last data.</summary>
+        /// <remarks>导入本地化表数据导入器。</remarks>
         public static void Import(string sourcePath, LocalizationTableAsset target)
         {
             if (target == null)
@@ -24,6 +26,7 @@ namespace Game.Framework.Localization.Editor
             AssetDatabase.SaveAssetIfDirty(target);
         }
 
+        /// <summary>读取传入的 sourcePath。</summary>
         public static LocalizationTableData Read(string sourcePath)
         {
             if (string.IsNullOrWhiteSpace(sourcePath))
@@ -39,6 +42,7 @@ namespace Game.Framework.Localization.Editor
             return LocalizationDelimitedText.Parse(File.ReadAllText(sourcePath, new UTF8Encoding(false, true)), extension.Equals(".tsv", StringComparison.OrdinalIgnoreCase) ? '\t' : ',');
         }
 
+        /// <summary>检查是否可以创建配置。</summary>
         [MenuItem("Assets/Novorizon/Localization/Create Setup From Selected CSV or TSV", true)]
         private static bool CanCreateSetup()
         {
@@ -47,6 +51,7 @@ namespace Game.Framework.Localization.Editor
                 (path.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) || path.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>创建已选配置。</summary>
         [MenuItem("Assets/Novorizon/Localization/Create Setup From Selected CSV or TSV")]
         private static void CreateSelectedSetup()
         {

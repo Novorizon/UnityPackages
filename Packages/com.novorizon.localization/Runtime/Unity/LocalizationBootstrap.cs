@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Game.Framework.Localization.Unity
 {
     /// <summary>Configured initialization owner. Put on the project entry, before opening localized UI.</summary>
+    /// <remarks>提供本地化启动入口的实现。</remarks>
     [DefaultExecutionOrder(-10000)]
     [DisallowMultipleComponent]
     public sealed class LocalizationBootstrap : MonoBehaviour
@@ -30,6 +31,7 @@ namespace Game.Framework.Localization.Unity
         public bool ReleaseOnDestroy { get => releaseOnDestroy; set => releaseOnDestroy = value; }
         public LocalizationManager Manager => owned;
 
+        /// <summary>初始化本地化启动入口。</summary>
         public LocalizationManager Initialize()
         {
             if (stopped)
@@ -48,6 +50,7 @@ namespace Game.Framework.Localization.Unity
             return owned;
         }
 
+        /// <summary>关闭本地化启动入口。</summary>
         public void Shutdown()
         {
             if (stopped)
@@ -60,6 +63,7 @@ namespace Game.Framework.Localization.Unity
             service?.Dispose();
         }
 
+        /// <summary>Unity 创建组件时执行本组件的初始化逻辑。</summary>
         private void Awake()
         {
             if (initializeOnAwake)
@@ -68,6 +72,7 @@ namespace Game.Framework.Localization.Unity
             }
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             if (releaseOnDestroy)

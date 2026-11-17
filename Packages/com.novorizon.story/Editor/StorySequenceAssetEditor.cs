@@ -5,12 +5,14 @@ using UnityEngine;
 
 namespace Game.Framework.Story.Editor
 {
+    /// <summary>剧情序列资源对应的编辑器。提供相应资源或组件的 Unity 编辑界面。</summary>
     [CustomEditor(typeof(StorySequenceAsset))]
     public sealed class StorySequenceAssetEditor : UnityEditor.Editor
     {
         private string validation;
         private MessageType validationType;
 
+        /// <summary>绘制当前对象的检视面板并处理用户编辑。</summary>
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(

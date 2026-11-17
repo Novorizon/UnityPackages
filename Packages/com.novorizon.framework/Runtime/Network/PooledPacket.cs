@@ -7,6 +7,7 @@ using Google.Protobuf;
 
 namespace Game.Framework.Network
 {
+    /// <summary>提供已入池数据包的实现。</summary>
     internal sealed class PooledPacket : IDisposable
     {
         private byte[] buffer;
@@ -16,9 +17,11 @@ namespace Game.Framework.Network
         internal int Capacity { get; }
         internal CancellationToken Cancellation { get; }
         internal TaskCompletionSource<bool> Sent { get; } = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        /// <summary>使用调用方提供的bytes、length、overhead创建 PooledPacket。</summary>
         private PooledPacket(byte[] bytes, int length, int overhead, CancellationToken ct)
         { buffer = bytes; Capacity = bytes.Length; ApplicationLength = length; WireLength = length + overhead; Cancellation = ct; }
 
+        /// <summary>创建已入池数据包。</summary>
         internal static PooledPacket Create(int messageId, long requestId, IMessage message, byte[] rawPayload,
             int overhead, int maximumWireBytes, CancellationToken ct)
         {
@@ -37,6 +40,7 @@ namespace Game.Framework.Network
             catch { ArrayPool<byte>.Shared.Return(bytes, clearArray: true); throw; }
         }
 
+        /// <summary>结束已入池数据包对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             byte[] value = Interlocked.Exchange(ref buffer, null);

@@ -14,6 +14,7 @@ namespace Game.Framework.Data.Editor
         public const string ToolVersion = "4.12.0";
         public const string ToolCommit = "0e1a6179a524e71cc503c20bebbca47cc59c7619";
         private const string Marker = ".novorizon-luban-output";
+        /// <summary>检查并确保 Tool 可用。</summary>
         public static async Task<string> EnsureToolAsync(string projectRoot, string dotnet = "dotnet")
         {
             projectRoot = Path.GetFullPath(projectRoot);
@@ -58,6 +59,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
+        /// <summary>异步生成 Luban 导出器。</summary>
         public static async Task GenerateAsync(string projectRoot, string configFile, string target, string codeOutput, string dataOutput, string locationPrefix, string dotnet, string lubanDll, string assemblyName = "Game.Data.Generated", bool autoReferenced = true)
         {
             projectRoot = Path.GetFullPath(projectRoot);
@@ -138,6 +140,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
+        /// <summary>发布 Luban 导出器。</summary>
         private static void Publish(string code, string data, string stagedCode, string stagedData, string stage)
         {
             string[] destinations =
@@ -203,6 +206,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
+        /// <summary>删除目录。</summary>
         private static void DeleteDirectory(string path)
         {
             // Git packs can be read-only on Windows. These are tool-owned staging/cache paths.
@@ -218,6 +222,7 @@ namespace Game.Framework.Data.Editor
             Directory.Delete(path, true);
         }
 
+        /// <summary>调用 Directory.Exists 完成Preserve 元数据。</summary>
         private static void PreserveMetadata(string oldDirectory, string newDirectory)
         {
             if (!Directory.Exists(oldDirectory))
@@ -236,6 +241,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
+        /// <summary>检查所有权。</summary>
         private static void CheckOwnership(string directory)
         {
             if (Directory.Exists(directory) && Directory.EnumerateFileSystemEntries(directory).Any() && !File.Exists(Path.Combine(directory, Marker)))
@@ -244,6 +250,7 @@ namespace Game.Framework.Data.Editor
             }
         }
 
+        /// <summary>根据传入参数取得输出路径。</summary>
         private static string OutputPath(string root, string relative)
         {
             if (string.IsNullOrWhiteSpace(relative))
@@ -261,8 +268,11 @@ namespace Game.Framework.Data.Editor
             return result;
         }
 
+        /// <summary>判断是否为 Inside。</summary>
         private static bool IsInside(string child, string parent) => string.Equals(child, parent, StringComparison.OrdinalIgnoreCase) || child.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+        /// <summary>根据传入参数取得JSON。</summary>
         private static string Json(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t") + "\"";
+        /// <summary>异步运行当前操作。</summary>
         public static async Task<string> RunAsync(string executable, IEnumerable<string> args, string workingDirectory)
         {
             var info = new ProcessStartInfo(executable)
@@ -299,6 +309,7 @@ namespace Game.Framework.Data.Editor
         }
 
         // ProcessStartInfo.Arguments uses the Windows argv quoting rules on Unity's supported editor runtimes.
+        /// <summary>根据传入参数取得Quote。</summary>
         private static string Quote(string argument)
         {
             var result = new StringBuilder("\"");

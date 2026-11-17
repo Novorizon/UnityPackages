@@ -10,9 +10,11 @@ using UnityEngine.Jobs;
 
 namespace ECS
 {
+    /// <summary>提供CopyTo 变换系统的实现。</summary>
     public class CopyToTransformSystem : HybridSystem<Transform, LocalToWorld, CopyToTransformComponent>
     {
 #if ENABLE_JOBS
+        /// <summary>保存CopyTransforms所需的数据与配套操作。</summary>
         [BurstCompile]
         struct CopyTransforms : IJobParallelForTransform
         {
@@ -21,6 +23,7 @@ namespace ECS
             [DeallocateOnJobCompletion]
             [ReadOnly] public NativeArray<quaternion> rotations;
 
+            /// <summary>执行当前操作。</summary>
             public void Execute(int index, TransformAccess transform)
             {
                 transform.position = positions[index];
@@ -33,6 +36,7 @@ namespace ECS
 
         private TransformAccessArray transofrms;
 
+        /// <summary>处理Pre 更新。</summary>
         public override void PreUpdate()
         {
             if (Entities.Count > 0)
@@ -49,6 +53,7 @@ namespace ECS
 
         }
 
+        /// <summary>投递更新。</summary>
         public override void PostUpdate()
         {
             if (Entities.Count > 0)
@@ -61,6 +66,7 @@ namespace ECS
         }
 #endif
 
+        /// <summary>响应更新。</summary>
         protected override void OnUpdate(int index, Entity entity, Transform component1, LocalToWorld component2, CopyToTransformComponent component3)
         {
 #if ENABLE_JOBS

@@ -4,9 +4,11 @@ using UnityEngine;
 
 namespace Game.Framework.Localization.Unity
 {
+    /// <summary>提供本地化配置的实现。</summary>
     public static class LocalizationSetup
     {
         /// <summary>Explicit project-entry setup. Validate before touching the application singleton.</summary>
+        /// <remarks>初始化本地化配置。</remarks>
         public static LocalizationManager Initialize(LocalizationSettings settings, string preferredLanguage = null)
         {
             if (!UnityThread.IsMainThread)
@@ -41,6 +43,7 @@ namespace Game.Framework.Localization.Unity
             }
         }
 
+        /// <summary>取得Device 语言。</summary>
         private static string DeviceLanguage()
         {
             switch (Application.systemLanguage)

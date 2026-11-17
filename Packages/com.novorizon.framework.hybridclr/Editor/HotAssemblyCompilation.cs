@@ -8,10 +8,12 @@ using UnityEditor;
 namespace Game.Framework.HotUpdate.Editor
 {
     // A failed Unity compilation must never make a previous DLL look like a new patch.
+    /// <summary>提供Hot 程序集编译的实现。</summary>
     internal sealed class HotAssemblyCompilation : IDisposable
     {
         public string OutputPath { get; }
 
+        /// <summary>使用调用方提供的target、assemblies创建 HotAssemblyCompilation。</summary>
         public HotAssemblyCompilation(BuildTarget target, IReadOnlyList<string> assemblies)
         {
             OutputPath = Path.GetFullPath(Path.Combine("Library", "NovorizonHotUpdate", "Compile", Guid.NewGuid().ToString("N")));
@@ -24,6 +26,7 @@ namespace Game.Framework.HotUpdate.Editor
             catch { Dispose(); throw; }
         }
 
+        /// <summary>清空默认值输出。</summary>
         internal static void ClearDefaultOutput(string path)
         {
             string root = Path.GetFullPath("Library") + Path.DirectorySeparatorChar;
@@ -32,6 +35,7 @@ namespace Game.Framework.HotUpdate.Editor
             if (Directory.Exists(path)) Directory.Delete(path, true);
         }
 
+        /// <summary>验证输出。</summary>
         internal static void ValidateOutput(string path, IReadOnlyList<string> assemblies)
         {
             foreach (string name in assemblies)
@@ -44,6 +48,7 @@ namespace Game.Framework.HotUpdate.Editor
             }
         }
 
+        /// <summary>结束Hot 程序集编译对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (Directory.Exists(OutputPath)) Directory.Delete(OutputPath, true);

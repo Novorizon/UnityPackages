@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace UI
 {
+    /// <summary>面板对应的选项。定义可由调用方设置的选项。</summary>
     public sealed class PanelOptions
     {
         public bool AllowMultiple { get; set; } = false;
@@ -13,6 +14,7 @@ namespace UI
         public string? GroupId { get; set; }
     }
 
+    /// <summary>面板对应的管理器。管理对应模块的状态和操作入口。</summary>
     public sealed class PanelManager
     {
         readonly UIInstanceFactory factory;
@@ -21,6 +23,7 @@ namespace UI
         readonly List<PanelEntry> opened = new();
         readonly SemaphoreSlim navigation = new(1, 1);
         readonly CancellationTokenSource lifetime = new();
+        /// <summary>使用调用方提供的factory创建 PanelManager。</summary>
         public PanelManager(UIInstanceFactory factory)
         {
             this.factory = factory;
@@ -31,6 +34,7 @@ namespace UI
             }
         }
 
+        /// <summary>判断是否已显示。</summary>
         public bool IsShown(string prefabPath)
         {
             if (factory.IsDisposed)
@@ -50,12 +54,14 @@ namespace UI
             return false;
         }
 
+        /// <summary>异步显示面板管理器。</summary>
         public Task<UIHandle> ShowAsync(string prefabPath, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default)
         {
             PanelOptions opt = options ?? new PanelOptions();
             return ShowCoreAsync(prefabPath, args, opt.AllowMultiple, opt.CacheOnClose, opt.GroupId, false, cancellationToken, opt.DuplicatePolicy);
         }
 
+        /// <summary>隐藏面板管理器。</summary>
         public bool Hide(string prefabPath, UICloseReason reason = UICloseReason.Programmatic)
         {
             for (int i = opened.Count - 1; i >= 0; i--)
@@ -69,6 +75,7 @@ namespace UI
             return false;
         }
 
+        /// <summary>隐藏面板管理器。</summary>
         public bool Hide(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic)
         {
             if (factory.IsDisposed || !handle.IsValid)
@@ -97,6 +104,7 @@ namespace UI
             return true;
         }
 
+        /// <summary>异步隐藏面板管理器。</summary>
         public Task<bool> HideAsync(string prefabPath, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -111,7 +119,9 @@ namespace UI
             return Task.FromResult(false);
         }
 
+        /// <summary>异步隐藏面板管理器。</summary>
         public Task<bool> HideAsync(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default) => HideCoreAsync(handle, reason, null, false, cancellationToken);
+        /// <summary>异步隐藏面板管理器。</summary>
         async Task<bool> HideCoreAsync(UIHandle handle, UICloseReason reason, string? requiredGroup, bool requireBackTop, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -155,7 +165,9 @@ namespace UI
             return true;
         }
 
+        /// <summary>比较是否相同面板管理器。</summary>
         static bool Same(UIHandle first, UIHandle second) => first.Id == second.Id && ReferenceEquals(first.View, second.View);
+        /// <summary>移除面板。</summary>
         void RemovePanel(int index, bool close, UICloseReason reason = UICloseReason.Destroyed)
         {
             PanelEntry entry = opened[index];
@@ -198,11 +210,13 @@ namespace UI
             }
         }
 
+        /// <summary>异步切换面板管理器。</summary>
         public Task<UIHandle> ToggleAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default)
         {
             return ShowCoreAsync(prefabPath, args, false, true, null, true, cancellationToken);
         }
 
+        /// <summary>异步压入 In 分组。</summary>
         public Task<UIHandle> PushInGroupAsync(string groupId, string prefabPath, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default)
         {
             if (groupId == null)
@@ -214,6 +228,7 @@ namespace UI
             return ShowCoreAsync(prefabPath, args, true, opt.CacheOnClose, groupId, false, cancellationToken);
         }
 
+        /// <summary>弹出分组。</summary>
         public bool PopGroup(string groupId, UICloseReason reason = UICloseReason.Back)
         {
             if (factory.IsDisposed || !groupStacks.TryGetValue(groupId, out List<UIHandle>? stack))
@@ -225,6 +240,7 @@ namespace UI
             return stack.Count > 0 && Hide(stack[stack.Count - 1], reason);
         }
 
+        /// <summary>异步弹出分组。</summary>
         public Task<bool> PopGroupAsync(string groupId, UICloseReason reason = UICloseReason.Back, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -237,6 +253,7 @@ namespace UI
             return stack.Count == 0 ? Task.FromResult(false) : HideCoreAsync(stack[stack.Count - 1], reason, groupId, false, cancellationToken);
         }
 
+        /// <summary>查看返回可关闭面板。</summary>
         public UIHandle? PeekBackClosablePanel()
         {
             if (factory.IsDisposed)
@@ -256,12 +273,14 @@ namespace UI
             return null;
         }
 
+        /// <summary>隐藏任意返回可关闭面板。</summary>
         public bool HideAnyBackClosablePanel()
         {
             UIHandle? top = PeekBackClosablePanel();
             return top.HasValue && Hide(top.Value, UICloseReason.Back);
         }
 
+        /// <summary>异步隐藏任意返回可关闭面板。</summary>
         public Task<bool> HideAnyBackClosablePanelAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -269,6 +288,7 @@ namespace UI
             return top.HasValue ? HideCoreAsync(top.Value, UICloseReason.Back, null, true, cancellationToken) : Task.FromResult(false);
         }
 
+        /// <summary>异步显示面板管理器。</summary>
         async Task<UIHandle> ShowCoreAsync(string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, string? groupId, bool toggle, CancellationToken cancellationToken, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -385,6 +405,7 @@ namespace UI
             }
         }
 
+        /// <summary>查找索引。</summary>
         int FindIndex(UIHandle handle)
         {
             for (int i = opened.Count - 1; i >= 0; i--)
@@ -398,6 +419,7 @@ namespace UI
             return -1;
         }
 
+        /// <summary>显示分组顶部。</summary>
         void ShowGroupTop(string groupId)
         {
             if (factory.IsDisposed || !groupStacks.TryGetValue(groupId, out List<UIHandle>? stack))
@@ -416,6 +438,7 @@ namespace UI
             }
         }
 
+        /// <summary>剪枝分组。</summary>
         static void PruneGroup(List<UIHandle> stack)
         {
             for (int i = stack.Count - 1; i >= 0; i--)
@@ -427,6 +450,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应工厂已释放。</summary>
         void OnFactoryDisposed()
         {
             factory.Disposed -= OnFactoryDisposed;
@@ -441,6 +465,7 @@ namespace UI
             lifetime.Cancel();
         }
 
+        /// <summary>取消订阅面板管理器。</summary>
         void Unsubscribe(UIHandle handle)
         {
             if (!ReferenceEquals(handle.View, null))
@@ -449,6 +474,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应面板已销毁。</summary>
         void OnPanelDestroyed(UIView view)
         {
             view.Destroyed -= OnPanelDestroyed;
@@ -467,10 +493,12 @@ namespace UI
             }
         }
 
+        /// <summary>保存面板条目所需的数据与配套操作。</summary>
         readonly struct PanelEntry
         {
             public readonly UIHandle Handle;
             public readonly string? GroupId;
+            /// <summary>使用调用方提供的handle、groupId创建 PanelEntry。</summary>
             public PanelEntry(UIHandle handle, string? groupId)
             {
                 Handle = handle;

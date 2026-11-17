@@ -13,6 +13,7 @@ public class AnimationClipData
     public bool loop;
     public float frameRate;
 
+    /// <summary>使用调用方提供的name、startFrame、endFrame创建 AnimationClipData。</summary>
     public AnimationClipData(string name, int startFrame, int endFrame, bool loop, float frameRate)
     {
         this.name = name;
@@ -22,12 +23,14 @@ public class AnimationClipData
         this.frameRate = frameRate;
     }
 
+    /// <summary>取得长度。</summary>
     public int Length()
     {
         return endFrame - startFrame + 1;
     }
 }
 
+/// <summary>提供动画数据的实现。</summary>
 [Serializable]
 public class AnimationData
 {
@@ -44,6 +47,7 @@ public class AnimationData
     /// Decodes bytes produced by the baking tool. Loading and caching the source
     /// asset remain the caller's responsibility; share the decoded data across instances.
     /// </summary>
+    /// <remarks>按提供的字节数据构建返回值。</remarks>
     public static AnimationData FromBytes(byte[] bytes)
     {
         if (bytes == null)
@@ -67,8 +71,10 @@ public class AnimationData
         }
     }
 
+    /// <summary>表示动画数据中的动画数据 Binder。</summary>
     private sealed class AnimationDataBinder : SerializationBinder
     {
+        /// <summary>绑定 To 类型。</summary>
         public override Type BindToType(string assemblyName, string typeName)
         {
             // Older baked assets use the original public type names in the same binary layout.

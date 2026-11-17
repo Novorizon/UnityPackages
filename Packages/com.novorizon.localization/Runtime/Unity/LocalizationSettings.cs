@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Framework.Localization.Unity
 {
+    /// <summary>本地化对应的设置。保存本模块使用的配置。</summary>
     [CreateAssetMenu(menuName = "Novorizon/Localization/Settings", fileName = "LocalizationSettings")]
     public sealed class LocalizationSettings : ScriptableObject
     {
@@ -12,6 +13,7 @@ namespace Game.Framework.Localization.Unity
         public string fallbackLanguage = "en";
         public bool useSystemLanguage = true;
 
+        /// <summary>创建目录。</summary>
         public LocalizationCatalog CreateCatalog()
         {
             if (table == null)
@@ -26,11 +28,13 @@ namespace Game.Framework.Localization.Unity
             return catalog;
         }
 
+        /// <summary>解析语言。</summary>
         public string ResolveLanguage(string requestedLanguage)
         {
             return ResolveLanguage(CreateCatalog(), requestedLanguage);
         }
 
+        /// <summary>解析语言。</summary>
         internal string ResolveLanguage(LocalizationCatalog catalog, string requestedLanguage)
         {
             if (!string.IsNullOrWhiteSpace(requestedLanguage))

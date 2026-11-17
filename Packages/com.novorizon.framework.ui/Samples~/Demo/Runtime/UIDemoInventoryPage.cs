@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 namespace UI.Demo
 {
+    /// <summary>提供界面示例物品清单页面的实现。</summary>
     public sealed class UIDemoInventoryPage : UIPage
     {
         UIDemoLauncher? owner;
@@ -15,6 +16,7 @@ namespace UI.Demo
         TMP_Text? details;
         bool dirty;
         int lastWindow = -1;
+        /// <summary>响应 Create。</summary>
         protected override void OnCreate()
         {
             CloseGuard = ConfirmCloseAsync;
@@ -57,6 +59,7 @@ namespace UI.Demo
             list.Configure(scroll, rowPrefab, 48, overscan: 1);
         }
 
+        /// <summary>响应打开。</summary>
         protected override void OnOpen(object? args)
         {
             owner = args as UIDemoLauncher ?? throw new ArgumentException("Demo controller is required.", nameof(args));
@@ -67,6 +70,7 @@ namespace UI.Demo
             Update();
         }
 
+        /// <summary>绑定界面示例物品清单页面。</summary>
         static void Bind(GameObject row, int index)
         {
             TMP_Text text = row.GetComponent<TMP_Text>();
@@ -74,6 +78,7 @@ namespace UI.Demo
             text.color = index % 2 == 0 ? Color.white : new Color(.55f, .8f, 1, 1);
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         void Update()
         {
             if (list == null || details == null || lastWindow == list.FirstVisibleIndex)
@@ -85,6 +90,7 @@ namespace UI.Demo
             details.text = "Rows instantiated: " + list.InstantiatedItemCount + " / 10000; visible: " + list.FirstVisibleIndex + ".." + list.LastVisibleIndex + "\nUnsaved changes: " + dirty;
         }
 
+        /// <summary>标记已修改。</summary>
         void MarkDirty()
         {
             dirty = true;
@@ -93,11 +99,13 @@ namespace UI.Demo
             owner?.Note("Back now asks for confirmation. Cancel keeps this page open.");
         }
 
+        /// <summary>调用 .ScrollTo 完成滚动 End。</summary>
         void ScrollEnd()
         {
             list?.ScrollTo(9999);
         }
 
+        /// <summary>调用 owner.Run 完成返回。</summary>
         void Back()
         {
             if (owner != null)
@@ -106,6 +114,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>异步确认 Close。</summary>
         async Task<bool> ConfirmCloseAsync(UICloseReason reason, CancellationToken token)
         {
             if (!dirty)
@@ -122,16 +131,19 @@ namespace UI.Demo
             return result.HasValue && result.Value;
         }
 
+        /// <summary>响应 Show。</summary>
         protected override void OnShow()
         {
             owner?.Note("Inventory shown; scroll recycles a bounded visible window.");
         }
 
+        /// <summary>响应 Hide。</summary>
         protected override void OnHide()
         {
             owner?.Note("Inventory hidden without closing its open scope.");
         }
 
+        /// <summary>响应 Close。</summary>
         protected override void OnClose()
         {
             list?.Clear();

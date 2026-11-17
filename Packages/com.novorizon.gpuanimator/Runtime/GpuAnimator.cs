@@ -7,8 +7,10 @@ using Random = UnityEngine.Random;
 /// Plays baked GPU animations on a renderer configured by the caller.
 /// Resource loading, materials, and animation selection remain the caller's responsibility.
 /// </summary>
+/// <remarks>提供GPU 动画播放器的实现。</remarks>
 public sealed class GpuAnimator : MonoBehaviour
 {
+    /// <summary>定义通知种类可选的枚举值。</summary>
     private enum NotificationKind
     {
         Changed,
@@ -17,6 +19,7 @@ public sealed class GpuAnimator : MonoBehaviour
         Stopped
     }
 
+    /// <summary>保存播放通知所需的数据与配套操作。</summary>
     private struct PlaybackNotification
     {
         internal NotificationKind Kind;
@@ -66,6 +69,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// Attaches caller-owned playback data and a renderer whose mesh, materials, and
     /// animation texture are already configured. No animation starts automatically.
     /// </summary>
+    /// <remarks>初始化 GPU 动画播放器。</remarks>
     public bool Initialize(Renderer targetRenderer, AnimationData animationData)
     {
         if (clearing || destroying)
@@ -89,6 +93,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// <summary>
     /// Uses the renderer on this GameObject with caller-owned animation data.
     /// </summary>
+    /// <remarks>初始化 GPU 动画播放器。</remarks>
     public bool Initialize(AnimationData animationData)
     {
         return Initialize(GetComponent<Renderer>(), animationData);
@@ -98,6 +103,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// Refreshes the cached property block after the caller changes renderer properties.
     /// Playback updates reuse this block and only set animation frame properties.
     /// </summary>
+    /// <remarks>设置属性屏蔽。</remarks>
     public void SetPropertyBlock()
     {
         if (targetRenderer != null && propertyBlock != null)
@@ -109,6 +115,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// <summary>
     /// Plays the caller-selected clip with the previous randomized starting phase.
     /// </summary>
+    /// <remarks>播放 GPU 动画播放器。</remarks>
     public void Play(string clipName, Action<GpuAnimator, object> callback = null, object userdata = null)
     {
         TryPlay(clipName, callback, userdata, randomizeStart: true);
@@ -119,6 +126,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// invalid. A null loop override uses the baked setting without changing shared data.
     /// Set randomizeStart to stagger the starting phase of crowd animations.
     /// </summary>
+    /// <remarks>尝试处理 Play，返回是否成功。</remarks>
     public bool TryPlay(string clipName, Action<GpuAnimator, object> callback = null, object userdata = null, bool randomizeStart = false, bool? loop = null)
     {
         if (clearing || destroying || !IsInitialized || string.IsNullOrEmpty(clipName) || animationData.clips == null)
@@ -169,6 +177,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// Advances playback explicitly, independent of AutomaticUpdate. Invalid or
     /// nonpositive deltas are ignored. Disable AutomaticUpdate when driving ticks externally.
     /// </summary>
+    /// <remarks>推进 GPU 动画播放器。</remarks>
     public void Tick(float deltaTime)
     {
         if (!IsPlaying || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
@@ -220,6 +229,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// <summary>
     /// Stops playback without a completion callback and keeps the displayed pose.
     /// </summary>
+    /// <remarks>停止 GPU 动画播放器。</remarks>
     public void Stop()
     {
         bool wasPlaying = isPlaying;
@@ -239,6 +249,7 @@ public sealed class GpuAnimator : MonoBehaviour
     /// Stops playback and releases the injected references for reuse.
     /// The renderer's materials and displayed pose are left as configured by the caller.
     /// </summary>
+    /// <remarks>清空 GPU 动画播放器。</remarks>
     public void Clear()
     {
         if (clearing)
@@ -265,22 +276,26 @@ public sealed class GpuAnimator : MonoBehaviour
         }
     }
 
+    /// <summary>响应 Unity 组件启用。</summary>
     private void OnEnable()
     {
         RefreshRegistration();
     }
 
+    /// <summary>响应 Unity 组件停用。</summary>
     private void OnDisable()
     {
         Unregister();
     }
 
+    /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
     private void OnDestroy()
     {
         destroying = true;
         Clear();
     }
 
+    /// <summary>刷新登记。</summary>
     private void RefreshRegistration()
     {
         if (Application.isPlaying && automaticUpdate && IsPlaying && isActiveAndEnabled)
@@ -293,6 +308,7 @@ public sealed class GpuAnimator : MonoBehaviour
         }
     }
 
+    /// <summary>撤销登记 GPU 动画播放器。</summary>
     private void Unregister()
     {
         if (GpuAnimatorManager.TryGetInstance(out var manager))
@@ -301,6 +317,7 @@ public sealed class GpuAnimator : MonoBehaviour
         }
     }
 
+    /// <summary>调用 notifications.Enqueue 完成队列通知。</summary>
     private void QueueNotification(NotificationKind kind, string clip)
     {
         notifications.Enqueue(new PlaybackNotification { Kind = kind, Clip = clip });
@@ -345,6 +362,7 @@ public sealed class GpuAnimator : MonoBehaviour
         }
     }
 
+    /// <summary>通知 GPU 动画播放器。</summary>
     private void Notify(Action<GpuAnimator, string> listeners, string clip, NotificationKind kind)
     {
         try
@@ -373,6 +391,7 @@ public sealed class GpuAnimator : MonoBehaviour
         }
     }
 
+    /// <summary>应用帧。</summary>
     private void ApplyFrame()
     {
         propertyBlock.SetInt(BlendFrameIndexId, lastFrame);

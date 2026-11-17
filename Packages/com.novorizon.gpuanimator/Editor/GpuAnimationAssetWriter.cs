@@ -12,22 +12,26 @@ using Object = UnityEngine.Object;
 /// Publishes a completely prepared bake while preserving the identities of existing assets.
 /// The caller retains ownership of the request and the transient bake result.
 /// </summary>
+/// <remarks>提供GPU 动画资源写入器的实现。</remarks>
 internal static class GpuAnimationAssetWriter
 {
     private const ImportAssetOptions SynchronousImport =
         ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport;
 
+    /// <summary>保存 GPU 动画资源写入器。</summary>
     internal static string Save(GpuAnimationBakeRequest request, GpuAnimationBakeResult result)
     {
         return Save(request, result, null);
     }
 
+    /// <summary>验证传入的 request、result。</summary>
     internal static void Validate(GpuAnimationBakeRequest request, GpuAnimationBakeResult result)
     {
         using (Prepare(request, result)) { }
     }
 
     // A per-call observer permits cancellation and deterministic rollback tests without global state.
+    /// <summary>保存 GPU 动画资源写入器。</summary>
     internal static string Save(GpuAnimationBakeRequest request, GpuAnimationBakeResult result,
         Action<string> beforeWriteAsset)
     {
@@ -104,12 +108,14 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>观察 GPU 动画资源写入器。</summary>
     private static void Observe(Action<string> observer, string assetPath)
     {
         if (observer != null)
             observer(assetPath);
     }
 
+    /// <summary>准备 GPU 动画资源写入器。</summary>
     private static SavePlan Prepare(GpuAnimationBakeRequest request, GpuAnimationBakeResult result)
     {
         if (request == null)
@@ -227,6 +233,7 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>验证 Bake 数据。</summary>
     private static void ValidateBakeData(AnimationData data, int maximumTextureSize)
     {
         if (data == null || data.texWidth <= 0 || data.texHeight <= 0 || data.totalBoneNum <= 0 ||
@@ -247,6 +254,7 @@ internal static class GpuAnimationAssetWriter
                 throw new ArgumentException("烘焙元数据包含无效动画片段。");
     }
 
+    /// <summary>验证纹理大小上限。</summary>
     private static void ValidateTextureSizeLimit(int maximumTextureSize)
     {
         if (maximumTextureSize < 32 || maximumTextureSize > 16384 ||
@@ -254,6 +262,7 @@ internal static class GpuAnimationAssetWriter
             throw new ArgumentException("最大纹理尺寸必须为 32..16384 内的二次幂。");
     }
 
+    /// <summary>验证文件名称。</summary>
     private static void ValidateFileName(string name)
     {
         if (string.IsNullOrWhiteSpace(name) || name != name.Trim() || name == "." || name == ".." ||
@@ -271,6 +280,7 @@ internal static class GpuAnimationAssetWriter
             throw new ArgumentException("角色名称不能使用操作系统保留的文件名。");
     }
 
+    /// <summary>归一化输出目录。</summary>
     private static string NormalizeOutputDirectory(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -294,6 +304,7 @@ internal static class GpuAnimationAssetWriter
         return path;
     }
 
+    /// <summary>拒绝输入重叠。</summary>
     private static void RejectInputOverlap(Object input, string outputDirectory)
     {
         if (input == null)
@@ -307,12 +318,14 @@ internal static class GpuAnimationAssetWriter
                     throw new ArgumentException("输出目录不能覆盖输入资源的依赖：" + dependency);
     }
 
+    /// <summary>判断是否为 Within。</summary>
     private static bool IsWithin(string assetPath, string directory)
     {
         return string.Equals(assetPath, directory, StringComparison.OrdinalIgnoreCase) ||
             assetPath.StartsWith(directory + "/", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>根据传入参数取得现有网格路径。</summary>
     private static string ExistingMeshPath(GameObject prefab, string outputDirectory)
     {
         if (prefab == null)
@@ -325,6 +338,7 @@ internal static class GpuAnimationAssetWriter
             AssetDatabase.LoadMainAssetAtPath(path) is Mesh ? path : null;
     }
 
+    /// <summary>验证现有资源。</summary>
     private static void ValidateExistingAsset<T>(string assetPath) where T : Object
     {
         ValidateWritableFile(AbsolutePath(assetPath));
@@ -345,12 +359,14 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>验证 Writable 文件。</summary>
     private static void ValidateWritableFile(string path)
     {
         if (File.Exists(path) && (File.GetAttributes(path) & FileAttributes.ReadOnly) != 0)
             throw new ArgumentException("输出文件为只读，请先使其可写：" + path);
     }
 
+    /// <summary>读取 PNG 资源。</summary>
     private static byte[] ReadPngAsset(Texture2D texture, string label)
     {
         if (texture == null)
@@ -372,6 +388,7 @@ internal static class GpuAnimationAssetWriter
         return File.ReadAllBytes(absolutePath);
     }
 
+    /// <summary>验证动画 PNG。</summary>
     private static void ValidateAnimationPng(byte[] bytes, int width, int height)
     {
         byte[] signature = { 137, 80, 78, 71, 13, 10, 26, 10 };
@@ -397,12 +414,14 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>读取 BigEndian 整数。</summary>
     private static int ReadBigEndianInt(byte[] bytes, int offset)
     {
         return (bytes[offset] << 24) | (bytes[offset + 1] << 16) |
             (bytes[offset + 2] << 8) | bytes[offset + 3];
     }
 
+    /// <summary>配置动画纹理。</summary>
     private static void ConfigureAnimationTexture(SavePlan plan)
     {
         TextureImporter importer = AssetImporter.GetAtPath(plan.AnimationTexturePath) as TextureImporter;
@@ -442,6 +461,7 @@ internal static class GpuAnimationAssetWriter
             throw new IOException("动画纹理导入时发生尺寸或格式变化；已拒绝使用缩小或压缩的数值纹理。");
     }
 
+    /// <summary>设置 Numeric 纹理设置。</summary>
     private static void SetNumericTextureSettings(TextureImporterPlatformSettings settings, int maximumTextureSize)
     {
         settings.maxTextureSize = maximumTextureSize;
@@ -450,12 +470,14 @@ internal static class GpuAnimationAssetWriter
         settings.crunchedCompression = false;
     }
 
+    /// <summary>写入字节数据。</summary>
     private static void WriteBytes(string assetPath, byte[] bytes)
     {
         File.WriteAllBytes(AbsolutePath(assetPath), bytes);
         AssetDatabase.ImportAsset(assetPath, SynchronousImport);
     }
 
+    /// <summary>保存原生资源。</summary>
     private static T SaveNativeAsset<T>(T staged, string assetPath) where T : Object
     {
         T existing = AssetDatabase.LoadAssetAtPath<T>(assetPath);
@@ -469,6 +491,7 @@ internal static class GpuAnimationAssetWriter
         return RequireAsset<T>(assetPath);
     }
 
+    /// <summary>检查资源是否满足前置条件。</summary>
     private static T RequireAsset<T>(string assetPath) where T : Object
     {
         T asset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
@@ -477,6 +500,7 @@ internal static class GpuAnimationAssetWriter
         return asset;
     }
 
+    /// <summary>添加目录。</summary>
     private static void AddFolders(List<string> folders, string directory)
     {
         string[] segments = directory.Split('/');
@@ -489,6 +513,7 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>检查并确保目录可用。</summary>
     private static void EnsureFolders(List<string> folders)
     {
         foreach (string folder in folders)
@@ -509,12 +534,14 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>取得规范化的绝对路径。</summary>
     private static string AbsolutePath(string assetPath)
     {
         string projectRoot = Directory.GetParent(Application.dataPath).FullName;
         return Path.GetFullPath(Path.Combine(projectRoot, assetPath));
     }
 
+    /// <summary>表示GPU 动画资源写入器中的Save 计划。</summary>
     private sealed class SavePlan : IDisposable
     {
         public string PrefabPath;
@@ -538,6 +565,7 @@ internal static class GpuAnimationAssetWriter
         public readonly List<string> AssetPaths = new List<string>();
         public readonly List<string> Folders = new List<string>();
 
+        /// <summary>结束Save 计划对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             try
@@ -554,6 +582,7 @@ internal static class GpuAnimationAssetWriter
             }
         }
 
+        /// <summary>销毁 Transient。</summary>
         private static void DestroyTransient(Object asset)
         {
             if (asset != null && !EditorUtility.IsPersistent(asset))
@@ -561,6 +590,7 @@ internal static class GpuAnimationAssetWriter
         }
     }
 
+    /// <summary>表示GPU 动画资源写入器中的资源交易。</summary>
     private sealed class AssetTransaction : IDisposable
     {
         private readonly List<FileSnapshot> files = new List<FileSnapshot>();
@@ -570,6 +600,7 @@ internal static class GpuAnimationAssetWriter
         private bool retainBackup;
         public string BackupDirectory { get; private set; }
 
+        /// <summary>使用调用方提供的assetPaths、folders创建 AssetTransaction。</summary>
         public AssetTransaction(List<string> assetPaths, List<string> folders)
         {
             this.assetPaths = new List<string>(assetPaths);
@@ -609,6 +640,7 @@ internal static class GpuAnimationAssetWriter
             }
         }
 
+        /// <summary>采集资源交易。</summary>
         private void Capture(string path)
         {
             FileSnapshot snapshot = new FileSnapshot { Path = path, Existed = File.Exists(path) };
@@ -622,6 +654,7 @@ internal static class GpuAnimationAssetWriter
             files.Add(snapshot);
         }
 
+        /// <summary>写入清单。</summary>
         private void WriteManifest(string projectRoot)
         {
             BackupManifest manifest = new BackupManifest
@@ -643,6 +676,7 @@ internal static class GpuAnimationAssetWriter
                 JsonUtility.ToJson(manifest, true));
         }
 
+        /// <summary>恢复资源交易。</summary>
         public void Restore()
         {
             retainBackup = true;
@@ -701,6 +735,7 @@ internal static class GpuAnimationAssetWriter
             retainBackup = false;
         }
 
+        /// <summary>结束资源交易对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             DisposeNativeSnapshots();
@@ -718,6 +753,7 @@ internal static class GpuAnimationAssetWriter
             }
         }
 
+        /// <summary>释放原生快照。</summary>
         private void DisposeNativeSnapshots()
         {
             foreach (NativeSnapshot snapshot in nativeAssets)
@@ -726,6 +762,7 @@ internal static class GpuAnimationAssetWriter
             nativeAssets.Clear();
         }
 
+        /// <summary>原生对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
         private sealed class NativeSnapshot
         {
             public string AssetPath;
@@ -734,6 +771,7 @@ internal static class GpuAnimationAssetWriter
             public bool WasDirty;
         }
 
+        /// <summary>文件对应的快照。保存采样时刻的数据，供其他流程读取。</summary>
         private sealed class FileSnapshot
         {
             public string Path;
@@ -742,6 +780,7 @@ internal static class GpuAnimationAssetWriter
             public FileAttributes Attributes;
         }
 
+        /// <summary>表示资源交易中的备份清单。</summary>
         [Serializable]
         private sealed class BackupManifest
         {
@@ -751,6 +790,7 @@ internal static class GpuAnimationAssetWriter
             public string[] createdFolders;
         }
 
+        /// <summary>表示资源交易中的备份清单文件。</summary>
         [Serializable]
         private sealed class BackupManifestFile
         {

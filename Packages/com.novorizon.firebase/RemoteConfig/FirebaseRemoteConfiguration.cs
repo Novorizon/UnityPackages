@@ -6,17 +6,20 @@ using RemoteSdk = global::Firebase.RemoteConfig.FirebaseRemoteConfig;
 
 namespace Game.Framework.Firebase.Unity
 {
+    /// <summary>提供Firebase 远程配置的实现。</summary>
     public sealed class FirebaseRemoteConfiguration : IRemoteConfiguration
     {
         private readonly RemoteSdk sdk;
         private bool busy;
 
+        /// <summary>使用调用方提供的runtime创建 FirebaseRemoteConfiguration。</summary>
         public FirebaseRemoteConfiguration(FirebaseManager runtime)
         {
             FirebaseManager.MainThread();
             sdk = RemoteSdk.GetInstance((runtime ?? throw new ArgumentNullException(nameof(runtime))).App);
         }
 
+        /// <summary>异步设置 Defaults。</summary>
         public async Task SetDefaultsAsync(IReadOnlyDictionary<string, object> defaults)
         {
             FirebaseManager.MainThread();
@@ -40,6 +43,7 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>异步拉取 AndActivate。</summary>
         public async Task<bool> FetchAndActivateAsync(TimeSpan minimumCacheAge, CancellationToken token)
         {
             FirebaseManager.MainThread();
@@ -62,11 +66,16 @@ namespace Game.Framework.Firebase.Unity
             }
         }
 
+        /// <summary>获取字符串。</summary>
         public string GetString(string key) => Value(key).StringValue;
+        /// <summary>获取整数64。</summary>
         public long GetInt64(string key) => Value(key).LongValue;
+        /// <summary>获取双精度浮点数。</summary>
         public double GetDouble(string key) => Value(key).DoubleValue;
+        /// <summary>获取布尔值。</summary>
         public bool GetBoolean(string key) => Value(key).BooleanValue;
 
+        /// <summary>根据传入参数取得值。</summary>
         private global::Firebase.RemoteConfig.ConfigValue Value(string key)
         {
             FirebaseManager.MainThread();

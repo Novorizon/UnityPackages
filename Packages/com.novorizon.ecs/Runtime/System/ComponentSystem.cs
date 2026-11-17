@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 
 namespace ECS
 {
+    /// <summary>提供组件系统的实现。</summary>
     [System.Serializable]
     public abstract class ComponentSystem<T1> : SystemBase, ISystemFilter
         where T1 : class, IComponent
@@ -21,6 +22,7 @@ namespace ECS
         public IReadOnlyList<int> ComponentTypeIds { get { return ReadOnlyRequiredTypes; } }
         public bool RequiresGameObject { get { return false; } }
 
+        /// <summary>注入实体。</summary>
         public sealed override void InjectEntity(Entity entity)
         {
             if (entity == null)
@@ -54,11 +56,13 @@ namespace ECS
             }
         }
 
+        /// <summary>清空组件。</summary>
         protected sealed override void ClearComponents()
         {
             Components.Clear();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public sealed override void Update()
         {
             for (int i = 0; i < Entities.Count; ++i)
@@ -67,9 +71,11 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected abstract void OnUpdate(int index, Entity entity, T1 component1);
     }
 
+    /// <summary>提供组件系统的实现。</summary>
     public abstract class ComponentSystem<T1, T2> : SystemBase, ISystemFilter
         where T1 : class, IComponent where T2 : class, IComponent
     {
@@ -88,6 +94,7 @@ namespace ECS
         public IReadOnlyList<int> ComponentTypeIds { get { return ReadOnlyRequiredTypes; } }
         public bool RequiresGameObject { get { return false; } }
 
+        /// <summary>注入实体。</summary>
         public sealed override void InjectEntity(Entity entity)
         {
             if (entity == null)
@@ -127,12 +134,14 @@ namespace ECS
             }
         }
 
+        /// <summary>清空组件。</summary>
         protected sealed override void ClearComponents()
         {
             Components1.Clear();
             Components2.Clear();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public sealed override void Update()
         {
             for (int i = 0; i < Entities.Count; ++i)
@@ -141,9 +150,11 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected abstract void OnUpdate(int index, Entity entity, T1 component1, T2 component2);
     }
 
+    /// <summary>提供组件系统的实现。</summary>
     public abstract class ComponentSystem<T1, T2, T3> : SystemBase, ISystemFilter
         where T1 : class, IComponent where T2 : class, IComponent where T3 : class, IComponent
     {
@@ -166,6 +177,7 @@ namespace ECS
         public IReadOnlyList<int> ComponentTypeIds { get { return ReadOnlyRequiredTypes; } }
         public bool RequiresGameObject { get { return false; } }
 
+        /// <summary>注入实体。</summary>
         public sealed override void InjectEntity(Entity entity)
         {
             if (entity == null)
@@ -211,6 +223,7 @@ namespace ECS
             }
         }
 
+        /// <summary>清空组件。</summary>
         protected sealed override void ClearComponents()
         {
             Components1.Clear();
@@ -218,6 +231,7 @@ namespace ECS
             Components3.Clear();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public sealed override void Update()
         {
             for (int i = 0; i < Entities.Count; ++i)
@@ -226,9 +240,11 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected abstract void OnUpdate(int index, Entity entity, T1 component1, T2 component2, T3 component3);
     }
 
+    /// <summary>提供组件系统的实现。</summary>
     public abstract class ComponentSystem<T1, T2, T3, T4> : SystemBase, ISystemFilter
         where T1 : class, IComponent where T2 : class, IComponent where T3 : class, IComponent where T4 : class, IComponent
     {
@@ -255,6 +271,7 @@ namespace ECS
         public IReadOnlyList<int> ComponentTypeIds { get { return ReadOnlyRequiredTypes; } }
         public bool RequiresGameObject { get { return false; } }
 
+        /// <summary>注入实体。</summary>
         public sealed override void InjectEntity(Entity entity)
         {
             if (entity == null)
@@ -306,6 +323,7 @@ namespace ECS
             }
         }
 
+        /// <summary>清空组件。</summary>
         protected sealed override void ClearComponents()
         {
             Components1.Clear();
@@ -314,6 +332,7 @@ namespace ECS
             Components4.Clear();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public sealed override void Update()
         {
             for (int i = 0; i < Entities.Count; ++i)
@@ -322,9 +341,11 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected abstract void OnUpdate(int index, Entity entity, T1 component1, T2 component2, T3 component3, T4 component4);
     }
 
+    /// <summary>提供组件系统的实现。</summary>
     public abstract class ComponentSystem<T1, T2, T3, T4, T5> : SystemBase, ISystemFilter
         where T1 : class, IComponent where T2 : class, IComponent where T3 : class, IComponent where T4 : class, IComponent where T5 : class, IComponent
     {
@@ -355,6 +376,7 @@ namespace ECS
         public IReadOnlyList<int> ComponentTypeIds { get { return ReadOnlyRequiredTypes; } }
         public bool RequiresGameObject { get { return false; } }
 
+        /// <summary>注入实体。</summary>
         public sealed override void InjectEntity(Entity entity)
         {
             if (entity == null)
@@ -412,6 +434,7 @@ namespace ECS
             }
         }
 
+        /// <summary>清空组件。</summary>
         protected sealed override void ClearComponents()
         {
             Components1.Clear();
@@ -421,6 +444,7 @@ namespace ECS
             Components5.Clear();
         }
 
+        /// <summary>推进该对象的一次更新。</summary>
         public sealed override void Update()
         {
             for (int i = 0; i < Entities.Count; ++i)
@@ -429,6 +453,7 @@ namespace ECS
             }
         }
 
+        /// <summary>响应更新。</summary>
         protected abstract void OnUpdate(int index, Entity entity, T1 component1, T2 component2, T3 component3, T4 component4, T5 component5);
     }
 

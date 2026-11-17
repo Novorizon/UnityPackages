@@ -6,6 +6,7 @@ namespace Game.Ability
     /// <summary>
     /// A single command from gameplay/UI/AI into the ability system.
     /// </summary>
+    /// <remarks>提供施法指令的实现。</remarks>
     public sealed class CastOrder
     {
         public IUnit Caster;
@@ -21,6 +22,7 @@ namespace Game.Ability
     /// <summary>
     /// Result returned to callers immediately after a cast request is validated or rejected.
     /// </summary>
+    /// <remarks>施法对应的结果。携带操作执行结果和相关数据。</remarks>
     public sealed class CastResult
     {
         public bool Success;
@@ -29,11 +31,13 @@ namespace Game.Ability
         public long CastId;
         public bool Queued;
 
+        /// <summary>取得Ok。</summary>
         public static CastResult Ok()
         {
             return new CastResult { Success = true };
         }
 
+        /// <summary>标记失败施法结果。</summary>
         public static CastResult Fail(CastFailureReason reason, string message = null)
         {
             return new CastResult { Success = false, FailureReason = reason, Message = message };
@@ -44,6 +48,7 @@ namespace Game.Ability
     /// Immutable-enough context assembled for one spell execution.
     /// It carries the primary target plus any area targets resolved at cast time.
     /// </summary>
+    /// <remarks>施法对应的上下文。携带一次操作所需的上下文。</remarks>
     public sealed class CastContext
     {
         private readonly List<IUnit> targets = new List<IUnit>();
@@ -63,6 +68,7 @@ namespace Game.Ability
         internal bool IsTerminated;
         public IReadOnlyList<IUnit> Targets => targets;
 
+        /// <summary>添加目标。</summary>
         internal void AddTarget(IUnit target)
         {
             if (target != null && !targets.Contains(target))
@@ -76,6 +82,7 @@ namespace Game.Ability
     /// Options used when applying or refreshing a modifier.
     /// Numbers and Objects are escape hatches for custom C# scripts.
     /// </summary>
+    /// <remarks>状态修饰器 Apply对应的选项。定义可由调用方设置的选项。</remarks>
     public sealed class ModifierApplyOptions
     {
         public float Duration = float.NaN;
@@ -91,6 +98,7 @@ namespace Game.Ability
     /// <summary>
     /// Input to the engine damage pipeline.
     /// </summary>
+    /// <remarks>提供伤害信息的实现。</remarks>
     public sealed class DamageInfo
     {
         public AbilitySystem Engine;
@@ -107,6 +115,7 @@ namespace Game.Ability
     /// <summary>
     /// Final damage result after immunity checks and modifier multipliers.
     /// </summary>
+    /// <remarks>伤害对应的结果。携带操作执行结果和相关数据。</remarks>
     public sealed class DamageResult
     {
         public IUnit Attacker;
@@ -127,6 +136,7 @@ namespace Game.Ability
     /// <summary>
     /// Input to the heal pipeline. The Game adapter applies the actual HP change.
     /// </summary>
+    /// <remarks>提供治疗信息的实现。</remarks>
     public sealed class HealInfo
     {
         public IUnit Source;
@@ -138,6 +148,7 @@ namespace Game.Ability
     /// <summary>
     /// Internal event delivered to modifiers so they can react to orders, casts, damage, and more.
     /// </summary>
+    /// <remarks>状态修饰器对应的事件。携带通知订阅者所需的事件数据。</remarks>
     public sealed class ModifierEvent
     {
         public ModifierEventType EventType;
@@ -160,6 +171,7 @@ namespace Game.Ability
     /// <summary>
     /// Context passed when querying additive modifier properties.
     /// </summary>
+    /// <remarks>状态修饰器属性对应的上下文。携带一次操作所需的上下文。</remarks>
     public sealed class ModifierPropertyContext
     {
         public AbilitySystem Engine;
@@ -172,6 +184,7 @@ namespace Game.Ability
     /// <summary>
     /// Factory request for projectile creation.
     /// </summary>
+    /// <remarks>提供投射物请求的实现。</remarks>
     public sealed class ProjectileRequest
     {
         public ProjectileDefinition Definition;
@@ -187,6 +200,7 @@ namespace Game.Ability
     /// <summary>
     /// Factory request for area thinkers, such as persistent ground effects.
     /// </summary>
+    /// <remarks>提供持续效果对象请求的实现。</remarks>
     public sealed class ThinkerRequest
     {
         public string Name;
@@ -202,6 +216,7 @@ namespace Game.Ability
     /// <summary>
     /// Public runtime notification stream for presentation, logging, and tests.
     /// </summary>
+    /// <remarks>运行时对应的事件。携带通知订阅者所需的事件数据。</remarks>
     public sealed class RuntimeEvent
     {
         public RuntimeEventType EventType;

@@ -9,8 +9,10 @@ using Object = UnityEngine.Object;
 namespace UI
 {
     /// <summary>Owns view instances and their prefab leases. Call from Unity's main thread.</summary>
+    /// <remarks>提供界面实例工厂的实现。</remarks>
     public sealed class UIInstanceFactory : IDisposable
     {
+        /// <summary>表示界面实例工厂中的条目。</summary>
         sealed class Entry
         {
             public readonly string Path;
@@ -26,6 +28,7 @@ namespace UI
             public bool CacheOnClose;
             public bool Destroying;
             public UIBlocker? Blocker;
+            /// <summary>使用调用方提供的path、prefab、view创建 Entry。</summary>
             public Entry(string path, GameObject prefab, UIView view)
             {
                 Path = path;
@@ -50,6 +53,7 @@ namespace UI
         int nextId;
         int cachedCount;
         GameObject? staging;
+        /// <summary>使用调用方提供的loader、layerRoots、startId创建 UIInstanceFactory。</summary>
         public UIInstanceFactory(IUIAssetLoader loader, Dictionary<UILayer, Transform> layerRoots, int startId, int maxCachedInstances = 32, int maxCachedPerPath = 2)
         {
             this.loader = loader ?? throw new ArgumentNullException(nameof(loader));
@@ -97,6 +101,7 @@ namespace UI
         public bool IsDisposed { get; private set; }
 
         public event Action? Disposed;
+        /// <summary>异步打开界面实例工厂。</summary>
         public async Task<UIHandle> OpenAsync(UIKind kind, UILayer layer, string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, Func<Transform, UIBlocker?>? blockerFactory, CancellationToken cancellationToken = default, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh)
         {
             if (IsDisposed || cancellationToken.IsCancellationRequested)
@@ -350,6 +355,7 @@ namespace UI
             }
         }
 
+        /// <summary>根据传入参数取得Reopen。</summary>
         UIHandle Reopen(Entry entry, object? args, UIDuplicatePolicy policy = UIDuplicatePolicy.Refresh)
         {
             if (policy == UIDuplicatePolicy.Reject)
@@ -387,11 +393,13 @@ namespace UI
             }
         }
 
+        /// <summary>刷新界面实例工厂。</summary>
         internal UIHandle Refresh(UIHandle handle, object? args)
         {
             return TryGetActive(handle, out var entry) ? Reopen(entry!, args) : default;
         }
 
+        /// <summary>检查活跃父节点是否满足前置条件。</summary>
         static void RequireActiveParent(Transform parent, UILayer layer)
         {
             if (parent == null || !parent.gameObject.activeInHierarchy)
@@ -400,6 +408,7 @@ namespace UI
             }
         }
 
+        /// <summary>取得Staging。</summary>
         Transform Staging()
         {
             if (staging == null)
@@ -412,8 +421,11 @@ namespace UI
             return staging.transform;
         }
 
+        /// <summary>返回持有 Opening的判断结果。</summary>
         bool OwnsOpening(Entry entry, int id) => !Unavailable(entry) && entry.Active && entry.View.InstanceId == id;
+        /// <summary>返回不可用的判断结果。</summary>
         bool Unavailable(Entry entry) => IsDisposed || entry.Destroying || entry.View == null || entry.View.IsDestroyed;
+        /// <summary>尝试取得单例，返回是否成功。</summary>
         bool TryGetSingleton(UIKind kind, UILayer layer, string path, out Entry? entry)
         {
             if (singletonActive.TryGetValue((kind, layer, path), out entry) && entry.Active && !entry.Destroying && entry.View != null && !entry.View.IsDestroyed)
@@ -426,6 +438,7 @@ namespace UI
             return false;
         }
 
+        /// <summary>取出已缓存。</summary>
         Entry? TakeCached(string path)
         {
             if (!cached.TryGetValue(path, out List<Entry>? list))
@@ -453,7 +466,9 @@ namespace UI
             return null;
         }
 
+        /// <summary>处理传入的 entry。</summary>
         static UIHandle Handle(Entry entry) => new UIHandle(entry.View.InstanceId, entry.Path, entry.Kind, entry.Layer, entry.View);
+        /// <summary>检查是否可以关闭。</summary>
         public bool CanClose(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic)
         {
             if (!TryGetActive(handle, out Entry? entry))
@@ -465,6 +480,7 @@ namespace UI
             return allowed && TryGetActive(handle, out _);
         }
 
+        /// <summary>检查是否可以关闭。</summary>
         public async Task<bool> CanCloseAsync(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -487,6 +503,7 @@ namespace UI
             return allowed && TryGetActive(handle, out _);
         }
 
+        /// <summary>尝试处理 Close，返回是否成功。</summary>
         public bool TryClose(UIHandle handle, bool destroy, bool cacheOnClose, UICloseReason reason = UICloseReason.Programmatic)
         {
             if (!CanClose(handle, reason))
@@ -498,6 +515,7 @@ namespace UI
             return true;
         }
 
+        /// <summary>异步关闭界面实例工厂。</summary>
         public async Task<bool> CloseAsync(UIHandle handle, bool destroy, bool cacheOnClose, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default)
         {
             if (!await CanCloseAsync(handle, reason, cancellationToken))
@@ -509,13 +527,16 @@ namespace UI
             return true;
         }
 
+        /// <summary>关闭界面实例工厂。</summary>
         public void Close(UIHandle handle, bool destroy, bool cacheOnClose) => TryClose(handle, destroy, cacheOnClose);
+        /// <summary>尝试取得活跃，返回是否成功。</summary>
         bool TryGetActive(UIHandle handle, out Entry? entry)
         {
             entry = null;
             return !IsDisposed && handle.IsValid && handle.View != null && instances.TryGetValue(handle.View, out entry) && entry.Active && !entry.Destroying;
         }
 
+        /// <summary>关闭已通过。</summary>
         internal void CloseApproved(UIHandle handle, bool destroy, bool cacheOnClose, UICloseReason reason)
         {
             if (!handle.IsValid || handle.View == null || !instances.TryGetValue(handle.View, out Entry? entry) || !entry.Active || entry.Destroying)
@@ -562,6 +583,7 @@ namespace UI
             DestroyEntry(entry);
         }
 
+        /// <summary>设置缓存 Limits。</summary>
         internal void SetCacheLimits(int total, int perPath)
         {
             if (total < maxCachedInstances || perPath < maxCachedPerPath)
@@ -573,6 +595,7 @@ namespace UI
             maxCachedPerPath = perPath;
         }
 
+        /// <summary>清理当前缓存项。</summary>
         public void ClearCache()
         {
             var snapshot = new List<Entry>();
@@ -589,6 +612,7 @@ namespace UI
             }
         }
 
+        /// <summary>结束界面实例工厂对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose() => Dispose(UICloseReason.Disposed);
         /// <summary>等待未完成获取和原生对象销毁，确保资源系统可以在 UI 之后安全关闭。</summary>
         public Task DisposeAsync()
@@ -598,6 +622,7 @@ namespace UI
             return releasedCompletion.Task;
         }
 
+        /// <summary>检查 Released。</summary>
         void CheckReleased()
         {
             if (IsDisposed && disposalFinished && pendingOpens == 0 && pendingLateLoads == 0 && pendingDestructions == 0 && instances.Count == 0)
@@ -609,6 +634,7 @@ namespace UI
             }
         }
 
+        /// <summary>结束界面实例工厂对相关资源的持有，并执行该类型的清理流程。</summary>
         internal void Dispose(UICloseReason reason)
         {
             if (IsDisposed)
@@ -661,6 +687,7 @@ namespace UI
             CheckReleased();
         }
 
+        /// <summary>移除单例。</summary>
         void RemoveSingleton(Entry entry)
         {
             var key = (entry.Kind, entry.Layer, entry.Path);
@@ -670,6 +697,7 @@ namespace UI
             }
         }
 
+        /// <summary>销毁 Unregistered。</summary>
         void DestroyUnregistered(GameObject instance, GameObject prefab)
         {
             pendingDestructions++;
@@ -698,6 +726,7 @@ namespace UI
             Object.Destroy(instance);
         }
 
+        /// <summary>销毁条目。</summary>
         void DestroyEntry(Entry entry, UICloseReason reason = UICloseReason.Destroyed)
         {
             if (entry.Destroying || entry.LeaseReleased)
@@ -738,6 +767,7 @@ namespace UI
             Object.Destroy(entry.Instance);
         }
 
+        /// <summary>销毁屏蔽项。</summary>
         static void DestroyBlocker(Entry entry)
         {
             UIBlocker? blocker = entry.Blocker;
@@ -745,6 +775,7 @@ namespace UI
             DestroyBlocker(blocker);
         }
 
+        /// <summary>销毁屏蔽项。</summary>
         static void DestroyBlocker(UIBlocker? blocker)
         {
             if (blocker == null)
@@ -756,6 +787,7 @@ namespace UI
             Object.Destroy(blocker.gameObject);
         }
 
+        /// <summary>响应视图已销毁。</summary>
         void OnViewDestroyed(UIView view)
         {
             if (instances.TryGetValue(view, out Entry? entry))
@@ -764,6 +796,7 @@ namespace UI
             }
         }
 
+        /// <summary>释放条目。</summary>
         void ReleaseEntry(Entry entry)
         {
             if (entry.LeaseReleased)
@@ -800,6 +833,7 @@ namespace UI
             CheckReleased();
         }
 
+        /// <summary>异步释放延后 Load。</summary>
         async Task ReleaseLateLoadAsync(Task<GameObject?> task)
         {
             pendingLateLoads++;

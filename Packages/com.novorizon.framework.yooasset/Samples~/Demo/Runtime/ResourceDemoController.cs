@@ -8,6 +8,7 @@ using UnityEngine;
 namespace Game.Framework.Samples.Resources
 {
     /// <summary>Explicit TextAsset acquisition; the controller releases only its own lease.</summary>
+    /// <remarks>提供资源示例 Controller的实现。</remarks>
     public sealed class ResourceDemoController : MonoBehaviour
     {
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
@@ -19,6 +20,7 @@ namespace Game.Framework.Samples.Resources
         public string Preview { get; private set; } = string.Empty;
         public string LoadedLocation { get; private set; } = string.Empty;
 
+        /// <summary>异步初始化资源示例 Controller。</summary>
         public async Task InitializeAsync()
         {
             if (destroyed || IsBusy)
@@ -48,6 +50,7 @@ namespace Game.Framework.Samples.Resources
             }
         }
 
+        /// <summary>异步加载文本。</summary>
         public async Task LoadTextAsync()
         {
             if (destroyed || IsBusy)
@@ -105,6 +108,7 @@ namespace Game.Framework.Samples.Resources
             }
         }
 
+        /// <summary>释放已加载。</summary>
         public void ReleaseLoaded()
         {
             loaded?.Dispose();
@@ -113,6 +117,7 @@ namespace Game.Framework.Samples.Resources
             Status = "Released this controller's lease.";
         }
 
+        /// <summary>绘制当前界面并响应对应的 GUI 事件。</summary>
         private void OnGUI()
         {
             GUILayout.BeginArea(new Rect(16, 16, Math.Max(280, Screen.width - 32), Math.Max(400, Screen.height - 32)));
@@ -150,6 +155,7 @@ namespace Game.Framework.Samples.Resources
             }
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             destroyed = true;

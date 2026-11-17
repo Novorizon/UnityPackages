@@ -5,8 +5,10 @@ using System.Text;
 namespace Game.Framework.Localization
 {
     /// <summary>Strict UTF-8 text-table shape: key,en,zh-Hans...; quoted fields may contain delimiters/newlines.</summary>
+    /// <remarks>提供本地化 Delimited 文本的实现。</remarks>
     public static class LocalizationDelimitedText
     {
+        /// <summary>解析本地化 Delimited 文本。</summary>
         public static LocalizationTableData Parse(string text, char delimiter = ',')
         {
             if (text == null)
@@ -51,6 +53,7 @@ namespace Game.Framework.Localization
             return new LocalizationTableData(languages, rows);
         }
 
+        /// <summary>读取记录。</summary>
         private static List<string[]> ReadRecords(string text, char delimiter)
         {
             var result = new List<string[]>();

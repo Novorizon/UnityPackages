@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace UI
 {
+    /// <summary>提供页面导航器的实现。</summary>
     public sealed class PageNavigator
     {
         readonly UIInstanceFactory factory;
@@ -13,6 +14,7 @@ namespace UI
         readonly SemaphoreSlim navigation = new(1, 1);
         readonly CancellationTokenSource lifetime = new();
         int pendingNavigation;
+        /// <summary>使用调用方提供的factory创建 PageNavigator。</summary>
         public PageNavigator(UIInstanceFactory factory)
         {
             this.factory = factory;
@@ -32,15 +34,20 @@ namespace UI
             }
         }
 
+        /// <summary>查看页面导航器。</summary>
         public UIHandle? Peek()
         {
             PruneClosedPages();
             return stack.Count > 0 ? stack.Peek() : (UIHandle? )null;
         }
 
+        /// <summary>异步压入页面导航器。</summary>
         public Task<UIHandle> PushAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow) => NavigateAsync(prefabPath, args, Navigation.Push, cancellationToken, repeatPolicy);
+        /// <summary>异步替换页面导航器。</summary>
         public Task<UIHandle> ReplaceAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default) => NavigateAsync(prefabPath, args, Navigation.Replace, cancellationToken);
+        /// <summary>异步重置 To。</summary>
         public Task<UIHandle> ResetToAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default) => NavigateAsync(prefabPath, args, Navigation.Reset, cancellationToken);
+        /// <summary>弹出页面导航器。</summary>
         public bool Pop(UICloseReason reason = UICloseReason.Back)
         {
             if (!CanStartPop(out UIHandle top) || !factory.CanClose(top, reason) || !IsTop(top))
@@ -51,6 +58,7 @@ namespace UI
             return PopApproved(top, reason);
         }
 
+        /// <summary>异步弹出页面导航器。</summary>
         public async Task<bool> PopAsync(UICloseReason reason = UICloseReason.Back, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -69,6 +77,7 @@ namespace UI
             return PopApproved(top, reason);
         }
 
+        /// <summary>检查是否可以启动 Pop。</summary>
         bool CanStartPop(out UIHandle top)
         {
             top = default;
@@ -87,12 +96,14 @@ namespace UI
             return true;
         }
 
+        /// <summary>判断是否为顶部。</summary>
         bool IsTop(UIHandle handle)
         {
             UIHandle? current = Peek();
             return handle.IsValid && current.HasValue && current.Value.Id == handle.Id && ReferenceEquals(current.Value.View, handle.View);
         }
 
+        /// <summary>弹出已通过。</summary>
         bool PopApproved(UIHandle top, UICloseReason reason)
         {
             if (!IsTop(top))
@@ -113,6 +124,7 @@ namespace UI
             return true;
         }
 
+        /// <summary>根据传入参数取得NavigateAsync。</summary>
         async Task<UIHandle> NavigateAsync(string prefabPath, object? args, Navigation mode, CancellationToken cancellationToken, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow)
         {
             if (!Enum.IsDefined(typeof(PageRepeatPolicy), repeatPolicy))
@@ -255,6 +267,7 @@ namespace UI
             }
         }
 
+        /// <summary>显示顶部。</summary>
         void ShowTop()
         {
             UIHandle? next = Peek();
@@ -264,6 +277,7 @@ namespace UI
             }
         }
 
+        /// <summary>剪枝已关闭 Pages。</summary>
         void PruneClosedPages()
         {
             bool removed = false;
@@ -279,6 +293,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应工厂已释放。</summary>
         void OnFactoryDisposed()
         {
             factory.Disposed -= OnFactoryDisposed;
@@ -291,6 +306,7 @@ namespace UI
             lifetime.Cancel();
         }
 
+        /// <summary>取消订阅页面导航器。</summary>
         void Unsubscribe(UIHandle handle)
         {
             if (!ReferenceEquals(handle.View, null))
@@ -299,6 +315,7 @@ namespace UI
             }
         }
 
+        /// <summary>响应页面已销毁。</summary>
         void OnPageDestroyed(UIView view)
         {
             view.Destroyed -= OnPageDestroyed;
@@ -324,6 +341,7 @@ namespace UI
             }
         }
 
+        /// <summary>定义Navigation可选的枚举值。</summary>
         enum Navigation
         {
             Push,

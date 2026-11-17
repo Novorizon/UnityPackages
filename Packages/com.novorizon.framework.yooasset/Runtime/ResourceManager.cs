@@ -15,8 +15,10 @@ namespace Game.Resource
 {
     // A shared cache: ReleaseHandle/ReleaseAllAssets affect every consumer of that location.
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
+    /// <summary>资源对应的管理器。管理对应模块的状态和操作入口。</summary>
     public partial class ResourceManager : Singleton<ResourceManager>, IDisposable
     {
+        /// <summary>结束资源管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public override void Dispose()
         {
             base.Release();
@@ -31,12 +33,14 @@ namespace Game.Resource
             ShutdownAsync().Forget();
         }
 
+        /// <summary>表示资源管理器中的资源 Load。</summary>
         private sealed class AssetLoad
         {
             internal readonly TaskCompletionSource<Object> Result = new TaskCompletionSource<Object>(TaskCreationOptions.RunContinuationsAsynchronously);
             internal bool Invalidated;
         }
 
+        /// <summary>表示资源管理器中的场景 Load。</summary>
         private sealed class SceneLoad
         {
             internal SceneHandle Handle;
@@ -68,6 +72,7 @@ namespace Game.Resource
             return new YooAssetSceneLoader(package);
         }
 
+        /// <summary>校验当前调用位于 Unity 主线程。</summary>
         private static void MainThread()
         {
             if (!UnityThread.IsMainThread)
@@ -76,6 +81,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>调用 MainThread 完成就绪。</summary>
         private void Ready()
         {
             MainThread();
@@ -133,6 +139,7 @@ namespace Game.Resource
             return await TaskUtil.WaitAsync(packageInitialization, token);
         }
 
+        /// <summary>异步初始化包核心。</summary>
         private async Task<bool> InitializePackageCoreAsync(InitializeParameters parameters)
         {
             YooAssets.Initialize();
@@ -150,6 +157,7 @@ namespace Game.Resource
             return success;
         }
 
+        /// <summary>异步初始化资源管理器。</summary>
         public Task<bool> InitializeAsync()
         {
             MainThread();
@@ -244,6 +252,7 @@ namespace Game.Resource
             return ready;
         }
 
+        /// <summary>检查 Download 模式是否满足前置条件。</summary>
         private void RequireDownloadMode(ResourceInitializationOptions options)
         {
             if (options.DownloadAll && !contentFullyDownloaded)
@@ -252,6 +261,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步初始化之后 Shutdown。</summary>
         private async Task<bool> InitializeAfterShutdownAsync(Task previous, int requestedGeneration)
         {
             await previous;
@@ -262,12 +272,14 @@ namespace Game.Resource
             return await InitializeAsync();
         }
 
+        /// <summary>异步初始化资源管理器。</summary>
         public async Task InitializeAsync(Action<bool> callback)
         {
             var result = await InitializeAsync();
             callback?.Invoke(result);
         }
 
+        /// <summary>异步初始化资源管理器。</summary>
         private async Task<bool> InitializeCoreAsync(ResourceInitializationOptions options = null, CancellationToken token = default)
         {
             int startedGeneration = generation;
@@ -298,11 +310,13 @@ namespace Game.Resource
             return initialized;
         }
 
+        /// <summary>异步初始化包。</summary>
         public Task<bool> InitPackageAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
         {
             return InitPackageCoreAsync(resourcePackage, parameters, null, CancellationToken.None);
         }
 
+        /// <summary>异步初始化文件 Systems。</summary>
         private static async Task<bool> InitializeFileSystemsAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
         {
             if (resourcePackage.InitializeStatus != EOperationStatus.Succeed)
@@ -320,6 +334,7 @@ namespace Game.Resource
             return true;
         }
 
+        /// <summary>异步初始化包核心。</summary>
         private async Task<bool> InitPackageCoreAsync(
             ResourcePackage resourcePackage,
             InitializeParameters parameters,
@@ -392,6 +407,7 @@ namespace Game.Resource
             return true;
         }
 
+        /// <summary>异步运行 Download。</summary>
         private static async Task RunDownloadAsync(ResourceDownloaderOperation downloader, CancellationToken token)
         {
             Task nativeDownload = downloader.Task;
@@ -428,6 +444,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>上报资源管理器。</summary>
         private static void Report(IProgress<ResourceDownloadProgress> progress, ResourceDownloadProgress value)
         {
             try
@@ -440,6 +457,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步加载资源。</summary>
         public async Task<T> LoadAssetAsync<T>(string location)
             where T : Object
         {
@@ -461,6 +479,7 @@ namespace Game.Resource
         }
 
         // Cache-only lookup for frequently refreshed UI/gameplay; never starts a load or creates a Task.
+        /// <summary>尝试取得已加载，返回是否成功。</summary>
         public bool TryGetLoaded<T>(string location, out T value)
             where T : Object
         {
@@ -481,6 +500,7 @@ namespace Game.Resource
             return value != null;
         }
 
+        /// <summary>异步加载资源。</summary>
         public async Task LoadAssetAsync<T>(string location, Action<T> callback)
             where T : Object
         {
@@ -488,6 +508,7 @@ namespace Game.Resource
             callback?.Invoke(result);
         }
 
+        /// <summary>异步完成资源。</summary>
         private async Task CompleteAssetAsync<T>(string location, AssetLoad load)
             where T : Object
         {
@@ -533,6 +554,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>加载资源。</summary>
         public T LoadAsset<T>(string location)
             where T : Object
         {
@@ -571,6 +593,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>加载资源。</summary>
         public void LoadAsset<T>(string location, Action<T> callback)
             where T : Object
         {
@@ -578,8 +601,10 @@ namespace Game.Resource
             callback?.Invoke(result);
         }
 
+        /// <summary>根据传入参数取得施法。</summary>
         private static T Cast<T>(Object value, string location)
             where T : Object => value as T ?? throw new InvalidCastException("Resource type mismatch at " + location);
+        /// <summary>验证传入的 location。</summary>
         private static void Validate(string location)
         {
             if (string.IsNullOrWhiteSpace(location))
@@ -588,6 +613,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>释放句柄。</summary>
         public void ReleaseHandle(string location)
         {
             MainThread();
@@ -608,6 +634,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>释放全部资源。</summary>
         public void ReleaseAllAssets()
         {
             MainThread();
@@ -629,6 +656,7 @@ namespace Game.Resource
             assetHandles.Clear();
         }
 
+        /// <summary>尝试处理 Unload 资源。</summary>
         public void TryUnloadAsset(string location, int loopCount = 10)
         {
             Ready();
@@ -636,6 +664,7 @@ namespace Game.Resource
             package.TryUnloadUnusedAsset(location, loopCount);
         }
 
+        /// <summary>尝试处理 Unload 未使用资源。</summary>
         public async Task TryUnloadUnusedAsset(int loopCount = 10)
         {
             Ready();
@@ -649,6 +678,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>获取场景。</summary>
         private SceneLoad GetScene(string location, LoadSceneMode mode)
         {
             Ready();
@@ -696,6 +726,7 @@ namespace Game.Resource
             return load;
         }
 
+        /// <summary>异步完成场景。</summary>
         private async Task CompleteSceneAsync(string location, SceneLoad load)
         {
             try
@@ -727,20 +758,25 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步加载场景。</summary>
         public Task<Scene> LoadSceneAsync(string location) => GetScene(location, LoadSceneMode.Single).Result.Task;
+        /// <summary>异步加载场景。</summary>
         public Task<Scene> LoadSceneAsync(string location, LoadSceneMode mode) => GetScene(location, mode).Result.Task;
+        /// <summary>异步加载场景。</summary>
         public async Task LoadSceneAsync(string location, Action<Scene> callback)
         {
             var scene = await LoadSceneAsync(location);
             callback?.Invoke(scene);
         }
 
+        /// <summary>异步加载场景。</summary>
         public async Task LoadSceneAsync(string location, LoadSceneMode mode, Action<Scene> callback)
         {
             var scene = await LoadSceneAsync(location, mode);
             callback?.Invoke(scene);
         }
 
+        /// <summary>异步加载场景句柄。</summary>
         public SceneHandle LoadSceneHandleAsync(string location, LoadSceneMode mode = LoadSceneMode.Single, Action<Scene> callback = null)
         {
             var load = GetScene(location, mode);
@@ -752,11 +788,13 @@ namespace Game.Resource
             return load.Handle;
         }
 
+        /// <summary>异步完成场景回调。</summary>
         private static async Task CompleteSceneCallbackAsync(Task<Scene> task, Action<Scene> callback)
         {
             callback(await task);
         }
 
+        /// <summary>异步卸载场景。</summary>
         public Task UnloadSceneAsync(string location)
         {
             MainThread();
@@ -776,6 +814,7 @@ namespace Game.Resource
             return completion.Task;
         }
 
+        /// <summary>异步完成 Unload。</summary>
         private async Task CompleteUnloadAsync(string location, SceneLoad load, TaskCompletionSource<bool> completion)
         {
             try
@@ -811,13 +850,16 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步卸载场景。</summary>
         public Task UnloadSceneAsync(Scene scene) => sceneLocations.TryGetValue(scene.handle, out var location) ? UnloadSceneAsync(location) : Task.CompletedTask;
+        /// <summary>异步卸载场景。</summary>
         public async Task UnloadSceneAsync(string location, Action callback)
         {
             await UnloadSceneAsync(location);
             callback?.Invoke();
         }
 
+        /// <summary>重置 ForPlay。</summary>
         internal void ResetForPlay()
         {
             generation++;
@@ -863,6 +905,7 @@ namespace Game.Resource
             shutdown = null;
         }
 
+        /// <summary>异步关闭资源管理器。</summary>
         public Task ShutdownAsync()
         {
             MainThread();
@@ -877,6 +920,7 @@ namespace Game.Resource
             return shutdown;
         }
 
+        /// <summary>异步完成 Shutdown。</summary>
         private async Task CompleteShutdownAsync(TaskCompletionSource<bool> completion)
         {
             try
@@ -890,6 +934,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>异步终止使用场景句柄。</summary>
         private static async Task RetireSceneHandleAsync(SceneHandle handle)
         {
             if (!handle.IsValid)
@@ -908,6 +953,7 @@ namespace Game.Resource
             YooAssetSceneLoader.ReleaseIfSceneUnloaded(handle);
         }
 
+        /// <summary>异步关闭资源管理器。</summary>
         private async Task ShutdownCoreAsync()
         {
             int startedGeneration = generation;

@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace Game.Framework.Firebase.Editor
 {
+    /// <summary>提供FirebaseSDK 配置的实现。</summary>
     public static class FirebaseSdkSetup
     {
+        /// <summary>同步 FirebaseSDK 配置。</summary>
         [MenuItem("Novorizon/Platform SDKs/Synchronize installed Firebase SDKs")]
         public static void Synchronize()
         {

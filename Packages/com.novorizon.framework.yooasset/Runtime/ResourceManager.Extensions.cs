@@ -16,12 +16,15 @@ using Object = UnityEngine.Object;
 
 namespace Game.Resource
 {
+    /// <summary>资源对应的管理器。管理对应模块的状态和操作入口。</summary>
     public partial class ResourceManager
     {
+        /// <summary>调用 RequestAtlasAsync(atlasName, callback).Forget 完成请求图集。</summary>
         private void RequestAtlas(string atlasName, Action<SpriteAtlas> callback)
         {
             RequestAtlasAsync(atlasName, callback).Forget();
         }
+        /// <summary>根据传入参数取得请求图集 Async。</summary>
         private async Task RequestAtlasAsync(string atlasName, Action<SpriteAtlas> callback)
         {
             var atlas = await LoadAssetAsync<SpriteAtlas>("Assets/GameData/SpriteAtlas/" + atlasName + ".spriteatlas");
@@ -29,34 +32,47 @@ namespace Game.Resource
         }
 
         // GameObject
+        /// <summary>异步加载 GameObject。</summary>
         public Task<GameObject> LoadGameObjectAsync(string location) => LoadAssetAsync<GameObject>(location);
 
+        /// <summary>异步加载 GameObject。</summary>
         public Task LoadGameObjectAsync(string location, Action<GameObject> callback) => LoadAssetAsync<GameObject>(location, callback);
 
         // GameObject
+        /// <summary>加载 GameObject。</summary>
         public GameObject LoadGameObject(string location) => LoadAsset<GameObject>(location);
 
+        /// <summary>加载 GameObject。</summary>
         public void LoadGameObject(string location, Action<GameObject> callback) => LoadAsset<GameObject>(location, callback);
 
         // TextAsset
+        /// <summary>异步加载文本资源。</summary>
         public Task<TextAsset> LoadTextAssetAsync(string location) => LoadAssetAsync<TextAsset>(location);
 
+        /// <summary>异步加载文本资源。</summary>
         public Task LoadTextAssetAsync(string location, Action<TextAsset> callback) => LoadAssetAsync<TextAsset>(location, callback);
+        /// <summary>加载文本资源。</summary>
         public TextAsset LoadTextAsset(string location) => LoadAsset<TextAsset>(location);
 
+        /// <summary>加载文本资源。</summary>
         public void LoadTextAsset(string location, Action<TextAsset> callback) => LoadAsset<TextAsset>(location, callback);
 
 
         // SpriteAtlas
+        /// <summary>异步加载精灵图图集。</summary>
         public Task<SpriteAtlas> LoadSpriteAtlasAsync(string location) => LoadAssetAsync<SpriteAtlas>(location);
 
+        /// <summary>异步加载精灵图图集。</summary>
         public Task LoadSpriteAtlasAsync(string location, Action<SpriteAtlas> callback) => LoadAssetAsync<SpriteAtlas>(location, callback);
 
+        /// <summary>加载精灵图图集。</summary>
         public SpriteAtlas LoadSpriteAtlas(string location) => LoadAsset<SpriteAtlas>(location);
 
+        /// <summary>加载精灵图图集。</summary>
         public void LoadSpriteAtlas(string location, Action<SpriteAtlas> callback) => LoadAsset<SpriteAtlas>(location, callback);
 
         // Sprite
+        /// <summary>异步加载精灵图。</summary>
         public async Task<Sprite> LoadSpriteAsync(string spriteAtlas, string location)
         {
             SpriteAtlas atlas = await LoadAssetAsync<SpriteAtlas>(spriteAtlas);
@@ -64,6 +80,7 @@ namespace Game.Resource
             return sprite;
         }
 
+        /// <summary>异步加载精灵图。</summary>
         public async Task LoadSpriteAsync(string spriteAtlas, string location, Action<Sprite> callback)
         {
             SpriteAtlas atlas = await LoadAssetAsync<SpriteAtlas>(spriteAtlas);
@@ -71,6 +88,7 @@ namespace Game.Resource
             callback?.Invoke(sprite);
         }
 
+        /// <summary>加载精灵图。</summary>
         public Sprite LoadSprite(string spriteAtlas, string location)
         {
             SpriteAtlas atlas = LoadAsset<SpriteAtlas>(spriteAtlas);
@@ -78,6 +96,7 @@ namespace Game.Resource
             return sprite;
         }
 
+        /// <summary>加载精灵图。</summary>
         public void LoadSprite(string spriteAtlas, string location, Action<Sprite> callback)
         {
             SpriteAtlas atlas = LoadAsset<SpriteAtlas>(spriteAtlas);
@@ -125,6 +144,7 @@ namespace Game.Resource
             callback?.Invoke(instance);
         }
 
+        /// <summary>检查当前值是否满足此类型的有效条件。</summary>
         public bool IsValid(string location)
         {
             if (string.IsNullOrEmpty(location))
@@ -209,8 +229,10 @@ namespace Game.Resource
         //            { typeof(Material), ".material" },
         //        };
     }
+    /// <summary>提供UnityObjExt的实现。</summary>
     public static class UnityObjExt
     {
+        /// <summary>根据传入参数取得Null。</summary>
         public static T Null<T>(this T obj) where T : UnityEngine.Object => obj ? obj : null;
     }
 

@@ -5,9 +5,11 @@ using System.Text;
 using System.Text.Json;
 using Game.Framework.HotUpdate;
 
+/// <summary>提供Program的实现。</summary>
 static class Program
 {
     private static readonly JsonSerializerOptions Json = new() { IncludeFields = true, WriteIndented = true };
+    /// <summary>根据传入参数取得主。</summary>
     static int Main(string[] args)
     {
         try
@@ -21,6 +23,7 @@ static class Program
         catch (Exception exception) { Console.Error.WriteLine(exception.Message); return 1; }
     }
 
+    /// <summary>检查 External 私有键是否满足前置条件。</summary>
     private static void RequireExternalPrivateKey(string path)
     {
         path = Path.GetFullPath(path);
@@ -31,6 +34,7 @@ static class Program
                 StringComparison.OrdinalIgnoreCase), "Keep signing private keys outside the Unity project.");
     }
 
+    /// <summary>调用 ReleasePolicy.Require 完成Keygen。</summary>
     private static void Keygen(string directory, string keyId)
     {
         ReleasePolicy.Require(System.Text.RegularExpressions.Regex.IsMatch(keyId, @"\A[A-Za-z0-9_-]{1,64}\z"), "Invalid key ID.");
@@ -45,6 +49,7 @@ static class Program
         Console.WriteLine("Created RSA-3072 keypair with owner-only private-key permissions. Put only the public JSON fields into trustedKeys.");
     }
 
+    /// <summary>创建私有键文件。</summary>
     private static FileStream CreatePrivateKeyFile(string path)
     {
         if (OperatingSystem.IsWindows())
@@ -62,12 +67,14 @@ static class Program
             UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite });
     }
 
+    /// <summary>根据传入参数取得公开键。</summary>
     private static TrustedKey PublicKey(RSA rsa, string keyId)
     {
         var p = rsa.ExportParameters(false);
         return new TrustedKey { keyId = keyId, modulus = Convert.ToBase64String(p.Modulus), exponent = Convert.ToBase64String(p.Exponent) };
     }
 
+    /// <summary>调用 RequireExternalPrivateKey 完成Sign。</summary>
     private static void Sign(string unsigned, string keyPath, string keyId, string output)
     {
         RequireExternalPrivateKey(keyPath);
@@ -101,6 +108,7 @@ static class Program
         Console.WriteLine("Upload the content-hash directory first; publish release.json last. Payload ID: " + id);
     }
 
+    /// <summary>核验 Program。</summary>
     private static void Verify(string path, string keyPath)
     {
         var envelope = JsonSerializer.Deserialize<SignedEnvelope>(ReleasePolicy.ReadBoundedText(path), Json);

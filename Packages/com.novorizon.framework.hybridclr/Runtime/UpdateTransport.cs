@@ -8,19 +8,24 @@ using UnityEngine.Networking;
 
 namespace Game.Framework.HotUpdate
 {
+    /// <summary>提供更新传输层的实现。</summary>
     internal sealed class UpdateTransport : IUpdateTransport
     {
         private readonly UpdateSettings settings;
+        /// <summary>使用调用方提供的settings创建 UpdateTransport。</summary>
         public UpdateTransport(UpdateSettings settings) { this.settings = settings; }
 
+        /// <summary>表示更新传输层中的有上界的处理器。</summary>
         private sealed class BoundedHandler : DownloadHandlerScript
         {
             private readonly Stream destination;
             private readonly long limit;
             public long Received { get; private set; }
             public bool Overflow { get; private set; }
+            /// <summary>使用调用方提供的destination、limit创建 BoundedHandler。</summary>
             public BoundedHandler(Stream destination, long limit) : base(new byte[64 * 1024])
             { this.destination = destination; this.limit = limit; }
+            /// <summary>接收数据。</summary>
             protected override bool ReceiveData(byte[] data, int length)
             {
                 if (data == null || length == 0) return true;
@@ -31,6 +36,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>拉取更新传输层。</summary>
         private async Task Fetch(string url, Stream destination, long limit, CancellationToken token)
         {
             using (var handler = new BoundedHandler(destination, limit))
@@ -52,6 +58,7 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>读取字节数据。</summary>
         public async Task<byte[]> ReadBytes(string url, long limit, CancellationToken token)
         {
             using (var stream = new MemoryStream())
@@ -61,9 +68,11 @@ namespace Game.Framework.HotUpdate
             }
         }
 
+        /// <summary>读取文本。</summary>
         public async Task<string> ReadText(string url, CancellationToken token) =>
             Encoding.UTF8.GetString(await ReadBytes(url, ReleasePolicy.MaxManifestBytes, token));
 
+        /// <summary>下载已校验。</summary>
         public async Task DownloadVerified(Uri url, string destination, ReleaseFile file, CancellationToken token)
         {
             for (int attempt = 0; ; attempt++)

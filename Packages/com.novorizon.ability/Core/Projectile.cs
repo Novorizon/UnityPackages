@@ -9,6 +9,7 @@ namespace Game.Ability
     /// Linear projectiles pierce when DeleteOnHit is false; tracking projectiles always terminate
     /// on arrival because they have one destination, not a persistent area.
     /// </summary>
+    /// <remarks>提供投射物的实现。</remarks>
     public sealed class Projectile
     {
         public ProjectileDefinition Definition { get; }
@@ -30,6 +31,7 @@ namespace Game.Ability
         private bool ticking;
         private IProjectilePresentationHandle presentationHandle;
 
+        /// <summary>使用调用方提供的request创建 Projectile。</summary>
         internal Projectile(ProjectileRequest request)
         {
             Definition = request.Definition;
@@ -43,6 +45,7 @@ namespace Game.Ability
             maximumLifetime = IsFinite(Definition.MaxLifetime) && Definition.MaxLifetime > 0f ? Definition.MaxLifetime : 10f;
         }
 
+        /// <summary>响应已登记。</summary>
         internal void OnRegistered(IPresentation presentation)
         {
             if (Destroyed || presentation == null)
@@ -76,6 +79,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进投射物。</summary>
         internal void Tick(AbilitySystem engine, float deltaTime)
         {
             if (Destroyed || ticking || !IsFinite(deltaTime) || deltaTime <= 0f)
@@ -114,6 +118,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>销毁投射物。</summary>
         internal void Destroy()
         {
             if (Destroyed)
@@ -132,6 +137,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进跟踪。</summary>
         private void TickTracking(AbilitySystem engine, float deltaTime)
         {
             TargetQuery query = Definition.TrackingTargetPolicy == TrackingTargetPolicy.RevalidateTarget ? CreateQuery(engine) : null;
@@ -173,6 +179,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>推进线性。</summary>
         private void TickLinear(AbilitySystem engine, float deltaTime)
         {
             Vector3 start = Position;
@@ -227,6 +234,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>调用 IsFinite 完成命中。</summary>
         private void Hit(AbilitySystem engine, IUnit target, TargetQuery query = null)
         {
             // Moving presentation is an external callback. It may kill or invalidate a
@@ -258,16 +266,19 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>创建 Query。</summary>
         private TargetQuery CreateQuery(AbilitySystem engine)
         {
             return new TargetQuery { Engine = engine, Caster = Caster, Team = Definition.TargetTeam, Types = Definition.TargetType, Flags = Definition.TargetFlags };
         }
 
+        /// <summary>取得Remaining 距离。</summary>
         private float RemainingDistance()
         {
             return Mathf.Max(0f, SafeNonnegative(Definition.Distance) - traveledDistance);
         }
 
+        /// <summary>设置位置。</summary>
         private void SetPosition(Vector3 position)
         {
             if (!IsFinite(position)) { Destroy(); return; }
@@ -278,6 +289,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>尝试处理 Intersect，返回是否成功。</summary>
         private static bool TryIntersect(Vector3 origin, Vector3 direction, float length, Vector3 center, float radius, out float distance)
         {
             double x = (double)origin.x - center.x;
@@ -314,24 +326,29 @@ namespace Game.Ability
             return hitDistance >= 0 && hitDistance <= length;
         }
 
+        /// <summary>比较命中列表。</summary>
         private static int CompareHits(SweptHit left, SweptHit right)
         {
             int distanceOrder = left.Distance.CompareTo(right.Distance);
             return distanceOrder != 0 ? distanceOrder : left.Unit.EntityId.CompareTo(right.Unit.EntityId);
         }
 
+        /// <summary>根据传入参数取得安全 Nonnegative。</summary>
         private static float SafeNonnegative(float value)
         {
             return IsFinite(value) ? Mathf.Max(0f, value) : 0f;
         }
 
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         private static bool IsFinite(float value)
         {
             return !float.IsNaN(value) && !float.IsInfinity(value);
         }
 
+        /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
         private static bool IsFinite(Vector3 value) => IsFinite(value.x) && IsFinite(value.y) && IsFinite(value.z);
 
+        /// <summary>保存Swept 命中所需的数据与配套操作。</summary>
         private struct SweptHit
         {
             public IUnit Unit;

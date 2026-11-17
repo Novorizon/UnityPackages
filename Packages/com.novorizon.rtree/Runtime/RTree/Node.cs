@@ -29,6 +29,7 @@ namespace RTree
      * @author aled@sourceforge.net
      * @version 1.0b2p1
      */
+    /// <summary>提供节点的实现。</summary>
     public class Node<T>
     {
         internal int nodeId = 0;
@@ -38,6 +39,7 @@ namespace RTree
         internal int level;
         internal int entryCount;
 
+        /// <summary>使用调用方提供的nodeId、level、maxNodeEntries创建 Node。</summary>
         public Node(int nodeId, int level, int maxNodeEntries)
         {
             this.nodeId = nodeId;
@@ -46,6 +48,7 @@ namespace RTree
             ids = new int[maxNodeEntries];
         }
 
+        /// <summary>调用 r.copy 完成add 条目。</summary>
         internal void addEntry(Rectangle r, int id)
         {
             ids[entryCount] = id;
@@ -61,6 +64,7 @@ namespace RTree
             }
         }
 
+        /// <summary>调用 r.copy 完成add 条目 NoCopy。</summary>
         internal void addEntryNoCopy(Rectangle r, int id)
         {
             ids[entryCount] = id;
@@ -77,6 +81,7 @@ namespace RTree
         }
 
         // Return the index of the found entry, or -1 if not found
+        /// <summary>根据传入参数取得find 条目。</summary>
         internal int findEntry(Rectangle r, int id)
         {
             for (int i = 0; i < entryCount; i++)
@@ -89,6 +94,7 @@ namespace RTree
             return -1;
         }
 
+        /// <summary>返回same 包围盒的判断结果。</summary>
         private static bool sameBounds(Rectangle left, Rectangle right)
         {
             // Rectangle subclasses may define their own object equality. The
@@ -99,6 +105,7 @@ namespace RTree
         }
 
         // delete entry. This is done by setting it to null and copying the last entry into its space.
+        /// <summary>调用 recalculateMBR 完成delete 条目。</summary>
         internal void deleteEntry(int i, int minNodeEntries)
         {
             int lastIndex = entryCount - 1;
@@ -120,6 +127,7 @@ namespace RTree
 
         // oldRectangle is a rectangle that has just been deleted or made smaller.
         // Thus, the MBR is only recalculated if the OldRectangle influenced the old MBR
+        /// <summary>调用 mbr.edgeOverlaps 完成recalculateMBR。</summary>
         internal void recalculateMBR(Rectangle deletedRectangle)
         {
             if (entryCount == 0)
@@ -138,11 +146,13 @@ namespace RTree
             }
         }
 
+        /// <summary>通过当前接口读取条目数量。</summary>
         public int getEntryCount()
         {
             return entryCount;
         }
 
+        /// <summary>通过当前接口读取条目。</summary>
         public Rectangle getEntry(int index)
         {
             if (index < entryCount)
@@ -152,6 +162,7 @@ namespace RTree
             return null;
         }
 
+        /// <summary>通过当前接口读取标识。</summary>
         public int getId(int index)
         {
             if (index < entryCount)
@@ -164,6 +175,7 @@ namespace RTree
         /**
          * eliminate null entries, move all entries to the start of the source node
          */
+        /// <summary>处理reorganize。</summary>
         internal void reorganize(RTree<T> rtree)
         {
             int countdownIndex = rtree.maxNodeEntries - 1;
@@ -182,16 +194,19 @@ namespace RTree
             }
         }
 
+        /// <summary>返回is 叶节点的判断结果。</summary>
         internal bool isLeaf()
         {
             return (level == 1);
         }
 
+        /// <summary>通过当前接口读取等级。</summary>
         public int getLevel()
         {
             return level;
         }
 
+        /// <summary>通过当前接口读取MBR。</summary>
         public Rectangle getMBR()
         {
             return mbr;

@@ -8,6 +8,7 @@ using Game.Ability.Configuration;
 
 namespace Game.Ability.Editor.Core
 {
+    /// <summary>提供技能编辑器诊断的实现。</summary>
     public sealed class AbilityEditorDiagnostic
     {
         public AbilityValidationSeverity Severity { get; set; }
@@ -18,12 +19,14 @@ namespace Game.Ability.Editor.Core
     }
 
     /// <summary>A draft owns authoring DTOs only. The loaded bytes remain the conflict baseline.</summary>
+    /// <remarks>提供技能文档会话的实现。</remarks>
     public sealed class AbilityDocumentSession
     {
         private string savedCanonical;
         private bool existedAtLoad;
         private string loadedBytesHash;
 
+        /// <summary>使用调用方提供的filePath、bytes、readError创建 AbilityDocumentSession。</summary>
         internal AbilityDocumentSession(string filePath, byte[] bytes, string readError = null)
         {
             FilePath = filePath;
@@ -44,6 +47,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>使用调用方提供的filePath、document创建 AbilityDocumentSession。</summary>
         internal AbilityDocumentSession(string filePath, JsonAbilityDocument document)
         {
             FilePath = filePath;
@@ -83,6 +87,7 @@ namespace Game.Ability.Editor.Core
         }
 
         /// <summary>Restores an in-memory Undo snapshot; never writes to disk or changes the baseline.</summary>
+        /// <remarks>设置草稿。</remarks>
         public bool SetDraft(string json, out string error)
         {
             if (IsReadOnly)
@@ -95,6 +100,7 @@ namespace Game.Ability.Editor.Core
             return true;
         }
 
+        /// <summary>判断是否匹配磁盘。</summary>
         internal bool MatchesDisk(out string error)
         {
             try
@@ -115,6 +121,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>标记已保存。</summary>
         internal void MarkSaved(string text, byte[] bytes)
         {
             SourceText = text;
@@ -124,12 +131,14 @@ namespace Game.Ability.Editor.Core
             ReadError = null;
         }
 
+        /// <summary>解码技能文档会话。</summary>
         internal static string Decode(byte[] bytes)
         {
             int offset = bytes.Length >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf ? 3 : 0;
             return new UTF8Encoding(false, true).GetString(bytes, offset, bytes.Length - offset);
         }
 
+        /// <summary>根据传入参数取得哈希字节数据 On 磁盘。</summary>
         private static string HashBytesOnDisk(string filePath) => AbilityWorkspace.HashBytes(File.ReadAllBytes(filePath));
     }
 
@@ -138,6 +147,7 @@ namespace Game.Ability.Editor.Core
     /// Reload refuses dirty sessions. Single-file saves validate against other files on disk, so they
     /// cannot accidentally depend on an unsaved sibling draft. Multi-file transactions are separate work.
     /// </summary>
+    /// <remarks>提供技能工作区的实现。</remarks>
     public sealed class AbilityWorkspace
     {
         private readonly List<AbilityDocumentSession> documents = new List<AbilityDocumentSession>();
@@ -145,6 +155,7 @@ namespace Game.Ability.Editor.Core
         private static readonly StringComparison PathComparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private const long MaximumDocumentBytes = 8 * 1024 * 1024;
 
+        /// <summary>使用调用方提供的rootDirectory创建 AbilityWorkspace。</summary>
         public AbilityWorkspace(string rootDirectory)
         {
             if (string.IsNullOrWhiteSpace(rootDirectory)) throw new ArgumentException("Select a skill directory.", nameof(rootDirectory));
@@ -160,6 +171,7 @@ namespace Game.Ability.Editor.Core
         public IList<IAbilityDefinitionProvider> ExternalProviders { get; } = new List<IAbilityDefinitionProvider>();
 
         /// <summary>Throws if any draft is dirty. The caller may explicitly discard by opening a new workspace.</summary>
+        /// <remarks>调用 documents.Any 完成Reload。</remarks>
         public void Reload()
         {
             if (documents.Any(document => document.IsDirty)) throw new InvalidOperationException("Reload would discard unsaved drafts. Save, export or explicitly discard them first.");
@@ -172,6 +184,7 @@ namespace Game.Ability.Editor.Core
             discoveryIssues.AddRange(issues);
         }
 
+        /// <summary>创建技能工作区。</summary>
         public AbilityDocumentSession Create(string relativePath)
         {
             if (string.IsNullOrWhiteSpace(relativePath) || Path.IsPathRooted(relativePath)) throw new ArgumentException("A relative .json path inside the selected directory is required.", nameof(relativePath));
@@ -186,6 +199,7 @@ namespace Game.Ability.Editor.Core
             return session;
         }
 
+        /// <summary>验证技能工作区。</summary>
         public IReadOnlyList<AbilityEditorDiagnostic> Validate()
         {
             List<AbilityEditorDiagnostic> result = new List<AbilityEditorDiagnostic>(discoveryIssues);
@@ -204,6 +218,7 @@ namespace Game.Ability.Editor.Core
             return result;
         }
 
+        /// <summary>尝试处理 Save，返回是否成功。</summary>
         public bool TrySave(AbilityDocumentSession session, out string error)
         {
             error = null;
@@ -274,6 +289,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>验证已保存视图。</summary>
         private IReadOnlyList<AbilityEditorDiagnostic> ValidateSavedView(AbilityDocumentSession candidate, string text, IDictionary<string, string> diskHashes)
         {
             List<AbilityEditorDiagnostic> result = new List<AbilityEditorDiagnostic>();
@@ -294,6 +310,7 @@ namespace Game.Ability.Editor.Core
             return result;
         }
 
+        /// <summary>完成校验。</summary>
         private void CompleteValidation(AbilityDefinitionRegistry registry, ICollection<AbilityEditorDiagnostic> result)
         {
             foreach (IAbilityDefinitionProvider provider in ExternalProviders) registry.LoadProvider(provider);
@@ -312,12 +329,14 @@ namespace Game.Ability.Editor.Core
                 if (definition.RequiresCustomScript) result.Add(ScriptRequired(definition.Definition.Name, definition.Origin?.SourcePath));
         }
 
+        /// <summary>加载技能工作区。</summary>
         private AbilityDocumentSession Load(string path)
         {
             try { return new AbilityDocumentSession(path, ReadBytes(path)); }
             catch (Exception exception) when (IsAuthoringException(exception)) { return new AbilityDocumentSession(path, null, exception.Message); }
         }
 
+        /// <summary>枚举 Files。</summary>
         private IEnumerable<string> EnumerateFiles(ICollection<AbilityEditorDiagnostic> issues)
         {
             List<string> files = new List<string>();
@@ -326,6 +345,7 @@ namespace Game.Ability.Editor.Core
             return files;
         }
 
+        /// <summary>收集技能工作区。</summary>
         private void Collect(string directory, ICollection<string> files, ICollection<AbilityEditorDiagnostic> issues)
         {
             try
@@ -348,6 +368,7 @@ namespace Game.Ability.Editor.Core
             catch (Exception exception) when (IsAuthoringException(exception)) { issues.Add(Error("EDITOR_DIRECTORY", exception.Message, directory)); }
         }
 
+        /// <summary>根据传入参数取得Contained 路径。</summary>
         private string ContainedPath(string relativePath)
         {
             string fullPath = Path.GetFullPath(Path.Combine(RootDirectory, relativePath));
@@ -356,12 +377,14 @@ namespace Game.Ability.Editor.Core
             return fullPath;
         }
 
+        /// <summary>读取字节数据。</summary>
         private static byte[] ReadBytes(string path)
         {
             if (new FileInfo(path).Length > MaximumDocumentBytes) throw new IOException("The document exceeds the editor's 8 MiB file limit.");
             return File.ReadAllBytes(path);
         }
 
+        /// <summary>检查是否不存在 Links。</summary>
         private static void EnsureNoLinks(string path)
         {
             for (string current = Path.GetFullPath(path); !string.IsNullOrEmpty(current); current = Path.GetDirectoryName(current))
@@ -369,16 +392,21 @@ namespace Game.Ability.Editor.Core
                     throw new IOException("Linked paths are not supported for document writes: " + current);
         }
 
+        /// <summary>根据传入参数取得哈希字节数据。</summary>
         internal static string HashBytes(byte[] bytes)
         {
             using (SHA256 algorithm = SHA256.Create())
                 return BitConverter.ToString(algorithm.ComputeHash(bytes)).Replace("-", string.Empty).ToLowerInvariant();
         }
 
+        /// <summary>判断是否为 Authoring 异常。</summary>
         private static bool IsAuthoringException(Exception exception) => exception is IOException || exception is UnauthorizedAccessException || exception is ArgumentException || exception is InvalidOperationException;
+        /// <summary>根据传入参数取得错误。</summary>
         private static AbilityEditorDiagnostic Error(string code, string message, string path) => new AbilityEditorDiagnostic { Severity = AbilityValidationSeverity.Error, Code = code, Message = message, FilePath = path };
+        /// <summary>根据传入参数取得脚本必须。</summary>
         private static AbilityEditorDiagnostic ScriptRequired(string name, string path) => new AbilityEditorDiagnostic { Severity = AbilityValidationSeverity.Warning, Code = "EDITOR_SCRIPT", Message = "Business must register the declared custom script factory before execution: " + name, FilePath = path, ReferenceChain = name };
 
+        /// <summary>删除临时。</summary>
         private static void DeleteTemporary(string path)
         {
             if (path == null) return;

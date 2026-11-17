@@ -8,6 +8,7 @@ namespace Game.Framework.Audio
     /// <remarks>集中管理播放实例、音量分组和 AudioSource 复用。</remarks>
     public sealed partial class AudioManager : MonoSingleton<AudioManager>
     {
+        /// <summary>记录一次播放的音源、分组、状态和完成回调。对象回收入池后可供其他播放复用。</summary>
         private sealed class Voice
         {
             internal AudioSource Source;
@@ -39,6 +40,7 @@ namespace Game.Framework.Audio
         public int PooledCount => pool.Count;
         public bool IsPaused => paused;
 
+        /// <summary>同时播放的数量上限。降低上限时回收闲置对象，运行中的播放数量必须小于或等于新上限。</summary>
         public int MaxVoices
         {
             get => maxVoices;
@@ -67,6 +69,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        /// <summary>总音量，取值为 0 到 1。修改时立即更新当前所有音源。</summary>
         public float MasterVolume
         {
             get => masterVolume;
@@ -79,17 +82,20 @@ namespace Game.Framework.Audio
             }
         }
 
+        /// <summary>组件开始运行时打开音频播放入口。</summary>
         protected override void OnStart()
         {
             Initialize();
         }
 
+        /// <summary>在 Unity 主线程启用播放，可重复调用。</summary>
         public override void Initialize()
         {
             MainThread();
             initialized = true;
         }
 
+        /// <summary>创建一次播放并返回控制句柄。传入 position 时启用 3D 音频，达到并发数量上限时抛出异常。</summary>
         public AudioHandle Play(AudioClip clip, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
         {
             if (!TryPlay(clip, out var handle, group, loop, volume, pitch, position, completed))
@@ -155,6 +161,7 @@ namespace Game.Framework.Audio
             voice.Music = false;
             voice.Fade = default;
             source.outputAudioMixerGroup = mixerGroups[(int)group];
+            // 音源可以重复使用，播放 ID 始终递增，旧句柄不会控制复用后的音源。
             long id = ++nextId;
             voices.Add(id, voice);
             ApplyVolume(voice);
@@ -168,12 +175,14 @@ namespace Game.Framework.Audio
             return true;
         }
 
+        /// <summary>读取指定分组的音量系数，范围为 0 到 1。</summary>
         public float GetGroupVolume(AudioGroup group)
         {
             ValidateGroup(group);
             return groupVolumes[(int)group];
         }
 
+        /// <summary>修改分组音量并立即应用到已有播放，之后的新播放也使用该音量。</summary>
         public void SetGroupVolume(AudioGroup group, float volume)
         {
             MainThread();
@@ -183,6 +192,7 @@ namespace Game.Framework.Audio
             ApplyVolumes();
         }
 
+        /// <summary>暂停全部音源。全局暂停期间发起的新播放也会立即暂停。</summary>
         public void PauseAll()
         {
             MainThread();
@@ -201,6 +211,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        /// <summary>解除全局暂停，单独暂停的播放继续保持暂停。</summary>
         public void ResumeAll()
         {
             MainThread();
@@ -219,6 +230,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        /// <summary>停止指定分组的播放，group 为 null 时停止所有分组。主动停止不触发自然播放完成回调。</summary>
         public void StopAll(AudioGroup? group = null)
         {
             MainThread();
@@ -236,7 +248,9 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 检查播放 ID 仍然有效。回收音源不会恢复旧 ID。
         internal bool Contains(long id) => !IsDestroying && voices.ContainsKey(id);
+        // 结束指定播放，清掉剪辑和回调，再将音源与记录归还对象池。
         internal void Stop(long id)
         {
             MainThread();
@@ -264,6 +278,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 设置单次播放的暂停状态。恢复时仍需检查全局暂停。
         internal void Pause(long id, bool value)
         {
             MainThread();
@@ -283,6 +298,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 立即设置单次播放音量，并取消该播放之前的渐变。
         internal void SetVolume(long id, float volume)
         {
             MainThread();
@@ -295,6 +311,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 自动模式下使用所选的 Unity 帧时间推进播放。
         private void Update()
         {
             if (AutomaticUpdate && !IsDestroying)
@@ -303,6 +320,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 总音量或分组音量改变后，重新计算当前各音源的有效音量。
         private void ApplyVolumes()
         {
             foreach (var voice in voices.Values)
@@ -320,6 +338,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 拒绝从后台线程或已销毁的管理器操作 Unity 音源。
         private void MainThread()
         {
             if (IsDestroying)
@@ -333,6 +352,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 拒绝无效枚举值，避免用它索引分组配置。
         private static void ValidateGroup(AudioGroup group)
         {
             if ((int)group < 0 || (int)group > (int)AudioGroup.UI)
@@ -341,6 +361,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 音量必须在 0 到 1 之间，NaN 也视为无效。
         private static void ValidateVolume(float volume)
         {
             if (float.IsNaN(volume) || volume < 0 || volume > 1)
@@ -349,6 +370,7 @@ namespace Game.Framework.Audio
             }
         }
 
+        // 销毁在用和池中的音源，清理背景音乐与暂停状态。
         private void ClearPlayback()
         {
             foreach (var voice in voices.Values)
@@ -376,6 +398,7 @@ namespace Game.Framework.Audio
             paused = false;
         }
 
+        /// <summary>组件生命周期结束时清理运行中播放及音源池。</summary>
         protected override void OnExit()
         {
             ClearPlayback();

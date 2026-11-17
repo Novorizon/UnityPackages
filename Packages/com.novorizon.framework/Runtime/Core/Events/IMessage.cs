@@ -6,8 +6,10 @@
 ///------------------------------------
 namespace Game.Framework.Event
 {
+    /// <summary>定义消息的调用契约。</summary>
     public interface IMessage { }
 
+    /// <summary>提供通知的实现。</summary>
     public class Notification : IMessage
     {
         public object Message {  get; set; }

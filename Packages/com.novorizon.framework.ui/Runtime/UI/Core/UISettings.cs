@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
+    /// <summary>界面对应的设置。保存本模块使用的配置。</summary>
     [CreateAssetMenu(menuName = "UI/UI Settings", fileName = "UISettings")]
     public sealed class UISettings : ScriptableObject
     {

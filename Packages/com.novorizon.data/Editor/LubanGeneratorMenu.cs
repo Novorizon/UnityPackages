@@ -5,10 +5,12 @@ using UnityEngine;
 
 namespace Game.Framework.Data.Editor
 {
+    /// <summary>提供Luban 生成器菜单的实现。</summary>
     public static class LubanGeneratorMenu
     {
         private const string SettingsPath = "Assets/Settings/LubanGenerator.asset";
         private static bool busy;
+        /// <summary>创建项目。</summary>
         [MenuItem("Novorizon/Data/Luban/Create Project")]
         public static void CreateProject()
         {
@@ -41,6 +43,7 @@ namespace Game.Framework.Data.Editor
             Debug.Log("Luban project created at Config/Luban. Edit Data/example.xlsx, then use Novorizon/Data/Luban/Generate.");
         }
 
+        /// <summary>生成 Luban 生成器菜单。</summary>
         [MenuItem("Novorizon/Data/Luban/Generate")]
         public static async void Generate()
         {

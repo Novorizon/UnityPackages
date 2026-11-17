@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Ability.Editor.Odin
 {
+    /// <summary>提供技能编辑工作台主题的实现。</summary>
     internal sealed class AbilityStudioTheme
     {
         public readonly bool Dark = EditorGUIUtility.isProSkin;
@@ -11,6 +12,7 @@ namespace Game.Ability.Editor.Odin
         public readonly GUIStyle Title, Heading, Body, Small, Eyebrow, Code, Button, PrimaryButton, Card, Search, TreeRow, TreeSelected, Tab, ActiveTab;
         private readonly Texture2D cardTexture, selectedTexture, primaryTexture;
 
+        /// <summary>创建 AbilityStudioTheme 并采用默认配置。</summary>
         public AbilityStudioTheme()
         {
             Background = Hex(Dark ? 0x121823 : 0xEFF2F7);
@@ -57,6 +59,7 @@ namespace Game.Ability.Editor.Odin
             ActiveTab.border = new RectOffset(8, 8, 8, 8);
         }
 
+        /// <summary>结束技能编辑工作台主题对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             Object.DestroyImmediate(cardTexture);
@@ -64,12 +67,14 @@ namespace Game.Ability.Editor.Odin
             Object.DestroyImmediate(primaryTexture);
         }
 
+        /// <summary>调用 GUILayoutUtility.GetRect 完成规则。</summary>
         public void Rule()
         {
             Rect rect = GUILayoutUtility.GetRect(1, 1, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(rect, Border);
         }
 
+        /// <summary>调用 GUILayoutUtility.GetRect 完成Badge。</summary>
         public void Badge(string text, Color color, float width = 70)
         {
             Rect rect = GUILayoutUtility.GetRect(width, 22, GUILayout.Width(width));
@@ -81,6 +86,7 @@ namespace Game.Ability.Editor.Odin
             GUI.Label(rect, text, style);
         }
 
+        /// <summary>根据传入参数取得标签。</summary>
         private static GUIStyle Label(int size, Color color, FontStyle weight = FontStyle.Normal)
         {
             GUIStyle style = new GUIStyle(EditorStyles.label) { fontSize = size, fontStyle = weight, richText = false, clipping = TextClipping.Clip };
@@ -88,8 +94,10 @@ namespace Game.Ability.Editor.Odin
             return style;
         }
 
+        /// <summary>根据传入参数取得十六进制。</summary>
         private static Color Hex(int value) => new Color((value >> 16 & 255) / 255f, (value >> 8 & 255) / 255f, (value & 255) / 255f, 1f);
 
+        /// <summary>根据传入参数取得Rounded。</summary>
         private static Texture2D Rounded(Color color)
         {
             const int size = 24;

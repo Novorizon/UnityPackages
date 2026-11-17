@@ -5,10 +5,12 @@ using TMPro;
 
 namespace Game.Framework.Localization.UGUI
 {
+    /// <summary>提供已本地化文本的实现。</summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(TextMeshProUGUI))]
     public sealed class LocalizedText : MonoBehaviour
     {
+        /// <summary>表示已本地化文本中的语言字体。</summary>
         [Serializable]
         public sealed class LanguageFont
         {
@@ -24,6 +26,7 @@ namespace Game.Framework.Localization.UGUI
         private bool capturedFont, subscribed;
         private object[] arguments;
 
+        /// <summary>绑定已本地化文本。</summary>
         public void Bind(LocalizationManager service, string translationKey, params object[] formatArguments)
         {
             Unsubscribe();
@@ -34,6 +37,7 @@ namespace Game.Framework.Localization.UGUI
             Refresh();
         }
 
+        /// <summary>刷新已本地化文本。</summary>
         public void Refresh()
         {
             if (manager == null || !manager.IsInitialized || string.IsNullOrEmpty(key))
@@ -83,6 +87,7 @@ namespace Game.Framework.Localization.UGUI
             target.text = arguments == null ? manager.Get(key) : manager.Format(key, arguments);
         }
 
+        /// <summary>响应 Unity 组件启用。</summary>
         private void OnEnable()
         {
             if (manager == null || !manager.IsInitialized)
@@ -94,6 +99,7 @@ namespace Game.Framework.Localization.UGUI
             Refresh();
         }
 
+        /// <summary>订阅已本地化文本。</summary>
         private void Subscribe()
         {
             if (!subscribed && isActiveAndEnabled && manager != null && manager.IsInitialized)
@@ -103,8 +109,11 @@ namespace Game.Framework.Localization.UGUI
             }
         }
 
+        /// <summary>响应语言变化。</summary>
         private void OnLanguageChanged(string language) => Refresh();
+        /// <summary>响应 Unity 组件停用。</summary>
         private void OnDisable() => Unsubscribe();
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             Unsubscribe();
@@ -112,6 +121,7 @@ namespace Game.Framework.Localization.UGUI
             arguments = null;
         }
 
+        /// <summary>取消订阅已本地化文本。</summary>
         private void Unsubscribe()
         {
             if (subscribed && manager != null)

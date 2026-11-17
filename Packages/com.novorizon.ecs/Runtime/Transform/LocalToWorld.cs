@@ -2,6 +2,7 @@ using Unity.Mathematics;
 
 namespace ECS
 {
+    /// <summary>提供本地 To 世界的实现。</summary>
     public class LocalToWorld : IComponent
     {
         public float4x4 Value;

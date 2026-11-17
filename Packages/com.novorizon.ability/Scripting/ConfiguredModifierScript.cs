@@ -3,18 +3,22 @@ namespace Game.Ability
     /// <summary>
     /// Default script used when a modifier is fully described by configured lifecycle actions.
     /// </summary>
+    /// <remarks>提供已配置状态修饰器脚本的实现。</remarks>
     public sealed class ConfiguredModifierScript : ModifierScript
     {
+        /// <summary>响应已创建。</summary>
         public override void OnCreated(ModifierApplyOptions options)
         {
             ActionRunner.Execute(Modifier.Definition.OnCreatedActions, CreateContext(Parent));
         }
 
+        /// <summary>响应 Refresh。</summary>
         public override void OnRefresh(ModifierApplyOptions options)
         {
             ActionRunner.Execute(Modifier.Definition.OnRefreshActions, CreateContext(Parent));
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         public override void OnDestroy()
         {
             // Runtime teardown must release the modifier without executing gameplay actions such
@@ -27,11 +31,13 @@ namespace Game.Ability
             ActionRunner.Execute(Modifier.Definition.OnDestroyActions, CreateContext(Parent));
         }
 
+        /// <summary>响应间隔思考。</summary>
         public override void OnIntervalThink()
         {
             ActionRunner.Execute(Modifier.Definition.IntervalActions, CreateContext(Parent));
         }
 
+        /// <summary>响应事件。</summary>
         public override void OnEvent(ModifierEvent modifierEvent)
         {
             if (modifierEvent == null || Modifier == null || Modifier.Definition == null)
@@ -54,6 +60,7 @@ namespace Game.Ability
             ActionRunner.Execute(Modifier.Definition.TriggerActions, CreateContext(target, modifierEvent));
         }
 
+        /// <summary>返回Should 句柄事件的判断结果。</summary>
         internal bool ShouldHandleEvent(ModifierEvent modifierEvent)
         {
             DamageFlags flags = modifierEvent.DamageResult != null ? modifierEvent.DamageResult.Flags : modifierEvent.DamageInfo != null ? modifierEvent.DamageInfo.Flags : DamageFlags.None;
@@ -96,6 +103,7 @@ namespace Game.Ability
             }
         }
 
+        /// <summary>创建上下文。</summary>
         private CastContext CreateContext(IUnit target, ModifierEvent modifierEvent = null)
         {
             CastContext context = ActionRunner.CreateSingleTargetContext(Engine, Ability, Caster, target, Parent != null ? Parent.Position : UnityEngine.Vector3.zero);
@@ -105,6 +113,7 @@ namespace Game.Ability
             return context;
         }
 
+        /// <summary>判断是否为 Same 单位。</summary>
         private static bool IsSameUnit(IUnit left, IUnit right)
         {
             return left != null && right != null &&

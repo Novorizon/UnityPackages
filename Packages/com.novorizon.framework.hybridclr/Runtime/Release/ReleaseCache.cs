@@ -6,10 +6,12 @@ using System.Text;
 namespace Game.Framework.HotUpdate
 {
     // Immutable content-addressed releases. A directory rename is the commit boundary.
+    /// <summary>提供发布版本缓存的实现。</summary>
     public sealed class ReleaseCache : IDisposable
     {
         public string Root { get; }
         private FileStream lease;
+        /// <summary>使用调用方提供的root创建 ReleaseCache。</summary>
         public ReleaseCache(string root)
         {
             Root = Path.GetFullPath(root);
@@ -18,14 +20,17 @@ namespace Game.Framework.HotUpdate
                 "Cache root must not be a symbolic link.");
         }
 
+        /// <summary>取得租约。</summary>
         public void AcquireLease()
         {
             ReleasePolicy.Require(lease == null, "Cache lease is already held.");
             lease = new FileStream(Path.Combine(Root, ".lease"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
         }
 
+        /// <summary>结束发布版本缓存对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose() { lease?.Dispose(); lease = null; }
 
+        /// <summary>删除发布版本。</summary>
         public void DeleteRelease(string id)
         {
             string directory = ReleasePath(id);
@@ -38,6 +43,7 @@ namespace Game.Framework.HotUpdate
             Directory.Delete(directory);
         }
 
+        /// <summary>释放路径。</summary>
         public string ReleasePath(string id)
         {
             ReleasePolicy.Require(ReleasePolicy.IsHash(id), "Invalid release content ID.");
@@ -48,10 +54,12 @@ namespace Game.Framework.HotUpdate
             return path;
         }
 
+        /// <summary>枚举 Releases。</summary>
         public string[] EnumerateReleases() => Directory.GetDirectories(Root)
             .Where(p => ReleasePolicy.IsHash(Path.GetFileName(p))
                 && (File.GetAttributes(p) & FileAttributes.ReparsePoint) == 0).ToArray();
 
+        /// <summary>开始暂存。</summary>
         public string BeginStage()
         {
             string path = Path.Combine(Root, ".staging-" + Guid.NewGuid().ToString("N"));
@@ -70,6 +78,7 @@ namespace Game.Framework.HotUpdate
             return destination;
         }
 
+        /// <summary>调用 RequireStage 完成Discard 暂存。</summary>
         public void DiscardStage(string stage)
         {
             RequireStage(stage);
@@ -85,6 +94,7 @@ namespace Game.Framework.HotUpdate
             Directory.Delete(stage);
         }
 
+        /// <summary>调用 Directory.GetDirectories 完成Clean 已中断 Downloads。</summary>
         public void CleanInterruptedDownloads()
         {
             foreach (string path in Directory.GetDirectories(Root, ".staging-*")) DiscardStage(path);
@@ -92,6 +102,7 @@ namespace Game.Framework.HotUpdate
                 if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) == 0) File.Delete(path);
         }
 
+        /// <summary>检查暂存是否满足前置条件。</summary>
         private void RequireStage(string path)
         {
             path = Path.GetFullPath(path);
@@ -101,6 +112,7 @@ namespace Game.Framework.HotUpdate
                 "Staging path escaped cache root.");
         }
 
+        /// <summary>根据传入参数取得Rejection 路径。</summary>
         private string RejectionPath(string id)
         {
             ReleasePath(id);
@@ -110,7 +122,9 @@ namespace Game.Framework.HotUpdate
             return Path.Combine(directory, id);
         }
 
+        /// <summary>返回Was 已拒绝的判断结果。</summary>
         public bool WasRejected(string id) => File.Exists(RejectionPath(id)) || File.Exists(Path.Combine(ReleasePath(id), "rejected"));
+        /// <summary>判断是否为健康。</summary>
         public bool IsHealthy(string id) => File.Exists(Path.Combine(ReleasePath(id), "healthy"));
 
         /// <summary>检查上次启动是否停在未完成状态，供后续版本选择处理。</summary>
@@ -122,7 +136,9 @@ namespace Game.Framework.HotUpdate
             return true;
         }
 
+        /// <summary>开始启动。</summary>
         public void BeginBoot(string id) => File.WriteAllText(Path.Combine(ReleasePath(id), "attempt"), "starting");
+        /// <summary>标记健康。</summary>
         public void MarkHealthy(string id, bool advanceAcceptedReceipt = true)
         {
             string path = ReleasePath(id);
@@ -140,6 +156,7 @@ namespace Game.Framework.HotUpdate
             File.Delete(Path.Combine(path, "attempt"));
         }
 
+        /// <summary>拒绝发布版本缓存。</summary>
         public void Reject(string id, string reason)
         {
             string path = ReleasePath(id);

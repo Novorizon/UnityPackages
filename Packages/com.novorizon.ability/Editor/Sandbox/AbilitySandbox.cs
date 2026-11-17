@@ -8,6 +8,7 @@ using UnityEngine;
 namespace Game.Ability.Editor.Core
 {
     /// <summary>Explicit, bounded input for one disposable editor simulation. These are not production balance settings.</summary>
+    /// <remarks>技能沙盒对应的选项。定义可由调用方设置的选项。</remarks>
     public sealed class AbilitySandboxOptions
     {
         public int MaxExecutionDepth = 64;
@@ -17,6 +18,7 @@ namespace Game.Ability.Editor.Core
         public int TargetCount = 8;
     }
 
+    /// <summary>技能沙盒单位对应的结果。携带操作执行结果和相关数据。</summary>
     public sealed class AbilitySandboxUnitResult
     {
         public int EntityId;
@@ -30,6 +32,7 @@ namespace Game.Ability.Editor.Core
     }
 
     /// <summary>Value-only evidence for this particular scene and time window; never a proof about every possible event path.</summary>
+    /// <remarks>提供技能沙盒报告的实现。</remarks>
     public sealed class AbilitySandboxReport
     {
         public bool Success;
@@ -60,12 +63,14 @@ namespace Game.Ability.Editor.Core
     /// No custom AbilityScript/ModifierScript factory is discovered or executed. Providers are supplied
     /// explicitly by the caller; the normal UI supplies JSON providers from its selected workspace.
     /// </summary>
+    /// <remarks>提供技能沙盒的实现。</remarks>
     public static class AbilitySandbox
     {
         private const int MaximumLogEntries = 512;
         private const float InitialHealth = 5000f;
         private const float MaximumHealth = 10000f;
 
+        /// <summary>运行当前操作。</summary>
         public static AbilitySandboxReport Run(IEnumerable<IAbilityDefinitionProvider> providers, string abilityName, int level, AbilitySandboxOptions options = null)
         {
             AbilitySandboxReport report = new AbilitySandboxReport();
@@ -214,6 +219,7 @@ namespace Game.Ability.Editor.Core
             return report;
         }
 
+        /// <summary>验证选项。</summary>
         private static bool ValidateOptions(AbilitySandboxOptions options, out string error)
         {
             error = null;
@@ -225,6 +231,7 @@ namespace Game.Ability.Editor.Core
             return error == null;
         }
 
+        /// <summary>构建目标。</summary>
         private static void BuildTargets(SandboxWorld world, AbilitySystem engine, AbilityDefinition definition, int level, int count)
         {
             bool friendlyOnly = definition.TargetTeam == TargetTeam.Friendly;
@@ -243,6 +250,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>构建指令。</summary>
         private static CastOrder BuildOrder(Ability ability, SandboxUnit primaryTarget)
         {
             AbilityBehavior behavior = ability.Definition.Behavior;
@@ -256,6 +264,7 @@ namespace Game.Ability.Editor.Core
             return order;
         }
 
+        /// <summary>选取单位类型。</summary>
         private static UnitType PickUnitType(UnitType allowed)
         {
             foreach (UnitType candidate in new[] { UnitType.Hero, UnitType.Basic, UnitType.Creep, UnitType.Building, UnitType.Ward, UnitType.Other })
@@ -263,6 +272,7 @@ namespace Game.Ability.Editor.Core
             return UnitType.Hero;
         }
 
+        /// <summary>添加校验 Messages。</summary>
         private static void AddValidationMessages(AbilitySandboxReport report, AbilityValidationReport validation)
         {
             if (validation == null) return;
@@ -273,6 +283,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>记录事件。</summary>
         private static void RecordEvent(AbilitySandboxReport report, float time, RuntimeEvent value)
         {
             if (value == null) return;
@@ -293,6 +304,7 @@ namespace Game.Ability.Editor.Core
             report.Events.Add(line.ToString());
         }
 
+        /// <summary>采集单位。</summary>
         private static void CaptureUnits(AbilitySandboxReport report, AbilitySystem engine, SandboxWorld world)
         {
             foreach (SandboxUnit unit in world.Units)
@@ -310,6 +322,7 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>根据传入参数取得对象数量。</summary>
         private static int ObjectCount(AbilitySystem engine, SandboxWorld world)
         {
             int count = engine.Modifiers.Count + engine.Projectiles.Count + engine.Thinkers.Count;
@@ -317,10 +330,13 @@ namespace Game.Ability.Editor.Core
             return count;
         }
 
+        /// <summary>返回Finite的判断结果。</summary>
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
+        /// <summary>表示技能沙盒中的沙盒单位。</summary>
         private sealed class SandboxUnit : ICombatUnit
         {
+            /// <summary>使用调用方提供的entityId、teamId、position创建 SandboxUnit。</summary>
             public SandboxUnit(int entityId, int teamId, Vector3 position, UnitType unitType)
             {
                 EntityId = entityId; TeamId = teamId; Position = position; UnitType = unitType;
@@ -340,10 +356,14 @@ namespace Game.Ability.Editor.Core
             public float BasePhysicalDamageBlock => 0f;
             public float DamageTaken { get; private set; }
             public float HealingReceived { get; private set; }
+            /// <summary>判断是否为可见 To 阵营。</summary>
             public bool IsVisibleToTeam(int teamId) => true;
+            /// <summary>应用伤害。</summary>
             public void ApplyDamage(DamageResult result) { ApplyFinalDamage(result); }
+            /// <summary>调用 ApplyFinalHeal 完成治疗。</summary>
             public void Heal(HealInfo info) { ApplyFinalHeal(info); }
 
+            /// <summary>应用最终伤害。</summary>
             public DamageApplicationResult ApplyFinalDamage(DamageResult result)
             {
                 float applied = result == null ? 0f : Math.Min(CurrentHealth, Math.Max(0f, result.FinalAmount));
@@ -351,6 +371,7 @@ namespace Game.Ability.Editor.Core
                 return new DamageApplicationResult(applied, CurrentHealth <= 0f);
             }
 
+            /// <summary>应用最终治疗。</summary>
             public HealApplicationResult ApplyFinalHeal(HealInfo info)
             {
                 float applied = info == null ? 0f : Math.Min(MaxHealth - CurrentHealth, Math.Max(0f, info.Amount));
@@ -359,12 +380,16 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>表示技能沙盒中的沙盒世界。</summary>
         private sealed class SandboxWorld : IWorld
         {
             public readonly List<SandboxUnit> Units = new List<SandboxUnit>();
             public float Time { get; private set; }
+            /// <summary>推进沙盒世界。</summary>
             public void Advance(float delta) { Time += delta; }
+            /// <summary>检查是否存在直线 Of 视线。</summary>
             public bool HasLineOfSight(IUnit viewer, Vector3 position) => true;
+            /// <summary>查找单位。</summary>
             public void FindUnits(Vector3 center, float radius, TargetQuery query, IList<IUnit> results)
             {
                 float squared = radius * radius;
@@ -373,11 +398,14 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>表示技能沙盒中的沙盒资源。</summary>
         private sealed class SandboxResources : IResourceOwner
         {
             public const float StartingMana = 1000000f;
             public float Mana { get; private set; } = StartingMana;
+            /// <summary>检查是否存在法力。</summary>
             public bool HasMana(float amount) => amount <= Mana;
+            /// <summary>返回Spend 法力的判断结果。</summary>
             public bool SpendMana(float amount)
             {
                 if (!HasMana(amount)) return false;
@@ -386,27 +414,36 @@ namespace Game.Ability.Editor.Core
             }
         }
 
+        /// <summary>表示技能沙盒中的沙盒演出。</summary>
         private sealed class SandboxPresentation : IPresentation
         {
             private readonly List<SandboxHandle> handles = new List<SandboxHandle>();
             public int ActiveCount { get { int count = 0; foreach (SandboxHandle handle in handles) if (handle.IsActive) count++; return count; } }
+            /// <summary>播放效果。</summary>
             public void PlayEffect(string effectName, Vector3 position) { }
+            /// <summary>播放效果。</summary>
             public void PlayEffect(string effectName, IUnit target) { }
+            /// <summary>播放音效。</summary>
             public void PlaySound(string soundName, Vector3 position) { }
+            /// <summary>播放持久化效果。</summary>
             public IPresentationHandle PlayPersistentEffect(string effectName, IUnit target)
             {
                 SandboxHandle handle = new SandboxHandle(effectName, target != null ? target.EntityId : 0);
                 handles.Add(handle); return handle;
             }
+            /// <summary>停止当前所有相关操作。</summary>
             public void StopAll() { foreach (SandboxHandle handle in handles) handle.Stop(); }
         }
 
+        /// <summary>沙盒对应的句柄。保存访问本次操作或对象所需的标识。</summary>
         private sealed class SandboxHandle : IPresentationHandle
         {
+            /// <summary>使用调用方提供的effectName、targetEntityId创建 SandboxHandle。</summary>
             public SandboxHandle(string effectName, int targetEntityId) { EffectName = effectName; TargetEntityId = targetEntityId; }
             public string EffectName { get; }
             public int TargetEntityId { get; }
             public bool IsActive { get; private set; } = true;
+            /// <summary>停止沙盒句柄。</summary>
             public void Stop() { IsActive = false; }
         }
     }

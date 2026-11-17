@@ -3,6 +3,7 @@ using System;
 namespace Game.Resource
 {
     /// <summary>A scalar snapshot of one manager-owned independent acquisition, not native memory/refcounts.</summary>
+    /// <remarks>提供资源租约诊断的实现。</remarks>
     public sealed class ResourceLeaseDiagnostic
     {
         public string SessionId { get; }
@@ -16,6 +17,7 @@ namespace Game.Resource
         public string State { get; }
         public string CreationStack { get; }
 
+        /// <summary>使用调用方提供的sessionId、leaseId、owner创建 ResourceLeaseDiagnostic。</summary>
         internal ResourceLeaseDiagnostic(
             string sessionId,
             long leaseId,

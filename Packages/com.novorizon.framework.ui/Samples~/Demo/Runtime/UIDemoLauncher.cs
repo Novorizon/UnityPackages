@@ -10,6 +10,7 @@ using Object = UnityEngine.Object;
 namespace UI.Demo
 {
     /// <summary>Only run in the dedicated sample scene. Builds all UI and retains its own resources.</summary>
+    /// <remarks>提供界面示例启动器的实现。</remarks>
     public sealed class UIDemoLauncher : MonoBehaviour
     {
         public const string Home = "demo/home", Inventory = "demo/inventory", Popup = "demo/popup", Panel = "demo/panel", Confirm = "demo/confirm", Loading = "demo/loading", Toast = "demo/toast";
@@ -27,7 +28,9 @@ namespace UI.Demo
         public string Status => status;
         public UIDemoAssetLoader? Loader => loader;
 
+        /// <summary>启动界面示例启动器。</summary>
         async void Start() => await RunAsync(StartDemoAsync);
+        /// <summary>异步启动示例。</summary>
         public async Task StartDemoAsync()
         {
             if (starting || IsStarted || stopping)
@@ -75,6 +78,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>创建输入。</summary>
         static GameObject CreateInput()
         {
             var go = new GameObject("UI Demo Input");
@@ -98,6 +102,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>创建加载器。</summary>
         static UIDemoAssetLoader CreateLoader(bool slow)
         {
             var value = new UIDemoAssetLoader(slow ? "Delayed UI Demo" : "Immediate UI Demo", slow ? 400 : 0);
@@ -119,21 +124,28 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>异步显示物品清单。</summary>
         public async Task ShowInventoryAsync() => await Root.Pages.PushAsync(Inventory, this, lifetime.Token);
+        /// <summary>异步显示弹窗。</summary>
         public async Task ShowPopupAsync() => await Root.Popups.OpenAsync(Popup, this, cancellationToken: lifetime.Token);
+        /// <summary>异步显示面板。</summary>
         public async Task ShowPanelAsync() => await Root.Panels.ToggleAsync(Panel, this, lifetime.Token);
+        /// <summary>取得返回 Async。</summary>
         public async Task BackAsync()
         {
             await Root.HandleBackAsync(lifetime.Token);
         }
 
+        /// <summary>异步显示 Confirm。</summary>
         public async Task ShowConfirmAsync()
         {
             var result = await AskAsync("A typed result: choose Yes or No.", lifetime.Token);
             Note(result.HasValue ? "Dialog choice: " + result.Value : "Dialog dismissed: " + result.CloseReason);
         }
 
+        /// <summary>根据传入参数取得AskAsync。</summary>
         internal Task<UIDialogResult<bool>> AskAsync(string question, CancellationToken token) => Root.Dialogs.ShowAsync<bool>(Confirm, new UIDemoQuestion(this, question), cancellationToken: token);
+        /// <summary>异步显示覆盖层。</summary>
         public async Task ShowOverlayAsync()
         {
             if (overlayCancellation != null)
@@ -166,8 +178,11 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>取消覆盖层。</summary>
         public void CancelOverlay() => overlayCancellation?.Cancel();
+        /// <summary>显示提示。</summary>
         public void ShowToast() => Root.Toasts.Enqueue(Toast, "Toast: cached view, completion-driven queue.");
+        /// <summary>发布时钟脉冲。</summary>
         public void PublishPulse()
         {
             pulses++;
@@ -175,6 +190,7 @@ namespace UI.Demo
             Note("Published pulse " + pulses + ". Open pages receive it; closed pages are automatically unsubscribed.");
         }
 
+        /// <summary>异步重置示例。</summary>
         public async Task ResetDemoAsync()
         {
             CancelOverlay();
@@ -183,6 +199,7 @@ namespace UI.Demo
             Note("Reset created fresh managers; old scopes and UI handles ended.");
         }
 
+        /// <summary>异步切换加载器。</summary>
         public async Task SwitchLoaderAsync()
         {
             CancelOverlay();
@@ -205,6 +222,7 @@ namespace UI.Demo
             Note(delayed ? "Switched interface implementation: every load now waits 400 ms." : "Switched back to immediate in-memory loading.");
         }
 
+        /// <summary>处理Note。</summary>
         public void Note(string message)
         {
             if (!stopping)
@@ -213,7 +231,9 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>运行当前操作。</summary>
         public void Run(Func<Task> operation) => _ = RunAsync(operation);
+        /// <summary>异步运行当前操作。</summary>
         async Task RunAsync(Func<Task> operation)
         {
             try
@@ -230,6 +250,7 @@ namespace UI.Demo
             }
         }
 
+        /// <summary>停止示例。</summary>
         public void StopDemo()
         {
             if (stopping)
@@ -263,6 +284,7 @@ namespace UI.Demo
             settings = null;
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         void OnDestroy()
         {
             StopDemo();
@@ -270,19 +292,23 @@ namespace UI.Demo
         }
     }
 
+    /// <summary>保存界面示例时钟脉冲所需的数据与配套操作。</summary>
     internal readonly struct UIDemoPulse
     {
         internal readonly int Value;
+        /// <summary>使用调用方提供的value创建 UIDemoPulse。</summary>
         internal UIDemoPulse(int value)
         {
             Value = value;
         }
     }
 
+    /// <summary>提供界面示例问题的实现。</summary>
     internal sealed class UIDemoQuestion
     {
         internal readonly UIDemoLauncher Owner;
         internal readonly string Message;
+        /// <summary>使用调用方提供的owner、message创建 UIDemoQuestion。</summary>
         internal UIDemoQuestion(UIDemoLauncher owner, string message)
         {
             Owner = owner;

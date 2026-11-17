@@ -9,12 +9,14 @@ namespace Game.Ability.Editor.Core
     /// validation. SCC weights bound simple reference paths conservatively; this is neither
     /// runtime execution depth nor a prohibition on event/interval cycles.
     /// </summary>
+    /// <remarks>提供技能引用 Preflight的实现。</remarks>
     public static class AbilityReferencePreflight
     {
         public const int DefaultMaximumReferencePath = 256;
         public const int MaximumAllowedReferencePath = 1024;
         public const string DiagnosticCode = "EDITOR_REFERENCE_COMPLEXITY";
 
+        /// <summary>验证传入的 documents、maximumReferencePath。</summary>
         public static IReadOnlyList<AbilityEditorDiagnostic> Validate(IEnumerable<JsonAbilityDocument> documents, int maximumReferencePath = DefaultMaximumReferencePath)
         {
             List<KeyValuePair<string, JsonAbilityDocument>> sources = new List<KeyValuePair<string, JsonAbilityDocument>>();
@@ -23,6 +25,7 @@ namespace Game.Ability.Editor.Core
             return ValidateSources(sources, maximumReferencePath);
         }
 
+        /// <summary>验证 Sources。</summary>
         public static IReadOnlyList<AbilityEditorDiagnostic> ValidateSources(IEnumerable<KeyValuePair<string, JsonAbilityDocument>> sources, int maximumReferencePath = DefaultMaximumReferencePath)
         {
             Graph graph = new Graph();
@@ -36,6 +39,7 @@ namespace Game.Ability.Editor.Core
         /// Registry.LoadProviders/IsValid/ApplyTo call enters production graph validation.
         /// Callers should cache these bundles rather than executing a provider twice.
         /// </summary>
+        /// <remarks>验证 Bundles。</remarks>
         public static IReadOnlyList<AbilityEditorDiagnostic> ValidateBundles(IEnumerable<AbilityDefinitionBundle> bundles, int maximumReferencePath = DefaultMaximumReferencePath)
         {
             Graph graph = new Graph();
@@ -44,6 +48,7 @@ namespace Game.Ability.Editor.Core
             return graph.Validate(maximumReferencePath);
         }
 
+        /// <summary>表示技能引用 Preflight中的节点。</summary>
         private sealed class Node
         {
             public string Name;
@@ -52,18 +57,22 @@ namespace Game.Ability.Editor.Core
             public readonly HashSet<string> ModifierReferences = new HashSet<string>(StringComparer.Ordinal);
         }
 
+        /// <summary>保存帧所需的数据与配套操作。</summary>
         private readonly struct Frame
         {
             public readonly int Node;
             public readonly int NextEdge;
+            /// <summary>使用调用方提供的node、nextEdge创建 Frame。</summary>
             public Frame(int node, int nextEdge) { Node = node; NextEdge = nextEdge; }
         }
 
+        /// <summary>表示技能引用 Preflight中的图。</summary>
         private sealed class Graph
         {
             private readonly List<Node> nodes = new List<Node>();
             private readonly Dictionary<string, int> indices = new Dictionary<string, int>(StringComparer.Ordinal);
 
+            /// <summary>添加文档。</summary>
             public void AddDocument(JsonAbilityDocument document, string path)
             {
                 if (document == null) return;
@@ -89,6 +98,7 @@ namespace Game.Ability.Editor.Core
                     }
             }
 
+            /// <summary>添加资源包。</summary>
             public void AddBundle(AbilityDefinitionBundle bundle)
             {
                 if (bundle == null) return;
@@ -114,6 +124,7 @@ namespace Game.Ability.Editor.Core
                 }
             }
 
+            /// <summary>验证传入的 budget。</summary>
             public IReadOnlyList<AbilityEditorDiagnostic> Validate(int budget)
             {
                 if (budget < 1 || budget > MaximumAllowedReferencePath)
@@ -210,6 +221,7 @@ namespace Game.Ability.Editor.Core
                 return diagnostics;
             }
 
+            /// <summary>添加图。</summary>
             private Node Add(bool ability, string name, string path)
             {
                 if (string.IsNullOrEmpty(name)) return null;
@@ -221,9 +233,12 @@ namespace Game.Ability.Editor.Core
                 return node;
             }
 
+            /// <summary>根据传入参数取得键。</summary>
             private static string Key(bool ability, string name) => (ability ? "A\0" : "M\0") + name;
+            /// <summary>调用 string.IsNullOrEmpty 完成引用。</summary>
             private static void Reference(Node node, string name) { if (!string.IsNullOrEmpty(name)) node.ModifierReferences.Add(name); }
 
+            /// <summary>调用 Reference 完成动作。</summary>
             private static void Actions(Node node, IEnumerable<JsonAction> actions)
             {
                 if (actions != null)
@@ -231,6 +246,7 @@ namespace Game.Ability.Editor.Core
                         if (action != null && action.actionType == (int)ActionType.AddModifier) Reference(node, action.modifierName);
             }
 
+            /// <summary>调用 Reference 完成动作。</summary>
             private static void Actions(Node node, IEnumerable<ActionDefinition> actions)
             {
                 if (actions != null)
@@ -238,6 +254,7 @@ namespace Game.Ability.Editor.Core
                         if (action != null && action.ActionType == ActionType.AddModifier) Reference(node, action.ModifierName);
             }
 
+            /// <summary>根据传入参数取得新列表。</summary>
             private static List<int>[] NewLists(int count)
             {
                 List<int>[] lists = new List<int>[count];
@@ -245,6 +262,7 @@ namespace Game.Ability.Editor.Core
                 return lists;
             }
 
+            /// <summary>根据传入参数取得新 Filled。</summary>
             private static int[] NewFilled(int count, int value)
             {
                 int[] result = new int[count];
@@ -252,6 +270,7 @@ namespace Game.Ability.Editor.Core
                 return result;
             }
 
+            /// <summary>根据传入参数取得Finishing 指令。</summary>
             private static List<int> FinishingOrder(int[][] edges)
             {
                 List<int> order = new List<int>(edges.Length);

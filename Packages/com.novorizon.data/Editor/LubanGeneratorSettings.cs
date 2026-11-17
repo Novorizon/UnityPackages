@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Game.Framework.Data.Editor
 {
+    /// <summary>Luban 生成器对应的设置。保存本模块使用的配置。</summary>
     [CreateAssetMenu(menuName = "Novorizon/Luban Generator Settings")]
     public sealed class LubanGeneratorSettings : ScriptableObject
     {

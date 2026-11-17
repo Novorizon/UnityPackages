@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Game.Framework.Story.Unity
 {
+    /// <summary>提供剧情选项数据的实现。</summary>
     [Serializable]
     public sealed class StoryChoiceData
     {
@@ -12,6 +13,7 @@ namespace Game.Framework.Story.Unity
         public string targetNodeId;
     }
 
+    /// <summary>提供剧情参数数据的实现。</summary>
     [Serializable]
     public sealed class StoryParameterData
     {
@@ -19,6 +21,7 @@ namespace Game.Framework.Story.Unity
         public string value;
     }
 
+    /// <summary>提供剧情节点数据的实现。</summary>
     [Serializable]
     public sealed class StoryNodeData
     {
@@ -36,6 +39,7 @@ namespace Game.Framework.Story.Unity
         public StoryParameterData[] parameters = Array.Empty<StoryParameterData>();
         public double timeoutSeconds;
 
+        /// <summary>构建剧情节点数据。</summary>
         internal StoryNode Build()
         {
             var options = new List<StoryChoice>();
@@ -73,6 +77,7 @@ namespace Game.Framework.Story.Unity
         }
     }
 
+    /// <summary>提供剧情序列资源的实现。</summary>
     [CreateAssetMenu(menuName = "Novorizon/Story/Sequence", fileName = "StorySequence")]
     public sealed class StorySequenceAsset : ScriptableObject
     {
@@ -82,6 +87,7 @@ namespace Game.Framework.Story.Unity
         public StoryNodeData[] nodes = Array.Empty<StoryNodeData>();
 
         /// <summary>Build a validated immutable runtime snapshot before starting playback.</summary>
+        /// <remarks>构建剧情序列资源。</remarks>
         public StorySequence Build()
         {
             var result = new List<StoryNode>();

@@ -6,6 +6,7 @@ using UnityEngine;
 namespace GpuAnimatorSamples
 {
     // Optional sample: Framework owns the generic pool; this adapter owns playback references.
+    /// <summary>提供GPU 动画播放器对象池的实现。</summary>
     public sealed class GpuAnimatorPool : IDisposable
     {
         private GameObjectPool pool;
@@ -13,12 +14,14 @@ namespace GpuAnimatorSamples
         private readonly Dictionary<GpuAnimator, GameObject> active = new Dictionary<GpuAnimator, GameObject>();
         public int ActiveCount => active.Count;
 
+        /// <summary>使用调用方提供的loadedPrefab、sharedData、maximumRetained创建 GpuAnimatorPool。</summary>
         public GpuAnimatorPool(GameObject loadedPrefab, AnimationData sharedData, int maximumRetained = 32)
         {
             data = sharedData ?? throw new ArgumentNullException(nameof(sharedData));
             pool = new GameObjectPool(loadedPrefab, maximumRetained);
         }
 
+        /// <summary>生成 GPU 动画播放器对象池。</summary>
         public GpuAnimator Spawn(string clipName, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             if (pool == null)
@@ -58,6 +61,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>回收 GPU 动画播放器对象池。</summary>
         public void Recycle(GpuAnimator player)
         {
             if (pool == null)
@@ -75,6 +79,7 @@ namespace GpuAnimatorSamples
             pool.Despawn(instance);
         }
 
+        /// <summary>结束GPU 动画播放器对象池对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
             if (pool == null)

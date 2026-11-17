@@ -9,18 +9,23 @@ namespace RTree
     /// candidates; ray queries perform two-sided triangle intersection tests.
     /// Equal payloads remain distinct source primitives.
     /// </summary>
+    /// <remarks>提供三角形层次包围盒的实现。</remarks>
     public sealed class TriangleBvh<T> : IBoundsQuery3<T>, IRayQuery3<T>
     {
+        /// <summary>表示三角形层次包围盒中的工作区。</summary>
         private sealed class Workspace
         {
             internal readonly List<int> Indices = new List<int>();
             internal readonly List<RayHit<int>> Hits = new List<RayHit<int>>();
         }
 
+        /// <summary>表示三角形层次包围盒中的相交检测器。</summary>
         private sealed class Intersector : IRayIntersector<int>
         {
             private readonly TriangleBvh<T> owner;
+            /// <summary>使用调用方提供的owner创建 Intersector。</summary>
             internal Intersector(TriangleBvh<T> owner) { this.owner = owner; }
+            /// <summary>检测相交相交检测器。</summary>
             public bool Intersect(int index, Ray3 ray, out double parameter)
             {
                 return owner.triangles[index].Intersects(ray, out parameter);
@@ -36,8 +41,10 @@ namespace RTree
         private T[] items = new T[0];
         private StaticBvh<int> index;
 
+        /// <summary>用默认配置创建 TriangleBvh，其余初始化交给完整构造函数。</summary>
         public TriangleBvh(IEnumerable<KeyValuePair<Triangle3, T>> items) : this(items, 4) { }
 
+        /// <summary>使用调用方提供的items、leafCapacity创建 TriangleBvh。</summary>
         public TriangleBvh(IEnumerable<KeyValuePair<Triangle3, T>> items, int leafCapacity)
         {
             if (leafCapacity < 1) throw new ArgumentOutOfRangeException("leafCapacity");
@@ -53,6 +60,7 @@ namespace RTree
 
         public int LeafCapacity { get { return leafCapacity; } }
 
+        /// <summary>重建三角形层次包围盒。</summary>
         public void Rebuild(IEnumerable<KeyValuePair<Triangle3, T>> source)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -104,25 +112,32 @@ namespace RTree
             finally { sync.ExitWriteLock(); }
         }
 
+        /// <summary>查询三角形层次包围盒。</summary>
         public int Query(Bounds3 query, List<T> results) { return Query(query, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>查询三角形层次包围盒。</summary>
         public int Query(Bounds3 query, List<T> results, QueryContext context)
         {
             return QueryRange(query, default(Sphere3), null, 0, results, context);
         }
 
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results) { return QuerySphere(sphere, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按球体查询匹配结果。</summary>
         public int QuerySphere(Sphere3 sphere, List<T> results, QueryContext context)
         {
             return QueryRange(default(Bounds3), sphere, null, 1, results, context);
         }
 
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results) { return QueryFrustum(frustum, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>按视锥体查询匹配结果。</summary>
         public int QueryFrustum(Frustum3 frustum, List<T> results, QueryContext context)
         {
             if (frustum == null) throw new ArgumentNullException("frustum");
             return QueryRange(default(Bounds3), default(Sphere3), frustum, 2, results, context);
         }
 
+        /// <summary>按范围查询匹配结果。</summary>
         private int QueryRange(Bounds3 query, Sphere3 sphere, Frustum3 frustum, int kind, List<T> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");
@@ -145,7 +160,9 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit) { return RaycastAny(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测，找到任一满足条件的命中即返回。</summary>
         public bool RaycastAny(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             sync.EnterReadLock();
@@ -159,7 +176,9 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit) { return RaycastClosest(ray, out hit, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并查找最近的命中。</summary>
         public bool RaycastClosest(Ray3 ray, out RayHit<T> hit, QueryContext context)
         {
             sync.EnterReadLock();
@@ -173,7 +192,9 @@ namespace RTree
             finally { sync.ExitReadLock(); }
         }
 
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results) { return RaycastAll(ray, results, SpatialQueryWorkspaces.Get()); }
+        /// <summary>执行射线检测并收集有效命中。</summary>
         public int RaycastAll(Ray3 ray, List<RayHit<T>> results, QueryContext context)
         {
             if (results == null) throw new ArgumentNullException("results");

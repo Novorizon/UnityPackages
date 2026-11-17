@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace GpuAnimatorSamples
 {
+    /// <summary>提供GPU 动画播放器基础示例的实现。</summary>
     public sealed class GpuAnimatorBasicExample : MonoBehaviour
     {
         [SerializeField]
@@ -16,6 +17,7 @@ namespace GpuAnimatorSamples
         private TextAsset decodedAsset;
         private AnimationData decodedData;
         private GpuAnimator player;
+        /// <summary>初始化示例。</summary>
         [ContextMenu("Initialize Sample")]
         public void InitializeSample()
         {
@@ -61,6 +63,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>播放循环。</summary>
         [ContextMenu("Play Loop")]
         public void PlayLoop()
         {
@@ -75,6 +78,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>播放动作。</summary>
         [ContextMenu("Play Action")]
         public void PlayAction()
         {
@@ -95,6 +99,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>停止播放。</summary>
         [ContextMenu("Stop Playback")]
         public void StopPlayback()
         {
@@ -104,6 +109,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>清空播放。</summary>
         [ContextMenu("Clear Playback")]
         public void ClearPlayback()
         {
@@ -113,6 +119,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>响应动作完成。</summary>
         private void OnActionCompleted(GpuAnimator completedPlayer, object userdata)
         {
             if (this != null && completedPlayer == player && Application.isPlaying)
@@ -121,6 +128,7 @@ namespace GpuAnimatorSamples
             }
         }
 
+        /// <summary>检查 Player 是否满足前置条件。</summary>
         private bool RequirePlayer()
         {
             if (!RequirePlayMode())
@@ -137,6 +145,7 @@ namespace GpuAnimatorSamples
             return false;
         }
 
+        /// <summary>检查 Play Mode 是否满足前置条件。</summary>
         private bool RequirePlayMode()
         {
             if (Application.isPlaying)
@@ -148,6 +157,7 @@ namespace GpuAnimatorSamples
             return false;
         }
 
+        /// <summary>释放 Player。</summary>
         private void ReleasePlayer()
         {
             if (player != null)
@@ -158,6 +168,7 @@ namespace GpuAnimatorSamples
             player = null;
         }
 
+        /// <summary>Unity 销毁对象时执行本对象的清理逻辑。</summary>
         private void OnDestroy()
         {
             ReleasePlayer();

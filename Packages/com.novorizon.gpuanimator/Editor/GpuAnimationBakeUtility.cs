@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+/// <summary>提供GPU 动画 Bake 工具的实现。</summary>
 internal static class GpuAnimationBakeUtility
 {
     internal const int PixelsPerBone = 8;
@@ -8,6 +9,7 @@ internal static class GpuAnimationBakeUtility
     private const double AffineTolerance = 1e-6;
     private const double FloatRelativePrecision = 1.1920928955078125e-7;
 
+    /// <summary>计算帧数量。</summary>
     internal static int CalculateFrameCount(float length, float frameRate, bool loop)
     {
         ValidateSampling(length, frameRate);
@@ -20,6 +22,7 @@ internal static class GpuAnimationBakeUtility
         return checked((int)count);
     }
 
+    /// <summary>获取示例时间。</summary>
     internal static float GetSampleTime(int frameIndex, float length, float frameRate, bool loop)
     {
         ValidateSampling(length, frameRate);
@@ -34,6 +37,7 @@ internal static class GpuAnimationBakeUtility
         return (float)time;
     }
 
+    /// <summary>计算纹理大小。</summary>
     internal static void CalculateTextureSize(int boneCount, int frameCount, int maximumTextureSize, out int width, out int height)
     {
         if (boneCount <= 0)
@@ -73,6 +77,7 @@ internal static class GpuAnimationBakeUtility
         }
     }
 
+    /// <summary>编码浮点数。</summary>
     internal static Color32 EncodeFloat(float value)
     {
         if (!IsFinite(value) || Math.Abs((double)value) >= 128)
@@ -86,6 +91,7 @@ internal static class GpuAnimationBakeUtility
         return new Color32((byte)(sign | integer), (byte)(fraction >> 16), (byte)((fraction >> 8) & 255), (byte)(fraction & 255));
     }
 
+    /// <summary>调用 ValidateMatrix 完成Decompose 矩阵。</summary>
     internal static void DecomposeMatrix(Matrix4x4 matrix, out Quaternion rotation, out Vector3 translation, out float scale)
     {
         ValidateMatrix(matrix);
@@ -162,6 +168,7 @@ internal static class GpuAnimationBakeUtility
         ValidateReconstruction(matrix, rotation, scale, largest * RelativeTolerance);
     }
 
+    /// <summary>变换包围盒。</summary>
     internal static Bounds TransformBounds(Bounds source, Matrix4x4 matrix)
     {
         ValidateBounds(source, nameof(source));
@@ -184,6 +191,7 @@ internal static class GpuAnimationBakeUtility
         return result;
     }
 
+    /// <summary>根据传入参数取得Pad 包围盒。</summary>
     internal static Bounds PadBounds(Bounds bounds)
     {
         ValidateBounds(bounds, nameof(bounds));
@@ -199,6 +207,7 @@ internal static class GpuAnimationBakeUtility
         return bounds;
     }
 
+    /// <summary>验证 Sampling。</summary>
     private static void ValidateSampling(float length, float frameRate)
     {
         if (!IsFinite(length) || length <= 0)
@@ -207,6 +216,7 @@ internal static class GpuAnimationBakeUtility
             throw new ArgumentOutOfRangeException(nameof(frameRate), "Clip frame rate must be finite and positive.");
     }
 
+    /// <summary>验证矩阵。</summary>
     private static void ValidateMatrix(Matrix4x4 matrix)
     {
         for (int i = 0; i < 16; i++)
@@ -219,6 +229,7 @@ internal static class GpuAnimationBakeUtility
             throw new ArgumentException("The matrix must be affine with a bottom row of (0, 0, 0, 1).", nameof(matrix));
     }
 
+    /// <summary>验证 Reconstruction。</summary>
     private static void ValidateReconstruction(Matrix4x4 matrix, Quaternion rotation, float scale, double tolerance)
     {
         double x = rotation.x, y = rotation.y, z = rotation.z, w = rotation.w;
@@ -235,6 +246,7 @@ internal static class GpuAnimationBakeUtility
             throw new ArgumentException("The matrix cannot be reconstructed as rotation and uniform signed scale within the relative tolerance of 0.0001.", nameof(matrix));
     }
 
+    /// <summary>验证包围盒。</summary>
     private static void ValidateBounds(Bounds bounds, string parameterName)
     {
         Vector3 center = bounds.center;
@@ -245,6 +257,7 @@ internal static class GpuAnimationBakeUtility
             throw new ArgumentException("Bounds must have finite center and nonnegative finite extents.", parameterName);
     }
 
+    /// <summary>根据传入参数取得Round 范围 Outward。</summary>
     private static float RoundExtentOutward(double value, string parameterName)
     {
         float result = ToFiniteFloat(value, parameterName);
@@ -253,6 +266,7 @@ internal static class GpuAnimationBakeUtility
         return IsFinite(result) ? result : float.MaxValue;
     }
 
+    /// <summary>将当前值转换为 Finite 浮点数。</summary>
     private static float ToFiniteFloat(double value, string parameterName)
     {
         if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > float.MaxValue)
@@ -260,6 +274,7 @@ internal static class GpuAnimationBakeUtility
         return (float)value;
     }
 
+    /// <summary>检查数值是否既非无穷大也非 NaN。</summary>
     private static bool IsFinite(float value)
     {
         return !float.IsNaN(value) && !float.IsInfinity(value);

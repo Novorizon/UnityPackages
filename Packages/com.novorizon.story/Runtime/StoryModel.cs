@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Game.Framework.Story
 {
+    /// <summary>定义剧情节点种类可选的枚举值。</summary>
     public enum StoryNodeKind
     {
         Say,
@@ -17,6 +18,7 @@ namespace Game.Framework.Story
         End
     }
 
+    /// <summary>提供剧情选项的实现。</summary>
     public sealed class StoryChoice
     {
         public string Id
@@ -32,6 +34,7 @@ namespace Game.Framework.Story
             get;
         }
 
+        /// <summary>使用调用方提供的id、textKey、targetNodeId创建 StoryChoice。</summary>
         public StoryChoice(string id, string textKey, string targetNodeId)
         {
             Id = StoryValidation.Required(id, nameof(id));
@@ -40,6 +43,7 @@ namespace Game.Framework.Story
         }
     }
 
+    /// <summary>提供剧情节点的实现。</summary>
     public sealed class StoryNode
     {
         public string Id
@@ -95,6 +99,7 @@ namespace Game.Framework.Story
             get;
         }
 
+        /// <summary>使用调用方提供的id、kind、nextId创建 StoryNode。</summary>
         public StoryNode(
             string id,
             StoryNodeKind kind,
@@ -173,6 +178,7 @@ namespace Game.Framework.Story
         }
     }
 
+    /// <summary>提供剧情序列的实现。</summary>
     public sealed class StorySequence
     {
         private readonly Dictionary<string, StoryNode> byId;
@@ -194,6 +200,7 @@ namespace Game.Framework.Story
             get;
         }
 
+        /// <summary>使用调用方提供的id、version、nodes创建 StorySequence。</summary>
         public StorySequence(string id, string version, IEnumerable<StoryNode> nodes, string entryNodeId = null)
         {
             Id = StoryValidation.Required(id, nameof(id));
@@ -241,8 +248,10 @@ namespace Game.Framework.Story
             ValidateGraph();
         }
 
+        /// <summary>检查是否包含节点。</summary>
         public bool ContainsNode(string id) => id != null && byId.ContainsKey(id);
 
+        /// <summary>获取节点。</summary>
         public StoryNode GetNode(string id)
         {
             if (id == null || !byId.TryGetValue(id, out var node))
@@ -252,6 +261,7 @@ namespace Game.Framework.Story
             return node;
         }
 
+        /// <summary>根据传入参数取得下一个。</summary>
         internal string Next(StoryNode node, StoryStepOutcome outcome)
         {
             if (node.Kind == StoryNodeKind.End)
@@ -276,6 +286,7 @@ namespace Game.Framework.Story
             return nextIds[node.Id];
         }
 
+        /// <summary>检查目标是否满足前置条件。</summary>
         private void RequireTarget(string id)
         {
             if (!byId.ContainsKey(id))
@@ -284,6 +295,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>根据传入参数取得目标。</summary>
         private IEnumerable<string> Targets(StoryNode node)
         {
             if (node.Kind == StoryNodeKind.Choice)
@@ -299,6 +311,7 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>验证图。</summary>
         private void ValidateGraph()
         {
             var reachable = new HashSet<string>(StringComparer.Ordinal);
@@ -353,11 +366,14 @@ namespace Game.Framework.Story
             }
         }
 
+        /// <summary>判断是否为边界。</summary>
         private static bool IsBoundary(StoryNode node) => node.Kind == StoryNodeKind.Say || node.Kind == StoryNodeKind.Choice || node.Kind == StoryNodeKind.PlayVideo || (node.Kind == StoryNodeKind.Wait && node.DurationSeconds > 0);
     }
 
+    /// <summary>提供剧情校验的实现。</summary>
     internal static class StoryValidation
     {
+        /// <summary>根据传入参数取得必须。</summary>
         internal static string Required(string value, string name)
         {
             if (string.IsNullOrWhiteSpace(value) || value.IndexOf('\0') >= 0)
@@ -367,6 +383,7 @@ namespace Game.Framework.Story
             return value;
         }
 
+        /// <summary>调用 double.IsNaN 完成Seconds。</summary>
         internal static void Seconds(double value, string name)
         {
             if (double.IsNaN(value) || double.IsInfinity(value) || value < 0 || value > int.MaxValue / 1000d)

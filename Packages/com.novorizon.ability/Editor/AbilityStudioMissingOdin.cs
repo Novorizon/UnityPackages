@@ -4,11 +4,14 @@ using UnityEngine;
 
 namespace Game.Ability.Editor.Odin
 {
+    /// <summary>提供技能编辑工作台缺失 Odin的实现。</summary>
     internal sealed class AbilityStudioMissingOdin : EditorWindow
     {
+        /// <summary>打开技能编辑工作台缺失 Odin。</summary>
         [MenuItem("Tools/Ability/Skill Studio", priority = 100)]
         private static void Open() => GetWindow<AbilityStudioMissingOdin>("技能工作台");
 
+        /// <summary>绘制当前界面并响应对应的 GUI 事件。</summary>
         private void OnGUI()
         {
             GUILayout.Space(20);

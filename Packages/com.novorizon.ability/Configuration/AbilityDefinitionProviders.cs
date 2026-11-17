@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Game.Ability.Configuration
 {
+    /// <summary>定义技能定义来源类型可选的枚举值。</summary>
     public enum AbilityDefinitionSourceType
     {
         Unknown = 0,
@@ -11,6 +12,7 @@ namespace Game.Ability.Configuration
         Code = 3
     }
 
+    /// <summary>提供技能定义起点的实现。</summary>
     [Serializable]
     public sealed class AbilityDefinitionOrigin
     {
@@ -20,6 +22,7 @@ namespace Game.Ability.Configuration
         public string StableId;
         public string Namespace;
 
+        /// <summary>将当前值转换为配置来源。</summary>
         public AbilityConfigSource ToConfigSource()
         {
             return new AbilityConfigSource
@@ -29,6 +32,7 @@ namespace Game.Ability.Configuration
             };
         }
 
+        /// <summary>格式化当前值，供显示或诊断使用。</summary>
         public override string ToString()
         {
             string id = string.IsNullOrEmpty(StableId) ? string.Empty : "#" + StableId;
@@ -36,6 +40,7 @@ namespace Game.Ability.Configuration
         }
     }
 
+    /// <summary>提供技能定义登记的实现。</summary>
     public sealed class AbilityDefinitionRegistration
     {
         public AbilityDefinition Definition;
@@ -44,6 +49,7 @@ namespace Game.Ability.Configuration
         public bool RequiresCustomScript;
     }
 
+    /// <summary>提供状态修饰器定义登记的实现。</summary>
     public sealed class ModifierDefinitionRegistration
     {
         public ModifierDefinition Definition;
@@ -52,6 +58,7 @@ namespace Game.Ability.Configuration
         public bool RequiresCustomScript;
     }
 
+    /// <summary>提供投射物定义登记的实现。</summary>
     public sealed class ProjectileDefinitionRegistration
     {
         public ProjectileDefinition Definition;
@@ -59,6 +66,7 @@ namespace Game.Ability.Configuration
         public bool IsPrivate;
     }
 
+    /// <summary>提供技能定义资源包的实现。</summary>
     public sealed class AbilityDefinitionBundle
     {
         public readonly List<AbilityDefinitionRegistration> Abilities = new List<AbilityDefinitionRegistration>();
@@ -67,10 +75,12 @@ namespace Game.Ability.Configuration
         public readonly AbilityValidationReport Validation = new AbilityValidationReport();
     }
 
+    /// <summary>定义技能定义厂商适配器的调用契约。</summary>
     public interface IAbilityDefinitionProvider
     {
         string ProviderName { get; }
         AbilityDefinitionSourceType SourceType { get; }
+        /// <summary>加载技能定义厂商适配器。</summary>
         AbilityDefinitionBundle Load();
     }
 
@@ -78,6 +88,7 @@ namespace Game.Ability.Configuration
     /// Merges definitions from providers without order-based overwrite. Duplicate stable IDs or
     /// names make the registry invalid, and no definitions are applied to AbilitySystem.
     /// </summary>
+    /// <remarks>技能定义对应的注册表。集中登记并查询模块对象。</remarks>
     public sealed class AbilityDefinitionRegistry
     {
         private readonly Dictionary<string, AbilityDefinitionRegistration> abilitiesByName =
@@ -101,6 +112,7 @@ namespace Game.Ability.Configuration
         public IReadOnlyDictionary<string, ModifierDefinitionRegistration> Modifiers => modifiersByName;
         public IReadOnlyDictionary<string, ProjectileDefinitionRegistration> Projectiles => projectilesByName;
 
+        /// <summary>加载 Providers。</summary>
         public void LoadProviders(IEnumerable<IAbilityDefinitionProvider> providers)
         {
             if (providers == null)
@@ -117,6 +129,7 @@ namespace Game.Ability.Configuration
             ValidateMergedDefinitions();
         }
 
+        /// <summary>加载厂商适配器。</summary>
         public void LoadProvider(IAbilityDefinitionProvider provider)
         {
             if (provider == null)
@@ -152,6 +165,7 @@ namespace Game.Ability.Configuration
             for (int i = 0; i < bundle.Projectiles.Count; i++) AddProjectile(bundle.Projectiles[i]);
         }
 
+        /// <summary>应用 To。</summary>
         public bool ApplyTo(AbilitySystem engine)
         {
             if (engine == null)
@@ -190,6 +204,7 @@ namespace Game.Ability.Configuration
         /// <summary>Result of the latest ApplyTo attempt, including engine-specific script and runtime requirements.</summary>
         public AbilityValidationReport LastApplyValidation { get; private set; }
 
+        /// <summary>尝试取得技能名称 By 稳定标识，返回是否成功。</summary>
         public bool TryGetAbilityNameByStableId(string stableId, out string name)
         {
             if (stableId != null && abilitiesByStableId.TryGetValue(stableId, out AbilityDefinitionRegistration registration))
@@ -201,12 +216,14 @@ namespace Game.Ability.Configuration
             return false;
         }
 
+        /// <summary>尝试解析技能名称，返回是否成功。</summary>
         public bool TryResolveAbilityName(string key, out string name)
         {
             if (key != null && abilitiesByName.ContainsKey(key)) { name = key; return true; }
             return TryGetAbilityNameByStableId(key, out name);
         }
 
+        /// <summary>尝试解析状态修饰器名称，返回是否成功。</summary>
         public bool TryResolveModifierName(string key, out string name)
         {
             if (key != null && modifiersByName.ContainsKey(key)) { name = key; return true; }
@@ -215,6 +232,7 @@ namespace Game.Ability.Configuration
             return false;
         }
 
+        /// <summary>尝试取得技能起点，返回是否成功。</summary>
         public bool TryGetAbilityOrigin(string name, out AbilityDefinitionOrigin origin)
         {
             if (name != null && abilitiesByName.TryGetValue(name, out AbilityDefinitionRegistration registration))
@@ -227,6 +245,7 @@ namespace Game.Ability.Configuration
             return false;
         }
 
+        /// <summary>添加技能。</summary>
         private void AddAbility(AbilityDefinitionRegistration registration)
         {
             string name = registration?.Definition?.Name;
@@ -250,6 +269,7 @@ namespace Game.Ability.Configuration
             abilitiesByName.Add(name, registration);
         }
 
+        /// <summary>添加状态修饰器。</summary>
         private void AddModifier(ModifierDefinitionRegistration registration)
         {
             string name = registration?.Definition?.Name;
@@ -274,6 +294,7 @@ namespace Game.Ability.Configuration
             modifiersByName.Add(name, registration);
         }
 
+        /// <summary>添加投射物。</summary>
         private void AddProjectile(ProjectileDefinitionRegistration registration)
         {
             string name = registration?.Definition?.Name;
@@ -298,6 +319,7 @@ namespace Game.Ability.Configuration
             projectilesByName.Add(name, registration);
         }
 
+        /// <summary>尝试添加稳定标识，返回是否成功。</summary>
         private bool TryAddStableId<T>(string kind, AbilityDefinitionOrigin origin, T registration, IDictionary<string, T> index)
         {
             string stableId = origin?.StableId;
@@ -317,6 +339,7 @@ namespace Game.Ability.Configuration
             return true;
         }
 
+        /// <summary>验证 Merged 定义。</summary>
         private AbilityValidationReport ValidateMergedDefinitions()
         {
             AbilityValidationReport report = new AbilityValidationReport();
@@ -328,6 +351,7 @@ namespace Game.Ability.Configuration
             return report;
         }
 
+        /// <summary>验证稳定索引。</summary>
         private static void ValidateStableIndex<T>(IReadOnlyDictionary<string, T> ids, IReadOnlyDictionary<string, T> names, AbilityValidationReport report)
         {
             foreach (T registration in names.Values)
@@ -345,6 +369,7 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>验证私有名称。</summary>
         private void ValidatePrivateName(string kind, string name, bool isPrivate, AbilityDefinitionOrigin origin)
         {
             if (!isPrivate)
@@ -363,11 +388,13 @@ namespace Game.Ability.Configuration
             }
         }
 
+        /// <summary>添加无效登记。</summary>
         private void AddInvalidRegistration(string kind, AbilityDefinitionOrigin origin)
         {
             loadValidation.Add(AbilityValidationSeverity.Error, "ABILITYPROVIDER008", "Provider returned a " + kind + " with no internal name.", origin?.ToConfigSource());
         }
 
+        /// <summary>添加 Collision。</summary>
         private void AddCollision(string keyKind, string key, AbilityDefinitionOrigin first, AbilityDefinitionOrigin second)
         {
             loadValidation.Add(
@@ -378,6 +405,7 @@ namespace Game.Ability.Configuration
                 first + " <-> " + second);
         }
 
+        /// <summary>获取起点。</summary>
         private static AbilityDefinitionOrigin GetOrigin<T>(T registration)
         {
             if (registration is AbilityDefinitionRegistration ability) return ability.Origin;
