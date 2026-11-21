@@ -11,25 +11,24 @@ internal static partial class Program
     {
         ResourceDownloadScenarios();
 
-        Run("package initialization prepares only filesystems and leaves content APIs unavailable", () =>
+        Run("offline initialization keeps content unavailable until the manifest is mounted", () =>
         {
             var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
-            var pending = Gate<bool>();
-            var parameters = new OfflinePlayModeParameters();
-            package.InitializeGate = pending.Task;
-            var loading = resources.InitializePackageAsync(parameters);
+            var manifest = Gate<bool>();
+            package.ManifestGate = manifest.Task;
+            var loading = resources.InitializeAsync(ResourceMode.Offline);
             Equal(1, package.InitializeCalls);
-            Same(parameters, package.LastInitializeParameters);
-            True(!loading.IsCompleted && !resources.PackageInitialized && !resources.Initialized);
-            True(package.InitializeStatus != EOperationStatus.Succeed);
-            AssertNoPackageContentWork(package);
-            pending.SetResult(true);
-            True(Complete(loading));
-            True(resources.PackageInitialized && !resources.Initialized);
+            True(package.LastInitializeParameters is OfflinePlayModeParameters);
+            Equal(1, package.ManifestRequests);
+            True(!loading.IsCompleted && resources.PackageInitialized && !resources.IsReady);
             True(resources.PackageVersion == null);
             Throws<InvalidOperationException>(() => resources.CreateSceneLoader());
-            AssertNoPackageContentWork(package);
+            manifest.SetResult(true);
+            True(Complete(loading));
+            True(resources.PackageInitialized && resources.IsReady);
+            Equal("1", resources.PackageVersion);
+            Equal(0, package.DownloaderCalls);
         });
         Run("retrying an exact remote version reuses filesystems and waits for all downloads", () =>
         {
@@ -66,35 +65,37 @@ internal static partial class Program
             var package = YooAssets.Package;
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
-            var first = resources.InitializePackageAsync(new OfflinePlayModeParameters());
-            var second = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var first = resources.InitializeAsync(ResourceMode.Offline);
+            var second = resources.InitializeAsync(ResourceMode.Offline);
             Equal(1, package.InitializeCalls);
             True(!first.IsCompleted && !second.IsCompleted && !resources.PackageInitialized);
             True(package.InitializeStatus != EOperationStatus.Succeed);
             pending.SetResult(true);
             True(Complete(first) && Complete(second));
-            True(resources.PackageInitialized && !resources.Initialized);
+            True(resources.PackageInitialized && resources.IsReady);
             Equal(1, package.InitializeCalls);
-            AssertNoPackageContentWork(package);
+            Equal(1, package.ManifestRequests);
+            Equal(0, package.DownloaderCalls);
         });
-        Run("package caller cancellation stops only its waiter and preserves shared native initialization", () =>
+        Run("cancelling an offline waiter preserves the shared initialization", () =>
         {
             var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
             using var stop = new CancellationTokenSource();
-            var first = resources.InitializePackageAsync(new OfflinePlayModeParameters(), stop.Token);
-            var second = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var owner = resources.InitializeAsync(ResourceMode.Offline);
+            var waiter = resources.InitializeAsync(ResourceMode.Offline, stop.Token);
             stop.Cancel();
-            Fails<OperationCanceledException>(first);
-            True(!second.IsCompleted && !resources.PackageInitialized);
+            True(!Complete(waiter));
+            True(!owner.IsCompleted && !resources.PackageInitialized);
             Equal(1, package.InitializeCalls);
             pending.SetResult(true);
-            True(Complete(second));
-            True(resources.PackageInitialized && !resources.Initialized);
+            True(Complete(owner));
+            True(resources.PackageInitialized && resources.IsReady);
             Equal(1, package.InitializeCalls);
-            AssertNoPackageContentWork(package);
+            Equal(1, package.ManifestRequests);
+            Equal(0, package.DownloaderCalls);
         });
         Run("shutdown retains cancelled package native work until completion without late readiness", () =>
         {
@@ -103,9 +104,9 @@ internal static partial class Program
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
             using var stop = new CancellationTokenSource();
-            var loading = resources.InitializePackageAsync(new OfflinePlayModeParameters(), stop.Token);
+            var loading = resources.InitializeAsync(ResourceMode.Offline, stop.Token);
             stop.Cancel();
-            Fails<OperationCanceledException>(loading);
+            True(!Complete(loading));
             var shutdown = resources.ShutdownAsync();
             True(!shutdown.IsCompleted && !resources.PackageInitialized && !resources.Initialized);
             Equal(1, package.InitializeCalls);
@@ -115,15 +116,15 @@ internal static partial class Program
             True(!resources.PackageInitialized && !resources.Initialized && resources.PackageVersion == null);
             AssertNoPackageContentWork(package);
         });
-        Run("package restart waits for shutdown native completion before reusing its initialized filesystems", () =>
+        Run("package restart waits for shutdown before creating a new package", () =>
         {
             var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
-            var first = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var first = resources.InitializeAsync(ResourceMode.Offline);
             var shutdown = resources.ShutdownAsync();
-            var restarting = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var restarting = resources.InitializeAsync(ResourceMode.Offline);
             True(!shutdown.IsCompleted && !restarting.IsCompleted);
             Equal(1, package.InitializeCalls);
             True(package.InitializeStatus != EOperationStatus.Succeed);
@@ -131,9 +132,12 @@ internal static partial class Program
             Complete(shutdown);
             True(!Complete(first));
             True(Complete(restarting));
-            True(resources.PackageInitialized && !resources.Initialized);
-            Equal(1, package.InitializeCalls);
-            AssertNoPackageContentWork(package);
+            True(resources.PackageInitialized && resources.IsReady);
+            Equal(1, package.DestroyCalls);
+            Equal(0, package.ManifestRequests);
+            True(!ReferenceEquals(package, YooAssets.Package));
+            Equal(1, YooAssets.Package.InitializeCalls);
+            Equal(1, YooAssets.Package.ManifestRequests);
         });
         Run("failed native package initialization returns false and a later caller can retry", () =>
         {
@@ -142,16 +146,17 @@ internal static partial class Program
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
             package.FailNextInitialize = true;
-            var loading = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var loading = resources.InitializeAsync(ResourceMode.Offline);
             True(!loading.IsCompleted);
             pending.SetResult(true);
             True(!Complete(loading));
             True(!resources.PackageInitialized && !resources.Initialized);
             Equal(EOperationStatus.Failed, package.InitializeStatus);
-            True(Complete(resources.InitializePackageAsync(new OfflinePlayModeParameters())));
+            True(Complete(resources.InitializeAsync(ResourceMode.Offline)));
             Equal(2, package.InitializeCalls);
-            True(resources.PackageInitialized && !resources.Initialized);
-            AssertNoPackageContentWork(package);
+            True(resources.PackageInitialized && resources.IsReady);
+            Equal(1, package.ManifestRequests);
+            Equal(0, package.DownloaderCalls);
         });
         Run("play reset prevents an old package success from publishing before the new native operation", () =>
         {
@@ -159,13 +164,13 @@ internal static partial class Program
             var oldPackage = YooAssets.Package;
             var oldNative = Gate<bool>();
             oldPackage.InitializeGate = oldNative.Task;
-            var oldLoading = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var oldLoading = resources.InitializeAsync(ResourceMode.Offline);
             ResetResourcePackageForPlay(resources);
             var newPackage = new ResourcePackage();
             var newNative = Gate<bool>();
             newPackage.InitializeGate = newNative.Task;
             YooAssets.Package = newPackage;
-            var newLoading = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var newLoading = resources.InitializeAsync(ResourceMode.Offline);
             Equal(1, oldPackage.InitializeCalls);
             Equal(0, newPackage.InitializeCalls);
             True(!newLoading.IsCompleted);
@@ -175,9 +180,10 @@ internal static partial class Program
             True(!newLoading.IsCompleted && !resources.PackageInitialized && !resources.Initialized);
             newNative.SetResult(true);
             True(Complete(newLoading));
-            True(resources.PackageInitialized && !resources.Initialized);
-            AssertNoPackageContentWork(oldPackage);
-            AssertNoPackageContentWork(newPackage);
+            True(resources.PackageInitialized && resources.IsReady);
+            Equal(0, oldPackage.ManifestRequests);
+            Equal(1, newPackage.ManifestRequests);
+            Equal(0, newPackage.DownloaderCalls);
         });
         Run("play reset waits for an old package failure without inheriting it into new content readiness", () =>
         {
@@ -186,7 +192,7 @@ internal static partial class Program
             var oldNative = Gate<bool>();
             oldPackage.InitializeGate = oldNative.Task;
             oldPackage.FailNextInitialize = true;
-            var oldLoading = resources.InitializePackageAsync(new OfflinePlayModeParameters());
+            var oldLoading = resources.InitializeAsync(ResourceMode.Offline);
             ResetResourcePackageForPlay(resources);
             var newPackage = new ResourcePackage();
             YooAssets.Package = newPackage;

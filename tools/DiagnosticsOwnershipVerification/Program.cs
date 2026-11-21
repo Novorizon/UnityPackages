@@ -146,19 +146,20 @@ internal static class Program
         });
         Run("manager recreation cannot reuse an observed lease identity", () =>
         {
-            var first = Ready();
+            using var first = new ResourceManager();
+            Assert(Done(first.InitializeAsync(ResourceMode.Offline)));
             var lease = Done(first.AcquireAsync<TextAsset>("asset"));
             var old = first.CaptureLeaseDiagnostics().Single();
             lease.Dispose();
             Done(first.ShutdownAsync());
-            Singleton<ResourceManager>.Release();
-            YooAssets.Package = new ResourcePackage();
-            var replacement = Ready();
+            using var replacement = new ResourceManager();
+            Assert(Done(replacement.InitializeAsync(ResourceMode.Offline)));
             var next = Done(replacement.AcquireAsync<TextAsset>("asset"));
             var current = replacement.CaptureLeaseDiagnostics().Single();
             Equal(old.LeaseId, current.LeaseId);
             Assert(old.SessionId != current.SessionId);
             next.Dispose();
+            Done(replacement.ShutdownAsync());
         });
         Run("logical release state is visible in a baseline diff until native loading ends", () =>
         {
@@ -184,7 +185,7 @@ internal static class Program
     private static ResourceManager Ready()
     {
         var resources = ResourceManager.Instance;
-        Done(resources.InitializeAsync());
+        Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
         return resources;
     }
 

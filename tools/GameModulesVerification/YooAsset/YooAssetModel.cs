@@ -175,7 +175,7 @@ namespace YooAsset
         private readonly Dictionary<string, UnityEngine.Object> values = new Dictionary<string, UnityEngine.Object>();
         public readonly List<SceneHandle> Scenes = new List<SceneHandle>();
         public Task AssetGate = Task.CompletedTask, SceneGate = Task.CompletedTask;
-        public Task InitializeGate = Task.CompletedTask, DestroyGate = Task.CompletedTask;
+        public Task InitializeGate = Task.CompletedTask, ManifestGate = Task.CompletedTask, DestroyGate = Task.CompletedTask;
         public EOperationStatus InitializeStatus;
         public bool FailNextAsset, FailNextScene, FailNextInitialize, FailVersionRequest, FailManifest, FailDestroy;
         public int InitializeCalls, VersionRequests, ManifestRequests, DownloaderCalls, DestroyCalls;
@@ -220,7 +220,7 @@ namespace YooAsset
         {
             ManifestRequests++;
             SelectedVersion = version;
-            return new Operation { Status = FailManifest ? EOperationStatus.Failed : EOperationStatus.Succeed };
+            return new Operation { Task = ManifestGate, Status = FailManifest ? EOperationStatus.Failed : EOperationStatus.Succeed };
         }
 
         public Operation DestroyAsync()

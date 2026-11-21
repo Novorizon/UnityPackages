@@ -168,6 +168,14 @@
     }
   },
   "sourceChanges": {
+    "Packages/com.novorizon.framework.yooasset/Runtime/ShaderManager.cs": {
+      "sha256": "26130c7df19b5c673ed236b9e023c3cf9175fa65e297e20a25d72f8433188705",
+      "reason": "Release the temporary shader variant collection after warmup."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Extensions.cs": {
+      "sha256": "aa659847820bcac8b9a6e7233124643e3390030a9a090cfdd1cb0ca4e0d84b11",
+      "reason": "Associate each atlas Sprite and prefab instance with the native handle from its own load."
+    },
     "Packages/com.novorizon.localization/Runtime/LocalizationManager.cs": {
       "sha256": "b3aedd7477eeb862c3d36bc4cd21d47a49d1166e03ec2c41facac9a0be7c3ec8",
       "reason": "Clear the shared instance by identity when the manager is disposed directly."
@@ -221,8 +229,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "fe66932bc365d58243907c1c17203afed4511421012f89d2084916b50a9afecf",
-      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset."
+      "sha256": "b5a62dab961ffe90f5adea1045fbd01ca0704120dc5a73262dce8a15fe1b0344",
+      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset. Keep the default package mount private and retain a distinct handle for each successful ordinary acquisition."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
@@ -449,8 +457,8 @@
       "sha256": "10b2545d6ada76c12fa4370e43efd1d49282c5cd4c2e90a3b4b8d5ae3b23d5c8"
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
-      "sha256": "8d2ca89d6a6ae46f2616922c0ce3798b7ca01eb59feaaec942881c05021304a2",
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use explicit resource modes in the sample."
+      "sha256": "3c5f7bea515514df7918be1b9197f67a5f01f8d761a6ebed354c7c2f8b1e0897",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use explicit resource modes in the sample. Demonstrate object-based resource release for the text preview."
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",

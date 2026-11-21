@@ -339,30 +339,30 @@ internal static partial class Program
         Run("resource shutdown continues past a failed scene unload and releases assets", () =>
         {
             var manager = ResourceManager.Instance;
-            Complete(manager.InitializeAsync());
+            Complete(manager.InitializeAsync(ResourceMode.Offline));
             _ = manager.LoadAsset<TextAsset>("text");
             Complete(manager.LoadSceneAsync("bad", LoadSceneMode.Additive));
             Complete(manager.LoadSceneAsync("good", LoadSceneMode.Additive));
-            YooAssets.Package.Scenes[0].FailUnload = true;
+            var package = YooAssets.Package;
+            package.Scenes[0].FailUnload = true;
             Fails<AggregateException>(manager.ShutdownAsync());
-            Equal(1, YooAssets.Package.Scenes[1].UnloadCount);
-            Equal(1, YooAssets.Package.Assets[0].ReleaseCount);
+            Equal(1, package.Scenes[1].UnloadCount);
+            Equal(1, package.Assets[0].ReleaseCount);
             True(!manager.Initialized);
             Throws<InvalidOperationException>(() => manager.LoadAsset<TextAsset>("later"));
-            YooAssets.Package.Scenes[0].FailUnload = false;
             Complete(manager.ShutdownAsync());
         });
         Run("old resource shutdown cannot release assets from a new play session", () =>
         {
             var manager = ResourceManager.Instance;
-            Complete(manager.InitializeAsync());
+            Complete(manager.InitializeAsync(ResourceMode.Offline));
             Complete(manager.LoadSceneAsync("old", LoadSceneMode.Additive));
             var gate = Gate<bool>();
             YooAssets.Package.Scenes[0].UnloadGate = gate.Task;
             var stopping = manager.ShutdownAsync();
             typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(manager, null);
             YooAssets.Package = new ResourcePackage();
-            Complete(manager.InitializeAsync());
+            Complete(manager.InitializeAsync(ResourceMode.Offline));
             var asset = manager.LoadAsset<TextAsset>("new");
             gate.SetResult(true);
             Complete(stopping);
@@ -420,7 +420,7 @@ internal static partial class Program
         Run("independent resource leases share assets without sharing release ownership", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var cached = resources.LoadAsset<TextAsset>("shared");
             var first = Complete(resources.AcquireAsync<TextAsset>("shared"));
             var second = Complete(resources.AcquireAsync<TextAsset>("shared"));
@@ -440,7 +440,7 @@ internal static partial class Program
         Run("cancelling one resource acquisition never cancels another acquisition", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var loading = Gate<bool>();
             YooAssets.Package.AssetGate = loading.Task;
             using var cancel = new CancellationTokenSource();
@@ -459,7 +459,7 @@ internal static partial class Program
         Run("resource scope disposal cancels pending native loads and releases late handles", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var loading = Gate<bool>();
             YooAssets.Package.AssetGate = loading.Task;
             var scope = resources.CreateScope();
@@ -473,7 +473,7 @@ internal static partial class Program
         Run("scene resource scope unload releases only that scene's resources", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var scene = NativeScenes.CreateForTest("owned resources");
             using var scope = resources.CreateSceneScope(scene);
             var own = Complete(scope.AcquireAsync<TextAsset>("same"));
@@ -486,7 +486,7 @@ internal static partial class Program
         Run("resource shutdown invalidates leases and awaits unfinished native releases", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var lease = Complete(resources.AcquireAsync<TextAsset>("ready"));
             var loading = Gate<bool>();
             YooAssets.Package.AssetGate = loading.Task;
@@ -502,12 +502,12 @@ internal static partial class Program
         Run("resource initialization waits for its own pending release without entry bookkeeping", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var loading = Gate<bool>();
             YooAssets.Package.AssetGate = loading.Task;
             var late = resources.AcquireAsync<TextAsset>("late release");
             ResourceManager.Release();
-            var restarting = resources.InitializeAsync();
+            var restarting = resources.InitializeAsync(ResourceMode.Offline);
             True(!restarting.IsCompleted);
             Fails<OperationCanceledException>(late);
             loading.SetResult(true);
@@ -518,34 +518,36 @@ internal static partial class Program
         Run("protected leases keep native consumers alive until they finish their own cleanup", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
+            var package = YooAssets.Package;
             var lease = Complete(resources.AcquireAsync<TextAsset>("native consumer", keepAliveUntilDisposed: true));
             var stopping = resources.ShutdownAsync();
             True(!stopping.IsCompleted && lease.IsValid);
             Equal(0, YooAssets.Package.Assets[0].ReleaseCount);
-            var restarting = resources.InitializeAsync();
+            var restarting = resources.InitializeAsync(ResourceMode.Offline);
             True(!restarting.IsCompleted);
             lease.Dispose();
             Complete(stopping);
             True(Complete(restarting));
-            Equal(1, YooAssets.Package.Assets[0].ReleaseCount);
+            Equal(1, package.Assets[0].ReleaseCount);
         });
         Run("play reset can retire protected leases without an old shutdown clearing the new play", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var lease = Complete(resources.AcquireAsync<TextAsset>("old native", keepAliveUntilDisposed: true));
             var stopping = resources.ShutdownAsync();
             True(!stopping.IsCompleted);
             typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
-            True(Complete(resources.InitializeAsync()));
+            YooAssets.Package = new ResourcePackage();
+            True(Complete(resources.InitializeAsync(ResourceMode.Offline)));
             Complete(stopping);
             True(resources.Initialized && !lease.IsValid);
         });
         Run("failed or incorrectly typed acquisitions release their own handles", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var cached = resources.LoadAsset<TextAsset>("text");
             Fails<InvalidCastException>(resources.AcquireAsync<GameObject>("text"));
             Same(cached, resources.LoadAsset<TextAsset>("text"));
@@ -557,7 +559,7 @@ internal static partial class Program
         Run("scope cancellation callback failure cannot prevent asset release", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var scope = resources.CreateScope();
             var asset = Complete(scope.AcquireAsync<TextAsset>("own"));
             scope.Token.Register(() => throw new InvalidOperationException("cancellation callback"));
@@ -581,7 +583,7 @@ internal static partial class Program
         Run("play reset cannot release a legacy scene bundle before native scene unload", () =>
         {
             var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync());
+            Complete(resources.InitializeAsync(ResourceMode.Offline));
             var scene = Complete(resources.LoadSceneAsync("retained", LoadSceneMode.Additive));
             typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
             Equal(0, YooAssets.Package.Scenes[0].ReleaseCount);

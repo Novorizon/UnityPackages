@@ -7,25 +7,33 @@
 
 using System;
 using Game.Framework;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.U2D;
-using YooAsset;
 using Object = UnityEngine.Object;
 
 namespace Game.Resource
 {
     public partial class ResourceManager
     {
+        /// <summary>自动绑定图集时，管理器持有引用直到统一清理。</summary>
         private void RequestAtlas(string atlasName, Action<SpriteAtlas> callback)
         {
-            RequestAtlasAsync(atlasName, callback).Forget();
+            if (callback != null)
+            {
+                RequestAtlasAsync(atlasName, callback).Forget();
+            }
         }
+
         private async Task RequestAtlasAsync(string atlasName, Action<SpriteAtlas> callback)
         {
-            var atlas = await LoadAssetAsync<SpriteAtlas>("Assets/GameData/SpriteAtlas/" + atlasName + ".spriteatlas");
-            callback?.Invoke(atlas);
+            string location = "Assets/GameData/SpriteAtlas/" + atlasName + ".spriteatlas";
+            var atlas = await LoadAssetAsync<SpriteAtlas, SpriteAtlas>(location, value => value, AssetLifetime.AtlasBinding, CancellationToken.None);
+            if (atlas != null)
+            {
+                callback(atlas);
+            }
         }
 
         // GameObject
@@ -56,73 +64,64 @@ namespace Game.Resource
 
         public void LoadSpriteAtlas(string location, Action<SpriteAtlas> callback) => LoadAsset<SpriteAtlas>(location, callback);
 
-        // Sprite
-        public async Task<Sprite> LoadSpriteAsync(string spriteAtlas, string location)
-        {
-            SpriteAtlas atlas = await LoadAssetAsync<SpriteAtlas>(spriteAtlas);
-            Sprite sprite = atlas?.GetSprite(location);
-            return sprite;
-        }
+        /// <summary>从图集取得 Sprite，返回的 Sprite 持有本次图集引用。使用结束后调用 Release(sprite)。</summary>
+        public Task<Sprite> LoadSpriteAsync(string spriteAtlas, string location) =>
+            LoadSpriteAsync(spriteAtlas, location, CancellationToken.None);
 
+        /// <summary>异步取得图集中的 Sprite。取消、图集加载失败或找不到 Sprite 时返回 null。</summary>
+        public Task<Sprite> LoadSpriteAsync(string spriteAtlas, string location, CancellationToken token) =>
+            LoadAssetAsync<SpriteAtlas, Sprite>(spriteAtlas, atlas => atlas.GetSprite(location), AssetLifetime.SpriteClone, token);
+
+        /// <summary>非空回调接收 Sprite 及本次图集引用。</summary>
         public async Task LoadSpriteAsync(string spriteAtlas, string location, Action<Sprite> callback)
         {
-            SpriteAtlas atlas = await LoadAssetAsync<SpriteAtlas>(spriteAtlas);
-            Sprite sprite = atlas?.GetSprite(location);
-            callback?.Invoke(sprite);
+            if (callback != null)
+            {
+                callback(await LoadSpriteAsync(spriteAtlas, location));
+            }
         }
 
-        public Sprite LoadSprite(string spriteAtlas, string location)
-        {
-            SpriteAtlas atlas = LoadAsset<SpriteAtlas>(spriteAtlas);
-            Sprite sprite = atlas?.GetSprite(location);
-            return sprite;
-        }
+        /// <summary>同步取得图集中的 Sprite。每次成功加载都要配对 Release(sprite)。</summary>
+        public Sprite LoadSprite(string spriteAtlas, string location) =>
+            LoadAsset<SpriteAtlas, Sprite>(spriteAtlas, atlas => atlas.GetSprite(location), AssetLifetime.SpriteClone);
 
+        /// <summary>非空回调接收同步加载的 Sprite 及本次图集引用。</summary>
         public void LoadSprite(string spriteAtlas, string location, Action<Sprite> callback)
         {
-            SpriteAtlas atlas = LoadAsset<SpriteAtlas>(spriteAtlas);
-            Sprite sprite = atlas?.GetSprite(location);
-            callback?.Invoke(sprite);
-        }
-
-        /// 加载 prefab 并实例化
-        public async Task<GameObject> LoadInstantiateAsync(string location)
-        {
-            GameObject prefab = await LoadGameObjectAsync(location);
-            if (prefab == null)
+            if (callback != null)
             {
-                return null;
+                callback(LoadSprite(spriteAtlas, location));
             }
-
-            GameObject instance = Object.Instantiate(prefab);
-            return instance;
         }
 
-        /// 加载 prefab 并实例化
+        /// <summary>加载并实例化 Prefab。实例销毁后用 Release(instance) 归还其 Prefab 引用。</summary>
+        public Task<GameObject> LoadInstantiateAsync(string location) =>
+            LoadInstantiateAsync(location, CancellationToken.None);
+
+        /// <summary>异步取得由独立 Prefab 引用支持的实例。取消或加载失败返回 null。</summary>
+        public Task<GameObject> LoadInstantiateAsync(string location, CancellationToken token) =>
+            LoadAssetAsync<GameObject, GameObject>(location, prefab => Object.Instantiate(prefab), AssetLifetime.PrefabInstance, token);
+
+        /// <summary>非空回调接收本次实例及其 Prefab 引用。</summary>
         public async Task LoadInstantiateAsync(string location, Action<GameObject> callback)
         {
-            GameObject instance = await LoadInstantiateAsync(location);
-            callback?.Invoke(instance);
-        }
-
-        /// 加载 prefab 并实例化
-        public GameObject LoadInstantiate(string location)
-        {
-            GameObject prefab = LoadGameObject(location);
-            if (prefab == null)
+            if (callback != null)
             {
-                return null;
+                callback(await LoadInstantiateAsync(location));
             }
-
-            GameObject instance = Object.Instantiate(prefab);
-            return instance;
         }
 
-        /// 加载 prefab 并实例化
+        /// <summary>同步加载并实例化 Prefab。实例销毁后用 Release(instance) 归还其 Prefab 引用。</summary>
+        public GameObject LoadInstantiate(string location) =>
+            LoadAsset<GameObject, GameObject>(location, prefab => Object.Instantiate(prefab), AssetLifetime.PrefabInstance);
+
+        /// <summary>非空回调接收同步创建的实例及其 Prefab 引用。</summary>
         public void LoadInstantiate(string location, Action<GameObject> callback)
         {
-            GameObject instance = LoadInstantiate(location);
-            callback?.Invoke(instance);
+            if (callback != null)
+            {
+                callback(LoadInstantiate(location));
+            }
         }
 
         public bool IsValid(string location)
@@ -144,70 +143,6 @@ namespace Game.Resource
             return true;
         }
 
-        //逻辑存在 不管下载
-        //public bool IsAssetDefined(string location)
-        //{
-        //    return package.CheckLocationValid(location);
-        //}
-
-        //是否能立刻加载
-        //public bool IsExist(string location)
-        //{
-        //    var info = package.GetAssetInfo(location);
-
-        //    if (info.IsInvalid)
-        //        return false;
-
-        //    //return info.IsCached;
-        //}
-
-
-        //        private string NormalizeLocation(string location, Type type)
-        //        {
-        //            if (string.IsNullOrEmpty(location))
-        //                return null;
-
-        //            if(type == typeof(SpriteAtlas))
-        //            {
-        //                if (!location.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
-        //                {
-        //                    return string.Format("Assets/GameData/SpriteAtlas/{0}.spriteatlas", location);
-        //                }
-        //            }
-        //            if (!location.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                location = "Assets/" + location;
-        //            }
-
-        //            if (Path.HasExtension(location))
-        //            {
-        //                return location;
-        //            }
-
-        //            if (TypeSuffixMap1.TryGetValue(type, out var suffix))
-        //            {
-        //                location += suffix;
-        //            }
-        //            else
-        //            {
-        //#if UNITY_EDITOR
-        //                Debug.LogWarning($"NormalizeAssetLocation: No suffix rule for type {type.Name}, location = {location}");
-        //#endif
-        //            }
-
-        //            return location;
-        //        }
-
-
-        //        private static readonly Dictionary<Type, string> TypeSuffixMap = new Dictionary<Type, string>
-        //        {
-        //            { typeof(Scene), ".unity" },
-        //            { typeof(SpriteAtlas), ".spriteatlas" },
-        //            { typeof(GameObject), ".prefab" },
-        //            { typeof(Shader), ".shader" },
-        //            { typeof(Texture), ".png" },
-        //            { typeof(Material), ".material" },
-        //        };
     }
     public static class UnityObjExt
     {

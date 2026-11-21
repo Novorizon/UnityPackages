@@ -85,7 +85,7 @@ root.ResetAll();         // 场景/功能切换：关闭所有 UI、清空消息
 
 界面窗口的 Prefab 通过 `IUIAssetLoader` 访问，UI 包不引用具体资源管理库。默认 loader 使用 `Resources.LoadAsync<GameObject>`，也可实现接口或使用 `DelegateUIAssetLoader` 接入游戏自己的加载/归还函数。它不会在一次关闭时卸载 Resources 共享资产；`ClearCache` 释放实例，Resources 资产的全局卸载由业务统一安排。异步加载不能直接中止的 loader，在 UI 已取消或销毁后仍可能完成底层读取，工厂会归还迟到的租约，不会创建视图。业务管理器的打开接口均可传 `cancellationToken`，调用方取消抛出 `OperationCanceledException`；底层工厂保留取消时返回无效句柄的兼容行为。
 
-YooAsset **2.3.18 为可选依赖**。如需适配，应通过 `IUIAssetLoader` 持有专用 `AssetHandle`，每次成功加载都有对应释放；也可以自行维护有明确使用者计数的共享租约。主仓库已有的 `ResourceManager.ReleaseHandle(location)` 会释放该 location 的共享缓存，不应简单地在任意 UI 的 `ReleasePrefab` 中调用它。UI 包不自动初始化、更新或销毁 YooAsset 包。
+YooAsset **2.3.18 为可选依赖**。项目通过 `IUIAssetLoader` 接入。每次 `ResourceManager.LoadAssetAsync<GameObject>` 成功后持有一份引用，UI 实例原生销毁后由适配器调用 `Release(prefab)`。资源包的初始化、更新和销毁由项目负责。
 
 ## 管理器行为
 

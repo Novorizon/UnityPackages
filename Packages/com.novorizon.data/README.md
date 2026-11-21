@@ -23,14 +23,25 @@ var current = DataManager.Instance.Get<cfg.Tables>();
 
 默认通过 Resources.LoadAsync<TextAsset> 读取 `.bytes`，清单和表文件共用一个字节加载器。默认清单地址为 `Config/Luban/manifest`，Resources 地址不含扩展名；需要其他位置时使用 LoadAsync 的 manifestLocation 参数。
 
-GameStarter 开启 YooAsset 后，已接入读取并释放独立资源租约的加载器：
+项目使用 YooAsset 时，可以在字节加载器中读取文本资源并归还这次引用。
 
 ```csharp
 DataManager.Instance.Initialize(async (location, token) =>
 {
-    using (var asset = await ResourceManager.Instance.AcquireAsync<TextAsset>(location, token))
+    var resources = ResourceManager.Instance;
+    var asset = await resources.LoadAssetAsync<TextAsset>(location, token);
+    if (asset == null)
     {
-        return asset.Asset.bytes;
+        return null;
+    }
+
+    try
+    {
+        return asset.bytes;
+    }
+    finally
+    {
+        resources.Release(asset);
     }
 });
 ```

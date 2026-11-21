@@ -7,11 +7,12 @@ using UnityEngine;
 
 namespace Game.Framework.Samples.Resources
 {
-    /// <summary>Explicit TextAsset acquisition; the controller releases only its own lease.</summary>
+    /// <summary>每次加载持有一个文本引用，结束预览后释放。</summary>
+    /// <remarks>提供资源示例 Controller的实现。</remarks>
     public sealed class ResourceDemoController : MonoBehaviour
     {
         private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
-        private AssetLease<TextAsset>? loaded;
+        private TextAsset? loaded;
         private bool destroyed;
         public string Location { get; set; } = string.Empty;
         public bool IsBusy { get; private set; }
@@ -67,7 +68,7 @@ namespace Game.Framework.Samples.Resources
                 return;
             }
 
-            if (!ResourceManager.Instance.Initialized)
+            if (!ResourceManager.Instance.IsReady)
             {
                 Status = "Initialize DefaultPackage first.";
                 return;
@@ -76,26 +77,26 @@ namespace Game.Framework.Samples.Resources
             IsBusy = true;
             try
             {
-                var acquired = await ResourceManager.Instance.AcquireAsync<TextAsset>(key, lifetime.Token);
+                var resources = ResourceManager.Instance;
+                var asset = await resources.LoadAssetAsync<TextAsset>(key, lifetime.Token);
                 if (destroyed)
                 {
-                    acquired.Dispose();
+                    resources.Release(asset);
                     return;
                 }
 
-                loaded?.Dispose();
-                loaded = acquired;
-                LoadedLocation = key;
-                string text = acquired.Asset.text ?? string.Empty;
-                Preview = text.Length > 600 ? text.Substring(0, 600) + "..." : text;
-                Status = "Loaded. This controller owns one independent lease.";
-            }
-            catch (OperationCanceledException)
-            {
-                if (!destroyed)
+                if (asset == null)
                 {
-                    Status = "Loading cancelled.";
+                    Status = "TextAsset unavailable.";
+                    return;
                 }
+
+                ReleaseLoaded();
+                loaded = asset;
+                LoadedLocation = key;
+                string text = asset.text ?? string.Empty;
+                Preview = text.Length > 600 ? text.Substring(0, 600) + "..." : text;
+                Status = "Loaded. This controller owns one reference.";
             }
             catch (Exception error)
             {
@@ -112,10 +113,13 @@ namespace Game.Framework.Samples.Resources
 
         public void ReleaseLoaded()
         {
-            loaded?.Dispose();
-            loaded = null;
+            if (!ReferenceEquals(loaded, null))
+            {
+                ResourceManager.Instance.Release(loaded);
+                loaded = null;
+            }
             Preview = LoadedLocation = string.Empty;
-            Status = "Released this controller's lease.";
+            Status = "Released this controller's reference.";
         }
 
         private void OnGUI()
@@ -133,12 +137,12 @@ namespace Game.Framework.Samples.Resources
                 }
 
                 Location = GUILayout.TextField(Location ?? string.Empty);
-                if (GUILayout.Button("2. Acquire TextAsset"))
+                if (GUILayout.Button("2. Load TextAsset"))
                 {
                     _ = LoadTextAsync();
                 }
 
-                if (GUILayout.Button("3. Release this lease"))
+                if (GUILayout.Button("3. Release this reference"))
                 {
                     ReleaseLoaded();
                 }
