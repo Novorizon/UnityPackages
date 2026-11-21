@@ -149,12 +149,13 @@ namespace UnityEngine.U2D
 {
     public class SpriteAtlas : UnityEngine.Object
     {
-        public UnityEngine.Sprite GetSprite(string location) => new UnityEngine.Sprite();
+        public UnityEngine.Sprite GetSprite(string name) => name == "missing" ? null : new UnityEngine.Sprite();
     }
 
     public static class SpriteAtlasManager
     {
         public static event Action<string, Action<SpriteAtlas>> atlasRequested;
+        public static void RequestForTest(string name, Action<SpriteAtlas> callback) => atlasRequested?.Invoke(name, callback);
     }
 }
 

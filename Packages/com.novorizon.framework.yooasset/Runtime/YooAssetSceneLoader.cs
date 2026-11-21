@@ -15,69 +15,127 @@ namespace Game.Resource
     {
         private readonly ResourcePackage package;
         private readonly Dictionary<int, SceneHandle> handles = new Dictionary<int, SceneHandle>();
-        private readonly HashSet<SceneHandle> pending = new HashSet<SceneHandle>();
+        private readonly Dictionary<int, Task> unloading = new Dictionary<int, Task>();
         private bool disposed;
+
+        /// <summary>创建场景加载器。包不可用或未在主线程创建时，加载和卸载会安全失败。</summary>
         public YooAssetSceneLoader(ResourcePackage package)
         {
-            this.package = package ?? throw new ArgumentNullException(nameof(package));
-            UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;
+            if (package != null && ResourceManager.CheckMainThread(nameof(YooAssetSceneLoader)))
+            {
+                this.package = package;
+                UnityEngine.SceneManagement.SceneManager.sceneUnloaded += OnSceneUnloaded;
+            }
         }
 
+        /// <summary>加载失败、加载器已关闭或线程错误时返回默认场景。</summary>
         public async Task<Scene> LoadAsync(string location, LoadSceneMode mode, IProgress<float> progress)
         {
-            EnsureAvailable();
-            var handle = package.LoadSceneAsync(location, mode);
-            pending.Add(handle);
+            if (!CanUsePackage(nameof(LoadAsync)) || !ResourceManager.CheckSceneRequest(location, mode))
+            {
+                return default;
+            }
+
+            SceneHandle handle = null;
+            bool retained = false;
             try
             {
-                while (!handle.Task.IsCompleted)
+                handle = package.LoadSceneAsync(location, mode);
+                var loading = handle?.Task;
+                if (loading == null)
+                {
+                    Logger.Warn("Could not load scene: " + location);
+                    return default;
+                }
+                while (!loading.IsCompleted && !disposed)
                 {
                     Report(progress, handle.Progress);
                     await Task.Yield();
                 }
 
-                await handle.Task;
-                EnsureAvailable();
-                if (handle.Status != EOperationStatus.Succeed)
+                await loading;
+                if (disposed)
                 {
-                    throw new InvalidOperationException(handle.LastError);
+                    return default;
+                }
+                if (!handle.IsValid || handle.Status != EOperationStatus.Succeed)
+                {
+                    Logger.Warn("Could not load scene " + location + ": " + (handle.IsValid ? handle.LastError : "Invalid handle."));
+                    return default;
                 }
 
                 var scene = handle.SceneObject;
-                handles.Add(scene.handle, handle);
+                handles[scene.handle] = handle;
+                retained = true;
                 Report(progress, 1);
                 return scene;
             }
-            catch
+            catch (OperationCanceledException)
             {
-                ReleaseIfSceneUnloaded(handle);
-
-                throw;
+                return default;
+            }
+            catch (Exception error) when (ResourceManager.IsResourceIoFailure(error))
+            {
+                Logger.Warn("Could not load scene " + location + ": " + error.Message);
+                return default;
             }
             finally
             {
-                pending.Remove(handle);
+                if (!retained)
+                {
+                    ReleaseIfSceneUnloaded(handle);
+                }
             }
         }
 
-        public async Task UnloadAsync(Scene scene)
+        /// <summary>同一场景重复卸载时等待原操作。原生卸载失败时保留句柄，便于稍后重试。</summary>
+        public Task UnloadAsync(Scene scene)
         {
-            EnsureAvailable();
-            if (!handles.TryGetValue(scene.handle, out var handle))
+            if (!CanUsePackage(nameof(UnloadAsync)) || !handles.TryGetValue(scene.handle, out var handle))
             {
-                throw new InvalidOperationException("Scene handle is not owned by this loader.");
+                return Task.CompletedTask;
+            }
+            if (unloading.TryGetValue(scene.handle, out var pending))
+            {
+                return pending;
             }
 
-            var operation = handle.UnloadAsync();
-            await operation.Task;
-            if (operation.Status != EOperationStatus.Succeed)
-            {
-                throw new InvalidOperationException(operation.Error);
-            }
-
-            OnSceneUnloaded(scene);
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            unloading[scene.handle] = completion.Task;
+            CompleteUnloadAsync(scene, handle, completion).Forget();
+            return completion.Task;
         }
 
+        private async Task CompleteUnloadAsync(Scene scene, SceneHandle handle, TaskCompletionSource<bool> completion)
+        {
+            try
+            {
+                var operation = handle.UnloadAsync();
+                await operation.Task;
+                if (operation.Status == EOperationStatus.Succeed)
+                {
+                    OnSceneUnloaded(scene);
+                }
+                else
+                {
+                    Logger.Warn("Could not unload scene " + scene.name + ": " + operation.Error);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception error)
+            {
+                Logger.Exception(error);
+            }
+            finally
+            {
+                unloading.Remove(scene.handle);
+                completion.TrySetResult(true);
+            }
+        }
+
+        /// <summary>响应场景已卸载。</summary>
         private void OnSceneUnloaded(Scene scene)
         {
             if (handles.TryGetValue(scene.handle, out var handle))
@@ -90,9 +148,10 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>释放 If 场景已卸载。</summary>
         internal static void ReleaseIfSceneUnloaded(SceneHandle handle)
         {
-            if (!handle.IsValid)
+            if (handle == null || !handle.IsValid)
             {
                 return;
             }
@@ -105,6 +164,7 @@ namespace Game.Resource
             handle.Release();
         }
 
+        /// <summary>上报 Yoo 资源场景加载器。</summary>
         private static void Report(IProgress<float> progress, float value)
         {
             try
@@ -117,27 +177,27 @@ namespace Game.Resource
             }
         }
 
-        private void EnsureAvailable()
+        private bool CanUsePackage(string operation)
         {
-            if (disposed)
+            if (!ResourceManager.CheckMainThread(operation))
             {
-                throw new ObjectDisposedException(nameof(YooAssetSceneLoader));
+                return false;
             }
-
-            if (!UnityThread.IsMainThread)
+            if (disposed || package == null || package.InitializeStatus != EOperationStatus.Succeed)
             {
-                throw new InvalidOperationException("YooAsset scenes must run on Unity's main thread.");
+                Logger.Warn("YooAsset scene loader is unavailable for " + operation + ".");
+                return false;
             }
+            return true;
         }
 
+        /// <summary>结束Yoo 资源场景加载器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
-            if (disposed)
+            if (!ResourceManager.CheckMainThread(nameof(Dispose)) || disposed)
             {
                 return;
             }
-
-            EnsureAvailable();
             disposed = true;
             UnityEngine.SceneManagement.SceneManager.sceneUnloaded -= OnSceneUnloaded;
             foreach (var handle in handles.Values)
@@ -146,7 +206,7 @@ namespace Game.Resource
             }
 
             handles.Clear();
-        // 正在加载的句柄由 LoadAsync 在原生操作完成后释放，不能提前使 handle.Task 失效。
+            // 待加载场景由 LoadAsync 在原生操作结束后清理。
         }
     }
 }

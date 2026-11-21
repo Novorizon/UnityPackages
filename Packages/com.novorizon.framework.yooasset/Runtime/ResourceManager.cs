@@ -13,12 +13,17 @@ using Object = UnityEngine.Object;
 
 namespace Game.Resource
 {
-    // A shared cache: ReleaseHandle/ReleaseAllAssets affect every consumer of that location.
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
+    /// <summary>资源对应的管理器。管理对应模块的状态和操作入口。</summary>
     public partial class ResourceManager : Singleton<ResourceManager>, IDisposable
     {
+        /// <summary>结束资源管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
+            if (!CheckMainThread(nameof(Dispose)))
+            {
+                return;
+            }
 #if UNITY_EDITOR
             if (EditorStaticReset.IsResetting)
             {
@@ -30,248 +35,121 @@ namespace Game.Resource
             ShutdownAsync().Forget();
         }
 
-        private sealed class AssetLoad
-        {
-            internal readonly TaskCompletionSource<Object> Result = new TaskCompletionSource<Object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            internal bool Invalidated;
-        }
-
+        /// <summary>表示资源管理器中的场景 Load。</summary>
         private sealed class SceneLoad
         {
             internal SceneHandle Handle;
             internal bool Invalidated;
             internal LoadSceneMode Mode;
             internal readonly TaskCompletionSource<Scene> Result = new TaskCompletionSource<Scene>(TaskCreationOptions.RunContinuationsAsynchronously);
-            internal Task Unload;
+            internal Task<bool> Unload;
         }
 
         private ResourcePackage package;
         private int generation;
-        private bool initialized, packageInitialized, atlasRegistered, shuttingDown, contentFullyDownloaded;
-        private Task shutdown;
+        private bool initialized, packageInitialized, atlasRegistered, shuttingDown;
+        private Task<bool> shutdown;
         private Task<bool> initialization;
         private Task<bool> packageInitialization;
         private int packageInitializationGeneration;
-        private readonly Dictionary<string, AssetHandle> assetHandles = new Dictionary<string, AssetHandle>();
-        private readonly Dictionary<string, AssetLoad> assetLoads = new Dictionary<string, AssetLoad>();
         private readonly Dictionary<string, SceneLoad> scenes = new Dictionary<string, SceneLoad>();
         private readonly Dictionary<int, string> sceneLocations = new Dictionary<int, string>();
         public bool Initialized => initialized;
         public bool PackageInitialized => packageInitialized;
         public string PackageVersion { get; private set; }
 
-        /// <summary>场景协调器使用独立场景句柄，不借用共享的按地址缓存。</summary>
-        public ISceneLoader CreateSceneLoader()
+        /// <summary>资源未就绪时返回 null。调用方取得加载器后负责其生命周期。</summary>
+        public ISceneLoader CreateSceneLoader() =>
+            CheckReady(nameof(CreateSceneLoader)) ? new YooAssetSceneLoader(package) : null;
+
+        internal static bool CheckMainThread(string operation)
         {
-            Ready();
-            return new YooAssetSceneLoader(package);
+            if (UnityThread.IsMainThread)
+            {
+                return true;
+            }
+            Logger.Error("Resource operation " + operation + " requires the initialized Unity main thread.");
+            return false;
         }
 
-        private static void MainThread()
+        private bool CheckReady(string operation)
         {
-            if (!UnityThread.IsMainThread)
-            {
-                throw new InvalidOperationException("ResourceManager must be called on the initialized Unity main thread.");
-            }
-        }
-
-        private void Ready()
-        {
-            MainThread();
-            if (shuttingDown || !initialized || package == null)
-            {
-                throw new InvalidOperationException("Await ResourceManager.InitializeAsync first.");
-            }
-        }
-
-        /// <summary>此服务需要异步加载，调用方应等待 InitializeAsync 完成。</summary>
-        public override void Initialize()
-        {
-            throw new InvalidOperationException("Use and await InitializeAsync to initialize ResourceManager.");
-        }
-
-        /// <summary>仅初始化 DefaultPackage 文件系统，不查询版本、读取清单或下载资源。取消仅结束本次等待。</summary>
-        public async Task<bool> InitializePackageAsync(InitializeParameters parameters, CancellationToken token = default)
-        {
-            MainThread();
-            if (parameters == null)
-            {
-                throw new ArgumentNullException(nameof(parameters));
-            }
-
-            token.ThrowIfCancellationRequested();
-            int requestedGeneration = generation;
-            if (shuttingDown)
-            {
-                await TaskUtil.WaitAsync(shutdown, token);
-            }
-
-            if (packageInitialization != null && !packageInitialization.IsCompleted && packageInitializationGeneration != generation)
-            {
-                // 上轮 Play 的原生初始化不能中止；必须结束后才能复用或重新初始化文件系统。
-                await TaskUtil.WaitAsync(packageInitialization, token);
-            }
-
-            token.ThrowIfCancellationRequested();
-            if (requestedGeneration != generation)
+            if (!CheckMainThread(operation))
             {
                 return false;
             }
-
-            if (packageInitialized)
+            if (IsReady && package != null)
             {
                 return true;
+            }
+            Logger.Warn("Resource package is unavailable for " + operation + ". Initialize it first.");
+            return false;
+        }
+
+        /// <summary>资源需要异步初始化。调用 InitializeAsync 并等待结果。</summary>
+        public override void Initialize()
+        {
+            Logger.Error("Use and await ResourceManager.InitializeAsync to initialize ResourceManager.");
+        }
+
+        // 记录原生文件系统操作，关闭和下一轮 Play 可以等待它安全结束。
+        private Task<bool> MountDefaultPackageAsync(InitializeParameters parameters)
+        {
+            if (packageInitialized)
+            {
+                return Task.FromResult(true);
             }
 
             if (packageInitialization == null || packageInitialization.IsCompleted)
             {
                 packageInitializationGeneration = generation;
-                packageInitialization = InitializePackageCoreAsync(parameters);
+                packageInitialization = MountDefaultPackageCoreAsync(parameters);
             }
 
-            return await TaskUtil.WaitAsync(packageInitialization, token);
+            return packageInitialization;
         }
 
-        private async Task<bool> InitializePackageCoreAsync(InitializeParameters parameters)
+        private async Task<bool> MountDefaultPackageCoreAsync(InitializeParameters parameters)
         {
-            YooAssets.Initialize();
-            var current = YooAssets.TryGetPackage("DefaultPackage") ?? YooAssets.CreatePackage("DefaultPackage");
-            package = current;
-            YooAssets.SetDefaultPackage(current);
+            var current = GetDefaultPackage();
             int startedGeneration = generation;
-            bool success = await InitializeFileSystemsAsync(current, parameters);
-            if (startedGeneration != generation || shuttingDown)
+            if (current.InitializeStatus != EOperationStatus.Succeed)
             {
-                return false;
-            }
-
-            packageInitialized = success;
-            return success;
-        }
-
-        public Task<bool> InitializeAsync()
-        {
-            MainThread();
-            if (shuttingDown)
-            {
-                return InitializeAfterShutdownAsync(shutdown, generation);
-            }
-
-            if (initialized)
-            {
-                return Task.FromResult(true);
-            }
-
-            if (initialization == null || initialization.IsCompleted)
-            {
-                initialization = InitializeCoreAsync();
-            }
-
-            return initialization;
-        }
-
-        /// <summary>兼容入口：准备精确版本的内容，必要时先初始化资源文件系统。</summary>
-        public Task<bool> InitializeAsync(ResourceInitializationOptions options, CancellationToken token = default)
-        {
-            return PrepareContentAsync(options, token);
-        }
-
-        /// <summary>准备精确版本清单与缺失资源；成功后内容 API 才可用。</summary>
-        public async Task<bool> PrepareContentAsync(ResourceInitializationOptions options, CancellationToken token = default)
-        {
-            MainThread();
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            if (options.ConcurrentDownloads < 1 || options.FailedTryAgain < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(options));
-            }
-
-            // Options are caller-owned and mutable. Keep the requested content stable across
-            // native awaits; the provider/progress references themselves remain caller-owned.
-            options = new ResourceInitializationOptions
-            {
-                Parameters = options.Parameters,
-                PackageVersion = string.IsNullOrWhiteSpace(options.PackageVersion) ? null : options.PackageVersion,
-                DownloadAll = options.DownloadAll,
-                ConcurrentDownloads = options.ConcurrentDownloads,
-                FailedTryAgain = options.FailedTryAgain,
-                Progress = options.Progress
-            };
-            token.ThrowIfCancellationRequested();
-            int requestedGeneration = generation;
-            if (shuttingDown)
-            {
-                await TaskUtil.WaitAsync(shutdown, token);
-            }
-
-            if (requestedGeneration != generation)
-            {
-                return false;
-            }
-
-            if (initialized)
-            {
-                if (string.IsNullOrEmpty(options.PackageVersion) || PackageVersion == options.PackageVersion)
+                var operation = current.InitializeAsync(parameters);
+                await operation.Task;
+                if (operation.Status != EOperationStatus.Succeed)
                 {
-                    RequireDownloadMode(options);
-                    return true;
+                    Logger.Error(operation.Error);
+                    return false;
                 }
-
-                throw new InvalidOperationException("Release resources before selecting another package version.");
             }
 
-            if (initialization == null || initialization.IsCompleted)
-            {
-                initialization = InitializeCoreAsync(options, token);
-            }
-
-            bool ready = await TaskUtil.WaitAsync(initialization, token);
-            if (ready && options.PackageVersion != null && PackageVersion != options.PackageVersion)
-            {
-                throw new InvalidOperationException("Another content version was prepared by the shared initialization. Release resources before selecting another package version.");
-            }
-
-            if (ready)
-            {
-                RequireDownloadMode(options);
-            }
-
-            return ready;
-        }
-
-        private void RequireDownloadMode(ResourceInitializationOptions options)
-        {
-            if (options.DownloadAll && !contentFullyDownloaded)
-            {
-                throw new InvalidOperationException("Content was initialized for on-demand loading. Release resources before requiring a full download.");
-            }
-        }
-
-        private async Task<bool> InitializeAfterShutdownAsync(Task previous, int requestedGeneration)
-        {
-            await previous;
-            if (requestedGeneration != generation)
+            if (startedGeneration != generation || shuttingDown)
             {
                 return false;
             }
-            return await InitializeAsync();
+
+            packageInitialized = true;
+            return true;
         }
 
-        public async Task InitializeAsync(Action<bool> callback)
+        // 初始化 YooAsset 驱动和包对象；文件系统在需要来源参数时才挂载。
+        private ResourcePackage GetDefaultPackage()
         {
-            var result = await InitializeAsync();
-            callback?.Invoke(result);
+            if (!YooAssets.Initialized)
+            {
+                YooAssets.Initialize();
+            }
+            package = YooAssets.TryGetPackage("DefaultPackage") ?? YooAssets.CreatePackage("DefaultPackage");
+            YooAssets.SetDefaultPackage(package);
+            return package;
         }
 
-        private async Task<bool> InitializeCoreAsync(ResourceInitializationOptions options = null, CancellationToken token = default)
+        // 文件系统和清单就绪后才启用资源读取与图集请求。
+        private async Task<bool> InitializeCoreAsync(InitializeParameters parameters, CancellationToken token, PackageDownload? download)
         {
             int startedGeneration = generation;
-            var parameters = options?.Parameters ?? YooAssetsSettings.CreateParameters();
-            if (!await InitializePackageAsync(parameters, token))
+            if (token.IsCancellationRequested || !await MountDefaultPackageAsync(parameters))
             {
                 return false;
             }
@@ -281,7 +159,7 @@ namespace Game.Resource
                 return false;
             }
 
-            bool success = await InitPackageCoreAsync(package, parameters, options, token);
+            bool success = await LoadPackageContentAsync(package, token, download);
             if (startedGeneration != generation || shuttingDown)
             {
                 return false;
@@ -297,55 +175,25 @@ namespace Game.Resource
             return initialized;
         }
 
-        public Task<bool> InitPackageAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
+        // 使用已挂载的包更新清单。下载设置存在时，再下载该版本缺失的资源。
+        private async Task<bool> LoadPackageContentAsync(ResourcePackage resourcePackage, CancellationToken token, PackageDownload? download)
         {
-            return InitPackageCoreAsync(resourcePackage, parameters, null, CancellationToken.None);
-        }
-
-        private static async Task<bool> InitializeFileSystemsAsync(ResourcePackage resourcePackage, InitializeParameters parameters)
-        {
-            if (resourcePackage.InitializeStatus != EOperationStatus.Succeed)
-            {
-                var operation = resourcePackage.InitializeAsync(parameters);
-                // YooAsset 的初始化不能中止；保留任务直到原生操作结束，避免取消后并发初始化或销毁。
-                await operation.Task;
-                if (operation.Status != EOperationStatus.Succeed)
-                {
-                    Logger.Error(operation.Error);
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private async Task<bool> InitPackageCoreAsync(
-            ResourcePackage resourcePackage,
-            InitializeParameters parameters,
-            ResourceInitializationOptions options,
-            CancellationToken token)
-        {
-            MainThread();
-            token.ThrowIfCancellationRequested();
             int startedGeneration = generation;
-            if (!await InitializeFileSystemsAsync(resourcePackage, parameters))
+            if (token.IsCancellationRequested)
             {
                 return false;
             }
 
-            token.ThrowIfCancellationRequested();
-            if (startedGeneration != generation || shuttingDown)
-            {
-                return false;
-            }
-
-            string version = options?.PackageVersion;
+            string version = download?.PackageVersion;
             if (string.IsNullOrWhiteSpace(version))
             {
                 var request = resourcePackage.RequestPackageVersionAsync();
                 await request.Task;
-                token.ThrowIfCancellationRequested();
-                if (request.Status != EOperationStatus.Succeed)
+                if (token.IsCancellationRequested || startedGeneration != generation || shuttingDown)
+                {
+                    return false;
+                }
+                if (request.Status != EOperationStatus.Succeed || string.IsNullOrWhiteSpace(request.PackageVersion))
                 {
                     Logger.Error(request.Error);
                     return false;
@@ -356,41 +204,55 @@ namespace Game.Resource
 
             var manifest = resourcePackage.UpdatePackageManifestAsync(version);
             await manifest.Task;
-            token.ThrowIfCancellationRequested();
+            if (token.IsCancellationRequested || startedGeneration != generation || shuttingDown)
+            {
+                return false;
+            }
             if (manifest.Status != EOperationStatus.Succeed)
             {
                 Logger.Error(manifest.Error);
                 return false;
             }
 
-            if (options?.DownloadAll == true)
+            if (download is { } setting)
             {
-                var downloader = resourcePackage.CreateResourceDownloader(options.ConcurrentDownloads, options.FailedTryAgain);
-                downloader.DownloadUpdateCallback = value => Report(options.Progress,
-                    new ResourceDownloadProgress(value.TotalDownloadCount, value.CurrentDownloadCount, value.TotalDownloadBytes, value.CurrentDownloadBytes));
+                var downloader = resourcePackage.CreateResourceDownloader(setting.ConcurrentDownloads, setting.FailedTryAgain);
+                void Publish(ResourceDownloadProgress value)
+                {
+                    if (!token.IsCancellationRequested && startedGeneration == generation && !shuttingDown)
+                    {
+                        DownloadProgress = value;
+                        Report(setting.Progress, value);
+                    }
+                }
+                downloader.DownloadUpdateCallback = value => Publish(new ResourceDownloadProgress(value.TotalDownloadCount,
+                    value.CurrentDownloadCount, value.TotalDownloadBytes, value.CurrentDownloadBytes));
                 await RunDownloadAsync(downloader, token);
 
-                token.ThrowIfCancellationRequested();
+                if (token.IsCancellationRequested || startedGeneration != generation || shuttingDown)
+                {
+                    return false;
+                }
                 if (downloader.Status != EOperationStatus.Succeed)
                 {
                     Logger.Error(downloader.Error);
                     return false;
                 }
 
-                Report(options.Progress, new ResourceDownloadProgress(downloader.TotalDownloadCount, downloader.TotalDownloadCount,
+                Publish(new ResourceDownloadProgress(downloader.TotalDownloadCount, downloader.TotalDownloadCount,
                     downloader.TotalDownloadBytes, downloader.TotalDownloadBytes));
             }
 
-            if (startedGeneration != generation || shuttingDown)
+            if (token.IsCancellationRequested || startedGeneration != generation || shuttingDown)
             {
                 return false;
             }
 
             PackageVersion = version;
-            contentFullyDownloaded = options?.DownloadAll == true;
             return true;
         }
 
+        /// <summary>异步运行 Download。</summary>
         private static async Task RunDownloadAsync(ResourceDownloaderOperation downloader, CancellationToken token)
         {
             Task nativeDownload = downloader.Task;
@@ -405,28 +267,12 @@ namespace Game.Resource
                 }
             }).Forget()))
             {
-                try
-                {
-                    await TaskUtil.WaitAsync(nativeDownload, token);
-                }
-                catch (OperationCanceledException) when (token.IsCancellationRequested)
-                {
-                    // The public waiter can already return cancellation. Retain the shared
-                    // initialization until YooAsset acknowledges it so shutdown/retry cannot
-                    // replace the manifest while the previous native download is still active.
-                    try
-                    {
-                        await nativeDownload;
-                    }
-                    catch
-                    {
-                        // The caller cancellation remains the result; the native task is observed.
-                    }
-                    throw;
-                }
+                // 调用方可先结束等待，管理器保留此任务直到原生下载器退出。
+                await nativeDownload;
             }
         }
 
+        /// <summary>上报资源管理器。</summary>
         private static void Report(IProgress<ResourceDownloadProgress> progress, ResourceDownloadProgress value)
         {
             try
@@ -439,206 +285,44 @@ namespace Game.Resource
             }
         }
 
-        public async Task<T> LoadAssetAsync<T>(string location)
-            where T : Object
+        internal static bool CheckSceneRequest(string location, LoadSceneMode mode)
         {
-            Ready();
-            Validate(location);
-            if (assetHandles.TryGetValue(location, out var cached) && cached.IsValid && cached.AssetObject != null)
+            if (!string.IsNullOrWhiteSpace(location) && (mode == LoadSceneMode.Single || mode == LoadSceneMode.Additive))
             {
-                return Cast<T>(cached.AssetObject, location);
+                return true;
             }
-
-            if (!assetLoads.TryGetValue(location, out var load))
-            {
-                load = new AssetLoad();
-                assetLoads.Add(location, load);
-                CompleteAssetAsync<T>(location, load).Forget();
-            }
-
-            return Cast<T>(await load.Result.Task, location);
+            Logger.Warn("Invalid resource scene location or load mode: " + location);
+            return false;
         }
 
-        // Cache-only lookup for frequently refreshed UI/gameplay; never starts a load or creates a Task.
-        public bool TryGetLoaded<T>(string location, out T value)
-            where T : Object
-        {
-            MainThread();
-            Validate(location);
-            value = null;
-            if (!initialized || shuttingDown || package == null)
-            {
-                return false;
-            }
-
-            if (!assetHandles.TryGetValue(location, out var handle) || !handle.IsValid)
-            {
-                return false;
-            }
-
-            value = handle.AssetObject as T;
-            return value != null;
-        }
-
-        public async Task LoadAssetAsync<T>(string location, Action<T> callback)
-            where T : Object
-        {
-            var result = await LoadAssetAsync<T>(location);
-            callback?.Invoke(result);
-        }
-
-        private async Task CompleteAssetAsync<T>(string location, AssetLoad load)
-            where T : Object
-        {
-            AssetHandle handle = null;
-            try
-            {
-                handle = package.LoadAssetAsync<T>(location);
-                await handle.Task;
-                if (load.Invalidated)
-                {
-                    throw new OperationCanceledException("Resource load was released before completion.");
-                }
-
-                if (handle.Status != EOperationStatus.Succeed || handle.AssetObject == null)
-                {
-                    throw new InvalidOperationException(handle.LastError);
-                }
-
-                Cast<T>(handle.AssetObject, location);
-                assetHandles[location] = handle;
-                load.Result.TrySetResult(handle.AssetObject);
-                handle = null; // Ownership transferred to the shared cache.
-            }
-            catch (OperationCanceledException)
-            {
-                load.Result.TrySetCanceled();
-            }
-            catch (Exception error)
-            {
-                load.Result.TrySetException(error);
-            }
-            finally
-            {
-                if (handle != null && handle.IsValid)
-                {
-                    handle.Release();
-                }
-
-                if (assetLoads.TryGetValue(location, out var current) && ReferenceEquals(current, load))
-                {
-                    assetLoads.Remove(location);
-                }
-            }
-        }
-
-        public T LoadAsset<T>(string location)
-            where T : Object
-        {
-            Ready();
-            Validate(location);
-            if (assetLoads.ContainsKey(location))
-            {
-                throw new InvalidOperationException("This location is loading asynchronously; await its shared load.");
-            }
-
-            if (assetHandles.TryGetValue(location, out var cached) && cached.IsValid && cached.AssetObject != null)
-            {
-                return Cast<T>(cached.AssetObject, location);
-            }
-
-            var handle = package.LoadAssetSync<T>(location);
-            try
-            {
-                if (handle.Status != EOperationStatus.Succeed || handle.AssetObject == null)
-                {
-                    throw new InvalidOperationException(handle.LastError);
-                }
-
-                var result = Cast<T>(handle.AssetObject, location);
-                assetHandles[location] = handle;
-                return result;
-            }
-            catch
-            {
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
-
-                throw;
-            }
-        }
-
-        public void LoadAsset<T>(string location, Action<T> callback)
-            where T : Object
-        {
-            var result = LoadAsset<T>(location);
-            callback?.Invoke(result);
-        }
-
-        private static T Cast<T>(Object value, string location)
-            where T : Object => value as T ?? throw new InvalidCastException("Resource type mismatch at " + location);
-        private static void Validate(string location)
-        {
-            if (string.IsNullOrWhiteSpace(location))
-            {
-                throw new ArgumentException("Resource location is required.", nameof(location));
-            }
-        }
-
-        public void ReleaseHandle(string location)
-        {
-            MainThread();
-            if (assetLoads.TryGetValue(location, out var load))
-            {
-                load.Invalidated = true;
-                load.Result.TrySetCanceled();
-                assetLoads.Remove(location);
-            }
-
-            if (assetHandles.TryGetValue(location, out var handle))
-            {
-                assetHandles.Remove(location);
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
-            }
-        }
-
-        public void ReleaseAllAssets()
-        {
-            MainThread();
-            foreach (var load in assetLoads.Values)
-            {
-                load.Invalidated = true;
-                load.Result.TrySetCanceled();
-            }
-
-            assetLoads.Clear();
-            foreach (var handle in assetHandles.Values)
-            {
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
-            }
-
-            assetHandles.Clear();
-        }
-
+        /// <summary>请 YooAsset 回收该地址的闲置资源。已持有的引用继续有效。</summary>
         public void TryUnloadAsset(string location, int loopCount = 10)
         {
-            Ready();
-            ReleaseHandle(location);
-            package.TryUnloadUnusedAsset(location, loopCount);
+            if (loopCount > 0 && CanLoadAsset(location, nameof(TryUnloadAsset)))
+            {
+                package.TryUnloadUnusedAsset(location, loopCount);
+            }
         }
 
+        /// <summary>尝试处理 Unload 未使用资源。</summary>
         public async Task TryUnloadUnusedAsset(int loopCount = 10)
         {
-            Ready();
-            await package.UnloadUnusedAssetsAsync(loopCount).Task;
+            if (loopCount <= 0 || !CheckReady(nameof(TryUnloadUnusedAsset)))
+            {
+                return;
+            }
+            int startedGeneration = generation;
+            var unload = package.UnloadUnusedAssetsAsync(loopCount);
+            await unload.Task;
+            if (startedGeneration != generation || shuttingDown)
+            {
+                return;
+            }
+            if (unload.Status != EOperationStatus.Succeed)
+            {
+                Logger.Warn("Could not unload unused resources: " + unload.Error);
+                return;
+            }
             var operation = Resources.UnloadUnusedAssets();
             if (!operation.isDone)
             {
@@ -648,17 +332,21 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>获取场景。</summary>
         private SceneLoad GetScene(string location, LoadSceneMode mode)
         {
-            Ready();
-            Validate(location);
+            if (!CheckReady(nameof(LoadSceneAsync)) || !CheckSceneRequest(location, mode))
+            {
+                return null;
+            }
             if (scenes.TryGetValue(location, out var existing))
             {
                 if (existing.Handle.IsValid && (!existing.Result.Task.IsCompleted || existing.Handle.SceneObject.isLoaded))
                 {
                     if (existing.Mode != mode || existing.Unload != null)
                     {
-                        throw new InvalidOperationException("Scene is already loading/loaded with another mode or unloading.");
+                        Logger.Warn("Scene is already loading or loaded with another mode, or is unloading: " + location);
+                        return null;
                     }
 
                     return existing;
@@ -685,11 +373,23 @@ namespace Game.Resource
                 }
             }
 
-            var load = new SceneLoad
+            SceneHandle handle;
+            try
             {
-                Mode = mode,
-                Handle = package.LoadSceneAsync(location, mode)
-            };
+                handle = package.LoadSceneAsync(location, mode);
+            }
+            catch (Exception error) when (IsResourceIoFailure(error))
+            {
+                Logger.Warn("Could not start loading scene " + location + ": " + error.Message);
+                return null;
+            }
+            if (handle == null)
+            {
+                Logger.Warn("YooAsset did not provide a scene handle: " + location);
+                return null;
+            }
+
+            var load = new SceneLoad { Mode = mode, Handle = handle };
             scenes.Add(location, load);
             CompleteSceneAsync(location, load).Forget();
             return load;
@@ -699,71 +399,95 @@ namespace Game.Resource
         {
             try
             {
-                await load.Handle.Task;
-                if (load.Invalidated)
+                var loading = load.Handle.Task;
+                if (loading != null)
                 {
-                    YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-                    return;
+                    await loading;
+                    if (!load.Invalidated && load.Handle.IsValid && load.Handle.Status == EOperationStatus.Succeed)
+                    {
+                        var scene = load.Handle.SceneObject;
+                        sceneLocations[scene.handle] = location;
+                        load.Result.TrySetResult(scene);
+                        return;
+                    }
                 }
 
-                if (load.Handle.Status != EOperationStatus.Succeed)
+                if (!load.Invalidated)
                 {
-                    throw new InvalidOperationException(load.Handle.LastError);
+                    Logger.Warn("Could not load scene " + location + ": " + (load.Handle.IsValid ? load.Handle.LastError : "Invalid handle."));
                 }
-
-                sceneLocations[load.Handle.SceneObject.handle] = location;
-                load.Result.TrySetResult(load.Handle.SceneObject);
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception error)
             {
-                if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
-                {
-                    scenes.Remove(location);
-                }
+                Logger.Exception(error);
+            }
 
-                YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-                load.Result.TrySetException(error);
+            if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
+            {
+                scenes.Remove(location);
+            }
+            YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
+            load.Result.TrySetResult(default);
+        }
+
+        /// <summary>异步加载场景。</summary>
+        public Task<Scene> LoadSceneAsync(string location) => LoadSceneAsync(location, LoadSceneMode.Single);
+        /// <summary>异步加载场景。</summary>
+        public Task<Scene> LoadSceneAsync(string location, LoadSceneMode mode) => GetScene(location, mode)?.Result.Task ?? Task.FromResult(default(Scene));
+        /// <summary>异步加载场景。</summary>
+        public async Task LoadSceneAsync(string location, Action<Scene> callback)
+        {
+            if (callback != null && CheckMainThread(nameof(LoadSceneAsync)))
+            {
+                callback(await LoadSceneAsync(location));
             }
         }
 
-        public Task<Scene> LoadSceneAsync(string location) => GetScene(location, LoadSceneMode.Single).Result.Task;
-        public Task<Scene> LoadSceneAsync(string location, LoadSceneMode mode) => GetScene(location, mode).Result.Task;
-        public async Task LoadSceneAsync(string location, Action<Scene> callback)
-        {
-            var scene = await LoadSceneAsync(location);
-            callback?.Invoke(scene);
-        }
-
+        /// <summary>异步加载场景。</summary>
         public async Task LoadSceneAsync(string location, LoadSceneMode mode, Action<Scene> callback)
         {
-            var scene = await LoadSceneAsync(location, mode);
-            callback?.Invoke(scene);
+            if (callback != null && CheckMainThread(nameof(LoadSceneAsync)))
+            {
+                callback(await LoadSceneAsync(location, mode));
+            }
         }
 
+        /// <summary>异步加载场景句柄。</summary>
         public SceneHandle LoadSceneHandleAsync(string location, LoadSceneMode mode = LoadSceneMode.Single, Action<Scene> callback = null)
         {
+            if (!CheckMainThread(nameof(LoadSceneHandleAsync)))
+            {
+                return null;
+            }
             var load = GetScene(location, mode);
             if (callback != null)
             {
-                CompleteSceneCallbackAsync(load.Result.Task, callback).Forget();
+                var result = load?.Result.Task ?? Task.FromResult(default(Scene));
+                CompleteSceneCallbackAsync(result, callback).Forget();
             }
 
-            return load.Handle;
+            return load?.Handle;
         }
 
+        /// <summary>异步完成场景回调。</summary>
         private static async Task CompleteSceneCallbackAsync(Task<Scene> task, Action<Scene> callback)
         {
             callback(await task);
         }
 
-        public Task UnloadSceneAsync(string location)
-        {
-            MainThread();
-            if (!scenes.TryGetValue(location, out var load))
-            {
-                return Task.CompletedTask;
-            }
+        /// <summary>卸载已持有的场景。重复请求复用同一次卸载。</summary>
+        public Task UnloadSceneAsync(string location) =>
+            CheckMainThread(nameof(UnloadSceneAsync)) ? UnloadSceneCore(location) : Task.CompletedTask;
 
+        private Task<bool> UnloadSceneCore(string location)
+        {
+            if (string.IsNullOrWhiteSpace(location) || !scenes.TryGetValue(location, out var load))
+            {
+                return Task.FromResult(true);
+            }
             if (load.Unload != null)
             {
                 return load.Unload;
@@ -777,76 +501,86 @@ namespace Game.Resource
 
         private async Task CompleteUnloadAsync(string location, SceneLoad load, TaskCompletionSource<bool> completion)
         {
+            bool success = false;
             try
             {
                 var scene = await load.Result.Task;
                 if (load.Invalidated)
                 {
-                    completion.TrySetCanceled();
                     return;
                 }
-
-                var operation = load.Handle.UnloadAsync();
-                await operation.Task;
-                if (load.Invalidated)
+                if (scene.IsValid() && scene.isLoaded && load.Handle.IsValid)
                 {
-                    completion.TrySetCanceled();
-                    return;
+                    var operation = load.Handle.UnloadAsync();
+                    await operation.Task;
+                    if (load.Invalidated)
+                    {
+                        return;
+                    }
+                    if (operation.Status != EOperationStatus.Succeed)
+                    {
+                        Logger.Warn("Could not unload scene " + location + ": " + operation.Error);
+                        return;
+                    }
                 }
 
-                if (operation.Status != EOperationStatus.Succeed)
+                if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
                 {
-                    throw new InvalidOperationException(operation.Error);
+                    scenes.Remove(location);
+                    sceneLocations.Remove(scene.handle);
                 }
-
-                scenes.Remove(location);
-                sceneLocations.Remove(scene.handle);
-                completion.TrySetResult(true);
+                success = true;
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception error)
             {
+                Logger.Exception(error);
+            }
+            finally
+            {
                 load.Unload = null;
-                completion.TrySetException(error);
+                completion.TrySetResult(success);
             }
         }
 
-        public Task UnloadSceneAsync(Scene scene) => sceneLocations.TryGetValue(scene.handle, out var location) ? UnloadSceneAsync(location) : Task.CompletedTask;
-        public async Task UnloadSceneAsync(string location, Action callback)
+        /// <summary>仅卸载此管理器拥有的场景。</summary>
+        public Task UnloadSceneAsync(Scene scene)
         {
-            await UnloadSceneAsync(location);
-            callback?.Invoke();
+            if (!CheckMainThread(nameof(UnloadSceneAsync)) || !sceneLocations.TryGetValue(scene.handle, out var location))
+            {
+                return Task.CompletedTask;
+            }
+            return UnloadSceneCore(location);
         }
 
+        /// <summary>异步卸载场景。</summary>
+        public async Task UnloadSceneAsync(string location, Action callback)
+        {
+            if (CheckMainThread(nameof(UnloadSceneAsync)))
+            {
+                await UnloadSceneCore(location);
+                callback?.Invoke();
+            }
+        }
+
+        /// <summary>重置 ForPlay。</summary>
         internal void ResetForPlay()
         {
             generation++;
-            ReleaseOwnedAssetsAsync().Forget();
+            CancelResourceOperation();
             if (atlasRegistered)
             {
                 SpriteAtlasManager.atlasRequested -= RequestAtlas;
                 atlasRegistered = false;
             }
 
-            foreach (var load in assetLoads.Values)
-            {
-                load.Invalidated = true;
-                load.Result.TrySetCanceled();
-            }
-
-            assetLoads.Clear();
-            foreach (var handle in assetHandles.Values)
-            {
-                if (handle.IsValid)
-                {
-                    handle.Release();
-                }
-            }
-
-            assetHandles.Clear();
+            ReleaseAssetsCore();
             foreach (var load in scenes.Values)
             {
                 load.Invalidated = true;
-                load.Result.TrySetCanceled();
+                load.Result.TrySetResult(default);
                 RetireSceneHandleAsync(load.Handle).Forget();
             }
 
@@ -856,13 +590,13 @@ namespace Game.Resource
             initialized = false;
             packageInitialized = false;
             PackageVersion = null;
-            contentFullyDownloaded = false;
+            ClearResourceMode();
             shuttingDown = false;
             initialization = null;
             shutdown = null;
         }
 
-        /// <summary>入口退出时发起内部清理；不创建尚未使用的资源管理器。</summary>
+        /// <summary>入口退出时发起清理。尚未使用时直接返回。</summary>
         public new static void Release()
         {
             if (TryGetInstance(out var current))
@@ -871,9 +605,15 @@ namespace Game.Resource
             }
         }
 
-        public Task ShutdownAsync()
+        /// <summary>异步关闭资源管理器。</summary>
+        public Task ShutdownAsync() => ShutdownPackageAsync();
+
+        private Task<bool> ShutdownPackageAsync()
         {
-            MainThread();
+            if (!CheckMainThread(nameof(ShutdownAsync)))
+            {
+                return Task.FromResult(false);
+            }
             if (shutdown != null && !shutdown.IsCompleted)
             {
                 return shutdown;
@@ -885,19 +625,21 @@ namespace Game.Resource
             return shutdown;
         }
 
+        /// <summary>异步完成 Shutdown。</summary>
         private async Task CompleteShutdownAsync(TaskCompletionSource<bool> completion)
         {
             try
             {
-                await ShutdownCoreAsync();
-                completion.TrySetResult(true);
+                completion.TrySetResult(await ShutdownCoreAsync());
             }
             catch (Exception error)
             {
-                completion.TrySetException(error);
+                Logger.Exception(error);
+                completion.TrySetResult(false);
             }
         }
 
+        /// <summary>异步终止使用场景句柄。</summary>
         private static async Task RetireSceneHandleAsync(SceneHandle handle)
         {
             if (!handle.IsValid)
@@ -916,11 +658,15 @@ namespace Game.Resource
             YooAssetSceneLoader.ReleaseIfSceneUnloaded(handle);
         }
 
-        private async Task ShutdownCoreAsync()
+        /// <summary>异步关闭资源管理器。</summary>
+        private async Task<bool> ShutdownCoreAsync()
         {
             int startedGeneration = generation;
             shuttingDown = true;
-            var errors = new List<Exception>();
+            CancelResourceOperation();
+            CancelPendingAssetLoads();
+            bool packageRetired = true;
+            bool scenesReleased = true;
             try
             {
                 foreach (var pending in new Task[] { packageInitialization, initialization })
@@ -938,13 +684,13 @@ namespace Game.Resource
                     }
                     catch (Exception error)
                     {
-                        errors.Add(error);
+                        Logger.Exception(error);
                     }
                 }
 
                 if (startedGeneration != generation)
                 {
-                    return;
+                    return false;
                 }
 
                 if (atlasRegistered)
@@ -956,18 +702,11 @@ namespace Game.Resource
                 var locations = new List<string>(scenes.Keys);
                 foreach (var location in locations)
                 {
-                    try
-                    {
-                        await UnloadSceneAsync(location);
-                    }
-                    catch (Exception error)
-                    {
-                        errors.Add(error);
-                    }
+                    scenesReleased &= await UnloadSceneCore(location);
 
                     if (startedGeneration != generation)
                     {
-                        return;
+                        return false;
                     }
                 }
             }
@@ -978,8 +717,20 @@ namespace Game.Resource
                 {
                     try
                     {
-                        ReleaseAllAssets();
-                        await ReleaseOwnedAssetsAsync(respectOwner: true);
+                        // 场景若仍在使用，则保留它用到的资源和 Package，供下一次关闭重试。
+                        if (scenesReleased)
+                        {
+                            ReleaseAssetsCore();
+                        }
+                        if (startedGeneration == generation && scenesReleased && package != null)
+                        {
+                            packageRetired = await RetirePackageAsync(package, startedGeneration);
+                            if (packageRetired && startedGeneration == generation)
+                            {
+                                scenes.Clear();
+                                sceneLocations.Clear();
+                            }
+                        }
                     }
                     finally
                     {
@@ -988,19 +739,16 @@ namespace Game.Resource
                             initialized = false;
                             packageInitialized = false;
                             PackageVersion = null;
-                            contentFullyDownloaded = false;
                             initialization = null;
                             packageInitialization = null;
+                            ClearResourceMode();
                             shuttingDown = false;
                         }
                     }
                 }
             }
 
-            if (errors.Count != 0)
-            {
-                throw new AggregateException("Resource shutdown failed; asset cleanup was still performed.", errors);
-            }
+            return scenesReleased && packageRetired;
         }
     }
 }

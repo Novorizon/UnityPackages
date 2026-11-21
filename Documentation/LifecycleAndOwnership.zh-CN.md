@@ -25,28 +25,9 @@ await UIManager.Instance.Pages.PushAsync("UI/Home", repeatPolicy: PageRepeatPoli
 
 ## 资源
 
-原 LoadAssetAsync/ReleaseHandle 仍是共享缓存接口。新的 AcquireAsync 每次持有独立 YooAsset 句柄，同地址的其他租约和共享缓存互不释放。
+普通加载每次成功都持有一份 YooAsset 引用。调用者保存返回对象，在使用结束时调用 `Release(asset)`。多个调用收到同一对象时，需要分别归还。资源缺失或取消时返回空结果。SpriteAtlas 子图与返回 Sprite 对应的图集引用一起回收。
 
-```csharp
-using (var lease = await ResourceManager.Instance.AcquireAsync<TextAsset>("Config/Example", token))
-{
-    string json = lease.Asset.text;
-}
-```
-
-资源使用时间超过这个方法时，应保持租约，不要在使用者结束之前 Dispose。只有资源获取成功才返回租约；取消或失败不会要求调用方释放未取得的对象。
-
-取消只停止这个调用方的等待。原生 I/O 不能强制中断时，管理器保留底层句柄到原操作完成再释放，不把迟到结果交给已关闭的使用者。ShutdownAsync 会使现有租约失效，并等待未结束的原生获取释放。
-
-ResourceScope 管理一组获取。在 UIView 的生命周期回调中可用 `Track(ResourceManager.Instance.CreateScope())` 把它交给窗口本次打开的作用域；窗口关闭时取消未完成获取并逆序释放。CreateSceneScope(scene) 将作用域绑定到具体已加载场景，卸载时自动释放，其他场景和全局作用域不受影响。
-
-```csharp
-using var scope = ResourceManager.Instance.CreateSceneScope(scene);
-var texture = await scope.AcquireAsync<Texture2D>("Textures/Example", token);
-// texture.Asset 保持有效，直到租约、scope 或资源管理器被关闭。
-```
-
-GameStarter 会安装使用独立租约的 UI 加载器；Luban 清单和数据表的字节读取也使用短期独立租约，不再占用共享缓存。UI 包与 YooAsset 包之间没有增加强依赖，适配接线在 GameStarter。
+窗口关闭时归还本次打开使用的动态资源。窗口 Prefab 的引用则保留到缓存淘汰、原生实例销毁为止。GameStarter 现用租约的适配器需要保留这个销毁顺序，再切换到对象归还接口。
 
 ## 网络
 
@@ -72,7 +53,7 @@ Framework 的线程、事件和时钟驱动仍由 Framework 管理。
 
 场景加载器解绑或 Play 重置不会提前释放仍被已加载场景使用的 YooAsset 句柄。YooAsset 自身按 sceneUnloaded 自动释放；关闭过程中迟到但成功的场景加载也遵守相同规则。解绑管理器不等于卸载场景，项目仍需显式管理场景切换。
 
-原生实例持有的资源可以通过 AcquireAsync<T>(..., keepAliveUntilDisposed: true) 声明：普通关闭会等待使用方 Dispose 租约后再释放句柄。GameStarter 的 UI 适配已使用此策略，窗口原生销毁之前 prefab 句柄保持有效。未完成获取会被正常取消，Play 重置仍可强制回收旧运行的租约。
+原生实例持有的 Prefab 引用应保留到实例销毁完成。关闭资源管理器前，先停止使用资源的系统并销毁相关对象。随后关闭资源管理器，集中归还剩余引用，终止未完成的普通加载。
 
 ## 集中释放和编辑器静态声明恢复
 

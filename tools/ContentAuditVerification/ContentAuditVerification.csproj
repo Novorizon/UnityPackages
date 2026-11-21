@@ -16,6 +16,5 @@
     <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs" />
     <Compile Include="../../Packages/com.novorizon.diagnostics/Editor/DiagnosticDifference.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ResourceProbe.cs" />
   </ItemGroup>
 </Project>

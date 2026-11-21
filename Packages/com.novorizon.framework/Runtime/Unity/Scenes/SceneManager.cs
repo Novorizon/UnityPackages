@@ -90,7 +90,8 @@ namespace Game.Framework.Scenes
 
                 if (!scene.IsValid() || !scene.isLoaded)
                 {
-                    throw new InvalidOperationException("Scene loader returned an unloaded scene: " + location);
+                    Logger.Warn("Scene loader did not load scene: " + location);
+                    return default;
                 }
 
                 if (mode == LoadSceneMode.Single)
@@ -141,9 +142,9 @@ namespace Game.Framework.Scenes
                 }
 
                 await loader.UnloadAsync(scene);
-                if (!disposed)
+                if (!disposed && (!scene.IsValid() || !scene.isLoaded))
                 {
-                    // Unity 的 sceneUnloaded 通常先到达；自定义加载器也可以只完成 Task。
+                    // 原生场景已卸载时，补齐未收到的通知。卸载失败时保留已加载记录。
                     OnSceneUnloaded(scene);
                 }
             }
