@@ -23,7 +23,7 @@ internal static partial class Program
             Equal(1, package.ManifestRequests);
             True(!loading.IsCompleted && resources.PackageInitialized && !resources.IsReady);
             True(resources.PackageVersion == null);
-            Throws<InvalidOperationException>(() => resources.CreateSceneLoader());
+            True(resources.CreateSceneLoader() == null);
             manifest.SetResult(true);
             True(Complete(loading));
             True(resources.PackageInitialized && resources.IsReady);

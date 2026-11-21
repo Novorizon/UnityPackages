@@ -85,24 +85,6 @@ internal static class Program
         };
         var catalog = LocalizationCatalog.FromRows(rows, row => row.Key, columns);
         var french = CultureInfo.GetCultureInfo("fr-CA");
-        var oldLeases = Enumerable.Range(0, 10000).Select(index => new DiagnosticLease
-        {
-            sessionId = "session",
-            leaseId = index + 1,
-            owner = "Battle/HUD",
-            location = "portraits/hero",
-            state = "Active"
-        }).ToArray();
-        var oldSnapshot = new DiagnosticSnapshot { leases = oldLeases };
-        Game.Resource.ResourceManager.Publish(oldLeases);
-        var newSnapshot = new DiagnosticSnapshot { leases = oldLeases.Select(lease => new DiagnosticLease
-        {
-            sessionId = lease.sessionId,
-            leaseId = lease.leaseId,
-            owner = lease.owner,
-            location = lease.location,
-            state = lease.leaseId % 10 == 0 ? "Releasing" : "Active"
-        }).ToArray() };
         var nodes = Enumerable.Range(0, 1000).Select(index => new StoryNode("line." + index, StoryNodeKind.Say, textKey: "hello")).ToList();
         nodes.Add(new StoryNode("end", StoryNodeKind.End));
         var story = new StorySequence("linear", "1", nodes);
@@ -122,8 +104,6 @@ internal static class Program
                 }
                 retained = value;
             }),
-            Measure("DiagnosticDiff10000LeasesTenPercentChanged", 10000, () => retained = DiagnosticSnapshotComparer.Compare(oldSnapshot, newSnapshot)),
-            Measure("DiagnosticCapture10000LeasesPublicReflection", 10000, () => retained = PackageDiagnostics.Capture()),
             Measure("Story1000ImmediateDialogueNodes", 1000, () =>
             {
                 using (var player = new StoryPlayer(presenter))
@@ -257,28 +237,13 @@ internal static class Program
         Equal("7", guarded[1].value);
         var before = new DiagnosticSnapshot
         {
-            metrics = new[] { new DiagnosticMetric { name = "Count", value = "2" } },
-            leases = new[]
-            {
-                new DiagnosticLease { sessionId = "old", leaseId = 1, owner = "A", state = "Active" },
-                new DiagnosticLease { sessionId = "old", leaseId = 2, owner = "B", state = "Active" }
-            }
+            metrics = new[] { new DiagnosticMetric { name = "Count", value = "2" } }
         };
         var after = new DiagnosticSnapshot
         {
-            metrics = new[] { new DiagnosticMetric { name = "Count", value = "1" } },
-            leases = new[]
-            {
-                new DiagnosticLease { sessionId = "new", leaseId = 1, owner = "A", state = "Active" },
-                new DiagnosticLease { sessionId = "old", leaseId = 2, owner = "B", state = "Releasing" }
-            }
+            metrics = new[] { new DiagnosticMetric { name = "Count", value = "1" } }
         };
         var difference = DiagnosticSnapshotComparer.Compare(before, after);
-        Equal(3, difference.leases.Length);
-        Equal(1, difference.leases.Count(change => change.kind == "Added"));
-        Equal(1, difference.leases.Count(change => change.kind == "Removed"));
-        Equal(1, difference.leases.Count(change => change.kind == "Changed"));
-        Equal("Active", before.leases[1].state);
         Equal("2", before.metrics[0].value);
         Equal("Changed", difference.metrics[0].kind);
     }

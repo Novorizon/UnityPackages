@@ -67,7 +67,6 @@ await ResourceManager.Instance.UnloadSceneAsync(scene);
 当前 ResourceManager 没有 RawFile 包装接口。项目需要原始文件时，使用已初始化的官方 ResourcePackage，自行持有并释放 RawFileHandle：
 
 ```csharp
-using System;
 using YooAsset;
 
 async System.Threading.Tasks.Task<string> ReadRawTextAsync(ResourcePackage package, string location)
@@ -77,7 +76,10 @@ async System.Threading.Tasks.Task<string> ReadRawTextAsync(ResourcePackage packa
     {
         await handle.Task;
         if (handle.Status != EOperationStatus.Succeed)
-            throw new InvalidOperationException(handle.LastError);
+        {
+            UnityEngine.Debug.LogWarning(handle.LastError);
+            return null;
+        }
         return handle.GetRawFileText();
     }
     finally
@@ -123,3 +125,5 @@ UI 包通过 `IUIAssetLoader` 接入项目的资源系统。用 `LoadAssetAsync<
 Resource Demo 的加载目标来自项目自己的 DefaultPackage；初次运行只显示配置提示。缺少采集器、地址无效、包构建与平台不一致、尚未初始化和类型错误都会失败，应先看初始化结果与 YooAsset Console 错误。
 
 合同构建和回归可核对 API、独立引用、取消、释放和场景映射，不模拟真实 Bundle、网络、GPU、Editor 文件系统或 IL2CPP。上线前在实际 Unity 2022.3 + YooAsset 2.3.18 工程验证 Editor、Offline、Host 和目标设备。
+
+启动和资源重置失败时返回 `false`，下载返回状态，场景加载失败返回默认 `Scene`。用 `scene.IsValid()` 检查结果。资源未就绪时 `CreateSceneLoader()` 返回 `null`。Unity API 仍须在已初始化的主线程调用，错用线程时记录错误并结束当前操作。

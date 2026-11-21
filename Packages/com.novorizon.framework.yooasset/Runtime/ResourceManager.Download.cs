@@ -28,7 +28,6 @@ namespace Game.Resource
         }
 
         private ResourceMode? resourceMode;
-        private bool retirePackageOnShutdown;
         private (InitializeParameters Parameters, string MainUrl, string FallbackUrl)? downloadSource;
         private CancellationTokenSource resourceOperationStop;
 
@@ -41,8 +40,7 @@ namespace Game.Resource
         /// <summary>初始化 YooAsset。离线或编辑器模拟时挂载本地清单，在线时等待 DownloadAsync 提供来源。</summary>
         public async Task<bool> InitializeAsync(ResourceMode resourceMode, CancellationToken token = default)
         {
-            MainThread();
-            if (token.IsCancellationRequested)
+            if (!CheckMainThread(nameof(InitializeAsync)) || token.IsCancellationRequested)
             {
                 return false;
             }
@@ -100,6 +98,10 @@ namespace Game.Resource
                     var parameters = resourceMode == ResourceMode.Offline
                         ? YooAssetsSettings.CreateOfflinePlayModeParameters()
                         : YooAssetsSettings.CreateEditorSimulateModeParameters();
+                    if (parameters == null)
+                    {
+                        return false;
+                    }
                     pending = BeginModeInitialization(parameters, token);
                 }
                 return await WaitForResourceOperationAsync(pending, token) && await pending &&
@@ -115,10 +117,13 @@ namespace Game.Resource
         /// <summary>根据远端下载设置挂载清单并下载全部缺失资源。成功后才发布版本和就绪状态。</summary>
         public async Task<ResourceDownloadResult> DownloadAsync(RemoteDownloadSetting setting, CancellationToken token = default)
         {
-            MainThread();
             if (token.IsCancellationRequested)
             {
                 return new ResourceDownloadResult(ResourceDownloadStatus.Cancelled);
+            }
+            if (!CheckMainThread(nameof(DownloadAsync)))
+            {
+                return new ResourceDownloadResult(ResourceDownloadStatus.Failed);
             }
             if (resourceMode != ResourceMode.Online)
             {
@@ -155,6 +160,10 @@ namespace Game.Resource
             try
             {
                 var parameters = setting.Parameters ?? YooAssetsSettings.CreateHostPlayModeParameters(mainUrl, fallbackUrl);
+                if (parameters == null)
+                {
+                    return new ResourceDownloadResult(ResourceDownloadStatus.Failed);
+                }
                 downloadSource = source;
                 DownloadProgress = null;
                 var download = new PackageDownload(version, setting.ConcurrentDownloads, setting.FailedTryAgain, setting.Progress);
@@ -178,18 +187,17 @@ namespace Game.Resource
         /// <summary>释放资源和场景、销毁 DefaultPackage，允许下一次初始化切换文件系统。</summary>
         public async Task<bool> ResetAsync(CancellationToken token = default)
         {
-            MainThread();
-            if (token.IsCancellationRequested)
+            if (!CheckMainThread(nameof(ResetAsync)) || token.IsCancellationRequested)
             {
                 return false;
             }
 
             try
             {
-                Task<bool> pending = ShutdownAsync(retirePackage: true);
+                Task<bool> pending = ShutdownPackageAsync();
                 return await WaitForResourceOperationAsync(pending, token) && await pending;
             }
-            catch (Exception error) when (error is AggregateException || IsResourceIoFailure(error))
+            catch (Exception error) when (IsResourceIoFailure(error))
             {
                 Logger.Warn("Resource reset failed: " + error.Message);
                 return false;
@@ -216,9 +224,14 @@ namespace Game.Resource
             {
                 completion.TrySetResult(await InitializeCoreAsync(parameters, stop.Token, download));
             }
+            catch (OperationCanceledException)
+            {
+                completion.TrySetResult(false);
+            }
             catch (Exception error)
             {
-                completion.TrySetException(error);
+                Logger.Exception(error);
+                completion.TrySetResult(false);
             }
             finally
             {
@@ -256,8 +269,15 @@ namespace Game.Resource
                     }
                 }
             }
-            await operation;
-            return true;
+            try
+            {
+                await operation;
+                return !token.IsCancellationRequested;
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
         }
 
         private async Task<bool> RetirePackageAsync(ResourcePackage current, int startedGeneration)
@@ -284,7 +304,6 @@ namespace Game.Resource
             resourceMode = null;
             downloadSource = null;
             DownloadProgress = null;
-            retirePackageOnShutdown = false;
         }
 
         private static ResourceDownloadResult DownloadFailure(ResourceDownloadStatus status, string message)
@@ -293,7 +312,7 @@ namespace Game.Resource
             return new ResourceDownloadResult(status);
         }
 
-        private static bool IsResourceIoFailure(Exception error) =>
+        internal static bool IsResourceIoFailure(Exception error) =>
             error is IOException || error is UnauthorizedAccessException || error is TimeoutException;
     }
 }

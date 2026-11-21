@@ -173,8 +173,8 @@
       "reason": "Release the temporary shader variant collection after warmup."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Extensions.cs": {
-      "sha256": "aa659847820bcac8b9a6e7233124643e3390030a9a090cfdd1cb0ca4e0d84b11",
-      "reason": "Associate each atlas Sprite and prefab instance with the native handle from its own load."
+      "sha256": "b0a776a01db799ec24e0306e6f087bbe3280dd11d5b139bc83c79bff10006121",
+      "reason": "Associate each atlas Sprite and prefab instance with the native handle from its own load. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.localization/Runtime/LocalizationManager.cs": {
       "sha256": "b3aedd7477eeb862c3d36bc4cd21d47a49d1166e03ec2c41facac9a0be7c3ec8",
@@ -229,8 +229,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "b5a62dab961ffe90f5adea1045fbd01ca0704120dc5a73262dce8a15fe1b0344",
-      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset. Keep the default package mount private and retain a distinct handle for each successful ordinary acquisition."
+      "sha256": "adf7396c18809531cac059ac99aede6c570bd81418ac898da4efdcb24afc7bac",
+      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset. Keep the default package mount private and retain a distinct handle for each successful ordinary acquisition. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
@@ -257,8 +257,8 @@
       "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetSceneLoader.cs": {
-      "sha256": "c492d3ab711cc5987b83ab925d1a51dc08a929e6be7fc7861f16933afde3c322",
-      "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias"
+      "sha256": "3e45155cf7127aa0bc366d664b4d8b49a1b84321f5285197cb1b571e81d61d6f",
+      "reason": "Independent asset leases and scopes; retain loaded or late-completing scene handles until native unload; ordered shutdown and Unity Logger alias Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.audio/Runtime/AudioHandle.cs": {
       "sha256": "5d7c563a06aa3b81e7b111ae8a203e8ac4cd16573f4dcc9837969595faec5b85",
@@ -279,10 +279,6 @@
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
       "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
       "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
-    },
-    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Leases.cs": {
-      "sha256": "9c543a7e0f64ea2c343a416d342c22703cd3906be06e56772d605d4a9e7faa5c",
-      "reason": "Add immutable resource ownership diagnostics and separately named owned acquisition while preserving original AcquireAsync API."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
       "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
@@ -341,8 +337,8 @@
       "reason": "Generate Editor-only singleton static restoration from declarations; unify instance cleanup, retain no-scene-reload configuration and apply required Allman formatting."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/Scenes/SceneManager.cs": {
-      "sha256": "782a74388ba90f21fbc6dc84e2577d81b948324454970a16cb856a9e8e0a1900",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base."
+      "sha256": "f8637e03c2db8510b587da1d4c0d7fdacc107fdc0902155defdc22282573a833",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Initialization.cs": {
       "sha256": "7fbc3e21e33a9bdfbaa9ac1b99b1e4fac8ec4c014ea93942be306c91266d4730",
@@ -381,8 +377,8 @@
       "reason": "Avoid redundant assembly hashes and move pure integrity work off the caller thread while preserving cancellation/publication checks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
-      "sha256": "df73759d3b699f8f9d46da3fe06eafa0ebc8ad563430b2ad3047b95ac7f5ef99",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references. Validate URLs for explicit remote downloads."
+      "sha256": "ba65d6db68fe73100336458d16d45b6b3e034a47a157817502f0a26c2b1c6e1c",
+      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references. Validate URLs for explicit remote downloads. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
@@ -453,8 +449,8 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Editor/ResourceDemoSceneMenu.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "10b2545d6ada76c12fa4370e43efd1d49282c5cd4c2e90a3b4b8d5ae3b23d5c8"
+      "sha256": "48921c5e04453486199173cf8f6cf2a67683974374cb89f2030aac067122b29e",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
       "sha256": "3c5f7bea515514df7918be1b9197f67a5f01f8d761a6ebed354c7c2f8b1e0897",
@@ -532,10 +528,6 @@
       "sha256": "fd8c340ee48a6b8fb8a1af9e0c09d9e4ccf3b3c016e5b22ed343cbd642520710",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
-    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceScope.cs": {
-      "sha256": "aba81f2a9c598c05b068a063a6faad336e354eea2e9f2a6dd2b23c6b9005c0d4",
-      "reason": "Track optional owner, scope ID and scene labels in existing independent resource leases."
-    },
     "Packages/com.novorizon.ability/Core/AbilitySystem.Auras.cs": {
       "sha256": "a1a3912f2cf3642473322374d6415c64acf49b99142e750790a2acfba57d43b3",
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
@@ -561,8 +553,8 @@
       "reason": "Validate contiguous fade curves without enum boxing."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {
-      "sha256": "4b703204752701ab99d054c77d73294e06a86c89335b4e3df3c0e9a98f0f4927",
-      "reason": "Read public getters only and reuse row-type ownership accessors."
+      "sha256": "f18a9cbc25911177f804a1ac698d97222844c976648ca88d8a871de1a2c71c19",
+      "reason": "Read public getters only and reuse row-type ownership accessors. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGrid.cs": {
       "sha256": "e213f381d80cc0c62582e12ca0bc20c1997786e908cad816ec5d40591f2ae382",
@@ -597,8 +589,8 @@
       "reason": "Validate format indices with a 64-bit mask and shared stateless probes."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticsWindow.cs": {
-      "sha256": "fde35bd478785769f5ece8761a3dd7a7d6a5fa10c3dfce7dee4e2aeccbc068d2",
-      "reason": "Cache matched diagnostic rows, remove params-array filtering and bound each IMGUI event to 100 records while exporting full snapshots."
+      "sha256": "56ee99bf364e1604e5c3b4cf4e274f510d125c3a71434b89eb0ff1def59e5784",
+      "reason": "Cache matched diagnostic rows, remove params-array filtering and bound each IMGUI event to 100 records while exporting full snapshots. Use result-based resource failures and remove the previous resource ownership APIs."
     }
   }
 }

@@ -14,10 +14,16 @@ using Object = UnityEngine.Object;
 namespace Game.Resource
 {
     // YooAsset itself remains unmodified. All handle operations run on Unity's main thread.
+    /// <summary>资源对应的管理器。管理对应模块的状态和操作入口。</summary>
     public partial class ResourceManager : Singleton<ResourceManager>, IDisposable
     {
+        /// <summary>结束资源管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose()
         {
+            if (!CheckMainThread(nameof(Dispose)))
+            {
+                return;
+            }
 #if UNITY_EDITOR
             if (EditorStaticReset.IsResetting)
             {
@@ -36,7 +42,7 @@ namespace Game.Resource
             internal bool Invalidated;
             internal LoadSceneMode Mode;
             internal readonly TaskCompletionSource<Scene> Result = new TaskCompletionSource<Scene>(TaskCreationOptions.RunContinuationsAsynchronously);
-            internal Task Unload;
+            internal Task<bool> Unload;
         }
 
         private ResourcePackage package;
@@ -52,34 +58,38 @@ namespace Game.Resource
         public bool PackageInitialized => packageInitialized;
         public string PackageVersion { get; private set; }
 
-        /// <summary>场景协调器使用独立场景句柄，不借用共享的按地址缓存。</summary>
-        public ISceneLoader CreateSceneLoader()
-        {
-            Ready();
-            return new YooAssetSceneLoader(package);
-        }
+        /// <summary>资源未就绪时返回 null。调用方取得加载器后负责其生命周期。</summary>
+        public ISceneLoader CreateSceneLoader() =>
+            CheckReady(nameof(CreateSceneLoader)) ? new YooAssetSceneLoader(package) : null;
 
-        private static void MainThread()
+        internal static bool CheckMainThread(string operation)
         {
-            if (!UnityThread.IsMainThread)
+            if (UnityThread.IsMainThread)
             {
-                throw new InvalidOperationException("ResourceManager must be called on the initialized Unity main thread.");
+                return true;
             }
+            Logger.Error("Resource operation " + operation + " requires the initialized Unity main thread.");
+            return false;
         }
 
-        private void Ready()
+        private bool CheckReady(string operation)
         {
-            MainThread();
-            if (shuttingDown || !initialized || package == null)
+            if (!CheckMainThread(operation))
             {
-                throw new InvalidOperationException("Await ResourceManager.InitializeAsync first.");
+                return false;
             }
+            if (IsReady && package != null)
+            {
+                return true;
+            }
+            Logger.Warn("Resource package is unavailable for " + operation + ". Initialize it first.");
+            return false;
         }
 
-        /// <summary>此服务需要异步加载，调用方应等待 InitializeAsync 完成。</summary>
+        /// <summary>资源需要异步初始化。调用 InitializeAsync 并等待结果。</summary>
         public override void Initialize()
         {
-            throw new InvalidOperationException("Use and await InitializeAsync to initialize ResourceManager.");
+            Logger.Error("Use and await ResourceManager.InitializeAsync to initialize ResourceManager.");
         }
 
         // 记录原生文件系统操作，关闭和下一轮 Play 可以等待它安全结束。
@@ -242,6 +252,7 @@ namespace Game.Resource
             return true;
         }
 
+        /// <summary>异步运行 Download。</summary>
         private static async Task RunDownloadAsync(ResourceDownloaderOperation downloader, CancellationToken token)
         {
             Task nativeDownload = downloader.Task;
@@ -261,6 +272,7 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>上报资源管理器。</summary>
         private static void Report(IProgress<ResourceDownloadProgress> progress, ResourceDownloadProgress value)
         {
             try
@@ -273,28 +285,44 @@ namespace Game.Resource
             }
         }
 
-        /// <summary>根据传入参数取得施法。</summary>
-        private static T Cast<T>(Object value, string location)
-            where T : Object => value as T ?? throw new InvalidCastException("Resource type mismatch at " + location);
-        private static void Validate(string location)
+        internal static bool CheckSceneRequest(string location, LoadSceneMode mode)
         {
-            if (string.IsNullOrWhiteSpace(location))
+            if (!string.IsNullOrWhiteSpace(location) && (mode == LoadSceneMode.Single || mode == LoadSceneMode.Additive))
             {
-                throw new ArgumentException("Resource location is required.", nameof(location));
+                return true;
             }
+            Logger.Warn("Invalid resource scene location or load mode: " + location);
+            return false;
         }
 
         /// <summary>请 YooAsset 回收该地址的闲置资源。已持有的引用继续有效。</summary>
         public void TryUnloadAsset(string location, int loopCount = 10)
         {
-            Ready();
-            package.TryUnloadUnusedAsset(location, loopCount);
+            if (loopCount > 0 && CanLoadAsset(location, nameof(TryUnloadAsset)))
+            {
+                package.TryUnloadUnusedAsset(location, loopCount);
+            }
         }
 
+        /// <summary>尝试处理 Unload 未使用资源。</summary>
         public async Task TryUnloadUnusedAsset(int loopCount = 10)
         {
-            Ready();
-            await package.UnloadUnusedAssetsAsync(loopCount).Task;
+            if (loopCount <= 0 || !CheckReady(nameof(TryUnloadUnusedAsset)))
+            {
+                return;
+            }
+            int startedGeneration = generation;
+            var unload = package.UnloadUnusedAssetsAsync(loopCount);
+            await unload.Task;
+            if (startedGeneration != generation || shuttingDown)
+            {
+                return;
+            }
+            if (unload.Status != EOperationStatus.Succeed)
+            {
+                Logger.Warn("Could not unload unused resources: " + unload.Error);
+                return;
+            }
             var operation = Resources.UnloadUnusedAssets();
             if (!operation.isDone)
             {
@@ -304,17 +332,21 @@ namespace Game.Resource
             }
         }
 
+        /// <summary>获取场景。</summary>
         private SceneLoad GetScene(string location, LoadSceneMode mode)
         {
-            Ready();
-            Validate(location);
+            if (!CheckReady(nameof(LoadSceneAsync)) || !CheckSceneRequest(location, mode))
+            {
+                return null;
+            }
             if (scenes.TryGetValue(location, out var existing))
             {
                 if (existing.Handle.IsValid && (!existing.Result.Task.IsCompleted || existing.Handle.SceneObject.isLoaded))
                 {
                     if (existing.Mode != mode || existing.Unload != null)
                     {
-                        throw new InvalidOperationException("Scene is already loading/loaded with another mode or unloading.");
+                        Logger.Warn("Scene is already loading or loaded with another mode, or is unloading: " + location);
+                        return null;
                     }
 
                     return existing;
@@ -341,11 +373,23 @@ namespace Game.Resource
                 }
             }
 
-            var load = new SceneLoad
+            SceneHandle handle;
+            try
             {
-                Mode = mode,
-                Handle = package.LoadSceneAsync(location, mode)
-            };
+                handle = package.LoadSceneAsync(location, mode);
+            }
+            catch (Exception error) when (IsResourceIoFailure(error))
+            {
+                Logger.Warn("Could not start loading scene " + location + ": " + error.Message);
+                return null;
+            }
+            if (handle == null)
+            {
+                Logger.Warn("YooAsset did not provide a scene handle: " + location);
+                return null;
+            }
+
+            var load = new SceneLoad { Mode = mode, Handle = handle };
             scenes.Add(location, load);
             CompleteSceneAsync(location, load).Forget();
             return load;
@@ -355,71 +399,95 @@ namespace Game.Resource
         {
             try
             {
-                await load.Handle.Task;
-                if (load.Invalidated)
+                var loading = load.Handle.Task;
+                if (loading != null)
                 {
-                    YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-                    return;
+                    await loading;
+                    if (!load.Invalidated && load.Handle.IsValid && load.Handle.Status == EOperationStatus.Succeed)
+                    {
+                        var scene = load.Handle.SceneObject;
+                        sceneLocations[scene.handle] = location;
+                        load.Result.TrySetResult(scene);
+                        return;
+                    }
                 }
 
-                if (load.Handle.Status != EOperationStatus.Succeed)
+                if (!load.Invalidated)
                 {
-                    throw new InvalidOperationException(load.Handle.LastError);
+                    Logger.Warn("Could not load scene " + location + ": " + (load.Handle.IsValid ? load.Handle.LastError : "Invalid handle."));
                 }
-
-                sceneLocations[load.Handle.SceneObject.handle] = location;
-                load.Result.TrySetResult(load.Handle.SceneObject);
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception error)
             {
-                if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
-                {
-                    scenes.Remove(location);
-                }
+                Logger.Exception(error);
+            }
 
-                YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
-                load.Result.TrySetException(error);
+            if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
+            {
+                scenes.Remove(location);
+            }
+            YooAssetSceneLoader.ReleaseIfSceneUnloaded(load.Handle);
+            load.Result.TrySetResult(default);
+        }
+
+        /// <summary>异步加载场景。</summary>
+        public Task<Scene> LoadSceneAsync(string location) => LoadSceneAsync(location, LoadSceneMode.Single);
+        /// <summary>异步加载场景。</summary>
+        public Task<Scene> LoadSceneAsync(string location, LoadSceneMode mode) => GetScene(location, mode)?.Result.Task ?? Task.FromResult(default(Scene));
+        /// <summary>异步加载场景。</summary>
+        public async Task LoadSceneAsync(string location, Action<Scene> callback)
+        {
+            if (callback != null && CheckMainThread(nameof(LoadSceneAsync)))
+            {
+                callback(await LoadSceneAsync(location));
             }
         }
 
-        public Task<Scene> LoadSceneAsync(string location) => GetScene(location, LoadSceneMode.Single).Result.Task;
-        public Task<Scene> LoadSceneAsync(string location, LoadSceneMode mode) => GetScene(location, mode).Result.Task;
-        public async Task LoadSceneAsync(string location, Action<Scene> callback)
-        {
-            var scene = await LoadSceneAsync(location);
-            callback?.Invoke(scene);
-        }
-
+        /// <summary>异步加载场景。</summary>
         public async Task LoadSceneAsync(string location, LoadSceneMode mode, Action<Scene> callback)
         {
-            var scene = await LoadSceneAsync(location, mode);
-            callback?.Invoke(scene);
+            if (callback != null && CheckMainThread(nameof(LoadSceneAsync)))
+            {
+                callback(await LoadSceneAsync(location, mode));
+            }
         }
 
+        /// <summary>异步加载场景句柄。</summary>
         public SceneHandle LoadSceneHandleAsync(string location, LoadSceneMode mode = LoadSceneMode.Single, Action<Scene> callback = null)
         {
+            if (!CheckMainThread(nameof(LoadSceneHandleAsync)))
+            {
+                return null;
+            }
             var load = GetScene(location, mode);
             if (callback != null)
             {
-                CompleteSceneCallbackAsync(load.Result.Task, callback).Forget();
+                var result = load?.Result.Task ?? Task.FromResult(default(Scene));
+                CompleteSceneCallbackAsync(result, callback).Forget();
             }
 
-            return load.Handle;
+            return load?.Handle;
         }
 
+        /// <summary>异步完成场景回调。</summary>
         private static async Task CompleteSceneCallbackAsync(Task<Scene> task, Action<Scene> callback)
         {
             callback(await task);
         }
 
-        public Task UnloadSceneAsync(string location)
-        {
-            MainThread();
-            if (!scenes.TryGetValue(location, out var load))
-            {
-                return Task.CompletedTask;
-            }
+        /// <summary>卸载已持有的场景。重复请求复用同一次卸载。</summary>
+        public Task UnloadSceneAsync(string location) =>
+            CheckMainThread(nameof(UnloadSceneAsync)) ? UnloadSceneCore(location) : Task.CompletedTask;
 
+        private Task<bool> UnloadSceneCore(string location)
+        {
+            if (string.IsNullOrWhiteSpace(location) || !scenes.TryGetValue(location, out var load))
+            {
+                return Task.FromResult(true);
+            }
             if (load.Unload != null)
             {
                 return load.Unload;
@@ -433,51 +501,75 @@ namespace Game.Resource
 
         private async Task CompleteUnloadAsync(string location, SceneLoad load, TaskCompletionSource<bool> completion)
         {
+            bool success = false;
             try
             {
                 var scene = await load.Result.Task;
                 if (load.Invalidated)
                 {
-                    completion.TrySetCanceled();
                     return;
                 }
-
-                var operation = load.Handle.UnloadAsync();
-                await operation.Task;
-                if (load.Invalidated)
+                if (scene.IsValid() && scene.isLoaded && load.Handle.IsValid)
                 {
-                    completion.TrySetCanceled();
-                    return;
+                    var operation = load.Handle.UnloadAsync();
+                    await operation.Task;
+                    if (load.Invalidated)
+                    {
+                        return;
+                    }
+                    if (operation.Status != EOperationStatus.Succeed)
+                    {
+                        Logger.Warn("Could not unload scene " + location + ": " + operation.Error);
+                        return;
+                    }
                 }
 
-                if (operation.Status != EOperationStatus.Succeed)
+                if (scenes.TryGetValue(location, out var current) && ReferenceEquals(current, load))
                 {
-                    throw new InvalidOperationException(operation.Error);
+                    scenes.Remove(location);
+                    sceneLocations.Remove(scene.handle);
                 }
-
-                scenes.Remove(location);
-                sceneLocations.Remove(scene.handle);
-                completion.TrySetResult(true);
+                success = true;
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception error)
             {
+                Logger.Exception(error);
+            }
+            finally
+            {
                 load.Unload = null;
-                completion.TrySetException(error);
+                completion.TrySetResult(success);
             }
         }
 
-        public Task UnloadSceneAsync(Scene scene) => sceneLocations.TryGetValue(scene.handle, out var location) ? UnloadSceneAsync(location) : Task.CompletedTask;
-        public async Task UnloadSceneAsync(string location, Action callback)
+        /// <summary>仅卸载此管理器拥有的场景。</summary>
+        public Task UnloadSceneAsync(Scene scene)
         {
-            await UnloadSceneAsync(location);
-            callback?.Invoke();
+            if (!CheckMainThread(nameof(UnloadSceneAsync)) || !sceneLocations.TryGetValue(scene.handle, out var location))
+            {
+                return Task.CompletedTask;
+            }
+            return UnloadSceneCore(location);
         }
 
+        /// <summary>异步卸载场景。</summary>
+        public async Task UnloadSceneAsync(string location, Action callback)
+        {
+            if (CheckMainThread(nameof(UnloadSceneAsync)))
+            {
+                await UnloadSceneCore(location);
+                callback?.Invoke();
+            }
+        }
+
+        /// <summary>重置 ForPlay。</summary>
         internal void ResetForPlay()
         {
             generation++;
             CancelResourceOperation();
-            ReleaseOwnedAssetsAsync().Forget();
             if (atlasRegistered)
             {
                 SpriteAtlasManager.atlasRequested -= RequestAtlas;
@@ -488,7 +580,7 @@ namespace Game.Resource
             foreach (var load in scenes.Values)
             {
                 load.Invalidated = true;
-                load.Result.TrySetCanceled();
+                load.Result.TrySetResult(default);
                 RetireSceneHandleAsync(load.Handle).Forget();
             }
 
@@ -504,7 +596,7 @@ namespace Game.Resource
             shutdown = null;
         }
 
-        /// <summary>入口退出时发起内部清理；不创建尚未使用的资源管理器。</summary>
+        /// <summary>入口退出时发起清理。尚未使用时直接返回。</summary>
         public new static void Release()
         {
             if (TryGetInstance(out var current))
@@ -513,15 +605,15 @@ namespace Game.Resource
             }
         }
 
-        public Task ShutdownAsync()
-        {
-            return ShutdownAsync(retirePackage: resourceMode.HasValue);
-        }
+        /// <summary>异步关闭资源管理器。</summary>
+        public Task ShutdownAsync() => ShutdownPackageAsync();
 
-        private Task<bool> ShutdownAsync(bool retirePackage)
+        private Task<bool> ShutdownPackageAsync()
         {
-            MainThread();
-            retirePackageOnShutdown |= retirePackage;
+            if (!CheckMainThread(nameof(ShutdownAsync)))
+            {
+                return Task.FromResult(false);
+            }
             if (shutdown != null && !shutdown.IsCompleted)
             {
                 return shutdown;
@@ -533,6 +625,7 @@ namespace Game.Resource
             return shutdown;
         }
 
+        /// <summary>异步完成 Shutdown。</summary>
         private async Task CompleteShutdownAsync(TaskCompletionSource<bool> completion)
         {
             try
@@ -541,10 +634,12 @@ namespace Game.Resource
             }
             catch (Exception error)
             {
-                completion.TrySetException(error);
+                Logger.Exception(error);
+                completion.TrySetResult(false);
             }
         }
 
+        /// <summary>异步终止使用场景句柄。</summary>
         private static async Task RetireSceneHandleAsync(SceneHandle handle)
         {
             if (!handle.IsValid)
@@ -569,8 +664,9 @@ namespace Game.Resource
             int startedGeneration = generation;
             shuttingDown = true;
             CancelResourceOperation();
+            CancelPendingAssetLoads();
             bool packageRetired = true;
-            var errors = new List<Exception>();
+            bool scenesReleased = true;
             try
             {
                 foreach (var pending in new Task[] { packageInitialization, initialization })
@@ -588,7 +684,7 @@ namespace Game.Resource
                     }
                     catch (Exception error)
                     {
-                        errors.Add(error);
+                        Logger.Exception(error);
                     }
                 }
 
@@ -606,14 +702,7 @@ namespace Game.Resource
                 var locations = new List<string>(scenes.Keys);
                 foreach (var location in locations)
                 {
-                    try
-                    {
-                        await UnloadSceneAsync(location);
-                    }
-                    catch (Exception error)
-                    {
-                        errors.Add(error);
-                    }
+                    scenesReleased &= await UnloadSceneCore(location);
 
                     if (startedGeneration != generation)
                     {
@@ -628,11 +717,19 @@ namespace Game.Resource
                 {
                     try
                     {
-                        ReleaseAllAssets();
-                        await ReleaseOwnedAssetsAsync(respectOwner: true);
-                        if (startedGeneration == generation && retirePackageOnShutdown && package != null)
+                        // 场景若仍在使用，则保留它用到的资源和 Package，供下一次关闭重试。
+                        if (scenesReleased)
+                        {
+                            ReleaseAssetsCore();
+                        }
+                        if (startedGeneration == generation && scenesReleased && package != null)
                         {
                             packageRetired = await RetirePackageAsync(package, startedGeneration);
+                            if (packageRetired && startedGeneration == generation)
+                            {
+                                scenes.Clear();
+                                sceneLocations.Clear();
+                            }
                         }
                     }
                     finally
@@ -651,12 +748,7 @@ namespace Game.Resource
                 }
             }
 
-            if (errors.Count != 0)
-            {
-                throw new AggregateException("Resource shutdown failed; asset cleanup was still performed.", errors);
-            }
-
-            return packageRetired;
+            return scenesReleased && packageRetired;
         }
     }
 }

@@ -52,11 +52,7 @@ namespace Game.Resource
         private int assetGeneration;
 
         /// <summary>每次成功调用持有一个独立引用。使用结束后调用 Release，即使两次取得的是同一个对象。</summary>
-        public Task<T> LoadAssetAsync<T>(string location) where T : Object =>
-            LoadAssetAsync<T>(location, CancellationToken.None);
-
-        /// <summary>异步取得一个独立引用。加载失败或取消返回 null。</summary>
-        public Task<T> LoadAssetAsync<T>(string location, CancellationToken token) where T : Object =>
+        public Task<T> LoadAssetAsync<T>(string location, CancellationToken token = default) where T : Object =>
             LoadAssetAsync<T, T>(location, asset => asset, AssetLifetime.Asset, token);
 
         /// <summary>非空回调接收一次加载结果。成功时由回调的调用方归还该引用。</summary>
@@ -66,7 +62,7 @@ namespace Game.Resource
         /// <summary>非空回调接收一次加载结果，取消或失败时结果为 null。</summary>
         public async Task LoadAssetAsync<T>(string location, Action<T> callback, CancellationToken token) where T : Object
         {
-            if (callback != null)
+            if (callback != null && CheckMainThread(nameof(LoadAssetAsync)))
             {
                 callback(await LoadAssetAsync<T>(location, token));
             }
@@ -79,7 +75,7 @@ namespace Game.Resource
         /// <summary>非空回调接收同步加载结果，并接管成功的资源引用。</summary>
         public void LoadAsset<T>(string location, Action<T> callback) where T : Object
         {
-            if (callback != null)
+            if (callback != null && CheckMainThread(nameof(LoadAsset)))
             {
                 callback(LoadAsset<T>(location));
             }
@@ -88,7 +84,10 @@ namespace Game.Resource
         /// <summary>归还此对象的一次加载引用。没有剩余记录时返回 false。</summary>
         public bool Release(Object asset)
         {
-            MainThread();
+            if (!CheckMainThread(nameof(Release)))
+            {
+                return false;
+            }
             // 实例可能已被 Destroy。用托管对象引用匹配最初返回的实例。
             if (ReferenceEquals(asset, null) || !loadedAssets.TryGetValue(asset, out var references))
             {
@@ -111,8 +110,10 @@ namespace Game.Resource
         /// <summary>应用级操作，撤销未完成的普通加载并清理所有普通资源和自动绑定的图集。</summary>
         public void ReleaseAllAssets()
         {
-            MainThread();
-            ReleaseAssetsCore();
+            if (CheckMainThread(nameof(ReleaseAllAssets)))
+            {
+                ReleaseAssetsCore();
+            }
         }
 
         private async Task<TResult> LoadAssetAsync<TSource, TResult>(
@@ -123,7 +124,7 @@ namespace Game.Resource
             where TSource : Object
             where TResult : Object
         {
-            if (token.IsCancellationRequested || !CanLoadAsset(location))
+            if (token.IsCancellationRequested || !CanLoadAsset(location, nameof(LoadAssetAsync)))
             {
                 return null;
             }
@@ -195,7 +196,7 @@ namespace Game.Resource
             where TSource : Object
             where TResult : Object
         {
-            if (!CanLoadAsset(location))
+            if (!CanLoadAsset(location, nameof(LoadAsset)))
             {
                 return null;
             }
@@ -234,12 +235,15 @@ namespace Game.Resource
             }
         }
 
-        private bool CanLoadAsset(string location)
+        private bool CanLoadAsset(string location, string operation)
         {
-            MainThread();
-            if (!IsReady || package == null || string.IsNullOrWhiteSpace(location))
+            if (!CheckReady(operation))
             {
-                Logger.Warn("Resource package is unavailable or the location is empty: " + location);
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(location))
+            {
+                Logger.Warn("Resource location is empty.");
                 return false;
             }
             return true;
@@ -289,18 +293,12 @@ namespace Game.Resource
         private void ReleaseAssetsCore()
         {
             assetGeneration++;
-            var pending = new List<PendingAssetLoad>(pendingAssets);
+            CancelPendingAssetLoads();
             var loaded = new List<KeyValuePair<Object, AssetReferences>>(loadedAssets);
             var bindings = new List<AssetHandle>(atlasBindings);
-            pendingAssets.Clear();
             loadedAssets.Clear();
             atlasBindings.Clear();
 
-            foreach (var load in pending)
-            {
-                load.Cancelled.TrySetResult(true);
-                load.Release();
-            }
             foreach (var pair in loaded)
             {
                 if (pair.Value.DestroyOnRelease && pair.Key != null)
@@ -315,6 +313,17 @@ namespace Game.Resource
             foreach (var handle in bindings)
             {
                 ReleaseAssetHandle(handle);
+            }
+        }
+
+        private void CancelPendingAssetLoads()
+        {
+            var pending = new List<PendingAssetLoad>(pendingAssets);
+            pendingAssets.Clear();
+            foreach (var load in pending)
+            {
+                load.Cancelled.TrySetResult(true);
+                load.Release();
             }
         }
 

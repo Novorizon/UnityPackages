@@ -81,7 +81,7 @@ ShutdownAsync 会继续清理所有场景并释放资源缓存，即使某次场
 
 ## 现有租约调用迁移
 
-现有 GameStarter 的 UI、启动代码和部分玩法仍有 `AssetLease` 或 `ResourceScope` 调用。逐处换成加载结果和明确的归还位置，UI 等到原生实例销毁后再归还 Prefab。等项目调用和依赖租约的诊断迁移完成，再移除旧入口。
+GameStarter 原先通过租约或作用域管理的调用需要迁移到直接加载与归还。UI 应在原生实例销毁完成后归还 Prefab。
 
 ## 接口迁移
 

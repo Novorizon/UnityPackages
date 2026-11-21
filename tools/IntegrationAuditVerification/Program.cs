@@ -125,14 +125,16 @@ internal static class Program
         {
             var resources = ResourceManager.Instance;
             Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
-            var lease = Done(resources.AcquireAsync<TextAsset>("native-consumer", keepAliveUntilDisposed: true));
+            var old = YooAssets.Package;
+            var destroy = Gate();
+            old.DestroyGate = destroy.Task;
             Task shutdown = resources.ShutdownAsync();
             Assert(!shutdown.IsCompleted);
             var oldOffline = resources.InitializeAsync(ResourceMode.Offline);
             typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
+            destroy.SetResult(true);
             Done(shutdown);
             Assert(!Done(oldOffline) && !resources.IsReady, "An old initialization waiter resurrected content after Play reset.");
-            Assert(!lease.IsValid);
         });
         Run("worker cancellation dispatches downloader cancellation onto the initialized main thread", () =>
         {
@@ -185,18 +187,6 @@ internal static class Program
             Assert(resources.Release(asset));
             Equal(1, package.Assets.Count(handle => handle.IsValid));
             Assert(resources.Release(asset));
-            Equal(0, package.Assets.Count(handle => handle.IsValid));
-        });
-        Run("object release cannot consume a legacy lease for the same object", () =>
-        {
-            var resources = ResourceManager.Instance;
-            Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
-            var package = YooAssets.Package;
-            using var lease = Done(resources.AcquireAsync<TextAsset>("shared"));
-            var asset = Done(resources.LoadAssetAsync<TextAsset>("shared"));
-            Assert(ReferenceEquals(lease.Asset, asset) && resources.Release(asset));
-            Assert(!resources.Release(asset) && lease.IsValid && package.Assets[0].IsValid);
-            lease.Dispose();
             Equal(0, package.Assets.Count(handle => handle.IsValid));
         });
         Run("cancelling one waiter releases only its handle while another caller still loads", () =>
@@ -333,6 +323,85 @@ internal static class Program
             Assert(Done(pending) == null);
             Assert(YooAssets.Package.Assets[0].IsValid && resources.Release(next));
             Equal(1, old.Assets[0].ReleaseCount);
+        });
+        Run("resource calls before initialization return safe results", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Assert(resources.LoadAsset<TextAsset>("text") == null);
+            Assert(Done(resources.LoadAssetAsync<TextAsset>("text")) == null);
+            Assert(resources.CreateSceneLoader() == null);
+            Assert(!Done(resources.LoadSceneAsync("scene")).IsValid());
+            Assert(resources.LoadSceneHandleAsync("scene") == null);
+            Done(resources.UnloadSceneAsync((string)null));
+            Assert(!resources.Release(new TextAsset()));
+            Done(resources.ShutdownAsync());
+            Done(resources.ShutdownAsync());
+            Equal(0, YooAssets.Package.Assets.Count);
+        });
+        Run("worker calls fail without invoking YooAsset or mutating ownership", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
+            var package = YooAssets.Package;
+            var held = Done(resources.LoadAssetAsync<TextAsset>("held"));
+            Task.Run(async () =>
+            {
+                Assert(!await resources.InitializeAsync(ResourceMode.Offline));
+                Equal(ResourceDownloadStatus.Failed, (await resources.DownloadAsync(ForVersion("worker"))).Status);
+                Assert(!await resources.ResetAsync());
+                await resources.ShutdownAsync();
+                Assert(await resources.LoadAssetAsync<TextAsset>("worker") == null);
+                bool callbackInvoked = false;
+                await resources.LoadAssetAsync<TextAsset>("worker", _ => callbackInvoked = true);
+                Assert(!callbackInvoked);
+                Assert(!resources.Release(held));
+                Assert(resources.CreateSceneLoader() == null);
+                Assert(!(await resources.LoadSceneAsync("worker")).IsValid());
+                resources.ReleaseAllAssets();
+                resources.Dispose();
+            }).GetAwaiter().GetResult();
+            Equal(1, package.Assets.Count);
+            Equal(0, package.Scenes.Count);
+            Assert(resources.IsReady && resources.Release(held));
+        });
+        Run("scene failures return default and an unsuccessful unload can be retried", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
+            var package = YooAssets.Package;
+            package.FailNextScene = true;
+            Assert(!Done(resources.LoadSceneAsync("scene", UnityEngine.SceneManagement.LoadSceneMode.Additive)).IsValid());
+            Equal(1, package.Scenes[0].ReleaseCount);
+
+            using var loader = (YooAssetSceneLoader)resources.CreateSceneLoader();
+            var mode = UnityEngine.SceneManagement.LoadSceneMode.Additive;
+            var scene = Done(loader.LoadAsync("retry", mode, null));
+            var handle = package.Scenes[1];
+            handle.FailUnload = true;
+            Done(loader.UnloadAsync(scene));
+            Equal(0, handle.ReleaseCount);
+            handle.FailUnload = false;
+            Done(loader.UnloadAsync(scene));
+            Equal(1, handle.ReleaseCount);
+            Done(loader.UnloadAsync(scene));
+        });
+        Run("reset keeps a scene in use until a subsequent unload succeeds", () =>
+        {
+            var resources = ResourceManager.Instance;
+            Assert(Done(resources.InitializeAsync(ResourceMode.Offline)));
+            var package = YooAssets.Package;
+            var text = Done(resources.LoadAssetAsync<TextAsset>("held"));
+            var scene = Done(resources.LoadSceneAsync("live", UnityEngine.SceneManagement.LoadSceneMode.Additive));
+            Assert(scene.IsValid());
+            package.Scenes[0].FailUnload = true;
+            Assert(!Done(resources.ResetAsync()));
+            Equal(0, package.DestroyCalls);
+            Assert(!resources.IsReady && package.Assets[0].IsValid);
+            package.Scenes[0].FailUnload = false;
+            Assert(Done(resources.ResetAsync()));
+            Assert(!resources.Release(text));
+            Equal(1, package.DestroyCalls);
+            Equal(1, package.Scenes[0].ReleaseCount);
         });
         Console.WriteLine("RESULT integration audit passed=" + passed + " failed=" + failed + "; Unity/YooAsset API models, not native I/O or device performance.");
         if (failed != 0)

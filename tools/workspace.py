@@ -254,7 +254,6 @@ def verify(dotnet):
             ('StoryVerification', 'StoryVerification'),
             ('PlatformServicesVerification', 'PlatformServicesVerification'),
             ('AnalyticsVerification', 'AnalyticsVerification'),
-            ('DiagnosticsOwnershipVerification', 'DiagnosticsOwnershipVerification'),
             ('RTreeCorrectness', 'Correctness'),
             ('RTreeSpatialCorrectness', 'SpatialCorrectness'),
             ('FoundationAuditVerification', 'FoundationAuditVerification'),
@@ -270,9 +269,6 @@ def verify(dotnet):
             project = ROOT / 'tools' / folder / (project_name + '.csproj')
             subprocess.run([dotnet, 'build', str(project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
             subprocess.run([dotnet, str(project.parent / 'bin/Release/net8.0' / (project_name + '.dll'))], cwd=ROOT, env=env, check=True)
-        ownership_project = ROOT / 'tools/DiagnosticsOwnershipVerification/DiagnosticsOwnershipVerification.csproj'
-        subprocess.run([dotnet, 'build', str(ownership_project), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo', '-p:OwnershipDevelopment=false'], cwd=temp, env=env, check=True)
-        subprocess.run([dotnet, str(ownership_project.parent / 'bin/Release/net8.0/DiagnosticsOwnershipVerification.dll')], cwd=ROOT, env=env, check=True)
         subprocess.run([dotnet, 'build', str(ROOT / 'tools/StoryVerification/Compatibility/RuntimeCompatibility.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         subprocess.run([dotnet, 'build', str(ROOT / 'tools/HotUpdateVerification/PlayerCompile.csproj'), '-c', 'Release', '-m:1', '--disable-build-servers', '--nologo'], cwd=temp, env=env, check=True)
         # Compile and execute actual runtime sources with UNITY_EDITOR and the shipped analyzer.
