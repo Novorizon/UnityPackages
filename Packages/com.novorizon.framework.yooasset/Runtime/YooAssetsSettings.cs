@@ -102,11 +102,16 @@ namespace Game.Resource
 
         private static void ValidateRemoteUrl(string url)
         {
-            if (!Uri.TryCreate(url, UriKind.Absolute, out var parsed) || (parsed.Scheme != "http" && parsed.Scheme != "https"))
+            if (!IsRemoteUrl(url))
             {
                 throw new InvalidOperationException("Configure a valid resource host URL before enabling remote play mode.");
             }
         }
+
+        internal static bool IsRemoteUrl(string url) =>
+            Uri.TryCreate(url, UriKind.Absolute, out var parsed) && !string.IsNullOrEmpty(parsed.Host) &&
+            (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps);
+        /// <summary>表示Yoo 资源设置中的远程服务。</summary>
         private class RemoteServices : IRemoteServices
         {
             private readonly string _defaultHostServer;

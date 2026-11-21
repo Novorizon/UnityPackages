@@ -175,16 +175,19 @@ namespace YooAsset
         private readonly Dictionary<string, UnityEngine.Object> values = new Dictionary<string, UnityEngine.Object>();
         public readonly List<SceneHandle> Scenes = new List<SceneHandle>();
         public Task AssetGate = Task.CompletedTask, SceneGate = Task.CompletedTask;
-        public Task InitializeGate = Task.CompletedTask;
+        public Task InitializeGate = Task.CompletedTask, DestroyGate = Task.CompletedTask;
         public EOperationStatus InitializeStatus;
-        public bool FailNextAsset, FailNextScene, FailNextInitialize;
-        public int InitializeCalls, VersionRequests, ManifestRequests, DownloaderCalls;
+        public bool FailNextAsset, FailNextScene, FailNextInitialize, FailVersionRequest, FailManifest, FailDestroy;
+        public int InitializeCalls, VersionRequests, ManifestRequests, DownloaderCalls, DestroyCalls;
+        public int DownloadConcurrency, DownloadRetries;
         public InitializeParameters LastInitializeParameters;
         public string SelectedVersion;
         public ResourceDownloaderOperation Downloader = new ResourceDownloaderOperation();
         public ResourceDownloaderOperation CreateResourceDownloader(int concurrency, int retries)
         {
             DownloaderCalls++;
+            DownloadConcurrency = concurrency;
+            DownloadRetries = retries;
             return Downloader;
         }
 
@@ -211,13 +214,31 @@ namespace YooAsset
         public Operation RequestPackageVersionAsync()
         {
             VersionRequests++;
-            return new Operation();
+            return new Operation { Status = FailVersionRequest ? EOperationStatus.Failed : EOperationStatus.Succeed };
         }
         public Operation UpdatePackageManifestAsync(string version)
         {
             ManifestRequests++;
             SelectedVersion = version;
-            return new Operation();
+            return new Operation { Status = FailManifest ? EOperationStatus.Failed : EOperationStatus.Succeed };
+        }
+
+        public Operation DestroyAsync()
+        {
+            DestroyCalls++;
+            var operation = new Operation();
+            operation.Task = CompleteDestroyAsync(operation);
+            return operation;
+        }
+
+        private async Task CompleteDestroyAsync(Operation operation)
+        {
+            await DestroyGate;
+            operation.Status = FailDestroy ? EOperationStatus.Failed : EOperationStatus.Succeed;
+            if (!FailDestroy)
+            {
+                InitializeStatus = EOperationStatus.None;
+            }
         }
         public AssetHandle LoadAssetAsync<T>(string location)
             where T : UnityEngine.Object
@@ -271,12 +292,24 @@ namespace YooAsset
     public static class YooAssets
     {
         public static ResourcePackage Package = new ResourcePackage();
+        public static bool Initialized { get; private set; }
         public static void Initialize()
         {
+            Initialized = true;
         }
 
         public static ResourcePackage TryGetPackage(string name) => Package;
-        public static ResourcePackage CreatePackage(string name) => Package;
+        public static ResourcePackage CreatePackage(string name) => Package ?? (Package = new ResourcePackage());
+        public static bool RemovePackage(ResourcePackage package)
+        {
+            if (!ReferenceEquals(package, Package) || package.InitializeStatus != EOperationStatus.None)
+            {
+                return false;
+            }
+
+            Package = null;
+            return true;
+        }
         public static void SetDefaultPackage(ResourcePackage package)
         {
         }

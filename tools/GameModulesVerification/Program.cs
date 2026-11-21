@@ -23,7 +23,7 @@ internal static partial class Program
 {
     private static int passed;
     private static Pump context;
-    private static void Main()
+    private static void Main(string[] args)
     {
         ResourcePackageScenarios();
         Run("pinned resource versions skip latest lookup and complete downloads before readiness", () =>
@@ -32,53 +32,62 @@ internal static partial class Program
             var package = YooAssets.Package;
             package.Downloader.TotalDownloadCount = 3;
             package.Downloader.TotalDownloadBytes = 100;
-            True(Complete(resources.InitializeAsync(new ResourceInitializationOptions
+            True(Complete(resources.InitializeAsync(ResourceMode.Online)));
+            var result = Complete(resources.DownloadAsync(new RemoteDownloadSetting
             {
-                PackageVersion = "release-2",
-                DownloadAll = true
-            })));
+                MainUrl = "https://example.test",
+                PackageVersion = "release-2"
+            }));
+            Equal(ResourceDownloadStatus.Downloaded, result.Status);
             Equal(0, package.VersionRequests);
             Equal("release-2", package.SelectedVersion);
             Equal("release-2", resources.PackageVersion);
             Equal(1, package.Downloader.Begun);
-            True(resources.Initialized);
+            True(resources.IsReady);
         });
         Run("cancelled resource downloads never publish an initialized package", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var pending = Gate<bool>();
-            YooAssets.Package.Downloader.Task = pending.Task;
+            package.Downloader.Task = pending.Task;
             using var stop = new CancellationTokenSource();
-            var loading = resources.InitializeAsync(new ResourceInitializationOptions
+            True(Complete(resources.InitializeAsync(ResourceMode.Online)));
+            var loading = resources.DownloadAsync(new RemoteDownloadSetting
             {
-                PackageVersion = "release-3",
-                DownloadAll = true
+                MainUrl = "https://example.test",
+                PackageVersion = "release-3"
             }, stop.Token);
             stop.Cancel();
-            Fails<OperationCanceledException>(loading);
-            True(!resources.Initialized);
-            Equal(1, YooAssets.Package.Downloader.Cancelled);
+            var result = Complete(loading);
             pending.SetResult(true);
+            Equal(ResourceDownloadStatus.Cancelled, result.Status);
+            True(!resources.IsReady);
+            Equal(1, package.Downloader.Cancelled);
         });
         Run("shutdown waits for nonabortable native initialization after caller cancellation", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var pending = Gate<bool>();
-            YooAssets.Package.InitializeGate = pending.Task;
+            package.InitializeGate = pending.Task;
             using var stop = new CancellationTokenSource();
-            var loading = resources.InitializeAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "release-4"
-            }, stop.Token);
+            var loading = resources.InitializeAsync(ResourceMode.Offline, stop.Token);
             stop.Cancel();
-            Fails<OperationCanceledException>(loading);
+            True(!Complete(loading));
             var shutdown = resources.ShutdownAsync();
             True(!shutdown.IsCompleted);
-            Equal(1, YooAssets.Package.InitializeCalls);
+            Equal(1, package.InitializeCalls);
             pending.SetResult(true);
             Complete(shutdown);
-            True(!resources.Initialized);
+            True(!resources.IsReady);
         });
+        if (args.Length == 1 && args[0] == "--resource-package")
+        {
+            Console.WriteLine($"PASS {passed} ResourceManager package scenarios.");
+            return;
+        }
+
         Run("parameterless initialization dispatches through singleton bases to actual services", () =>
         {
             using var data = new DataManager();

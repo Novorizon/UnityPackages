@@ -7,27 +7,20 @@
 ```csharp
 using Game.Resource;
 
-bool ready = await ResourceManager.Instance.InitializeAsync();
+bool ready = await ResourceManager.Instance.InitializeAsync(ResourceMode.Offline);
 if (!ready)
-    return; // 展示重试或错误界面，不继续加载。
+{
+    return;
+}
 ```
 
-InitializeAsync 幂等，相同初始化过程共享任务；失败后可以重试。它使用名为 **DefaultPackage** 的资源包，依次执行包初始化、请求版本、更新清单；成功后注册一次 SpriteAtlas 请求事件。项目必须先准备好该包的采集与构建配置。
+`ResourceMode.Offline` 挂载内置清单，`ResourceMode.EditorSimulation` 挂载编辑器模拟清单。项目需要为 **DefaultPackage** 配置采集规则和对应资源。挂载成功后注册一次 SpriteAtlas 请求事件，`IsReady` 为 true。
 
-`YooAssetsSettings.CreateParameters()` 按以下优先顺序选择模式：
+`ResourceMode.Online` 先启动 YooAsset 并创建包，此时还不能读取资源。随后用 `DownloadAsync(RemoteDownloadSetting, token)` 提供远端地址或自定义文件系统、版本和进度回调。它挂载清单并下载缺失文件，成功后返回可用版本。切换来源或版本前等待 `ResetAsync` 完成。调用代码和结果状态见[包说明](../README.md#初始化与下载)。
 
-| 编译配置 | 参数来源 | 项目准备 |
-| --- | --- | --- |
-| Unity Editor | EditorSimulateMode | YooAsset 的 DefaultPackage 采集配置，可供模拟构建 |
-| `OFFLINE_PLAY_MODE` | OfflinePlayMode | 与平台、YooAsset 版本匹配的内置资源 |
-| `HOST_PLAY_MODE` | HostPlayMode | 内置资源、可访问的资源服务地址与清单 |
-| 未定义上述 Player 模式 | OfflinePlayMode | 同 Offline |
+旧的无参 `InitializeAsync()` 使用 `YooAssetsSettings.CreateParameters()`。Editor 默认模拟；Player 中 `OFFLINE_PLAY_MODE` 选择内置资源，`HOST_PLAY_MODE` 选择配置了 `DefaultHostServer` 的远端文件系统，默认仍为内置资源。
 
-Host 模式在初始化前配置 `YooAssetsSettings.DefaultHostServer`，`FallbackHostServer` 可留空以使用主地址；地址必须是绝对 HTTP/HTTPS URL。项目可以先设置自己的配置再调用 InitializeAsync。不要在库源码或样例中写入真实凭据，也不要将签名 Token 作为长期写死的资源 URL。
-
-`CreateCustomPlayModeParameters()` 和 `InitPackageAsync(ResourcePackage, InitializeParameters)` 是高级入口。后者只对传入包执行初始化/版本/清单流程，不会把它注册成 ResourceManager 内部的可用默认包；调用后不能直接假定 ResourceManager.Initialized 为 true。普通业务统一用 InitializeAsync；自管多包时直接管理官方 ResourcePackage。
-
-封装没有自动执行完整的补丁下载、更新确认、断点恢复或应用重启流程。Host 模式的实际资源更新流程应由项目使用 YooAsset 下载器组织。
+自管多包时可使用官方 `ResourcePackage`。高级入口 `InitPackageAsync(ResourcePackage, InitializeParameters)` 只挂载传入包的文件系统和清单。管理器的资源读取接口使用它自己管理的 DefaultPackage。
 
 ## 加载普通资源
 

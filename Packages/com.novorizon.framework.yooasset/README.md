@@ -16,27 +16,38 @@
 
 Resource Demo 从 Package Manager Samples 按需导入，菜单 **Tools > Novorizon > Demos > Create Resource Demo Scene** 创建独立测试场景。Play 后界面先显示配置提示；只有点击按钮才初始化、加载或释放。它需要项目已有的 YooAsset 采集配置与资源，不自带 AssetBundle，也不会在导入时联网。
 
-## 最小用法
+## 初始化与下载
 
 ```csharp
-using System;
-using Game.Resource;
-using UnityEngine;
-
-async System.Threading.Tasks.Task ReadTextAsync(string location)
+var resources = ResourceManager.Instance;
+bool started = await resources.InitializeAsync(resourceMode, token);
+if (!started)
 {
-    var resources = ResourceManager.Instance;
-    if (!await resources.InitializeAsync())
-    {
-        throw new InvalidOperationException("DefaultPackage initialization failed.");
-    }
+    return;
+}
 
-    TextAsset text = await resources.LoadTextAssetAsync(location);
-    Debug.Log(text.text);
+if (resourceMode == ResourceMode.Online)
+{
+    var result = await resources.DownloadAsync(new RemoteDownloadSetting
+    {
+        MainUrl = cdnUrl,
+        PackageVersion = selectedVersion,
+        Progress = progress
+    }, token);
+    if (!result.IsReady)
+    {
+        // 项目的启动流程根据 result.Status 决定是否重试或切换到内置资源。
+        return;
+    }
 }
 ```
 
-所有调用从 Unity 主线程发起，主框架自动初始化主线程服务。`location` 是项目 YooAsset 采集配置中的地址；框架不会猜扩展名或把普通 Resources 路径自动转换成 YooAsset 地址。
+- `Game.Resource.ResourceMode.Offline` 直接挂载主包内置清单。`EditorSimulation` 使用编辑器模拟文件系统。两种模式初始化成功后 `IsReady` 为 true。
+- `Online` 初始化只启动 YooAsset、创建 DefaultPackage。调用 `DownloadAsync` 后才挂载在线文件系统、更新清单并下载缺失资源，成功后 `IsReady` 为 true。
+- `DownloadAsync` 支持 `MainUrl`、`FallbackUrl`、YooAsset `Parameters`、精确 `PackageVersion`、并发数、重试数和 `IProgress<ResourceDownloadProgress>`。指定精确版本时跳过最新版本查询；省略版本时由所选文件系统查询最新版本。
+- 下载结果区分 `Downloaded`、`UpToDate`、`Failed`、`Cancelled`、`Busy` 和 `ResetRequired`。没有缺失文件时返回 `UpToDate`，同时提供可用版本。读取状态使用 `IsReady`、`PackageVersion` 和 `DownloadProgress`。
+- 已就绪时重复请求同一来源和精确版本直接返回 `UpToDate`。切换来源、版本，或开始新一轮最新版本检查前，先释放资源和场景消费者并等待 `ResetAsync`。启动方持有发行选择和回退策略。
+- 取消会结束当前等待，下载取消派发到 Unity 主线程，重置仍等待原生操作退出。调用 `ShutdownAsync` 会关闭通过本节模式入口管理的 DefaultPackage。所有入口从 Unity 主线程调用。
 
 ## 所有权
 
@@ -61,39 +72,8 @@ AcquireAsync<T>(location, token) 每次取得独立 AssetLease<T>，通过 Asset
 
 CreateScope 管理一组租约；UIView 中可 Track 此作用域到本次打开，CreateSceneScope(scene) 在指定场景卸载时自动取消并释放。ShutdownAsync 使租约失效并等待原生获取释放。GameStarter 已接入独立租约的 UI 加载器与配置文本读取。
 
-## 精确版本初始化与下载
+## 接口迁移与高级初始化
 
-InitializeAsync(ResourceInitializationOptions, token) 支持 Parameters、PackageVersion、DownloadAll、下载并发、重试及 IProgress<ResourceDownloadProgress>。指定 PackageVersion 时直接切换该清单，不查询远端 latest/version 文件；全部下载成功后才进入 Initialized。取消会取消下载器，失败不会发布就绪状态。
+改用 `InitializeAsync(ResourceMode, token)` 初始化。在线模式的远端地址、精确版本、进度和可选 YooAsset 参数通过 `RemoteDownloadSetting` 提供给 `DownloadAsync`。切换文件系统前使用 `ResetAsync`。
 
-初始化会复制选项中的版本、下载标志和限额，异步等待期间修改原选项不会改变正在准备的内容；Parameters 与 Progress 仍是调用方提供的引用。并发初始化可共享同一任务，但请求其他精确版本的调用方不会把当前版本当作成功。按需模式初始化不能静默满足后来要求 DownloadAll 的调用；改变版本或要求完整下载模式时先 ShutdownAsync，再以所需配置初始化。
-
-取消只及时结束调用方等待；内部仍持有初始化，直到 YooAsset 下载器实际终止。ShutdownAsync 和下一轮初始化不会跨过尚在进行的取消下载。取消可来自工作线程，实际下载器操作始终派发至 Unity 主线程。
-
-已有资源版本需要切换时先 ShutdownAsync；项目应在加载游戏代码及资源消费者之前选定版本。CreateHostPlayModeParameters(mainUrl, fallbackUrl) 可显式提供服务器，不必修改全局默认地址。
-
-## 先初始化文件系统，再准备发行资源
-
-需要由 GameEntry 明确控制初始化顺序时，先等待 `InitializePackageAsync(parameters, token)`。此阶段只初始化 DefaultPackage 的文件系统，不请求版本、不读取资源清单、不下载资源。成功后 `PackageInitialized` 为 true，`Initialized` 仍为 false，资源加载和场景加载接口尚不可使用。
-
-资源系统初始化成功后，GameEntry 可以配置 HotUpdateManager；再由项目热更模块选择发行，调用原来的精确版本接口准备内容：
-
-```csharp
-var resources = ResourceManager.Instance;
-if (!await resources.InitializePackageAsync(parameters, cancellationToken))
-{
-    throw new InvalidOperationException("Resource filesystem initialization failed.");
-}
-
-// 选定配套发行后，在热更模块中准备它的精确资源版本。
-var options = new ResourceInitializationOptions
-{
-    Parameters = parameters,
-    PackageVersion = selectedVersion,
-    DownloadAll = true
-};
-bool contentReady = await resources.PrepareContentAsync(options, cancellationToken);
-```
-
-第二阶段复用已初始化的文件系统；清单和下载成功后才发布 `Initialized`。原来的 `InitializeAsync()` 与 `InitializeAsync(options, token)` 仍保留完整初始化流程，不要求所有使用者改成两阶段。取消文件系统初始化只取消当前调用者的等待，共享的原生初始化仍受管理；ShutdownAsync 等它结束后再清理，避免并发销毁。
-
-`PrepareContentAsync(options, token)` 明确表示精确版本的清单准备和缺失资源下载；旧 `InitializeAsync(options, token)` 作为兼容入口转发到同一流程。
+`InitializePackageAsync(parameters, token)` 是文件系统级入口，只在调用方需要单独挂载 DefaultPackage 文件系统时使用。挂载完成后 `PackageInitialized` 为 true，资源仍需可用清单才能读取。日常启动流程使用模式入口。沿用无参 `InitializeAsync()` 或文件系统级入口时，`ShutdownAsync` 释放管理器持有的资源，`ResetAsync` 同时销毁 DefaultPackage。

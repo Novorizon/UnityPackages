@@ -19,116 +19,104 @@ internal static class Program
 
     private static void Main()
     {
-        Run("concurrent exact content versions cannot report readiness for another version", () =>
+        Run("concurrent exact versions get a busy result before the first version is ready", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var gate = Gate();
-            YooAssets.Package.InitializeGate = gate.Task;
-            Task<bool> first = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "release-a" });
-            Task<bool> second = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "release-b" });
+            package.InitializeGate = gate.Task;
+            Assert(Done(resources.InitializeAsync(ResourceMode.Online)));
+            var first = resources.DownloadAsync(ForVersion("release-a"));
+            var second = Done(resources.DownloadAsync(ForVersion("release-b")));
             gate.SetResult(true);
-            Assert(Done(first));
-            Throws<InvalidOperationException>(second);
+            Assert(Done(first).IsReady);
+            Equal(ResourceDownloadStatus.Busy, second.Status);
             Equal("release-a", resources.PackageVersion);
-            Equal(1, YooAssets.Package.InitializeCalls);
-            Equal(1, YooAssets.Package.ManifestRequests);
+            Equal(1, package.InitializeCalls);
+            Equal(1, package.ManifestRequests);
         });
-        Run("initialization snapshots version and download options before its first await", () =>
+        Run("download snapshots version and download settings before the first await", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var gate = Gate();
-            YooAssets.Package.InitializeGate = gate.Task;
-            var options = new ResourceInitializationOptions { PackageVersion = "pinned", DownloadAll = true };
-            Task<bool> loading = resources.PrepareContentAsync(options);
-            options.PackageVersion = "mutated";
-            options.DownloadAll = false;
+            package.InitializeGate = gate.Task;
+            Assert(Done(resources.InitializeAsync(ResourceMode.Online)));
+            var setting = ForVersion("pinned");
+            setting.ConcurrentDownloads = 6;
+            setting.FailedTryAgain = 1;
+            var loading = resources.DownloadAsync(setting);
+            setting.PackageVersion = "mutated";
+            setting.ConcurrentDownloads = 1;
+            setting.FailedTryAgain = 9;
             gate.SetResult(true);
-            Assert(Done(loading));
+            Assert(Done(loading).IsReady);
             Equal("pinned", resources.PackageVersion);
-            Equal(1, YooAssets.Package.Downloader.Begun);
+            Equal(6, package.DownloadConcurrency);
+            Equal(1, package.DownloadRetries);
+            Equal(1, package.Downloader.Begun);
         });
         Run("cancelled native download remains owned until shutdown observes its completion", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var gate = Gate();
-            YooAssets.Package.Downloader.Task = gate.Task;
+            package.Downloader.Task = gate.Task;
             using var stop = new CancellationTokenSource();
-            Task<bool> loading = resources.PrepareContentAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "cancelled",
-                DownloadAll = true
-            }, stop.Token);
+            Assert(Done(resources.InitializeAsync(ResourceMode.Online)));
+            var loading = resources.DownloadAsync(ForVersion("cancelled"), stop.Token);
             stop.Cancel();
-            Throws<OperationCanceledException>(loading);
+            var cancelled = Done(loading);
             Task shutdown = resources.ShutdownAsync();
             bool finishedBeforeNative = shutdown.IsCompleted;
             gate.SetResult(true);
             Done(shutdown);
+            Equal(ResourceDownloadStatus.Cancelled, cancelled.Status);
             Assert(!finishedBeforeNative, "Shutdown completed before the cancelled native download.");
-            Assert(!resources.Initialized);
-            Equal(1, YooAssets.Package.Downloader.Cancelled);
+            Assert(!resources.IsReady);
+            Equal(1, package.Downloader.Cancelled);
         });
         Run("a retry cannot replace the manifest while a cancelled download is still native-active", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var gate = Gate();
-            YooAssets.Package.Downloader.Task = gate.Task;
+            package.Downloader.Task = gate.Task;
             using var stop = new CancellationTokenSource();
-            Task<bool> loading = resources.PrepareContentAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "old",
-                DownloadAll = true
-            }, stop.Token);
+            Assert(Done(resources.InitializeAsync(ResourceMode.Online)));
+            var loading = resources.DownloadAsync(ForVersion("old"), stop.Token);
             stop.Cancel();
-            Throws<OperationCanceledException>(loading);
-            Task<bool> retry = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "new" });
-            bool changedBeforeNative = YooAssets.Package.ManifestRequests != 1;
+            var cancelled = Done(loading);
+            var retry = Done(resources.DownloadAsync(ForVersion("new")));
+            int manifestRequests = package.ManifestRequests;
             gate.SetResult(true);
-            try
-            {
-                Done(retry);
-            }
-            catch (OperationCanceledException)
-            {
-                // A caller that joined the retiring operation is allowed to observe its cancellation.
-            }
-            catch (InvalidOperationException)
-            {
-                // Conflicting exact versions may be rejected while the previous one retires.
-            }
-            Assert(!changedBeforeNative, "A retry prepared a new manifest before native cancellation completed.");
+            Equal(ResourceDownloadStatus.Cancelled, cancelled.Status);
+            Equal(ResourceDownloadStatus.Busy, retry.Status);
+            Equal(1, manifestRequests);
         });
-        Run("compatible callers still share the same native initialization", () =>
+        Run("concurrent offline callers share the same native initialization", () =>
         {
             var resources = ResourceManager.Instance;
             var gate = Gate();
             YooAssets.Package.InitializeGate = gate.Task;
-            Task<bool> first = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "shared" });
-            Task<bool> second = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "shared" });
+            var first = resources.InitializeAsync(ResourceMode.Offline);
+            var second = resources.InitializeAsync(ResourceMode.Offline);
             gate.SetResult(true);
             Assert(Done(first) && Done(second));
             Equal(1, YooAssets.Package.InitializeCalls);
             Equal(1, YooAssets.Package.ManifestRequests);
         });
-        Run("an on-demand initialization cannot silently satisfy a full-download waiter", () =>
+        Run("an offline package never satisfies a request for a remote download", () =>
         {
             var resources = ResourceManager.Instance;
             var gate = Gate();
             YooAssets.Package.InitializeGate = gate.Task;
-            Task<bool> first = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "on-demand" });
-            Task<bool> full = resources.PrepareContentAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "on-demand",
-                DownloadAll = true
-            });
+            var offline = resources.InitializeAsync(ResourceMode.Offline);
+            var duringInitialization = Done(resources.DownloadAsync(ForVersion("1")));
             gate.SetResult(true);
-            Assert(Done(first));
-            Throws<InvalidOperationException>(full);
-            Throws<InvalidOperationException>(resources.PrepareContentAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "on-demand",
-                DownloadAll = true
-            }));
+            Assert(Done(offline));
+            Equal(ResourceDownloadStatus.Failed, duringInitialization.Status);
+            Equal(ResourceDownloadStatus.Failed, Done(resources.DownloadAsync(ForVersion("1"))).Status);
             Equal(0, YooAssets.Package.Downloader.Begun);
         });
         Run("a previous Play session waiting on shutdown cannot initialize the replacement session", () =>
@@ -138,39 +126,27 @@ internal static class Program
             var lease = Done(resources.AcquireAsync<TextAsset>("native-consumer", keepAliveUntilDisposed: true));
             Task shutdown = resources.ShutdownAsync();
             Assert(!shutdown.IsCompleted);
-            Task<bool> oldDefault = resources.InitializeAsync();
-            Task<bool> oldPinned = resources.PrepareContentAsync(new ResourceInitializationOptions { PackageVersion = "retired-session" });
+            var oldDefault = resources.InitializeAsync();
+            var oldOffline = resources.InitializeAsync(ResourceMode.Offline);
             typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
             Done(shutdown);
-            bool defaultReady = Done(oldDefault);
-            bool pinnedReady;
-            try
-            {
-                pinnedReady = Done(oldPinned);
-            }
-            catch (InvalidOperationException)
-            {
-                pinnedReady = true;
-            }
-            Assert(!defaultReady && !pinnedReady && !resources.Initialized, "An old initialization waiter resurrected content after Play reset.");
+            Assert(!Done(oldDefault) && !Done(oldOffline) && !resources.IsReady, "An old initialization waiter resurrected content after Play reset.");
             Assert(!lease.IsValid);
         });
         Run("worker cancellation dispatches downloader cancellation onto the initialized main thread", () =>
         {
             var resources = ResourceManager.Instance;
+            var package = YooAssets.Package;
             var gate = Gate();
-            YooAssets.Package.Downloader.Task = gate.Task;
+            package.Downloader.Task = gate.Task;
             using var stop = new CancellationTokenSource();
-            Task<bool> loading = resources.PrepareContentAsync(new ResourceInitializationOptions
-            {
-                PackageVersion = "worker-cancel",
-                DownloadAll = true
-            }, stop.Token);
+            Assert(Done(resources.InitializeAsync(ResourceMode.Online)));
+            var loading = resources.DownloadAsync(ForVersion("worker-cancel"), stop.Token);
             Task.Run(() => stop.Cancel()).GetAwaiter().GetResult();
-            bool ranBeforeMainThreadPump = YooAssets.Package.Downloader.Cancelled != 0;
-            context.Until(() => YooAssets.Package.Downloader.Cancelled == 1);
+            bool ranBeforeMainThreadPump = package.Downloader.Cancelled != 0;
+            context.Until(() => package.Downloader.Cancelled == 1);
             gate.SetResult(true);
-            Throws<OperationCanceledException>(loading);
+            Equal(ResourceDownloadStatus.Cancelled, Done(loading).Status);
             Assert(!ranBeforeMainThreadPump, "Cancellation touched the downloader from the worker thread.");
         });
         Run("prewarmed shared-cache queries allocate no managed memory", () =>
@@ -211,6 +187,9 @@ internal static class Program
             Environment.ExitCode = 1;
         }
     }
+
+    private static RemoteDownloadSetting ForVersion(string version) =>
+        new RemoteDownloadSetting { MainUrl = "https://example.test", PackageVersion = version };
 
     private static TaskCompletionSource<bool> Gate() => new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -256,19 +235,6 @@ internal static class Program
     {
         Done((Task)task);
         return task.GetAwaiter().GetResult();
-    }
-
-    private static void Throws<T>(Task task) where T : Exception
-    {
-        try
-        {
-            Done(task);
-        }
-        catch (T)
-        {
-            return;
-        }
-        throw new Exception("Expected " + typeof(T).Name);
     }
 
     private static void Assert(bool condition, string message = "Assertion failed")

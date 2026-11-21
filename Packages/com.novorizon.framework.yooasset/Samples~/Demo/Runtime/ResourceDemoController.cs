@@ -29,7 +29,12 @@ namespace Game.Framework.Samples.Resources
             IsBusy = true;
             try
             {
-                bool ready = await ResourceManager.Instance.InitializeAsync();
+#if UNITY_EDITOR
+                var mode = ResourceMode.EditorSimulation;
+#else
+                var mode = ResourceMode.Offline;
+#endif
+                bool ready = await ResourceManager.Instance.InitializeAsync(mode, lifetime.Token);
                 if (!destroyed)
                 {
                     Status = ready ? "Ready. Enter a TextAsset location." : "Initialization failed; check the Console.";

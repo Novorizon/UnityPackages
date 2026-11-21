@@ -221,8 +221,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "ce2f2d303a3456e523fdead09c2e58c7f91dc2a85ca1c2ecffeef4f0ac389b43",
-      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown."
+      "sha256": "fe66932bc365d58243907c1c17203afed4511421012f89d2084916b50a9afecf",
+      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
@@ -373,8 +373,8 @@
       "reason": "Avoid redundant assembly hashes and move pure integrity work off the caller thread while preserving cancellation/publication checks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetsSettings.cs": {
-      "sha256": "601e6282d71ffa2c2500fedb97463a2a1888ed087643fe463b73280caa81b35b",
-      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
+      "sha256": "df73759d3b699f8f9d46da3fe06eafa0ebc8ad563430b2ad3047b95ac7f5ef99",
+      "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references. Validate URLs for explicit remote downloads."
     },
     "Packages/com.novorizon.gpuanimator/Samples~/BasicPlayback/GpuAnimatorBasicExample.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
@@ -449,8 +449,8 @@
       "sha256": "10b2545d6ada76c12fa4370e43efd1d49282c5cd4c2e90a3b4b8d5ae3b23d5c8"
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "f6b3776f01302231d014816f8dfd069b0c69471367707c7c19ff1215789dbba6"
+      "sha256": "8d2ca89d6a6ae46f2616922c0ce3798b7ca01eb59feaaec942881c05021304a2",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use explicit resource modes in the sample."
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
