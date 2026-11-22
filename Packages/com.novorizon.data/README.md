@@ -28,8 +28,7 @@ var current = DataManager.Instance.Get<cfg.Tables>();
 ```csharp
 DataManager.Instance.Initialize(async (location, token) =>
 {
-    var resources = ResourceManager.Instance;
-    var asset = await resources.LoadAssetAsync<TextAsset>(location, token);
+    var asset = await ResourceManager.LoadAssetAsync<TextAsset>(location, token);
     if (asset == null)
     {
         return null;
@@ -41,7 +40,7 @@ DataManager.Instance.Initialize(async (location, token) =>
     }
     finally
     {
-        resources.Release(asset);
+        ResourceManager.Release(asset);
     }
 });
 ```

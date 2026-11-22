@@ -5,22 +5,24 @@ using Game.Resource;
 using NUnit.Framework;
 using UI;
 using UnityEngine;
+using YooAsset;
 
 public sealed class NativeDiagnosticsAcceptanceTests
 {
     [Test]
     public void CaptureReportsUncreatedServicesWithoutCreatingThem()
     {
-        Assert.That(ResourceManager.TryGetInstance(out _), Is.False, "Run acceptance with no resource service created.");
+        Assert.That(YooAssets.Initialized, Is.False, "Run acceptance with no resource service created.");
         Assert.That(LocalizationManager.TryGetInstance(out _), Is.False, "Run acceptance with no localization service created.");
         Assert.That(UIManager.TryGetInstance(out _), Is.False, "Run acceptance with no UI service created.");
 
         var snapshot = PackageDiagnostics.Capture();
 
-        Assert.That(ResourceManager.TryGetInstance(out _), Is.False);
+        Assert.That(YooAssets.Initialized, Is.False);
         Assert.That(LocalizationManager.TryGetInstance(out _), Is.False);
         Assert.That(UIManager.TryGetInstance(out _), Is.False);
-        foreach (string service in new[] { nameof(ResourceManager), nameof(LocalizationManager), nameof(UIManager) })
+        Assert.That(snapshot.metrics.Any(metric => metric.name == "ResourceManager.IsReady" && metric.value == "False"), Is.True);
+        foreach (string service in new[] { nameof(LocalizationManager), nameof(UIManager) })
         {
             Assert.That(
                 snapshot.metrics.Any(metric => metric.name == service && metric.value == "Not created / released"),

@@ -5,6 +5,7 @@
     "Game.Framework.Core",
     "Game.Framework.Unity",
     "Game.Framework.Resources.YooAsset",
+    "YooAsset",
     "Game.Framework.Localization",
     "Game.Framework.UI"
   ],

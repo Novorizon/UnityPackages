@@ -168,13 +168,37 @@
     }
   },
   "sourceChanges": {
+    "tools/NativeAcceptance/Editor/DiagnosticsTests/NativeDiagnosticsAcceptanceTests.cs": {
+      "sha256": "12ca09da76e1f86e657f0c1e810b5f341386a8a020904dfe700160ca2d55b030",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
+    "tools/IntegrationAuditVerification/Program.cs": {
+      "sha256": "03ca70104cebe53baa5c378cce22d37ec0e629f2fe6abdb75a7a16b9b838f67d",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
+    "tools/GameModulesVerification/ResourcePackageScenarios.cs": {
+      "sha256": "8ba3924d716174a9cd6a447e0be30807c7044988bdc6e20c4b363969eab5b7e4",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
+    "tools/GameModulesVerification/Program.cs": {
+      "sha256": "8cc2e9847e1907e22c51f358d46ba1d03f43cb18ccdf94c8cacf12624c8d8160",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Download.cs": {
+      "sha256": "1bf2c94def77aeafaed08e52a22da1b3c7b01517b08c2f126d1fce7e579f1a7b",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
+    "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Assets.cs": {
+      "sha256": "1b658cb879f9c695e5730dd29c2dbe84d438b9d9f0125ef710ab5952079f4b46",
+      "reason": "Use static ResourceManager state and call signatures."
+    },
     "Packages/com.novorizon.framework.yooasset/Runtime/ShaderManager.cs": {
-      "sha256": "26130c7df19b5c673ed236b9e023c3cf9175fa65e297e20a25d72f8433188705",
-      "reason": "Release the temporary shader variant collection after warmup."
+      "sha256": "8156af04cdf9419a975ccfe2d027e3da42b8110fece3f6dd7060175b72722f12",
+      "reason": "Release the temporary shader variant collection after warmup. Use static ResourceManager state and call signatures."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Extensions.cs": {
-      "sha256": "b0a776a01db799ec24e0306e6f087bbe3280dd11d5b139bc83c79bff10006121",
-      "reason": "Associate each atlas Sprite and prefab instance with the native handle from its own load. Use result-based resource failures and remove the previous resource ownership APIs."
+      "sha256": "905efe2e1df8513d24f5006b76a06cb614f12bbedb92b60e935c4537a5862ac4",
+      "reason": "Associate each atlas Sprite and prefab instance with the native handle from its own load. Use result-based resource failures and remove the previous resource ownership APIs. Use static ResourceManager state and call signatures."
     },
     "Packages/com.novorizon.localization/Runtime/LocalizationManager.cs": {
       "sha256": "b3aedd7477eeb862c3d36bc4cd21d47a49d1166e03ec2c41facac9a0be7c3ec8",
@@ -229,8 +253,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.cs": {
-      "sha256": "adf7396c18809531cac059ac99aede6c570bd81418ac898da4efdcb24afc7bac",
-      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset. Keep the default package mount private and retain a distinct handle for each successful ordinary acquisition. Use result-based resource failures and remove the previous resource ownership APIs."
+      "sha256": "70fe1bc9ab69ffb1e1d773ee0626f2855fc8550fecdb4d948efdde1a0b464986",
+      "reason": "Snapshot initialization options, reject incompatible shared requests, and wait for native downloads across cancellation and shutdown. Separate resource mode initialization from downloads and retire DefaultPackage safely during reset. Keep the default package mount private and retain a distinct handle for each successful ordinary acquisition. Use result-based resource failures and remove the previous resource ownership APIs. Use static ResourceManager state and call signatures."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkSession.cs": {
       "sha256": "8cabf33aabb8eb58de98c3b30e9152efeeb9bacda01d08b0b9eb495a716b2d0d",
@@ -453,8 +477,8 @@
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use result-based resource failures and remove the previous resource ownership APIs."
     },
     "Packages/com.novorizon.framework.yooasset/Samples~/Demo/Runtime/ResourceDemoController.cs": {
-      "sha256": "3c5f7bea515514df7918be1b9197f67a5f01f8d761a6ebed354c7c2f8b1e0897",
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use explicit resource modes in the sample. Demonstrate object-based resource release for the text preview."
+      "sha256": "8a41fa408d45e0e695d855bef8b2548e0437e4093505c3fe0f29e22b9c7e6a4a",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Use explicit resource modes in the sample. Demonstrate object-based resource release for the text preview. Use static ResourceManager state and call signatures."
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Editor/FrameworkDemoSceneMenu.cs": {
       "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
@@ -553,8 +577,8 @@
       "reason": "Validate contiguous fade curves without enum boxing."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {
-      "sha256": "f18a9cbc25911177f804a1ac698d97222844c976648ca88d8a871de1a2c71c19",
-      "reason": "Read public getters only and reuse row-type ownership accessors. Use result-based resource failures and remove the previous resource ownership APIs."
+      "sha256": "cb1ae0998963515143ec2cd6ee5af0ccb9dee8ac4e9b433d61e93a9a8c9f1b45",
+      "reason": "Read public getters only and reuse row-type ownership accessors. Use result-based resource failures and remove the previous resource ownership APIs. Use static ResourceManager state and call signatures."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGrid.cs": {
       "sha256": "e213f381d80cc0c62582e12ca0bc20c1997786e908cad816ec5d40591f2ae382",

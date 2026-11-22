@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace Game.Resource
 {
-    public partial class ResourceManager
+    public static partial class ResourceManager
     {
         private enum AssetLifetime
         {
@@ -46,21 +46,21 @@ namespace Game.Resource
             }
         }
 
-        private readonly Dictionary<Object, AssetReferences> loadedAssets = new Dictionary<Object, AssetReferences>(AssetReferenceComparer.Instance);
-        private readonly HashSet<PendingAssetLoad> pendingAssets = new HashSet<PendingAssetLoad>();
-        private readonly List<AssetHandle> atlasBindings = new List<AssetHandle>();
-        private int assetGeneration;
+        private static readonly Dictionary<Object, AssetReferences> loadedAssets = new Dictionary<Object, AssetReferences>(AssetReferenceComparer.Instance);
+        private static readonly HashSet<PendingAssetLoad> pendingAssets = new HashSet<PendingAssetLoad>();
+        private static readonly List<AssetHandle> atlasBindings = new List<AssetHandle>();
+        private static int assetGeneration;
 
         /// <summary>每次成功调用持有一个独立引用。使用结束后调用 Release，即使两次取得的是同一个对象。</summary>
-        public Task<T> LoadAssetAsync<T>(string location, CancellationToken token = default) where T : Object =>
+        public static Task<T> LoadAssetAsync<T>(string location, CancellationToken token = default) where T : Object =>
             LoadAssetAsync<T, T>(location, asset => asset, AssetLifetime.Asset, token);
 
         /// <summary>非空回调接收一次加载结果。成功时由回调的调用方归还该引用。</summary>
-        public Task LoadAssetAsync<T>(string location, Action<T> callback) where T : Object =>
+        public static Task LoadAssetAsync<T>(string location, Action<T> callback) where T : Object =>
             LoadAssetAsync(location, callback, CancellationToken.None);
 
         /// <summary>非空回调接收一次加载结果，取消或失败时结果为 null。</summary>
-        public async Task LoadAssetAsync<T>(string location, Action<T> callback, CancellationToken token) where T : Object
+        public static async Task LoadAssetAsync<T>(string location, Action<T> callback, CancellationToken token) where T : Object
         {
             if (callback != null && CheckMainThread(nameof(LoadAssetAsync)))
             {
@@ -69,11 +69,11 @@ namespace Game.Resource
         }
 
         /// <summary>同步取得一个独立引用。每次成功加载都要配对 Release。</summary>
-        public T LoadAsset<T>(string location) where T : Object =>
+        public static T LoadAsset<T>(string location) where T : Object =>
             LoadAsset<T, T>(location, asset => asset, AssetLifetime.Asset);
 
         /// <summary>非空回调接收同步加载结果，并接管成功的资源引用。</summary>
-        public void LoadAsset<T>(string location, Action<T> callback) where T : Object
+        public static void LoadAsset<T>(string location, Action<T> callback) where T : Object
         {
             if (callback != null && CheckMainThread(nameof(LoadAsset)))
             {
@@ -82,7 +82,7 @@ namespace Game.Resource
         }
 
         /// <summary>归还此对象的一次加载引用。没有剩余记录时返回 false。</summary>
-        public bool Release(Object asset)
+        public static bool Release(Object asset)
         {
             if (!CheckMainThread(nameof(Release)))
             {
@@ -108,7 +108,7 @@ namespace Game.Resource
         }
 
         /// <summary>应用级操作，撤销未完成的普通加载并清理所有普通资源和自动绑定的图集。</summary>
-        public void ReleaseAllAssets()
+        public static void ReleaseAllAssets()
         {
             if (CheckMainThread(nameof(ReleaseAllAssets)))
             {
@@ -116,7 +116,7 @@ namespace Game.Resource
             }
         }
 
-        private async Task<TResult> LoadAssetAsync<TSource, TResult>(
+        private static async Task<TResult> LoadAssetAsync<TSource, TResult>(
             string location,
             Func<TSource, TResult> select,
             AssetLifetime lifetime,
@@ -192,7 +192,7 @@ namespace Game.Resource
             }
         }
 
-        private TResult LoadAsset<TSource, TResult>(string location, Func<TSource, TResult> select, AssetLifetime lifetime)
+        private static TResult LoadAsset<TSource, TResult>(string location, Func<TSource, TResult> select, AssetLifetime lifetime)
             where TSource : Object
             where TResult : Object
         {
@@ -235,7 +235,7 @@ namespace Game.Resource
             }
         }
 
-        private bool CanLoadAsset(string location, string operation)
+        private static bool CanLoadAsset(string location, string operation)
         {
             if (!CheckReady(operation))
             {
@@ -273,7 +273,7 @@ namespace Game.Resource
             Logger.Warn("Could not load resource " + location + ": " + detail);
         }
 
-        private void TrackAsset(Object asset, AssetHandle handle, AssetLifetime lifetime)
+        private static void TrackAsset(Object asset, AssetHandle handle, AssetLifetime lifetime)
         {
             if (lifetime == AssetLifetime.AtlasBinding)
             {
@@ -290,7 +290,7 @@ namespace Game.Resource
             references.Handles.Push(handle);
         }
 
-        private void ReleaseAssetsCore()
+        private static void ReleaseAssetsCore()
         {
             assetGeneration++;
             CancelPendingAssetLoads();
@@ -316,7 +316,7 @@ namespace Game.Resource
             }
         }
 
-        private void CancelPendingAssetLoads()
+        private static void CancelPendingAssetLoads()
         {
             var pending = new List<PendingAssetLoad>(pendingAssets);
             pendingAssets.Clear();
