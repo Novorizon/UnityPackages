@@ -28,12 +28,11 @@ internal static partial class Program
         ResourcePackageScenarios();
         Run("pinned resource versions skip latest lookup and complete downloads before readiness", () =>
         {
-            var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
             package.Downloader.TotalDownloadCount = 3;
             package.Downloader.TotalDownloadBytes = 100;
-            True(Complete(resources.InitializeAsync(ResourceMode.Online)));
-            var result = Complete(resources.DownloadAsync(new RemoteDownloadSetting
+            True(Complete(ResourceManager.InitializeAsync(ResourceMode.Online)));
+            var result = Complete(ResourceManager.DownloadAsync(new RemoteDownloadSetting
             {
                 MainUrl = "https://example.test",
                 PackageVersion = "release-2"
@@ -41,19 +40,18 @@ internal static partial class Program
             Equal(ResourceDownloadStatus.Downloaded, result.Status);
             Equal(0, package.VersionRequests);
             Equal("release-2", package.SelectedVersion);
-            Equal("release-2", resources.PackageVersion);
+            Equal("release-2", ResourceManager.PackageVersion);
             Equal(1, package.Downloader.Begun);
-            True(resources.IsReady);
+            True(ResourceManager.IsReady);
         });
         Run("cancelled resource downloads never publish an initialized package", () =>
         {
-            var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
             var pending = Gate<bool>();
             package.Downloader.Task = pending.Task;
             using var stop = new CancellationTokenSource();
-            True(Complete(resources.InitializeAsync(ResourceMode.Online)));
-            var loading = resources.DownloadAsync(new RemoteDownloadSetting
+            True(Complete(ResourceManager.InitializeAsync(ResourceMode.Online)));
+            var loading = ResourceManager.DownloadAsync(new RemoteDownloadSetting
             {
                 MainUrl = "https://example.test",
                 PackageVersion = "release-3"
@@ -62,25 +60,24 @@ internal static partial class Program
             var result = Complete(loading);
             pending.SetResult(true);
             Equal(ResourceDownloadStatus.Cancelled, result.Status);
-            True(!resources.IsReady);
+            True(!ResourceManager.IsReady);
             Equal(1, package.Downloader.Cancelled);
         });
         Run("shutdown waits for nonabortable native initialization after caller cancellation", () =>
         {
-            var resources = ResourceManager.Instance;
             var package = YooAssets.Package;
             var pending = Gate<bool>();
             package.InitializeGate = pending.Task;
             using var stop = new CancellationTokenSource();
-            var loading = resources.InitializeAsync(ResourceMode.Offline, stop.Token);
+            var loading = ResourceManager.InitializeAsync(ResourceMode.Offline, stop.Token);
             stop.Cancel();
             True(!Complete(loading));
-            var shutdown = resources.ShutdownAsync();
+            var shutdown = ResourceManager.ShutdownAsync();
             True(!shutdown.IsCompleted);
             Equal(1, package.InitializeCalls);
             pending.SetResult(true);
             Complete(shutdown);
-            True(!resources.IsReady);
+            True(!ResourceManager.IsReady);
         });
         if (args.Length == 1 && args[0] == "--resource-package")
         {
@@ -101,8 +98,8 @@ internal static partial class Program
         });
         Run("asynchronous resource loading cannot be skipped through the synchronous base entry", () =>
         {
-            ResourceManager.Instance.Initialize();
-            True(!ResourceManager.Instance.Initialized);
+            ResourceManager.Initialize();
+            True(!ResourceManager.Initialized);
         });
         Run("storage writes real files, retains a backup and recovers a missing main file", () =>
         {
@@ -338,43 +335,41 @@ internal static partial class Program
         });
         Run("resource shutdown continues past a failed scene unload and retains live assets for retry", () =>
         {
-            var manager = ResourceManager.Instance;
-            Complete(manager.InitializeAsync(ResourceMode.Offline));
-            _ = manager.LoadAsset<TextAsset>("text");
-            Complete(manager.LoadSceneAsync("bad", LoadSceneMode.Additive));
-            Complete(manager.LoadSceneAsync("good", LoadSceneMode.Additive));
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
+            _ = ResourceManager.LoadAsset<TextAsset>("text");
+            Complete(ResourceManager.LoadSceneAsync("bad", LoadSceneMode.Additive));
+            Complete(ResourceManager.LoadSceneAsync("good", LoadSceneMode.Additive));
             var package = YooAssets.Package;
             package.Scenes[0].FailUnload = true;
-            Complete(manager.ShutdownAsync());
+            Complete(ResourceManager.ShutdownAsync());
             Equal(1, package.Scenes[1].UnloadCount);
             Equal(0, package.Assets[0].ReleaseCount);
-            True(!manager.Initialized);
-            True(manager.LoadAsset<TextAsset>("later") == null);
+            True(!ResourceManager.Initialized);
+            True(ResourceManager.LoadAsset<TextAsset>("later") == null);
             package.Scenes[0].FailUnload = false;
-            Complete(manager.ShutdownAsync());
+            Complete(ResourceManager.ShutdownAsync());
             Equal(1, package.Assets[0].ReleaseCount);
         });
         Run("old resource shutdown cannot release assets from a new play session", () =>
         {
-            var manager = ResourceManager.Instance;
-            Complete(manager.InitializeAsync(ResourceMode.Offline));
-            Complete(manager.LoadSceneAsync("old", LoadSceneMode.Additive));
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
+            Complete(ResourceManager.LoadSceneAsync("old", LoadSceneMode.Additive));
             var gate = Gate<bool>();
             YooAssets.Package.Scenes[0].UnloadGate = gate.Task;
-            var stopping = manager.ShutdownAsync();
-            typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(manager, null);
+            var stopping = ResourceManager.ShutdownAsync();
+            InvokeResourcePlayReset();
             YooAssets.Package = new ResourcePackage();
-            Complete(manager.InitializeAsync(ResourceMode.Offline));
-            var asset = manager.LoadAsset<TextAsset>("new");
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
+            var asset = ResourceManager.LoadAsset<TextAsset>("new");
             gate.SetResult(true);
             Complete(stopping);
-            True(manager.Initialized);
+            True(ResourceManager.Initialized);
             Equal(0, YooAssets.Package.Assets[0].ReleaseCount);
-            Same(asset, manager.LoadAsset<TextAsset>("new"));
+            Same(asset, ResourceManager.LoadAsset<TextAsset>("new"));
         });
         Run("YooAsset scene loader holds independent handles for repeated addresses", () =>
         {
-            Complete(ResourceManager.Instance.InitializeAsync(ResourceMode.Offline));
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
             using var loader = new YooAssetSceneLoader(YooAssets.Package);
             var first = Complete(loader.LoadAsync("same", LoadSceneMode.Additive, null));
             var next = Complete(loader.LoadAsync("same", LoadSceneMode.Additive, null));
@@ -389,7 +384,7 @@ internal static partial class Program
         });
         Run("YooAsset scene load failure releases the acquired handle", () =>
         {
-            Complete(ResourceManager.Instance.InitializeAsync(ResourceMode.Offline));
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
             using var loader = new YooAssetSceneLoader(YooAssets.Package);
             YooAssets.Package.FailNextScene = true;
             True(!Complete(loader.LoadAsync("bad", LoadSceneMode.Additive, null)).IsValid());
@@ -425,7 +420,7 @@ internal static partial class Program
         {
             var loading = Gate<bool>();
             YooAssets.Package.SceneGate = loading.Task;
-            Complete(ResourceManager.Instance.InitializeAsync(ResourceMode.Offline));
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
             var loader = new YooAssetSceneLoader(YooAssets.Package);
             var scene = loader.LoadAsync("late scene", LoadSceneMode.Additive, null);
             loader.Dispose();
@@ -437,10 +432,9 @@ internal static partial class Program
         });
         Run("play reset cannot release a legacy scene bundle before native scene unload", () =>
         {
-            var resources = ResourceManager.Instance;
-            Complete(resources.InitializeAsync(ResourceMode.Offline));
-            var scene = Complete(resources.LoadSceneAsync("retained", LoadSceneMode.Additive));
-            typeof(ResourceManager).GetMethod("ResetForPlay", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(resources, null);
+            Complete(ResourceManager.InitializeAsync(ResourceMode.Offline));
+            var scene = Complete(ResourceManager.LoadSceneAsync("retained", LoadSceneMode.Additive));
+            InvokeResourcePlayReset();
             Equal(0, YooAssets.Package.Scenes[0].ReleaseCount);
             NativeScenes.UnloadSceneAsync(scene);
             Equal(1, YooAssets.Package.Scenes[0].ReleaseCount);
@@ -468,12 +462,8 @@ internal static partial class Program
         InputManager.Release();
         DataManager.Release();
         Scenes.Release();
-        if (ResourceManager.TryGetInstance(out var resources))
-        {
-            Complete(resources.ShutdownAsync());
-        }
-
-        Singleton<ResourceManager>.Release();
+        Complete(ResourceManager.ShutdownAsync());
+        ResourceManager.Dispose();
         passed++;
         Console.WriteLine("PASS " + name);
     }

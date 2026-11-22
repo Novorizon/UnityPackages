@@ -19,8 +19,7 @@ Resource Demo 演示逐次加载与归还，可从 Package Manager Samples 按�
 ## 初始化与下载
 
 ```csharp
-var resources = ResourceManager.Instance;
-bool started = await resources.InitializeAsync(resourceMode, token);
+bool started = await ResourceManager.InitializeAsync(resourceMode, token);
 if (!started)
 {
     return;
@@ -28,7 +27,7 @@ if (!started)
 
 if (resourceMode == ResourceMode.Online)
 {
-    var result = await resources.DownloadAsync(new RemoteDownloadSetting
+    var result = await ResourceManager.DownloadAsync(new RemoteDownloadSetting
     {
         MainUrl = cdnUrl,
         PackageVersion = selectedVersion,
@@ -52,8 +51,7 @@ if (resourceMode == ResourceMode.Online)
 ## 加载与释放
 
 ```csharp
-var resources = ResourceManager.Instance;
-var asset = await resources.LoadAssetAsync<TextAsset>(location, token);
+var asset = await ResourceManager.LoadAssetAsync<TextAsset>(location, token);
 if (asset == null)
 {
     return;
@@ -65,7 +63,7 @@ try
 }
 finally
 {
-    resources.Release(asset);
+    ResourceManager.Release(asset);
 }
 ```
 
@@ -75,7 +73,7 @@ finally
 
 ## 场景协调器
 
-在资源初始化成功后，把 `ResourceManager.Instance.CreateSceneLoader()` 传给 `Game.Framework.Scenes.SceneManager.Instance.Initialize(...)`。适配器独立持有每次场景加载的句柄，避免同地址共享缓存影响场景所有权；退出时由场景管理器释放。
+在资源系统就绪后，把 `ResourceManager.CreateSceneLoader()` 传给 `Game.Framework.Scenes.SceneManager.Instance.Initialize(...)`。适配器独立持有每次场景加载的句柄，避免同地址共享缓存影响场景所有权；退出时由场景管理器释放。
 
 ShutdownAsync 会继续清理所有场景并释放资源缓存，即使某次场景卸载失败；最后聚合报告错误。旧 Play 会话的延迟清理不会清空新会话的缓存。
 
@@ -86,3 +84,5 @@ GameStarter 原先通过租约或作用域管理的调用需要迁移到直接�
 ## 接口迁移
 
 启动时用 `InitializeAsync(ResourceMode, token)`。在线模式的远端地址、精确版本、进度和可选 YooAsset 参数通过 `RemoteDownloadSetting` 提供给 `DownloadAsync`。文件系统由管理器挂载。切换来源或版本前使用 `ResetAsync`。
+
+业务通过静态 `ResourceManager` 调用。状态与 Handle 由 ResourceManager 统一管理。

@@ -74,4 +74,4 @@ Framework 自带 Roslyn 3.8 Source Generator。拥有静态状态的派生类加
 
 三种单例基类都提供 `public virtual void Initialize()`。EventManager、TimerManager 等实例创建后即可使用的服务，可以显式调用 `XxxManager.Instance.Initialize()`，让入口里的初始化顺序保持一致。MonoSingleton 的 OnStart/OnExit 生命周期不因这次显式调用而重复执行。
 
-同签名的无参 Initialize 使用 override；带参数的 Initialize 是正常重载。Input、Scene、Storage、Data 的无参 override 会转到各自默认参数配置，带参重载保留具体配置逻辑与命名参数兼容。ResourceManager 和 HotUpdateManager 需要等待异步加载，仍使用 InitializeAsync；调用其同步 Initialize 会明确提示等待异步方法，不能将服务误判为已初始化。
+同签名的无参 Initialize 使用 override；带参数的 Initialize 是正常重载。Input、Scene、Storage、Data 的无参 override 会转到各自默认参数配置，带参重载保留具体配置逻辑与命名参数兼容。资源系统通过静态 `ResourceManager.InitializeAsync` 启动。HotUpdateManager 的初始化也需等待 InitializeAsync。

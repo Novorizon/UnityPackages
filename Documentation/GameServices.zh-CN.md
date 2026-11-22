@@ -20,7 +20,7 @@ DataManager.Instance.Initialize();
 
 ## 场景
 
-默认场景必须加入 Build Settings；传入名称或路径。资源包就绪后，将 `ResourceManager.Instance.CreateSceneLoader()` 传给场景管理器 `Initialize`。离线模式等待初始化成功，在线模式等待下载就绪。GameStarter 已接好 YooAsset 场景加载器，不需要复制或修改 YooAsset。
+默认场景必须加入 Build Settings；传入名称或路径。资源包就绪后，将 `ResourceManager.CreateSceneLoader()` 传给场景管理器 `Initialize`。离线模式等待初始化成功，在线模式等待下载就绪。GameStarter 已接好 YooAsset 场景加载器，不需要复制或修改 YooAsset。
 
 ```csharp
 var world = await GameSceneManager.Instance.LoadAsync("World", UnityEngine.SceneManagement.LoadSceneMode.Additive);

@@ -13,8 +13,7 @@ namespace Game.Resource
     {
         public void Warmup(string path)
         {
-            var resources = ResourceManager.Instance;
-            var variants = resources.LoadAsset<ShaderVariantCollection>(path);
+            var variants = ResourceManager.LoadAsset<ShaderVariantCollection>(path);
             if (variants == null)
             {
                 return;
@@ -26,7 +25,7 @@ namespace Game.Resource
             }
             finally
             {
-                resources.Release(variants);
+                ResourceManager.Release(variants);
             }
         }
 

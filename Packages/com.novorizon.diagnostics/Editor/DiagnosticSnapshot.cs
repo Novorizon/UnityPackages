@@ -39,7 +39,7 @@ namespace Game.Framework.Diagnostics.Editor
             CaptureService(metrics, "Game.Framework.Scenes.SceneManager", true, "LoadedCount");
             CaptureService(metrics, "Game.Framework.Audio.AudioManager", true, "PlayingCount", "PooledCount", "IsPaused");
             CaptureService(metrics, "UI.UIManager", true, "IsInitialized", "ActiveViewCount", "CachedViewCount", "Pages.Count", "Popups.Count", "Overlays.IsBlocking");
-            CaptureService(metrics, "Game.Resource.ResourceManager", true, "IsReady", "PackageVersion");
+            CaptureService(metrics, "Game.Resource.ResourceManager", false, "IsReady", "PackageVersion");
             CaptureService(metrics, "GpuAnimatorManager", true, "Count");
             CaptureService(metrics, "Game.Framework.Localization.LocalizationManager", true, "IsInitialized", "Language", "KeyCount");
             return new DiagnosticSnapshot

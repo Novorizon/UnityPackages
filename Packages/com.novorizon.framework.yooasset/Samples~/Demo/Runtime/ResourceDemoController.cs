@@ -35,7 +35,7 @@ namespace Game.Framework.Samples.Resources
 #else
                 var mode = ResourceMode.Offline;
 #endif
-                bool ready = await ResourceManager.Instance.InitializeAsync(mode, lifetime.Token);
+                bool ready = await ResourceManager.InitializeAsync(mode, lifetime.Token);
                 if (!destroyed)
                 {
                     Status = ready ? "Ready. Enter a TextAsset location." : "Initialization failed; check the Console.";
@@ -68,7 +68,7 @@ namespace Game.Framework.Samples.Resources
                 return;
             }
 
-            if (!ResourceManager.Instance.IsReady)
+            if (!ResourceManager.IsReady)
             {
                 Status = "Initialize DefaultPackage first.";
                 return;
@@ -77,11 +77,10 @@ namespace Game.Framework.Samples.Resources
             IsBusy = true;
             try
             {
-                var resources = ResourceManager.Instance;
-                var asset = await resources.LoadAssetAsync<TextAsset>(key, lifetime.Token);
+                var asset = await ResourceManager.LoadAssetAsync<TextAsset>(key, lifetime.Token);
                 if (destroyed)
                 {
-                    resources.Release(asset);
+                    ResourceManager.Release(asset);
                     return;
                 }
 
@@ -115,7 +114,7 @@ namespace Game.Framework.Samples.Resources
         {
             if (!ReferenceEquals(loaded, null))
             {
-                ResourceManager.Instance.Release(loaded);
+                ResourceManager.Release(loaded);
                 loaded = null;
             }
             Preview = LoadedLocation = string.Empty;

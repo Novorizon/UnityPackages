@@ -8,7 +8,7 @@ using Logger = Game.Framework.Logger;
 
 namespace Game.Resource
 {
-    public partial class ResourceManager
+    public static partial class ResourceManager
     {
         // 在异步操作开始前保存版本、限额和进度回调，避免读到调用方后续修改的设置。
         private readonly struct PackageDownload
@@ -27,18 +27,18 @@ namespace Game.Resource
             }
         }
 
-        private ResourceMode? resourceMode;
-        private (InitializeParameters Parameters, string MainUrl, string FallbackUrl)? downloadSource;
-        private CancellationTokenSource resourceOperationStop;
+        private static ResourceMode? resourceMode;
+        private static (InitializeParameters Parameters, string MainUrl, string FallbackUrl)? downloadSource;
+        private static CancellationTokenSource resourceOperationStop;
 
         /// <summary>当前资源版本可用于读取资源和加载场景。</summary>
-        public bool IsReady => initialized && !shuttingDown;
+        public static bool IsReady => initialized && !shuttingDown;
 
         /// <summary>本次下载的进度快照。尚未开始下载时为空。</summary>
-        public ResourceDownloadProgress? DownloadProgress { get; private set; }
+        public static ResourceDownloadProgress? DownloadProgress { get; private set; }
 
         /// <summary>初始化 YooAsset。离线或编辑器模拟时挂载本地清单，在线时等待 DownloadAsync 提供来源。</summary>
-        public async Task<bool> InitializeAsync(ResourceMode resourceMode, CancellationToken token = default)
+        public static async Task<bool> InitializeAsync(ResourceMode resourceMode, CancellationToken token = default)
         {
             if (!CheckMainThread(nameof(InitializeAsync)) || token.IsCancellationRequested)
             {
@@ -75,18 +75,18 @@ namespace Game.Resource
                 {
                     return false;
                 }
-                if (this.resourceMode.HasValue ? this.resourceMode != resourceMode : HasPendingInitialization() || initialized)
+                if (ResourceManager.resourceMode.HasValue ? ResourceManager.resourceMode != resourceMode : HasPendingInitialization() || initialized)
                 {
                     Logger.Warn("Reset the current resource package before changing modes.");
                     return false;
                 }
-                if (!this.resourceMode.HasValue && GetDefaultPackage().InitializeStatus != EOperationStatus.None)
+                if (!ResourceManager.resourceMode.HasValue && GetDefaultPackage().InitializeStatus != EOperationStatus.None)
                 {
                     Logger.Warn("Reset the existing DefaultPackage before initializing a resource mode.");
                     return false;
                 }
 
-                this.resourceMode = resourceMode;
+                ResourceManager.resourceMode = resourceMode;
                 if (resourceMode == ResourceMode.Online || IsReady)
                 {
                     return true;
@@ -115,7 +115,7 @@ namespace Game.Resource
         }
 
         /// <summary>根据远端下载设置挂载清单并下载全部缺失资源。成功后才发布版本和就绪状态。</summary>
-        public async Task<ResourceDownloadResult> DownloadAsync(RemoteDownloadSetting setting, CancellationToken token = default)
+        public static async Task<ResourceDownloadResult> DownloadAsync(RemoteDownloadSetting setting, CancellationToken token = default)
         {
             if (token.IsCancellationRequested)
             {
@@ -185,7 +185,7 @@ namespace Game.Resource
         }
 
         /// <summary>释放资源和场景、销毁 DefaultPackage，允许下一次初始化切换文件系统。</summary>
-        public async Task<bool> ResetAsync(CancellationToken token = default)
+        public static async Task<bool> ResetAsync(CancellationToken token = default)
         {
             if (!CheckMainThread(nameof(ResetAsync)) || token.IsCancellationRequested)
             {
@@ -204,10 +204,10 @@ namespace Game.Resource
             }
         }
 
-        private bool HasPendingInitialization() =>
+        private static bool HasPendingInitialization() =>
             initialization is { IsCompleted: false } || packageInitialization is { IsCompleted: false };
 
-        private Task<bool> BeginModeInitialization(InitializeParameters parameters, CancellationToken token, PackageDownload? download = null)
+        private static Task<bool> BeginModeInitialization(InitializeParameters parameters, CancellationToken token, PackageDownload? download = null)
         {
             // 进度回调可能同步调用关闭；先公开本次任务，让关闭等待同一份原生操作。
             var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -218,7 +218,7 @@ namespace Game.Resource
             return completion.Task;
         }
 
-        private async Task CompleteModeInitializationAsync(InitializeParameters parameters, CancellationTokenSource stop, TaskCompletionSource<bool> completion, PackageDownload? download)
+        private static async Task CompleteModeInitializationAsync(InitializeParameters parameters, CancellationTokenSource stop, TaskCompletionSource<bool> completion, PackageDownload? download)
         {
             try
             {
@@ -243,7 +243,7 @@ namespace Game.Resource
             }
         }
 
-        private void CancelResourceOperation()
+        private static void CancelResourceOperation()
         {
             try
             {
@@ -280,7 +280,7 @@ namespace Game.Resource
             }
         }
 
-        private async Task<bool> RetirePackageAsync(ResourcePackage current, int startedGeneration)
+        private static async Task<bool> RetirePackageAsync(ResourcePackage current, int startedGeneration)
         {
             var destroy = current.DestroyAsync();
             await destroy.Task;
@@ -299,7 +299,7 @@ namespace Game.Resource
             return true;
         }
 
-        private void ClearResourceMode()
+        private static void ClearResourceMode()
         {
             resourceMode = null;
             downloadSource = null;

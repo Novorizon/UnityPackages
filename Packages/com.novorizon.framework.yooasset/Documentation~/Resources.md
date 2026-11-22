@@ -7,7 +7,7 @@
 ```csharp
 using Game.Resource;
 
-bool ready = await ResourceManager.Instance.InitializeAsync(ResourceMode.Offline);
+bool ready = await ResourceManager.InitializeAsync(ResourceMode.Offline);
 if (!ready)
 {
     return;
@@ -23,8 +23,7 @@ if (!ready)
 ## 加载普通资源
 
 ```csharp
-var resources = ResourceManager.Instance;
-var text = await resources.LoadAssetAsync<TextAsset>(textLocation, token);
+var text = await ResourceManager.LoadAssetAsync<TextAsset>(textLocation, token);
 if (text != null)
 {
     try
@@ -33,7 +32,7 @@ if (text != null)
     }
     finally
     {
-        resources.Release(text);
+        ResourceManager.Release(text);
     }
 }
 ```
@@ -53,9 +52,9 @@ if (text != null)
 ```csharp
 using UnityEngine.SceneManagement;
 
-Scene scene = await ResourceManager.Instance.LoadSceneAsync(sceneLocation, LoadSceneMode.Additive);
+Scene scene = await ResourceManager.LoadSceneAsync(sceneLocation, LoadSceneMode.Additive);
 // ...
-await ResourceManager.Instance.UnloadSceneAsync(scene);
+await ResourceManager.UnloadSceneAsync(scene);
 ```
 
 默认重载是 Single，会切换当前场景；工具/演示优先使用 Additive 并保留明确的卸载所有者。相同地址的加载/卸载共享任务，未完成或已加载时不能以另一个 LoadSceneMode 再占用。通过返回的 Scene.handle 关联原地址，scene.name 不需要与 location 相同。
@@ -94,8 +93,8 @@ async System.Threading.Tasks.Task<string> ReadRawTextAsync(ResourcePackage packa
 ## 图集与 Shader
 
 ```csharp
-var sprite = await ResourceManager.Instance.LoadSpriteAsync(atlasLocation, spriteName, token);
-// 使用完并从 UI 移除后，调用 ResourceManager.Instance.Release(sprite)。
+var sprite = await ResourceManager.LoadSpriteAsync(atlasLocation, spriteName, token);
+// 使用完并从 UI 移除后，调用 ResourceManager.Release(sprite)。
 ```
 
 `LoadSpriteAsync` 为每次调用取得图集 Handle，再从图集创建指定名称的 Sprite 副本。归还 Sprite 会释放该副本和对应的图集引用。Unity 自动绑定图集时按 `Assets/GameData/SpriteAtlas/{atlasName}.spriteatlas` 加载，引用由管理器保留到集中清理。
