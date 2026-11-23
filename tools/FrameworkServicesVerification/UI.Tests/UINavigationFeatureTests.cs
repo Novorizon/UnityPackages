@@ -155,224 +155,232 @@ public sealed class UINavigationFeatureTests : IDisposable
     }
 
     [Fact]
-    public async Task ATopLayerVetoConsumesBackWithoutClosingAnyLowerLayer()
-    {
-        var(root, _) = CreateRoot();
-        await UIManager.Pages.PushAsync("page");
-        await UIManager.Pages.PushAsync("page");
-        var panel = await UIManager.Panels.ShowAsync("panel");
-        var panelView = Assert.IsType<ProbePanel>(panel.View);
-        panelView.AllowClose = false;
-        var popup = await UIManager.Popups.OpenAsync("popup");
-        var popupView = Assert.IsType<ProbePopup>(popup.View);
-        popupView.AllowClose = false;
-        Assert.True(UIManager.HandleBack());
-        Assert.True(popup.IsValid);
-        Assert.True(panel.IsValid);
-        Assert.Equal(2, UIManager.Pages.Count);
-        popupView.AllowClose = true;
-        Assert.True(UIManager.HandleBack());
-        Assert.False(popup.IsValid);
-        Assert.True(UIManager.HandleBack());
-        Assert.True(panel.IsValid);
-        Assert.Equal(2, UIManager.Pages.Count);
-        panelView.AllowClose = true;
-        Assert.True(UIManager.HandleBack());
-        Assert.False(panel.IsValid);
-        Assert.True(UIManager.HandleBack());
-        Assert.Equal(1, UIManager.Pages.Count);
-    }
+    public void ATopLayerVetoConsumesBackWithoutClosingAnyLowerLayer() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
+        {
+            var(root, _) = CreateRoot();
+            await UIManager.Pages.PushAsync("page");
+            await UIManager.Pages.PushAsync("page");
+            var panel = await UIManager.Panels.ShowAsync("panel");
+            var panelView = Assert.IsType<ProbePanel>(panel.View);
+            panelView.AllowClose = false;
+            var popup = await UIManager.Popups.OpenAsync("popup");
+            var popupView = Assert.IsType<ProbePopup>(popup.View);
+            popupView.AllowClose = false;
+            Assert.True(UIManager.HandleBack());
+            Assert.True(popup.IsValid);
+            Assert.True(panel.IsValid);
+            Assert.Equal(2, UIManager.Pages.Count);
+            popupView.AllowClose = true;
+            Assert.True(UIManager.HandleBack());
+            Assert.False(popup.IsValid);
+            Assert.True(UIManager.HandleBack());
+            Assert.True(panel.IsValid);
+            Assert.Equal(2, UIManager.Pages.Count);
+            panelView.AllowClose = true;
+            Assert.True(UIManager.HandleBack());
+            Assert.False(panel.IsValid);
+            Assert.True(UIManager.HandleBack());
+            Assert.Equal(1, UIManager.Pages.Count);
+        });
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task RepeatedAsynchronousBackSharesOneConfirmationAndNeverClosesTheNextPage(bool approved)
-    {
-        var(root, _) = CreateRoot();
-        await UIManager.Pages.PushAsync("page");
-        await UIManager.Pages.PushAsync("page");
-        var popup = await UIManager.Popups.OpenAsync("popup");
-        var view = Assert.IsType<ProbePopup>(popup.View);
-        var confirmation = new TaskCompletionSource<bool>();
-        int calls = 0;
-        view.CloseGuard = (_, _) =>
+    public void RepeatedAsynchronousBackSharesOneConfirmationAndNeverClosesTheNextPage(bool approved) =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
-            calls++;
-            return confirmation.Task;
-        };
-        Assert.True(UIManager.HandleBack());
-        Assert.Equal(1, calls);
-        Assert.True(popup.IsValid);
-        Task<bool> first = UIManager.HandleBackAsync();
-        Task<bool> second = UIManager.HandleBackAsync();
-        Assert.Equal(1, calls);
-        Assert.False(first.IsCompleted);
-        Assert.False(second.IsCompleted);
-        confirmation.SetResult(approved);
-        Assert.True(await first);
-        Assert.True(await second);
-        Assert.Equal(2, UIManager.Pages.Count);
-        Assert.Equal(!approved, popup.IsValid);
-        if (approved)
-        {
-            Assert.Equal(UICloseReason.Back, view.LastCloseReason);
-        }
-    }
-
-    [Fact]
-    public async Task AGuardReenteringBackSynchronouslyReusesThePublishedAttempt()
-    {
-        var(root, _) = CreateRoot();
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        int calls = 0;
-        Task<bool>? reentrant = null;
-        handle.View!.CloseGuard = (_, _) =>
-        {
-            calls++;
-            reentrant = UIManager.HandleBackAsync();
+            var(root, _) = CreateRoot();
+            await UIManager.Pages.PushAsync("page");
+            await UIManager.Pages.PushAsync("page");
+            var popup = await UIManager.Popups.OpenAsync("popup");
+            var view = Assert.IsType<ProbePopup>(popup.View);
+            var confirmation = new TaskCompletionSource<bool>();
+            int calls = 0;
+            view.CloseGuard = (_, _) =>
+            {
+                calls++;
+                return confirmation.Task;
+            };
             Assert.True(UIManager.HandleBack());
-            return Task.FromResult(true);
-        };
-        Task<bool> closing = UIManager.HandleBackAsync();
-        Assert.NotNull(reentrant);
-        Assert.True(await closing);
-        Assert.True(await reentrant);
-        Assert.Equal(1, calls);
-        Assert.False(handle.IsValid);
-    }
+            Assert.Equal(1, calls);
+            Assert.True(popup.IsValid);
+            Task<bool> first = UIManager.HandleBackAsync();
+            Task<bool> second = UIManager.HandleBackAsync();
+            Assert.Equal(1, calls);
+            Assert.False(first.IsCompleted);
+            Assert.False(second.IsCompleted);
+            confirmation.SetResult(approved);
+            Assert.True(await first);
+            Assert.True(await second);
+            Assert.Equal(2, UIManager.Pages.Count);
+            Assert.Equal(!approved, popup.IsValid);
+            if (approved)
+            {
+                Assert.Equal(UICloseReason.Back, view.LastCloseReason);
+            }
+        });
 
     [Fact]
-    public async Task CancellingTheFirstBackCallerDoesNotCancelAnotherCallersConfirmation()
-    {
-        var(root, _) = CreateRoot();
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        var approval = new TaskCompletionSource<bool>();
-        int calls = 0;
-        CancellationToken guardToken = default;
-        handle.View!.CloseGuard = async (_, token) =>
+    public void AGuardReenteringBackSynchronouslyReusesThePublishedAttempt() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
-            calls++;
-            guardToken = token;
-            return await approval.Task.WaitAsync(token);
-        };
-        using var cancellation = new CancellationTokenSource();
-        Task<bool> first = UIManager.HandleBackAsync(cancellation.Token);
-        Task<bool> second = UIManager.HandleBackAsync();
-        cancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.Equal(1, calls);
-        Assert.False(guardToken.IsCancellationRequested);
-        Assert.False(second.IsCompleted);
-        approval.SetResult(true);
-        Assert.True(await second.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(handle.IsValid);
-    }
+            var(root, _) = CreateRoot();
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            int calls = 0;
+            Task<bool>? reentrant = null;
+            handle.View!.CloseGuard = (_, _) =>
+            {
+                calls++;
+                reentrant = UIManager.HandleBackAsync();
+                Assert.True(UIManager.HandleBack());
+                return Task.FromResult(true);
+            };
+            Task<bool> closing = UIManager.HandleBackAsync();
+            Assert.NotNull(reentrant);
+            Assert.True(await closing);
+            Assert.True(await reentrant);
+            Assert.Equal(1, calls);
+            Assert.False(handle.IsValid);
+        });
 
     [Fact]
-    public async Task CancellingEveryBackCallerClosesItsConfirmationAndAllowsANewAttempt()
-    {
-        var(root, loader) = CreateRoot();
-        loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        CancellationToken guardToken = default;
-        int calls = 0;
-        Task<UIDialogResult<bool>>? confirmation = null;
-        handle.View!.CloseGuard = async (_, token) =>
+    public void CancellingTheFirstBackCallerDoesNotCancelAnotherCallersConfirmation() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
-            guardToken = token;
-            calls++;
-            confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
-            UIDialogResult<bool> result = await confirmation;
-            return result.HasValue && result.Value;
-        };
-        using var firstCancellation = new CancellationTokenSource();
-        using var secondCancellation = new CancellationTokenSource();
-        Task<bool> first = UIManager.HandleBackAsync(firstCancellation.Token);
-        Task<bool> second = UIManager.HandleBackAsync(secondCancellation.Token);
-        Assert.Equal(1, calls);
-        Assert.Equal(2, UIManager.Popups.Count);
-        firstCancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(guardToken.IsCancellationRequested);
-        Assert.Equal(2, UIManager.Popups.Count);
-        secondCancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => second.WaitAsync(TimeSpan.FromSeconds(3)));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.True(guardToken.IsCancellationRequested);
-        Assert.Equal(1, UIManager.Popups.Count);
-        Assert.True(handle.IsValid);
-        handle.View.CloseGuard = null;
-        Assert.True(await UIManager.HandleBackAsync().WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(handle.IsValid);
-        Assert.Equal(0, UIManager.Popups.Count);
-    }
+            var(root, _) = CreateRoot();
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            var approval = new TaskCompletionSource<bool>();
+            int calls = 0;
+            CancellationToken guardToken = default;
+            handle.View!.CloseGuard = async (_, token) =>
+            {
+                calls++;
+                guardToken = token;
+                return await approval.Task.WaitAsync(token);
+            };
+            using var cancellation = new CancellationTokenSource();
+            Task<bool> first = UIManager.HandleBackAsync(cancellation.Token);
+            Task<bool> second = UIManager.HandleBackAsync();
+            cancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.Equal(1, calls);
+            Assert.False(guardToken.IsCancellationRequested);
+            Assert.False(second.IsCompleted);
+            approval.SetResult(true);
+            Assert.True(await second.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(handle.IsValid);
+        });
 
     [Fact]
-    public async Task BackImmediatelyAfterLastCallerCancellationTargetsTheOriginalWindowAfterConfirmationCleanup()
-    {
-        var(root, loader) = CreateRoot();
-        loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        Task<UIDialogResult<bool>>? confirmation = null;
-        handle.View!.CloseGuard = async (_, token) =>
+    public void CancellingEveryBackCallerClosesItsConfirmationAndAllowsANewAttempt() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
-            confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
-            UIDialogResult<bool> result = await confirmation;
-            return result.HasValue && result.Value;
-        };
-        using var cancellation = new CancellationTokenSource();
-        Task<bool> original = UIManager.HandleBackAsync(cancellation.Token);
-        Assert.Equal(2, UIManager.Popups.Count);
-        cancellation.Cancel();
-        handle.View.CloseGuard = null;
-        Task<bool> retry = UIManager.HandleBackAsync(); // Intentionally before awaiting cancellation or UI cleanup.
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => original.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(handle.IsValid);
-        Assert.Equal(0, UIManager.Popups.Count);
-    }
+            var(root, loader) = CreateRoot();
+            loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            CancellationToken guardToken = default;
+            int calls = 0;
+            Task<UIDialogResult<bool>>? confirmation = null;
+            handle.View!.CloseGuard = async (_, token) =>
+            {
+                guardToken = token;
+                calls++;
+                confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                UIDialogResult<bool> result = await confirmation;
+                return result.HasValue && result.Value;
+            };
+            using var firstCancellation = new CancellationTokenSource();
+            using var secondCancellation = new CancellationTokenSource();
+            Task<bool> first = UIManager.HandleBackAsync(firstCancellation.Token);
+            Task<bool> second = UIManager.HandleBackAsync(secondCancellation.Token);
+            Assert.Equal(1, calls);
+            Assert.Equal(2, UIManager.Popups.Count);
+            firstCancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(guardToken.IsCancellationRequested);
+            Assert.Equal(2, UIManager.Popups.Count);
+            secondCancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => second.WaitAsync(TimeSpan.FromSeconds(3)));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.True(guardToken.IsCancellationRequested);
+            Assert.Equal(1, UIManager.Popups.Count);
+            Assert.True(handle.IsValid);
+            handle.View.CloseGuard = null;
+            Assert.True(await UIManager.HandleBackAsync().WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(handle.IsValid);
+            Assert.Equal(0, UIManager.Popups.Count);
+        });
 
     [Fact]
-    public async Task AGuardIgnoringCancellationCannotKeepBackPermanentlyBlocked()
-    {
-        var(root, _) = CreateRoot();
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        var ignoredCancellation = new TaskCompletionSource<bool>();
-        handle.View!.CloseGuard = (_, _) => ignoredCancellation.Task;
-        using var cancellation = new CancellationTokenSource();
-        Task<bool> cancelled = UIManager.HandleBackAsync(cancellation.Token);
-        cancellation.Cancel();
-        handle.View.CloseGuard = null;
-        Task<bool> retry = UIManager.HandleBackAsync();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(handle.IsValid);
-        Assert.False(ignoredCancellation.Task.IsCompleted);
-        ignoredCancellation.SetResult(true);
-    }
-
-    [Fact]
-    public async Task ResetCancelsAPendingBackConfirmationWithoutAffectingNewManagers()
-    {
-        var(root, loader) = CreateRoot();
-        loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await UIManager.Popups.OpenAsync("popup");
-        handle.View!.CloseGuard = async (_, token) =>
+    public void BackImmediatelyAfterLastCallerCancellationTargetsTheOriginalWindowAfterConfirmationCleanup() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
-            UIDialogResult<bool> result = await UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
-            return result.HasValue && result.Value;
-        };
-        Task<bool> pending = UIManager.HandleBackAsync();
-        Assert.Equal(2, UIManager.Popups.Count);
-        UIManager.ResetAll();
-        Assert.False(await pending.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.Equal(0, UIManager.Popups.Count);
-        Assert.False(handle.IsValid);
-        var fresh = await UIManager.Popups.OpenAsync("popup");
-        Assert.True(await UIManager.HandleBackAsync());
-        Assert.False(fresh.IsValid);
-    }
+            var(root, loader) = CreateRoot();
+            loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            Task<UIDialogResult<bool>>? confirmation = null;
+            handle.View!.CloseGuard = async (_, token) =>
+            {
+                confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                UIDialogResult<bool> result = await confirmation;
+                return result.HasValue && result.Value;
+            };
+            using var cancellation = new CancellationTokenSource();
+            Task<bool> original = UIManager.HandleBackAsync(cancellation.Token);
+            Assert.Equal(2, UIManager.Popups.Count);
+            cancellation.Cancel();
+            handle.View.CloseGuard = null;
+            Task<bool> retry = UIManager.HandleBackAsync(); // Intentionally before awaiting cancellation or UI cleanup.
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => original.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(handle.IsValid);
+            Assert.Equal(0, UIManager.Popups.Count);
+        });
+
+    [Fact]
+    public void AGuardIgnoringCancellationCannotKeepBackPermanentlyBlocked() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
+        {
+            var(root, _) = CreateRoot();
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            var ignoredCancellation = new TaskCompletionSource<bool>();
+            handle.View!.CloseGuard = (_, _) => ignoredCancellation.Task;
+            using var cancellation = new CancellationTokenSource();
+            Task<bool> cancelled = UIManager.HandleBackAsync(cancellation.Token);
+            cancellation.Cancel();
+            handle.View.CloseGuard = null;
+            Task<bool> retry = UIManager.HandleBackAsync();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(handle.IsValid);
+            Assert.False(ignoredCancellation.Task.IsCompleted);
+            ignoredCancellation.SetResult(true);
+        });
+
+    [Fact]
+    public void ResetCancelsAPendingBackConfirmationWithoutAffectingNewManagers() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
+        {
+            var(root, loader) = CreateRoot();
+            loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
+            var handle = await UIManager.Popups.OpenAsync("popup");
+            handle.View!.CloseGuard = async (_, token) =>
+            {
+                UIDialogResult<bool> result = await UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                return result.HasValue && result.Value;
+            };
+            Task<bool> pending = UIManager.HandleBackAsync();
+            Assert.Equal(2, UIManager.Popups.Count);
+            UIManager.ResetAll();
+            Assert.False(await pending.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.Equal(0, UIManager.Popups.Count);
+            Assert.False(handle.IsValid);
+            var fresh = await UIManager.Popups.OpenAsync("popup");
+            Assert.True(await UIManager.HandleBackAsync());
+            Assert.False(fresh.IsValid);
+        });
 
     [Fact]
     public async Task ANewTopPopupDuringConfirmationPreventsClosingTheOldTop()
@@ -411,27 +419,28 @@ public sealed class UINavigationFeatureTests : IDisposable
     }
 
     [Fact]
-    public async Task PendingOverlayBlocksBackAndItsCancellationDoesNotLeaveAView()
-    {
-        var(root, loader) = CreateRoot();
-        var popup = await UIManager.Popups.OpenAsync("popup");
-        loader.Delayed.Add("overlay");
-        using var cancellation = new CancellationTokenSource();
-        Task<IDisposable> showing = UIManager.Overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
-        Assert.True(UIManager.Overlays.IsBlocking);
-        Assert.True(UIManager.HandleBack());
-        Assert.True(await UIManager.HandleBackAsync());
-        Assert.True(popup.IsValid);
-        cancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => showing.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(UIManager.Overlays.IsBlocking);
-        loader.Complete(1);
-        await DrainAsync();
-        Assert.Equal(1, loader.Releases);
-        Assert.True(popup.IsValid);
-        Assert.True(UIManager.HandleBack());
-        Assert.False(popup.IsValid);
-    }
+    public void PendingOverlayBlocksBackAndItsCancellationDoesNotLeaveAView() =>
+        UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
+        {
+            var(root, loader) = CreateRoot();
+            var popup = await UIManager.Popups.OpenAsync("popup");
+            loader.Delayed.Add("overlay");
+            using var cancellation = new CancellationTokenSource();
+            Task<IDisposable> showing = UIManager.Overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
+            Assert.True(UIManager.Overlays.IsBlocking);
+            Assert.True(UIManager.HandleBack());
+            Assert.True(await UIManager.HandleBackAsync());
+            Assert.True(popup.IsValid);
+            cancellation.Cancel();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => showing.WaitAsync(TimeSpan.FromSeconds(3)));
+            Assert.False(UIManager.Overlays.IsBlocking);
+            loader.Complete(1);
+            await DrainAsync();
+            Assert.Equal(1, loader.Releases);
+            Assert.True(popup.IsValid);
+            Assert.True(UIManager.HandleBack());
+            Assert.False(popup.IsValid);
+        });
 
     [Fact]
     public async Task CancellingOneSharedOverlayWaiterPreservesTheOtherOwnersLoadAndForcedRelease()

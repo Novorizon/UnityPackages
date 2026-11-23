@@ -433,8 +433,32 @@ public sealed class UIDialogTests : IDisposable
         }
     }
 
-    sealed class QueuedContext : SynchronizationContext
+    internal sealed class QueuedContext : SynchronizationContext
     {
+        internal static void RunOnCurrentThread(Func<Task> action)
+        {
+            var queue = new QueuedContext();
+            SynchronizationContext? previous = Current;
+            SetSynchronizationContext(queue);
+            try
+            {
+                Task test = action();
+                while (!test.IsCompleted)
+                {
+                    if (!queue.RunOne())
+                    {
+                        Task.WhenAny(test, queue.WaitForWorkAsync()).WaitAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+                    }
+                }
+
+                test.GetAwaiter().GetResult();
+            }
+            finally
+            {
+                SetSynchronizationContext(previous);
+            }
+        }
+
         sealed class QueueState
         {
             internal readonly Queue<(SendOrPostCallback Callback, object? State)> Queue = new();
