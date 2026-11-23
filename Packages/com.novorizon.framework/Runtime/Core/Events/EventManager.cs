@@ -6,7 +6,93 @@ namespace Game.Framework.Event
 {
     public partial class EventManager : Singleton<EventManager>, IDisposable
     {
-        public void Dispose() => Clear();
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static ISubscription Subscribe<TTopic>(TTopic topic, Action handler)
+            where TTopic : Enum =>
+            Instance.SubscribeInternal<TTopic>(topic, handler);
+
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static ISubscription Subscribe<TTopic>(TTopic topic, Func<bool> filter, Action handler)
+            where TTopic : Enum =>
+            Instance.SubscribeInternal<TTopic>(topic, filter, handler);
+
+        /// <summary>通知事件管理器。</summary>
+        public static void Notify<TTopic>(TTopic topic)
+            where TTopic : Enum =>
+            Instance.NotifyInternal<TTopic>(topic);
+
+        /// <summary>取消订阅事件管理器。</summary>
+        public static void Unsubscribe<TTopic>(TTopic topic, Action handler)
+            where TTopic : Enum
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.UnsubscribeInternal<TTopic>(topic, handler);
+            }
+        }
+
+        /// <summary>取消订阅事件管理器。</summary>
+        public static void Unsubscribe<TTopic>(TTopic value)
+            where TTopic : Enum
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.UnsubscribeInternal<TTopic>(value);
+            }
+        }
+
+        /// <summary>清空事件管理器。</summary>
+        public static void Clear()
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.ClearInternal();
+            }
+        }
+
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static ISubscription Subscribe<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage =>
+            Instance.SubscribeInternal<TMessage>(topic, handler);
+
+        /// <summary>通知事件管理器。</summary>
+        public static void Notify<TMessage>(Enum topic, TMessage message) where TMessage : IMessage =>
+            Instance.NotifyInternal<TMessage>(topic, message);
+
+        /// <summary>取消订阅事件管理器。</summary>
+        public static void Unsubscribe<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.UnsubscribeInternal<TMessage>(topic, handler);
+            }
+        }
+
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static ISubscription Subscribe<TTopic, TMessage>(TTopic topic, Action<TMessage> handler)
+            where TTopic : Enum where TMessage : IMessage =>
+            Instance.SubscribeInternal<TTopic, TMessage>(topic, handler);
+
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static ISubscription Subscribe<TTopic, TMessage>(TTopic topic, Func<TMessage, bool> filter, Action<TMessage> handler)
+            where TTopic : Enum where TMessage : IMessage =>
+            Instance.SubscribeInternal<TTopic, TMessage>(topic, filter, handler);
+
+        /// <summary>通知事件管理器。</summary>
+        public static void Notify<TTopic, TMessage>(TTopic topic, TMessage message) where TTopic : Enum where TMessage : IMessage =>
+            Instance.NotifyInternal<TTopic, TMessage>(topic, message);
+
+        /// <summary>取消订阅事件管理器。</summary>
+        public static void Unsubscribe<TTopic, TMessage>(TTopic topic, Action<TMessage> handler) where TTopic : Enum where TMessage : IMessage
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.UnsubscribeInternal<TTopic, TMessage>(topic, handler);
+            }
+        }
+
+        /// <summary>结束事件管理器对相关资源的持有，并执行该类型的清理流程。</summary>
+        public void Dispose() => ClearInternal();
+        /// <summary>表示事件管理器中的条目。</summary>
         private sealed class Entry : ISubscription
         {
             internal Delegate Handler;
@@ -254,9 +340,11 @@ namespace Game.Framework.Event
             }
         }
 
-        public ISubscription Subscribe<TTopic>(TTopic topic, Action handler)
+        /// <summary>订阅事件管理器。</summary>
+        private ISubscription SubscribeInternal<TTopic>(TTopic topic, Action handler)
             where TTopic : Enum => Register(topic, typeof(void), handler, _ => handler());
-        public ISubscription Subscribe<TTopic>(TTopic topic, Func<bool> filter, Action handler)
+        /// <summary>订阅事件管理器。</summary>
+        private ISubscription SubscribeInternal<TTopic>(TTopic topic, Func<bool> filter, Action handler)
             where TTopic : Enum
         {
             if (filter == null)
@@ -273,7 +361,8 @@ namespace Game.Framework.Event
             });
         }
 
-        public void Notify<TTopic>(TTopic topic)
+        /// <summary>通知事件管理器。</summary>
+        private void NotifyInternal<TTopic>(TTopic topic)
             where TTopic : Enum => Publish(topic, typeof(void), null);
         private void Publish<TTopic>(TTopic value, Type payload, object message)
             where TTopic : Enum
@@ -327,7 +416,8 @@ namespace Game.Framework.Event
             }
         }
 
-        public void Unsubscribe<TTopic>(TTopic topic, Action handler)
+        /// <summary>取消订阅事件管理器。</summary>
+        private void UnsubscribeInternal<TTopic>(TTopic topic, Action handler)
             where TTopic : Enum => Remove(topic, typeof(void), handler);
         private void Remove<TTopic>(TTopic value, Type payload, Delegate handler)
             where TTopic : Enum
@@ -356,7 +446,8 @@ namespace Game.Framework.Event
             }
         }
 
-        public void Unsubscribe<TTopic>(TTopic value)
+        /// <summary>取消订阅事件管理器。</summary>
+        private void UnsubscribeInternal<TTopic>(TTopic value)
             where TTopic : Enum
         {
             lock (gate)
@@ -380,7 +471,8 @@ namespace Game.Framework.Event
             }
         }
 
-        public void Clear()
+        /// <summary>清空事件管理器。</summary>
+        private void ClearInternal()
         {
             lock (gate)
             {

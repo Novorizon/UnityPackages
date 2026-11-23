@@ -63,7 +63,7 @@ namespace UI.Demo
             dirty = false;
             lastWindow = -1;
             list!.SetItemCount(10_000, Bind);
-            Track(owner.Root.Bus.SubscribeScoped<UIDemoPulse>(pulse => owner?.Note("Inventory received pulse " + pulse.Value)));
+            Track(owner.UIManager.Bus.SubscribeScoped<UIDemoPulse>(pulse => owner?.Note("Inventory received pulse " + pulse.Value)));
             Update();
         }
 

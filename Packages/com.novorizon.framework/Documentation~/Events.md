@@ -1,6 +1,6 @@
 # 事件、消息与订阅
 
-命名空间 Game.Framework.Event，入口 EventManager.Instance。它处理客户端内部通知，不负责 TCP 收发、UI 导航或业务数值计算。
+命名空间 Game.Framework.Event，入口 EventManager。它处理客户端内部通知，不负责 TCP 收发、UI 导航或业务数值计算。
 
 ## 带数据事件的完整例子
 
@@ -24,9 +24,9 @@ public sealed class WalletEventView : MonoBehaviour
 
     void OnEnable()
     {
-        subscriptions.Add(EventManager.Instance.Subscribe<WalletEvent, CoinsChanged>(
+        subscriptions.Add(EventManager.Subscribe<WalletEvent, CoinsChanged>(
             WalletEvent.Changed, OnCoinsChanged));
-        subscriptions.Add(EventManager.Instance.Subscribe(WalletEvent.LoggedOut, OnLoggedOut));
+        subscriptions.Add(EventManager.Subscribe(WalletEvent.LoggedOut, OnLoggedOut));
     }
 
     void OnDisable() => subscriptions.Clear();
@@ -36,8 +36,8 @@ public sealed class WalletEventView : MonoBehaviour
 
     public void PublishExample()
     {
-        EventManager.Instance.Notify(WalletEvent.Changed, new CoinsChanged(100));
-        EventManager.Instance.Notify(WalletEvent.LoggedOut);
+        EventManager.Notify(WalletEvent.Changed, new CoinsChanged(100));
+        EventManager.Notify(WalletEvent.LoggedOut);
     }
 }
 ```
@@ -55,7 +55,7 @@ bool IsValidChange(CoinsChanged value) => value.Coins >= 0;
 
 void SubscribeWallet(Subscriber owner)
 {
-    owner.Add(EventManager.Instance.Subscribe<WalletEvent, CoinsChanged>(
+    owner.Add(EventManager.Subscribe<WalletEvent, CoinsChanged>(
         WalletEvent.Changed, IsValidChange, OnCoinsChanged));
 }
 ```
@@ -64,7 +64,7 @@ void SubscribeWallet(Subscriber owner)
 
 Subscriber.Clear 解除当前订阅但集合仍可重用，适合 OnDisable；Dispose 终结拥有者，之后 Add 会立即释放新订阅。少量订阅直接持有 token 也可以。
 
-UI 包的 UIView 可用 `Track(EventManager.Instance.Subscribe(...))` 自动管理本次打开的订阅，不会让主包依赖 UI。
+UI 包的 UIView 可用 `Track(EventManager.Subscribe(...))` 自动管理本次打开的订阅，不会让主包依赖 UI。
 
 ## 线程与快照
 

@@ -20,13 +20,13 @@ internal static partial class Program
         {
             Object.ResetTestState();
             var manager = GpuAnimatorManager.Instance;
-            manager.PlaybackSpeed = .25f;
-            manager.AutomaticUpdate = false;
-            manager.IsPaused = true;
+            GpuAnimatorManager.PlaybackSpeed = .25f;
+            GpuAnimatorManager.AutomaticUpdate = false;
+            GpuAnimatorManager.IsPaused = true;
             Object.ResetSingletonsForPlay();
             True(ReferenceEquals(manager, GpuAnimatorManager.Instance));
-            Equal(.25f, manager.PlaybackSpeed);
-            True(!manager.AutomaticUpdate && manager.IsPaused);
+            Equal(.25f, GpuAnimatorManager.PlaybackSpeed);
+            True(!GpuAnimatorManager.AutomaticUpdate && GpuAnimatorManager.IsPaused);
         });
 #endif
         Check("legacy lazy singletons remain compatible", () =>
@@ -302,10 +302,10 @@ internal static partial class Program
             player.TryPlay("A");
             GpuAnimatorManager.DestroyInstance();
             var next = GpuAnimatorManager.Instance;
-            next.AutomaticUpdate = false;
+            GpuAnimatorManager.AutomaticUpdate = false;
             True(!ReferenceEquals(manager, next));
-            Equal(1, next.Count);
-            next.Tick(.1f);
+            Equal(1, GpuAnimatorManager.Count);
+            GpuAnimatorManager.Tick(.1f);
             Equal(1, player.CurrentFrame);
         });
         Check("GPU clear rejects reentrant replay from stop notifications", () =>
@@ -317,7 +317,7 @@ internal static partial class Program
             player.TryPlay("A");
             player.Clear();
             True(!replayed && !player.IsInitialized && !player.IsPlaying);
-            Equal(0, manager.Count);
+            Equal(0, GpuAnimatorManager.Count);
         });
         Check("GPU notification failures do not prevent completion callbacks", () =>
         {
@@ -325,30 +325,30 @@ internal static partial class Program
             var player = Player();
             int completed = 0, callback = 0;
             player.AnimationCompleted += (p, clip) => throw new InvalidOperationException("listener");
-            manager.AnimationCompleted += (p, clip) => completed++;
+            GpuAnimatorManager.SubscribeAnimationCompleted((p, clip) => completed++);
             player.TryPlay("B", (p, state) => callback++);
-            manager.Tick(1);
+            GpuAnimatorManager.Tick(1);
             Equal(1, completed);
             Equal(1, callback);
-            Equal(0, manager.Count);
+            Equal(0, GpuAnimatorManager.Count);
         });
         Check("GPU manual players still publish global notifications", () =>
         {
             var manager = Manager();
             var player = Player(automatic: false);
             int changed = 0;
-            manager.AnimationChanged += (p, old, next) => changed++;
+            GpuAnimatorManager.SubscribeAnimationChanged((p, old, next) => changed++);
             player.TryPlay("A");
             Equal(1, changed);
-            Equal(0, manager.Count);
+            Equal(0, GpuAnimatorManager.Count);
         });
         Check("GPU reentrant animation switches preserve notification order", () =>
         {
             var manager = Manager();
             var player = Player();
             var calls = new List<string>();
-            manager.AnimationChanged += (p, old, next) => calls.Add("changed:" + next);
-            manager.AnimationStarted += (p, clip) => calls.Add("started:" + clip);
+            GpuAnimatorManager.SubscribeAnimationChanged((p, old, next) => calls.Add("changed:" + next));
+            GpuAnimatorManager.SubscribeAnimationStarted((p, clip) => calls.Add("started:" + clip));
             player.AnimationChanged += (p, old, next) =>
             {
                 if (next == "A")
@@ -367,13 +367,13 @@ internal static partial class Program
             player.TryPlay("A");
             for (int i = 0; i < 128; i++)
             {
-                manager.Tick(.01f);
+                GpuAnimatorManager.Tick(.01f);
             }
 
             long before = GC.GetAllocatedBytesForCurrentThread();
             for (int i = 0; i < 1024; i++)
             {
-                manager.Tick(.01f);
+                GpuAnimatorManager.Tick(.01f);
             }
 
             Equal(0L, GC.GetAllocatedBytesForCurrentThread() - before);
@@ -563,7 +563,7 @@ internal static partial class Program
     {
         Object.ResetTestState();
         var manager = GpuAnimatorManager.Instance;
-        manager.AutomaticUpdate = false;
+        GpuAnimatorManager.AutomaticUpdate = false;
         return manager;
     }
 
@@ -581,11 +581,11 @@ internal static partial class Program
         var manager = Manager();
         var player = Player();
         True(player.TryPlay("A"));
-        Equal(1, manager.Count);
-        True(!manager.Register(player));
-        manager.Tick(.1f);
+        Equal(1, GpuAnimatorManager.Count);
+        True(!GpuAnimatorManager.Register(player));
+        GpuAnimatorManager.Tick(.1f);
         Equal(1, player.CurrentFrame);
-        manager.Tick(.1f);
+        GpuAnimatorManager.Tick(.1f);
         Equal(2, player.CurrentFrame);
     }
 
@@ -595,15 +595,15 @@ internal static partial class Program
         var player = Player();
         player.TryPlay("A");
         player.gameObject.SetActive(false);
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
         player.gameObject.SetActive(true);
-        Equal(1, manager.Count);
+        Equal(1, GpuAnimatorManager.Count);
         player.Clear();
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
         var next = Player();
         next.TryPlay("A");
         Object.Destroy(next.gameObject);
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
     }
 
     private static void GpuManual()
@@ -611,15 +611,15 @@ internal static partial class Program
         var manager = Manager();
         var player = Player(automatic: false);
         player.TryPlay("A");
-        Equal(0, manager.Count);
-        manager.Tick(.1f);
+        Equal(0, GpuAnimatorManager.Count);
+        GpuAnimatorManager.Tick(.1f);
         Equal(0, player.CurrentFrame);
         player.Tick(.1f);
         Equal(1, player.CurrentFrame);
         player.AutomaticUpdate = true;
-        Equal(1, manager.Count);
+        Equal(1, GpuAnimatorManager.Count);
         player.AutomaticUpdate = false;
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
     }
 
     private static void GpuNotifications()
@@ -627,24 +627,24 @@ internal static partial class Program
         var manager = Manager();
         var player = Player();
         int changed = 0, started = 0, completed = 0, stopped = 0, callback = 0;
-        manager.AnimationChanged += (p, old, next) => changed++;
-        manager.AnimationStarted += (p, clip) => started++;
-        manager.AnimationCompleted += (p, clip) => completed++;
-        manager.AnimationStopped += (p, clip) => stopped++;
+        GpuAnimatorManager.SubscribeAnimationChanged((p, old, next) => changed++);
+        GpuAnimatorManager.SubscribeAnimationStarted((p, clip) => started++);
+        GpuAnimatorManager.SubscribeAnimationCompleted((p, clip) => completed++);
+        GpuAnimatorManager.SubscribeAnimationStopped((p, clip) => stopped++);
         player.TryPlay("A");
         player.TryPlay("A");
         player.TryPlay("B", (p, state) => callback++);
-        manager.Tick(1);
-        manager.Tick(1);
+        GpuAnimatorManager.Tick(1);
+        GpuAnimatorManager.Tick(1);
         Equal(2, changed);
         Equal(3, started);
         Equal(1, completed);
         Equal(1, callback);
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
         player.TryPlay("A");
         player.Clear();
         Equal(1, stopped);
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
     }
 
     private static void GpuMutations()
@@ -655,19 +655,19 @@ internal static partial class Program
         GpuAnimator added = null;
         first.TryPlay("B", (p, state) =>
         {
-            manager.Unregister(second);
-            manager.Register(second);
+            GpuAnimatorManager.Unregister(second);
+            GpuAnimatorManager.Register(second);
             added = Player();
             added.TryPlay("A");
         });
         second.TryPlay("A");
-        manager.Tick(1);
+        GpuAnimatorManager.Tick(1);
         Equal(0, second.CurrentFrame);
         Equal(0, added.CurrentFrame);
-        manager.Tick(.1f);
+        GpuAnimatorManager.Tick(.1f);
         Equal(1, second.CurrentFrame);
         Equal(1, added.CurrentFrame);
-        Equal(2, manager.Count);
+        Equal(2, GpuAnimatorManager.Count);
     }
 
     private static void GpuPause()
@@ -675,17 +675,17 @@ internal static partial class Program
         var manager = Manager();
         var player = Player();
         player.TryPlay("A");
-        manager.IsPaused = true;
-        manager.Tick(.1f);
+        GpuAnimatorManager.IsPaused = true;
+        GpuAnimatorManager.Tick(.1f);
         Equal(0, player.CurrentFrame);
-        manager.IsPaused = false;
-        manager.PlaybackSpeed = .5f;
-        manager.Tick(.2f);
+        GpuAnimatorManager.IsPaused = false;
+        GpuAnimatorManager.PlaybackSpeed = .5f;
+        GpuAnimatorManager.Tick(.2f);
         Equal(1, player.CurrentFrame);
-        manager.Tick(float.NaN);
-        manager.Tick(-1);
+        GpuAnimatorManager.Tick(float.NaN);
+        GpuAnimatorManager.Tick(-1);
         Equal(1, player.CurrentFrame);
-        Throws<ArgumentOutOfRangeException>(() => manager.PlaybackSpeed = float.PositiveInfinity);
+        Throws<ArgumentOutOfRangeException>(() => GpuAnimatorManager.PlaybackSpeed = float.PositiveInfinity);
     }
 
     private static void GpuReplay()
@@ -697,14 +697,14 @@ internal static partial class Program
         {
             complete++;
             p.TryPlay("A");
-            manager.Tick(1);
+            GpuAnimatorManager.Tick(1);
         });
-        manager.Tick(1);
+        GpuAnimatorManager.Tick(1);
         Equal(1, complete);
         Equal("A", player.CurrentClipName);
         Equal(0, player.CurrentFrame);
-        Equal(1, manager.Count);
-        manager.Tick(.1f);
+        Equal(1, GpuAnimatorManager.Count);
+        GpuAnimatorManager.Tick(.1f);
         Equal(1, player.CurrentFrame);
     }
 }

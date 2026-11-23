@@ -6,9 +6,9 @@
 using Game.Framework.Audio;
 
 AudioManager.Instance.Initialize();
-var handle = AudioManager.Instance.Play(clip, AudioGroup.Music, loop: true);
-AudioManager.Instance.MasterVolume = 0.8f;
-AudioManager.Instance.SetGroupVolume(AudioGroup.Music, 0.5f);
+var handle = AudioManager.Play(clip, AudioGroup.Music, loop: true);
+AudioManager.MasterVolume = 0.8f;
+AudioManager.SetGroupVolume(AudioGroup.Music, 0.5f);
 handle.Pause();
 handle.Resume();
 handle.Stop();
@@ -25,12 +25,11 @@ handle.Stop();
 ## 音乐切换与渐变
 
 ```csharp
-var audio = AudioManager.Instance;
-var music = audio.PlayMusic(firstClip, fadeSeconds: 0.5f);
-audio.PlayMusic(secondClip, fadeSeconds: 1); // 默认等功率交叉渐变
+var music = AudioManager.PlayMusic(firstClip, fadeSeconds: 0.5f);
+AudioManager.PlayMusic(secondClip, fadeSeconds: 1); // 默认等功率交叉渐变
 music.FadeOut(0.3f);                       // 结束后回收
-audio.StopMusic(0.5f);                     // 包含正在淡出的旧音乐
-audio.SetMixerGroup(AudioGroup.Music, musicMixerGroup);
+AudioManager.StopMusic(0.5f);                     // 包含正在淡出的旧音乐
+AudioManager.SetMixerGroup(AudioGroup.Music, musicMixerGroup);
 ```
 
 `FadeTo`/`FadeOut` 支持 Linear、SmoothStep、EqualPower。渐变操作替换该声音当前的渐变；SetVolume 立即取消渐变。分组/主音量继续相乘。暂停声音、PauseAll 或 AudioListener.pause 都暂停渐变。默认统一 Update 使用 unscaledDeltaTime；`AutomaticUpdate = false` 后由项目调用 `Tick(deltaTime)`，可配置 UseUnscaledTime。

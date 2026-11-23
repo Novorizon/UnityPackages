@@ -35,7 +35,7 @@ if (player.Initialize(renderer, data))
 
 ```csharp
 GpuAnimatorManager.Instance.Initialize();
-GpuAnimatorManager.Instance.AnimationChanged += OnAnimationChanged;
+GpuAnimatorManager.SubscribeAnimationChanged(OnAnimationChanged);
 ```
 
 Manager 和播放器提供 Started、Changed、Completed、Stopped 通知；播放同一 Clip 触发 Started，循环不会触发 Completed。退出时取消项目自己的订阅。

@@ -67,15 +67,14 @@ public sealed class NativePerformanceTests
     [Test]
     public void TypedEventPublishKeepsItsWarmedAllocationFreePathInMono()
     {
-        var bus = new EventManager();
         int notifications = 0;
-        using (bus.Subscribe(Topic.Updated, () => notifications++))
+        using (EventManager.Subscribe(Topic.Updated, () => notifications++))
         {
-            Metric result = Measure("EventManager typed Notify, one listener", () => bus.Notify(Topic.Updated), 1024);
+            Metric result = Measure("EventManager typed Notify, one listener", () => EventManager.Notify(Topic.Updated), 1024);
             Assert.That(result.allocatedBytes, Is.Zero);
             Assert.That(notifications, Is.GreaterThan(30000));
         }
-        bus.Dispose();
+        EventManager.Clear();
     }
 
     [Test]
@@ -109,36 +108,34 @@ public sealed class NativePerformanceTests
     [Test]
     public void TypedStructEventPublishDoesNotBoxItsMessageInMono()
     {
-        var bus = new EventManager();
         int notifications = 0;
-        using (bus.Subscribe<Topic, UpdateMessage>(Topic.Updated, message => notifications += message.Value))
+        using (EventManager.Subscribe<Topic, UpdateMessage>(Topic.Updated, message => notifications += message.Value))
         {
             var message = new UpdateMessage(1);
-            Metric result = Measure("EventManager typed struct Notify, one listener", () => bus.Notify(Topic.Updated, message), 1024);
+            Metric result = Measure("EventManager typed struct Notify, one listener", () => EventManager.Notify(Topic.Updated, message), 1024);
             Assert.That(result.allocatedBytes, Is.Zero);
             Assert.That(notifications, Is.GreaterThan(30000));
         }
-        bus.Dispose();
+        EventManager.Clear();
     }
 
     [Test]
     public void TimerUpdateWithTenThousandFutureEntriesKeepsItsWarmedAllocationFreePathInMono()
     {
-        var timers = new TimerManager();
         try
         {
             Action callback = () => Assert.Fail("Future timers must not execute during this idle probe.");
             for (int i = 0; i < 10000; i++)
             {
-                timers.Schedule(100000 + i, callback);
+                TimerManager.Schedule(100000 + i, callback);
             }
-            Metric result = Measure("Timer Update, 10000 pending, none due", () => timers.Update(0, 0), 1024);
-            Assert.That(timers.PendingCount, Is.EqualTo(10000));
+            Metric result = Measure("Timer Update, 10000 pending, none due", () => TimerManager.Update(0, 0), 1024);
+            Assert.That(TimerManager.PendingCount, Is.EqualTo(10000));
             Assert.That(result.allocatedBytes, Is.Zero);
         }
         finally
         {
-            timers.Dispose();
+            TimerManager.Instance.Dispose();
         }
     }
 

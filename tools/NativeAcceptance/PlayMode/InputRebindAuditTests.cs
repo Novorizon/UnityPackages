@@ -29,7 +29,7 @@ public sealed class InputRebindAuditTests
         bool previousRunInBackground = Application.runInBackground;
         Keyboard keyboard = null;
         InputActionAsset source = null;
-        var input = new InputManager();
+        var input = InputManager.Instance;
         using var cancel = new CancellationTokenSource();
         try
         {
@@ -42,10 +42,10 @@ public sealed class InputRebindAuditTests
             var map = source.AddActionMap("Gameplay");
             map.AddAction("Move", InputActionType.Button, "<Keyboard>/space");
             input.Initialize(source, "Gameplay");
-            input.SetDevices(keyboard);
+            InputManager.SetDevices(keyboard);
             Task<string> nested = null;
             bool rejectedOverride = false;
-            using var subscription = input.Subscribe(
+            using var subscription = InputManager.Subscribe(
                 "Move",
                 null,
                 _ =>
@@ -54,10 +54,10 @@ public sealed class InputRebindAuditTests
                     {
                         return;
                     }
-                    nested = input.RebindAsync("Move", 0);
+                    nested = InputManager.RebindAsync("Move", 0);
                     try
                     {
-                        input.LoadBindingOverrides("{}");
+                        InputManager.LoadBindingOverrides("{}");
                     }
                     catch (InvalidOperationException)
                     {
@@ -67,8 +67,8 @@ public sealed class InputRebindAuditTests
             InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.Space));
             InputSystem.Update();
             Assert.That(keyboard.spaceKey.isPressed, Is.True, "The synthetic state event must reach the real keyboard device.");
-            Assert.That(input.FindAction("Move").phase, Is.EqualTo(InputActionPhase.Performed));
-            Task<string> outer = input.RebindAsync("Move", 0, cancel.Token);
+            Assert.That(InputManager.FindAction("Move").phase, Is.EqualTo(InputActionPhase.Performed));
+            Task<string> outer = InputManager.RebindAsync("Move", 0, cancel.Token);
             Assert.That(nested, Is.Not.Null, "Disabling the performed action must invoke the project canceled callback.");
             Assert.That(nested.IsFaulted, Is.True, "The outer rebind must reserve its slot before disabling the action.");
             Assert.That(nested.Exception.GetBaseException(), Is.TypeOf<InvalidOperationException>());
@@ -82,7 +82,7 @@ public sealed class InputRebindAuditTests
                 yield return null;
             }
             Assert.Catch<OperationCanceledException>(() => outer.GetAwaiter().GetResult());
-            Assert.That(input.FindAction("Move").enabled, Is.True);
+            Assert.That(InputManager.FindAction("Move").enabled, Is.True);
         }
         finally
         {

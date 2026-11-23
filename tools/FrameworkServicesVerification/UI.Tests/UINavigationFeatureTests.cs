@@ -53,7 +53,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         loader.Assets.Add("popup", Prefab<ProbePopup>());
         loader.Assets.Add("panel", Prefab<ProbePanel>());
         loader.Assets.Add("overlay", Prefab<ProbeOverlay>());
-        root.SetAssetLoader(loader);
+        UIManager.SetAssetLoader(loader);
         return (root, loader);
     }
 
@@ -158,29 +158,29 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task ATopLayerVetoConsumesBackWithoutClosingAnyLowerLayer()
     {
         var(root, _) = CreateRoot();
-        await root.Pages.PushAsync("page");
-        await root.Pages.PushAsync("page");
-        var panel = await root.Panels.ShowAsync("panel");
+        await UIManager.Pages.PushAsync("page");
+        await UIManager.Pages.PushAsync("page");
+        var panel = await UIManager.Panels.ShowAsync("panel");
         var panelView = Assert.IsType<ProbePanel>(panel.View);
         panelView.AllowClose = false;
-        var popup = await root.Popups.OpenAsync("popup");
+        var popup = await UIManager.Popups.OpenAsync("popup");
         var popupView = Assert.IsType<ProbePopup>(popup.View);
         popupView.AllowClose = false;
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.True(popup.IsValid);
         Assert.True(panel.IsValid);
-        Assert.Equal(2, root.Pages.Count);
+        Assert.Equal(2, UIManager.Pages.Count);
         popupView.AllowClose = true;
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.False(popup.IsValid);
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.True(panel.IsValid);
-        Assert.Equal(2, root.Pages.Count);
+        Assert.Equal(2, UIManager.Pages.Count);
         panelView.AllowClose = true;
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.False(panel.IsValid);
-        Assert.True(root.HandleBack());
-        Assert.Equal(1, root.Pages.Count);
+        Assert.True(UIManager.HandleBack());
+        Assert.Equal(1, UIManager.Pages.Count);
     }
 
     [Theory]
@@ -189,9 +189,9 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task RepeatedAsynchronousBackSharesOneConfirmationAndNeverClosesTheNextPage(bool approved)
     {
         var(root, _) = CreateRoot();
-        await root.Pages.PushAsync("page");
-        await root.Pages.PushAsync("page");
-        var popup = await root.Popups.OpenAsync("popup");
+        await UIManager.Pages.PushAsync("page");
+        await UIManager.Pages.PushAsync("page");
+        var popup = await UIManager.Popups.OpenAsync("popup");
         var view = Assert.IsType<ProbePopup>(popup.View);
         var confirmation = new TaskCompletionSource<bool>();
         int calls = 0;
@@ -200,18 +200,18 @@ public sealed class UINavigationFeatureTests : IDisposable
             calls++;
             return confirmation.Task;
         };
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.Equal(1, calls);
         Assert.True(popup.IsValid);
-        Task<bool> first = root.HandleBackAsync();
-        Task<bool> second = root.HandleBackAsync();
+        Task<bool> first = UIManager.HandleBackAsync();
+        Task<bool> second = UIManager.HandleBackAsync();
         Assert.Equal(1, calls);
         Assert.False(first.IsCompleted);
         Assert.False(second.IsCompleted);
         confirmation.SetResult(approved);
         Assert.True(await first);
         Assert.True(await second);
-        Assert.Equal(2, root.Pages.Count);
+        Assert.Equal(2, UIManager.Pages.Count);
         Assert.Equal(!approved, popup.IsValid);
         if (approved)
         {
@@ -223,17 +223,17 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task AGuardReenteringBackSynchronouslyReusesThePublishedAttempt()
     {
         var(root, _) = CreateRoot();
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         int calls = 0;
         Task<bool>? reentrant = null;
         handle.View!.CloseGuard = (_, _) =>
         {
             calls++;
-            reentrant = root.HandleBackAsync();
-            Assert.True(root.HandleBack());
+            reentrant = UIManager.HandleBackAsync();
+            Assert.True(UIManager.HandleBack());
             return Task.FromResult(true);
         };
-        Task<bool> closing = root.HandleBackAsync();
+        Task<bool> closing = UIManager.HandleBackAsync();
         Assert.NotNull(reentrant);
         Assert.True(await closing);
         Assert.True(await reentrant);
@@ -245,7 +245,7 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task CancellingTheFirstBackCallerDoesNotCancelAnotherCallersConfirmation()
     {
         var(root, _) = CreateRoot();
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         var approval = new TaskCompletionSource<bool>();
         int calls = 0;
         CancellationToken guardToken = default;
@@ -256,8 +256,8 @@ public sealed class UINavigationFeatureTests : IDisposable
             return await approval.Task.WaitAsync(token);
         };
         using var cancellation = new CancellationTokenSource();
-        Task<bool> first = root.HandleBackAsync(cancellation.Token);
-        Task<bool> second = root.HandleBackAsync();
+        Task<bool> first = UIManager.HandleBackAsync(cancellation.Token);
+        Task<bool> second = UIManager.HandleBackAsync();
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.Equal(1, calls);
@@ -273,7 +273,7 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(root, loader) = CreateRoot();
         loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         CancellationToken guardToken = default;
         int calls = 0;
         Task<UIDialogResult<bool>>? confirmation = null;
@@ -281,30 +281,30 @@ public sealed class UINavigationFeatureTests : IDisposable
         {
             guardToken = token;
             calls++;
-            confirmation = root.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+            confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
             UIDialogResult<bool> result = await confirmation;
             return result.HasValue && result.Value;
         };
         using var firstCancellation = new CancellationTokenSource();
         using var secondCancellation = new CancellationTokenSource();
-        Task<bool> first = root.HandleBackAsync(firstCancellation.Token);
-        Task<bool> second = root.HandleBackAsync(secondCancellation.Token);
+        Task<bool> first = UIManager.HandleBackAsync(firstCancellation.Token);
+        Task<bool> second = UIManager.HandleBackAsync(secondCancellation.Token);
         Assert.Equal(1, calls);
-        Assert.Equal(2, root.Popups.Count);
+        Assert.Equal(2, UIManager.Popups.Count);
         firstCancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.False(guardToken.IsCancellationRequested);
-        Assert.Equal(2, root.Popups.Count);
+        Assert.Equal(2, UIManager.Popups.Count);
         secondCancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => second.WaitAsync(TimeSpan.FromSeconds(3)));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.True(guardToken.IsCancellationRequested);
-        Assert.Equal(1, root.Popups.Count);
+        Assert.Equal(1, UIManager.Popups.Count);
         Assert.True(handle.IsValid);
         handle.View.CloseGuard = null;
-        Assert.True(await root.HandleBackAsync().WaitAsync(TimeSpan.FromSeconds(3)));
+        Assert.True(await UIManager.HandleBackAsync().WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.False(handle.IsValid);
-        Assert.Equal(0, root.Popups.Count);
+        Assert.Equal(0, UIManager.Popups.Count);
     }
 
     [Fact]
@@ -312,39 +312,39 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(root, loader) = CreateRoot();
         loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         Task<UIDialogResult<bool>>? confirmation = null;
         handle.View!.CloseGuard = async (_, token) =>
         {
-            confirmation = root.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+            confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
             UIDialogResult<bool> result = await confirmation;
             return result.HasValue && result.Value;
         };
         using var cancellation = new CancellationTokenSource();
-        Task<bool> original = root.HandleBackAsync(cancellation.Token);
-        Assert.Equal(2, root.Popups.Count);
+        Task<bool> original = UIManager.HandleBackAsync(cancellation.Token);
+        Assert.Equal(2, UIManager.Popups.Count);
         cancellation.Cancel();
         handle.View.CloseGuard = null;
-        Task<bool> retry = root.HandleBackAsync(); // Intentionally before awaiting cancellation or UI cleanup.
+        Task<bool> retry = UIManager.HandleBackAsync(); // Intentionally before awaiting cancellation or UI cleanup.
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => original.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => confirmation!.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.False(handle.IsValid);
-        Assert.Equal(0, root.Popups.Count);
+        Assert.Equal(0, UIManager.Popups.Count);
     }
 
     [Fact]
     public async Task AGuardIgnoringCancellationCannotKeepBackPermanentlyBlocked()
     {
         var(root, _) = CreateRoot();
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         var ignoredCancellation = new TaskCompletionSource<bool>();
         handle.View!.CloseGuard = (_, _) => ignoredCancellation.Task;
         using var cancellation = new CancellationTokenSource();
-        Task<bool> cancelled = root.HandleBackAsync(cancellation.Token);
+        Task<bool> cancelled = UIManager.HandleBackAsync(cancellation.Token);
         cancellation.Cancel();
         handle.View.CloseGuard = null;
-        Task<bool> retry = root.HandleBackAsync();
+        Task<bool> retry = UIManager.HandleBackAsync();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.True(await retry.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.False(handle.IsValid);
@@ -357,20 +357,20 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(root, loader) = CreateRoot();
         loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-        var handle = await root.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync("popup");
         handle.View!.CloseGuard = async (_, token) =>
         {
-            UIDialogResult<bool> result = await root.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+            UIDialogResult<bool> result = await UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
             return result.HasValue && result.Value;
         };
-        Task<bool> pending = root.HandleBackAsync();
-        Assert.Equal(2, root.Popups.Count);
-        root.ResetAll();
+        Task<bool> pending = UIManager.HandleBackAsync();
+        Assert.Equal(2, UIManager.Popups.Count);
+        UIManager.ResetAll();
         Assert.False(await pending.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.Equal(0, root.Popups.Count);
+        Assert.Equal(0, UIManager.Popups.Count);
         Assert.False(handle.IsValid);
-        var fresh = await root.Popups.OpenAsync("popup");
-        Assert.True(await root.HandleBackAsync());
+        var fresh = await UIManager.Popups.OpenAsync("popup");
+        Assert.True(await UIManager.HandleBackAsync());
         Assert.False(fresh.IsValid);
     }
 
@@ -414,22 +414,22 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task PendingOverlayBlocksBackAndItsCancellationDoesNotLeaveAView()
     {
         var(root, loader) = CreateRoot();
-        var popup = await root.Popups.OpenAsync("popup");
+        var popup = await UIManager.Popups.OpenAsync("popup");
         loader.Delayed.Add("overlay");
         using var cancellation = new CancellationTokenSource();
-        Task<IDisposable> showing = root.Overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
-        Assert.True(root.Overlays.IsBlocking);
-        Assert.True(root.HandleBack());
-        Assert.True(await root.HandleBackAsync());
+        Task<IDisposable> showing = UIManager.Overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
+        Assert.True(UIManager.Overlays.IsBlocking);
+        Assert.True(UIManager.HandleBack());
+        Assert.True(await UIManager.HandleBackAsync());
         Assert.True(popup.IsValid);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => showing.WaitAsync(TimeSpan.FromSeconds(3)));
-        Assert.False(root.Overlays.IsBlocking);
+        Assert.False(UIManager.Overlays.IsBlocking);
         loader.Complete(1);
         await DrainAsync();
         Assert.Equal(1, loader.Releases);
         Assert.True(popup.IsValid);
-        Assert.True(root.HandleBack());
+        Assert.True(UIManager.HandleBack());
         Assert.False(popup.IsValid);
     }
 
@@ -483,11 +483,11 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task ResetBypassesTheCloseGuardAndRecordsTheResetReason()
     {
         var(root, _) = CreateRoot();
-        var popup = await root.Popups.OpenAsync("popup");
+        var popup = await UIManager.Popups.OpenAsync("popup");
         var view = Assert.IsType<ProbePopup>(popup.View);
         view.AllowClose = false;
         view.CloseGuard = (_, _) => Task.FromResult(false);
-        root.ResetAll();
+        UIManager.ResetAll();
         Assert.False(popup.IsValid);
         Assert.Equal(UICloseReason.Reset, view.LastCloseReason);
     }

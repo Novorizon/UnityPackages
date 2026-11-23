@@ -57,11 +57,11 @@ namespace UI.Demo
                 settings.referenceHeight = 900;
                 settings.matchWidthOrHeight = .5f;
                 settings.useMainCamera = false;
-                root.SetSettings(settings);
-                root.SetEventSystem(input.GetComponent<EventSystem>());
+                UIManager.SetSettings(settings);
+                UIManager.SetEventSystem(input.GetComponent<EventSystem>());
                 loader = CreateLoader(false);
-                root.SetAssetLoader(loader);
-                await root.Pages.ResetToAsync(Home, this, lifetime.Token);
+                UIManager.SetAssetLoader(loader);
+                await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
                 Note("Ready. Every window is created from runtime templates; no resource package is required.");
             }
             catch
@@ -119,12 +119,16 @@ namespace UI.Demo
             }
         }
 
-        public async Task ShowInventoryAsync() => await Root.Pages.PushAsync(Inventory, this, lifetime.Token);
-        public async Task ShowPopupAsync() => await Root.Popups.OpenAsync(Popup, this, cancellationToken: lifetime.Token);
-        public async Task ShowPanelAsync() => await Root.Panels.ToggleAsync(Panel, this, lifetime.Token);
+        /// <summary>异步显示物品清单。</summary>
+        public async Task ShowInventoryAsync() => await UIManager.Pages.PushAsync(Inventory, this, lifetime.Token);
+        /// <summary>异步显示弹窗。</summary>
+        public async Task ShowPopupAsync() => await UIManager.Popups.OpenAsync(Popup, this, cancellationToken: lifetime.Token);
+        /// <summary>异步显示面板。</summary>
+        public async Task ShowPanelAsync() => await UIManager.Panels.ToggleAsync(Panel, this, lifetime.Token);
+        /// <summary>取得返回 Async。</summary>
         public async Task BackAsync()
         {
-            await Root.HandleBackAsync(lifetime.Token);
+            await UIManager.HandleBackAsync(lifetime.Token);
         }
 
         public async Task ShowConfirmAsync()
@@ -133,7 +137,9 @@ namespace UI.Demo
             Note(result.HasValue ? "Dialog choice: " + result.Value : "Dialog dismissed: " + result.CloseReason);
         }
 
-        internal Task<UIDialogResult<bool>> AskAsync(string question, CancellationToken token) => Root.Dialogs.ShowAsync<bool>(Confirm, new UIDemoQuestion(this, question), cancellationToken: token);
+        /// <summary>根据传入参数取得AskAsync。</summary>
+        internal Task<UIDialogResult<bool>> AskAsync(string question, CancellationToken token) => UIManager.Dialogs.ShowAsync<bool>(Confirm, new UIDemoQuestion(this, question), cancellationToken: token);
+        /// <summary>异步显示覆盖层。</summary>
         public async Task ShowOverlayAsync()
         {
             if (overlayCancellation != null)
@@ -146,7 +152,7 @@ namespace UI.Demo
             overlayCancellation = cancel;
             try
             {
-                using var owned = await Root.Overlays.ShowBlockingAsync(Loading, this, cancel.Token);
+                using var owned = await UIManager.Overlays.ShowBlockingAsync(Loading, this, cancel.Token);
                 Note("Overlay owns an input gate for 4 seconds. Its own Cancel button remains available.");
                 await Task.Delay(4000, cancel.Token);
                 Note("Overlay token released; Back works again.");
@@ -167,19 +173,21 @@ namespace UI.Demo
         }
 
         public void CancelOverlay() => overlayCancellation?.Cancel();
-        public void ShowToast() => Root.Toasts.Enqueue(Toast, "Toast: cached view, completion-driven queue.");
+        /// <summary>显示提示。</summary>
+        public void ShowToast() => UIManager.Toasts.Enqueue(Toast, "Toast: cached view, completion-driven queue.");
+        /// <summary>发布时钟脉冲。</summary>
         public void PublishPulse()
         {
             pulses++;
-            Root.Bus.Publish(new UIDemoPulse(pulses));
+            UIManager.Bus.Publish(new UIDemoPulse(pulses));
             Note("Published pulse " + pulses + ". Open pages receive it; closed pages are automatically unsubscribed.");
         }
 
         public async Task ResetDemoAsync()
         {
             CancelOverlay();
-            Root.ResetAll();
-            await Root.Pages.ResetToAsync(Home, this, lifetime.Token);
+            UIManager.ResetAll();
+            await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
             Note("Reset created fresh managers; old scopes and UI handles ended.");
         }
 
@@ -191,7 +199,7 @@ namespace UI.Demo
             UIDemoAssetLoader replacement = CreateLoader(delayed);
             try
             {
-                Root.SetAssetLoader(replacement);
+                UIManager.SetAssetLoader(replacement);
                 loader = replacement;
             }
             catch
@@ -201,7 +209,7 @@ namespace UI.Demo
             }
 
             previous?.Retire();
-            await Root.Pages.ResetToAsync(Home, this, lifetime.Token);
+            await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
             Note(delayed ? "Switched interface implementation: every load now waits 400 ms." : "Switched back to immediate in-memory loading.");
         }
 

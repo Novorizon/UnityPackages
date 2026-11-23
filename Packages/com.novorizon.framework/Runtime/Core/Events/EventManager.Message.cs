@@ -3,14 +3,19 @@ namespace Game.Framework.Event
 {
     public partial class EventManager
     {
-        public ISubscription Subscribe<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage =>
+        /// <summary>订阅事件管理器。</summary>
+        private ISubscription SubscribeInternal<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage =>
             Register(topic, typeof(TMessage), handler, null, handler);
-        public void Notify<TMessage>(Enum topic, TMessage message) where TMessage : IMessage => PublishMessage(topic, message);
-        public void Unsubscribe<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage =>
+        /// <summary>通知事件管理器。</summary>
+        private void NotifyInternal<TMessage>(Enum topic, TMessage message) where TMessage : IMessage => PublishMessage(topic, message);
+        /// <summary>取消订阅事件管理器。</summary>
+        private void UnsubscribeInternal<TMessage>(Enum topic, Action<TMessage> handler) where TMessage : IMessage =>
             Remove(topic, typeof(TMessage), handler);
-        public ISubscription Subscribe<TTopic, TMessage>(TTopic topic, Action<TMessage> handler)
+        /// <summary>订阅事件管理器。</summary>
+        private ISubscription SubscribeInternal<TTopic, TMessage>(TTopic topic, Action<TMessage> handler)
             where TTopic : Enum where TMessage : IMessage => Register(topic, typeof(TMessage), handler, null, handler);
-        public ISubscription Subscribe<TTopic, TMessage>(TTopic topic, Func<TMessage, bool> filter, Action<TMessage> handler)
+        /// <summary>订阅事件管理器。</summary>
+        private ISubscription SubscribeInternal<TTopic, TMessage>(TTopic topic, Func<TMessage, bool> filter, Action<TMessage> handler)
             where TTopic : Enum where TMessage : IMessage
         {
             if (filter == null)
@@ -26,8 +31,10 @@ namespace Game.Framework.Event
                 }
             }));
         }
-        public void Notify<TTopic, TMessage>(TTopic topic, TMessage message) where TTopic : Enum where TMessage : IMessage => PublishMessage(topic, message);
-        public void Unsubscribe<TTopic, TMessage>(TTopic topic, Action<TMessage> handler) where TTopic : Enum where TMessage : IMessage =>
+        /// <summary>通知事件管理器。</summary>
+        private void NotifyInternal<TTopic, TMessage>(TTopic topic, TMessage message) where TTopic : Enum where TMessage : IMessage => PublishMessage(topic, message);
+        /// <summary>取消订阅事件管理器。</summary>
+        private void UnsubscribeInternal<TTopic, TMessage>(TTopic topic, Action<TMessage> handler) where TTopic : Enum where TMessage : IMessage =>
             Remove(topic, typeof(TMessage), handler);
 
         private void PublishMessage<TTopic, TMessage>(TTopic value, TMessage message)

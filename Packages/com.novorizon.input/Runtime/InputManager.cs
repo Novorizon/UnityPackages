@@ -11,6 +11,56 @@ namespace Game.Framework.Input
     /// <summary>管理独立的运行时 Action Asset 副本；所有控制 API 在 Unity 主线程调用。</summary>
     public sealed class InputManager : Singleton<InputManager>, IDisposable
     {
+        /// <summary>按名称查找运行时副本中的 Action，不存在时抛出异常。</summary>
+        public static InputAction FindAction(string name) =>
+            Instance.FindActionInternal(name);
+
+        /// <summary>将指定 Action Map 标记为启用。若仍有屏蔽作用域，它会在屏蔽结束后生效。</summary>
+        public static void EnableMap(string name) =>
+            Instance.EnableMapInternal(name);
+
+        /// <summary>取消指定 Action Map 的启用请求，解除临时屏蔽后也不会恢复它。</summary>
+        public static void DisableMap(string name) =>
+            Instance.DisableMapInternal(name);
+
+        /// <summary>独占切换：关闭其他 Map；需要 UI/Gameplay 同时工作时分别调用 EnableMap。</summary>
+        public static void SwitchMap(string name) =>
+            Instance.SwitchMapInternal(name);
+
+        /// <summary>只改变此管理器的 binding group 过滤，不接管项目的 PlayerInput 或多人设备配对。</summary>
+        public static void SetControlScheme(string name) =>
+            Instance.SetControlSchemeInternal(name);
+
+        /// <summary>指定输入资产可接收的设备列表，null 取消设备限制。</summary>
+        public static void SetDevices(params InputDevice[] devices) =>
+            Instance.SetDevicesInternal(devices);
+
+        /// <summary>临时阻止输入。调用者需 Dispose 返回的租约，以释放本次阻止。</summary>
+        public static IDisposable Block(string mapName = null) =>
+            Instance.BlockInternal(mapName);
+
+        /// <summary>订阅由当前实例持有。调用者结束使用时 Dispose 返回的订阅。</summary>
+        public static IDisposable Subscribe(string action, Action<InputAction.CallbackContext> performed, Action<InputAction.CallbackContext> canceled = null) =>
+            Instance.SubscribeInternal(action, performed, canceled);
+
+        /// <summary>将运行时覆盖的按键配置导出为 JSON，可用于持久化。</summary>
+        public static string SaveBindingOverrides() =>
+            Instance.SaveBindingOverridesInternal();
+
+        /// <summary>从 JSON 恢复输入绑定。交互改键进行中不能加载另一份绑定。</summary>
+        public static void LoadBindingOverrides(string json) =>
+            Instance.LoadBindingOverridesInternal(json);
+
+        /// <summary>等待一次交互改键，结束后恢复 Action Map 状态。</summary>
+        public static Task<string> RebindAsync(string actionName, int bindingIndex, CancellationToken token = default) =>
+            Instance.RebindAsyncInternal(actionName, bindingIndex, token);
+
+        public static bool Initialized => TryGetInstance(out var current) ? current.IsConfigured : false;
+
+        public static InputActionAsset Actions => Instance.ConfiguredActions;
+
+        public static string CurrentControlScheme => TryGetInstance(out var current) ? current.ControlScheme : null;
+
         private readonly HashSet<string> enabledMaps = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, int> mapBlocks = new Dictionary<string, int>(StringComparer.Ordinal);
         private readonly HashSet<Subscription> subscriptions = new HashSet<Subscription>();
@@ -20,9 +70,9 @@ namespace Game.Framework.Input
         private int allBlocks;
         private int ownerThread;
         private bool disposed;
-        public bool Initialized => actions != null && !disposed;
-        public InputActionAsset Actions => Initialized ? actions : throw new InvalidOperationException("Initialize InputManager first.");
-        public string CurrentControlScheme { get; private set; }
+        internal bool IsConfigured => actions != null && !disposed;
+        internal InputActionAsset ConfiguredActions => IsConfigured ? actions : throw new InvalidOperationException("Initialize InputManager first.");
+        internal string ControlScheme { get; set; }
 
         public static void Reset() => Release();
         public override void Initialize()
@@ -33,7 +83,7 @@ namespace Game.Framework.Input
         public void Initialize(InputActionAsset source = null, string initialMap = null)
         {
             MainThread();
-            if (Initialized)
+            if (IsConfigured)
             {
                 throw new InvalidOperationException("InputManager is already initialized; dispose it before changing assets.");
             }
@@ -46,7 +96,7 @@ namespace Game.Framework.Input
                 actions = clone;
                 if (!string.IsNullOrEmpty(initialMap))
                 {
-                    EnableMap(initialMap);
+                    EnableMapInternal(initialMap);
                 }
             }
             catch
@@ -58,13 +108,15 @@ namespace Game.Framework.Input
             }
         }
 
-        public InputAction FindAction(string name)
+        /// <summary>按名称查找运行时副本中的 Action，不存在时抛出异常。</summary>
+        internal InputAction FindActionInternal(string name)
         {
             Ready();
             return actions.FindAction(name, true);
         }
 
-        public void EnableMap(string name)
+        /// <summary>将指定 Action Map 标记为启用。若仍有屏蔽作用域，它会在屏蔽结束后生效。</summary>
+        internal void EnableMapInternal(string name)
         {
             Ready();
             var map = actions.FindActionMap(name, true);
@@ -72,7 +124,8 @@ namespace Game.Framework.Input
             ApplyMap(map);
         }
 
-        public void DisableMap(string name)
+        /// <summary>取消指定 Action Map 的启用请求，解除临时屏蔽后也不会恢复它。</summary>
+        internal void DisableMapInternal(string name)
         {
             Ready();
             var map = actions.FindActionMap(name, true);
@@ -81,7 +134,7 @@ namespace Game.Framework.Input
         }
 
         /// <summary>独占切换：关闭其他 Map；需要 UI/Gameplay 同时工作时分别调用 EnableMap。</summary>
-        public void SwitchMap(string name)
+        internal void SwitchMapInternal(string name)
         {
             Ready();
             var target = actions.FindActionMap(name, true);
@@ -91,13 +144,13 @@ namespace Game.Framework.Input
         }
 
         /// <summary>只改变此管理器的 binding group 过滤，不接管项目的 PlayerInput 或多人设备配对。</summary>
-        public void SetControlScheme(string name)
+        internal void SetControlSchemeInternal(string name)
         {
             Ready();
             if (string.IsNullOrEmpty(name))
             {
                 actions.bindingMask = null;
-                CurrentControlScheme = null;
+                ControlScheme = null;
                 return;
             }
 
@@ -108,17 +161,19 @@ namespace Game.Framework.Input
             }
 
             actions.bindingMask = InputBinding.MaskByGroup(actions.controlSchemes[index].bindingGroup);
-            CurrentControlScheme = name;
+            ControlScheme = name;
         }
 
-        public void SetDevices(params InputDevice[] devices)
+        /// <summary>指定输入资产可接收的设备列表，null 取消设备限制。</summary>
+        internal void SetDevicesInternal(params InputDevice[] devices)
         {
             Ready();
             actions.devices = devices == null ? (ReadOnlyArray<InputDevice>? )null : new ReadOnlyArray<InputDevice>(devices);
         }
 
         /// <summary>嵌套屏蔽指定 Map，null 屏蔽全部；结束后只恢复仍被请求启用的 Map。</summary>
-        public IDisposable Block(string mapName = null)
+        /// <remarks>按作用域屏蔽指定 Action Map；不传名称时屏蔽全部。释放返回值才撤销这次屏蔽。</remarks>
+        internal IDisposable BlockInternal(string mapName = null)
         {
             Ready();
             if (mapName == null)
@@ -164,7 +219,8 @@ namespace Game.Framework.Input
             ApplyMaps();
         }
 
-        public IDisposable Subscribe(string action, Action<InputAction.CallbackContext> performed, Action<InputAction.CallbackContext> canceled = null)
+        /// <summary>订阅 Action 的触发或取消事件，释放返回值时撤销订阅。</summary>
+        internal IDisposable SubscribeInternal(string action, Action<InputAction.CallbackContext> performed, Action<InputAction.CallbackContext> canceled = null)
         {
             Ready();
             if (performed == null && canceled == null)
@@ -172,18 +228,20 @@ namespace Game.Framework.Input
                 throw new ArgumentException("At least one input callback is required.");
             }
 
-            var subscription = new Subscription(this, FindAction(action), performed, canceled);
+            var subscription = new Subscription(this, FindActionInternal(action), performed, canceled);
             subscriptions.Add(subscription);
             return subscription;
         }
 
-        public string SaveBindingOverrides()
+        /// <summary>将运行时覆盖的按键配置导出为 JSON，可用于持久化。</summary>
+        internal string SaveBindingOverridesInternal()
         {
             Ready();
             return actions.SaveBindingOverridesAsJson();
         }
 
-        public void LoadBindingOverrides(string json)
+        /// <summary>从 JSON 恢复输入绑定。交互改键进行中不能加载另一份绑定。</summary>
+        internal void LoadBindingOverridesInternal(string json)
         {
             Ready();
             if (rebindingAction != null)
@@ -194,7 +252,8 @@ namespace Game.Framework.Input
             actions.LoadBindingOverridesFromJson(json ?? throw new ArgumentNullException(nameof(json)));
         }
 
-        public async Task<string> RebindAsync(string actionName, int bindingIndex, CancellationToken token = default)
+        /// <summary>等待一次交互改键，结束后恢复 Action Map 状态。</summary>
+        internal async Task<string> RebindAsyncInternal(string actionName, int bindingIndex, CancellationToken token = default)
         {
             Ready();
             token.ThrowIfCancellationRequested();
@@ -203,7 +262,7 @@ namespace Game.Framework.Input
                 throw new InvalidOperationException("An interactive rebind is already active.");
             }
 
-            var action = FindAction(actionName);
+            var action = FindActionInternal(actionName);
             if (bindingIndex < 0 || bindingIndex >= action.bindings.Count || action.bindings[bindingIndex].isComposite)
             {
                 throw new ArgumentOutOfRangeException(nameof(bindingIndex), "Select a simple binding or a composite part.");
@@ -233,7 +292,7 @@ namespace Game.Framework.Input
                     throw new ObjectDisposedException(nameof(InputManager));
                 }
 
-                return SaveBindingOverrides();
+                return SaveBindingOverridesInternal();
             }
             finally
             {
@@ -291,7 +350,7 @@ namespace Game.Framework.Input
         private void Ready()
         {
             MainThread();
-            if (!Initialized)
+            if (!IsConfigured)
             {
                 throw new InvalidOperationException("Initialize InputManager first.");
             }

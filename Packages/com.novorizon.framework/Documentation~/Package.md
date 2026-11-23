@@ -51,12 +51,12 @@ Initialize 只准备配置和派发，默认不执行账号登录。项目通过
 
 ## 业务入口与拥有者
 
-- EventManager.Instance：订阅返回 IDisposable，页面离开时退订。
-- TimerManager.Instance：保存自己的 TimerHandle，离开时取消；不 Clear 全局计时器。
+- EventManager：订阅返回 IDisposable，页面离开时退订。
+- TimerManager：保存自己的 TimerHandle，离开时取消；不 Clear 全局计时器。
 - GameObjectPool：每个功能/场景创建自己的池，结束时 Dispose。
 - ReferencePool<T>.Shared：Rent/Return 成对，归还后不继续使用该对象。
 - UnityThread：后台提交需要操作 Unity 的工作；无需每个模块另建主线程队列。
-- UI.UIManager.Instance：管理页面与弹窗；窗口 Prefab 通过 IUIAssetLoader 获取和归还。
+- UI.UIManager：管理页面与弹窗；窗口 Prefab 通过 IUIAssetLoader 获取和归还。
 
 ## 程序集与导入检查
 

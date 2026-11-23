@@ -41,7 +41,7 @@ internal static class Program
     {
         Object.ResetTestState();
         var manager = GpuAnimatorManager.Instance;
-        manager.AutomaticUpdate = false;
+        GpuAnimatorManager.AutomaticUpdate = false;
         return manager;
     }
 
@@ -74,22 +74,22 @@ internal static class Program
         {
             players[i].Stop();
         }
-        Equal(500, manager.Count);
-        manager.Tick(.1f);
+        Equal(500, GpuAnimatorManager.Count);
+        GpuAnimatorManager.Tick(.1f);
         Equal(500, StoredCount(manager));
         for (int i = 0; i < players.Length; i++)
         {
             Equal(i % 2 == 0 ? 0 : 1, players[i].CurrentFrame);
             players[i].Stop();
         }
-        Equal(0, manager.Count);
+        Equal(0, GpuAnimatorManager.Count);
         Equal(0, StoredCount(manager));
     }
 
     private static void PausedChurn()
     {
         var manager = Manager();
-        manager.IsPaused = true;
+        GpuAnimatorManager.IsPaused = true;
         var survivor = Player();
         var churn = Player();
         for (int i = 0; i < 10000; i++)
@@ -100,7 +100,7 @@ internal static class Program
                 throw new Exception("Replaying a stopped player failed.");
             }
         }
-        Equal(2, manager.Count);
+        Equal(2, GpuAnimatorManager.Count);
         if (StoredCount(manager) > 66)
         {
             throw new Exception("Paused registration churn retained an unbounded tombstone list.");
@@ -123,11 +123,11 @@ internal static class Program
             removed.TryPlay("loop");
         };
         first.TryPlay("loop", loop: false);
-        manager.Tick(1);
-        Equal(2, manager.Count);
+        GpuAnimatorManager.Tick(1);
+        Equal(2, GpuAnimatorManager.Count);
         Equal(0, removed.CurrentFrame);
         Equal(2, last.CurrentFrame);
-        manager.Tick(.1f);
+        GpuAnimatorManager.Tick(.1f);
         Equal(1, removed.CurrentFrame);
         Equal(3, last.CurrentFrame);
         removed.Stop();
@@ -140,9 +140,9 @@ internal static class Program
         var player = Player();
         player.Stop();
         player.TryPlay("loop", loop: false);
-        manager.AnimationCompleted += (current, clip) => GpuAnimatorManager.DestroyInstance();
-        manager.Tick(1);
-        Equal(0, manager.Count);
+        GpuAnimatorManager.SubscribeAnimationCompleted((current, clip) => GpuAnimatorManager.DestroyInstance());
+        GpuAnimatorManager.Tick(1);
+        Equal(0, GpuAnimatorManager.Count);
         Equal(0, StoredCount(manager));
         if (GpuAnimatorManager.TryGetInstance(out _))
         {
@@ -159,12 +159,12 @@ internal static class Program
         }
         for (int i = 0; i < 100; i++)
         {
-            manager.Tick(.1f);
+            GpuAnimatorManager.Tick(.1f);
         }
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int i = 0; i < 1000; i++)
         {
-            manager.Tick(.1f);
+            GpuAnimatorManager.Tick(.1f);
         }
         Equal(0L, GC.GetAllocatedBytesForCurrentThread() - before);
     }
@@ -266,7 +266,7 @@ internal static class Program
                 }
                 samples[sample] = (Stopwatch.GetTimestamp() - start) * 1000.0 / Stopwatch.Frequency;
                 allocated = Math.Max(allocated, GC.GetAllocatedBytesForCurrentThread() - before);
-                Equal(0, manager.Count);
+                Equal(0, GpuAnimatorManager.Count);
             }
             Array.Sort(samples);
             Console.WriteLine("GPU_STOP count=" + count + " samples=5 median_ms=" + samples[2].ToString("F3", System.Globalization.CultureInfo.InvariantCulture) + " max_ms=" + samples[4].ToString("F3", System.Globalization.CultureInfo.InvariantCulture) + " allocated_bytes=" + allocated);

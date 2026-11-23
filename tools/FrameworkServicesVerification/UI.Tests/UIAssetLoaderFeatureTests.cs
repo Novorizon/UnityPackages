@@ -15,7 +15,7 @@ public sealed class UIAssetLoaderFeatureTests : IDisposable
         var second = Prefab("Project B");
         int firstLoads = 0, firstReleases = 0, secondLoads = 0, secondReleases = 0;
         var root = UIManager.Instance;
-        root.SetAssetLoader(new DelegateUIAssetLoader(_ =>
+        UIManager.SetAssetLoader(new DelegateUIAssetLoader(_ =>
         {
             firstLoads++;
             return Task.FromResult<GameObject?>(first);
@@ -24,11 +24,11 @@ public sealed class UIAssetLoaderFeatureTests : IDisposable
             Assert.Same(first, prefab);
             firstReleases++;
         }));
-        var handle = await root.Popups.OpenAsync("project-specific-key");
-        root.Popups.Close(handle);
+        var handle = await UIManager.Popups.OpenAsync("project-specific-key");
+        UIManager.Popups.Close(handle);
         Assert.Equal(1, firstLoads);
         Assert.Equal(0, firstReleases);
-        root.SetAssetLoader(new DelegateUIAssetLoader(_ =>
+        UIManager.SetAssetLoader(new DelegateUIAssetLoader(_ =>
         {
             secondLoads++;
             return Task.FromResult<GameObject?>(second);
@@ -38,7 +38,7 @@ public sealed class UIAssetLoaderFeatureTests : IDisposable
             secondReleases++;
         }));
         Assert.Equal(1, firstReleases);
-        var replacement = await root.Popups.OpenAsync("another-project-key");
+        var replacement = await UIManager.Popups.OpenAsync("another-project-key");
         Assert.True(replacement.IsValid);
         Assert.False(handle.IsValid);
         Object.Destroy(root.gameObject);
@@ -55,13 +55,13 @@ public sealed class UIAssetLoaderFeatureTests : IDisposable
         var pending = new TaskCompletionSource<GameObject?>();
         int lateReleases = 0;
         var root = UIManager.Instance;
-        root.SetAssetLoader(new DelegateUIAssetLoader(_ => pending.Task, prefab =>
+        UIManager.SetAssetLoader(new DelegateUIAssetLoader(_ => pending.Task, prefab =>
         {
             Assert.Same(latePrefab, prefab);
             lateReleases++;
         }));
-        var opening = root.Popups.OpenAsync("late");
-        root.SetAssetLoader(new DelegateUIAssetLoader(_ => Task.FromResult<GameObject?>(currentPrefab), _ =>
+        var opening = UIManager.Popups.OpenAsync("late");
+        UIManager.SetAssetLoader(new DelegateUIAssetLoader(_ => Task.FromResult<GameObject?>(currentPrefab), _ =>
         {
         }));
         Assert.False((await opening).IsValid);
@@ -72,7 +72,7 @@ public sealed class UIAssetLoaderFeatureTests : IDisposable
         }
 
         Assert.Equal(1, lateReleases);
-        var current = await root.Popups.OpenAsync("current");
+        var current = await UIManager.Popups.OpenAsync("current");
         Assert.True(current.IsValid);
         Assert.Equal(1, lateReleases);
     }

@@ -8,8 +8,8 @@
 | --- | --- | --- |
 | 后台结果回到主线程 | UnityThread.Post / RunAsync / SwitchToMainThread | [线程与异步](Threading.md) |
 | 可取消地等待已有任务 | TaskUtil.WaitAsync | [任务、日志与单例](Utilities.md) |
-| 客户端内部业务事件 | EventManager.Instance | [事件与订阅](Events.md) |
-| 延迟、循环、倒计时刷新 | TimerManager.Instance | [定时器与周期结算](Timing.md) |
+| 客户端内部业务事件 | EventManager | [事件与订阅](Events.md) |
+| 延迟、循环、倒计时刷新 | TimerManager | [定时器与周期结算](Timing.md) |
 | 预制体与普通对象复用 | GameObjectPool / `ReferencePool<T>` | [对象池](Pooling.md) |
 | 日志和共享服务 | Logger / `Singleton<T>` / `MonoSingleton<T>` | [任务、日志与单例](Utilities.md) |
 | 登录、请求、服务端通知 | NetworkManager.Instance | [网络指南](Network.md) |

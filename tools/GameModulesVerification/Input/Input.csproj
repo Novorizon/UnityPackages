@@ -4,6 +4,9 @@
     <ProjectReference Include="../Core/Core.csproj" />
     <ProjectReference Include="../Engine/Engine.csproj" />
     <ProjectReference Include="../InputSystem/InputSystem.csproj" />
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>GameModulesVerification</_Parameter1>
+    </AssemblyAttribute>
     <Compile Include="../../../Packages/com.novorizon.input/Runtime/*.cs" />
   </ItemGroup>
 </Project>

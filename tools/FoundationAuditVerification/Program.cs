@@ -146,8 +146,7 @@ internal static class Program
     private static void VerifyTimerFuzz()
     {
         var random = new Random(83921);
-        var timers = new TimerManager();
-        timers.CallbackBudget = TimerManager.MaximumTimers;
+        TimerManager.CallbackBudget = TimerManager.MaximumTimers;
         var pending = new Dictionary<int, double>();
         var handles = new Dictionary<int, TimerHandle>();
         var observed = new List<int>();
@@ -157,7 +156,7 @@ internal static class Program
             int current = id;
             double delay = random.Next(1, 100) / 100.0;
             pending.Add(id, now + delay);
-            handles.Add(id, timers.Schedule(delay, () => observed.Add(current)));
+            handles.Add(id, TimerManager.Schedule(delay, () => observed.Add(current)));
             if (id % 5 == 0)
             {
                 Assert(handles[id].Cancel(), "An active timer must cancel once.");
@@ -172,21 +171,21 @@ internal static class Program
             now += advance;
             int[] expected = pending.Where(pair => pair.Value <= now).OrderBy(pair => pair.Value).ThenBy(pair => pair.Key).Select(pair => pair.Key).ToArray();
             observed.Clear();
-            timers.Update(advance, advance);
+            TimerManager.Update(advance, advance);
             Assert(expected.SequenceEqual(observed), "Timer heap order differs from the deterministic oracle.");
             foreach (int fired in expected)
             {
                 pending.Remove(fired);
                 Assert(!handles[fired].IsActive, "A fired one-shot handle must expire.");
             }
-            Equal(pending.Count, timers.PendingCount);
+            Equal(pending.Count, TimerManager.PendingCount);
         }
         observed.Clear();
         int[] rest = pending.OrderBy(pair => pair.Value).ThenBy(pair => pair.Key).Select(pair => pair.Key).ToArray();
-        timers.Update(2, 2);
+        TimerManager.Update(2, 2);
         Assert(rest.SequenceEqual(observed), "Final timer drain differs from the oracle.");
-        Equal(0, timers.PendingCount);
-        timers.Dispose();
+        Equal(0, TimerManager.PendingCount);
+        TimerManager.Instance.Dispose();
         passed++;
     }
 
@@ -237,23 +236,22 @@ internal static class Program
 
     private static void VerifyEventSnapshotAndUnsubscription()
     {
-        var events = new EventManager();
         int first = 0;
         int second = 0;
         ISubscription retired = null;
-        using (events.Subscribe(Topic.Changed, () =>
+        using (EventManager.Subscribe(Topic.Changed, () =>
         {
             first++;
             retired.Dispose();
         }))
         {
-            retired = events.Subscribe(Topic.Changed, () => second++);
-            events.Notify(Topic.Changed);
-            events.Notify(Topic.Changed);
+            retired = EventManager.Subscribe(Topic.Changed, () => second++);
+            EventManager.Notify(Topic.Changed);
+            EventManager.Notify(Topic.Changed);
             Equal(2, first);
             Equal(0, second);
         }
-        events.Clear();
+        EventManager.Clear();
         passed++;
     }
 
@@ -278,41 +276,40 @@ internal static class Program
 
     private static void VerifyTypedMessagesPreserveTheirContracts()
     {
-        var events = new EventManager();
         Enum erasedTopic = Topic.Changed;
         int values = 0;
         int references = 0;
         Action<ValueMessage> addValue = message => values += message.Value;
-        using (events.Subscribe<ValueMessage>(erasedTopic, addValue))
-        using (events.Subscribe<Topic, ValueMessage>(Topic.Changed, message => message.Value > 1, message => values += message.Value * 10))
-        using (events.Subscribe<ReferenceMessage>(erasedTopic, message => references += message.Value))
+        using (EventManager.Subscribe<ValueMessage>(erasedTopic, addValue))
+        using (EventManager.Subscribe<Topic, ValueMessage>(Topic.Changed, message => message.Value > 1, message => values += message.Value * 10))
+        using (EventManager.Subscribe<ReferenceMessage>(erasedTopic, message => references += message.Value))
         {
-            events.Notify(Topic.Changed, new ValueMessage(1));
+            EventManager.Notify(Topic.Changed, new ValueMessage(1));
             Equal(1, values);
-            events.Notify<ValueMessage>(erasedTopic, new ValueMessage(2));
+            EventManager.Notify<ValueMessage>(erasedTopic, new ValueMessage(2));
             Equal(23, values);
-            events.Notify<Topic, ReferenceMessage>(Topic.Changed, null);
+            EventManager.Notify<Topic, ReferenceMessage>(Topic.Changed, null);
             Equal(0, references);
-            events.Notify(Topic.Changed, new ReferenceMessage());
+            EventManager.Notify(Topic.Changed, new ReferenceMessage());
             Equal(1, references);
-            events.Unsubscribe(Topic.Changed, addValue);
-            events.Notify(Topic.Changed, new ValueMessage(3));
+            EventManager.Unsubscribe(Topic.Changed, addValue);
+            EventManager.Notify(Topic.Changed, new ValueMessage(3));
             Equal(53, values);
-            events.Clear();
-            events.Notify(Topic.Changed, new ValueMessage(4));
+            EventManager.Clear();
+            EventManager.Notify(Topic.Changed, new ValueMessage(4));
             Equal(53, values);
         }
 
-        using (events.Subscribe<Topic, ValueMessage>(Topic.Changed, addValue))
+        using (EventManager.Subscribe<Topic, ValueMessage>(Topic.Changed, addValue))
         {
             for (int i = 0; i < 1000; i++)
             {
-                events.Notify(Topic.Changed, new ValueMessage(1));
+                EventManager.Notify(Topic.Changed, new ValueMessage(1));
             }
             long before = GC.GetAllocatedBytesForCurrentThread();
             for (int i = 0; i < 10000; i++)
             {
-                events.Notify(Topic.Changed, new ValueMessage(1));
+                EventManager.Notify(Topic.Changed, new ValueMessage(1));
             }
             Equal(0L, GC.GetAllocatedBytesForCurrentThread() - before);
         }
@@ -321,18 +318,17 @@ internal static class Program
 
     private static void VerifyPostedTypedSnapshots()
     {
-        var events = new EventManager();
         int first = 0;
         int second = 0;
-        var old = events.Subscribe<Topic, ValueMessage>(Topic.Changed, message => first += message.Value);
-        Task.Run(() => events.Notify(Topic.Changed, new ValueMessage(7))).GetAwaiter().GetResult();
+        var old = EventManager.Subscribe<Topic, ValueMessage>(Topic.Changed, message => first += message.Value);
+        Task.Run(() => EventManager.Notify(Topic.Changed, new ValueMessage(7))).GetAwaiter().GetResult();
         old.Dispose();
-        using (events.Subscribe<Topic, ValueMessage>(Topic.Changed, message => second += message.Value))
+        using (EventManager.Subscribe<Topic, ValueMessage>(Topic.Changed, message => second += message.Value))
         {
             UnityThread.Update();
             Equal(0, first);
             Equal(0, second);
-            Task.Run(() => events.Notify(Topic.Changed, new ValueMessage(3))).GetAwaiter().GetResult();
+            Task.Run(() => EventManager.Notify(Topic.Changed, new ValueMessage(3))).GetAwaiter().GetResult();
             UnityThread.Update();
             Equal(3, second);
         }
@@ -362,19 +358,18 @@ internal static class Program
     private static void Benchmarks()
     {
         var results = new List<Measurement>();
-        var events = new EventManager();
         var reference = new ReferenceMessage();
-        using (events.Subscribe(Topic.Changed, () => consumed++))
+        using (EventManager.Subscribe(Topic.Changed, () => consumed++))
         {
-            results.Add(Measure("EventManager.Notify/no-payload", 100000, () => events.Notify(Topic.Changed), true));
+            results.Add(Measure("EventManager.Notify/no-payload", 100000, () => EventManager.Notify(Topic.Changed), true));
         }
-        using (events.Subscribe<Topic, ReferenceMessage>(Topic.Changed, message => consumed += message.Value))
+        using (EventManager.Subscribe<Topic, ReferenceMessage>(Topic.Changed, message => consumed += message.Value))
         {
-            results.Add(Measure("EventManager.Notify/reference-message", 100000, () => events.Notify(Topic.Changed, reference), true));
+            results.Add(Measure("EventManager.Notify/reference-message", 100000, () => EventManager.Notify(Topic.Changed, reference), true));
         }
-        using (events.Subscribe<Topic, ValueMessage>(Topic.Changed, message => consumed += message.Value))
+        using (EventManager.Subscribe<Topic, ValueMessage>(Topic.Changed, message => consumed += message.Value))
         {
-            results.Add(Measure("EventManager.Notify/value-message", 100000, () => events.Notify(Topic.Changed, new ValueMessage(1)), true));
+            results.Add(Measure("EventManager.Notify/value-message", 100000, () => EventManager.Notify(Topic.Changed, new ValueMessage(1)), true));
         }
         var bus = new MessageBus();
         bus.Subscribe<ValueMessage>(message => consumed += message.Value);
@@ -406,20 +401,19 @@ internal static class Program
                 Equal(1, queue.Pump());
             }, true));
         }
-        var timers = new TimerManager();
-        timers.Schedule(0, callback);
-        timers.Update(0, 0);
-        results.Add(Measure("TimerManager.Schedule+Cancel/cached-entry", 100000, () => timers.Schedule(10, callback).Cancel(), true));
-        results.Add(Measure("TimerManager.Update/empty", 100000, () => timers.Update(0, 0), true));
+        TimerManager.Schedule(0, callback);
+        TimerManager.Update(0, 0);
+        results.Add(Measure("TimerManager.Schedule+Cancel/cached-entry", 100000, () => TimerManager.Schedule(10, callback).Cancel(), true));
+        results.Add(Measure("TimerManager.Update/empty", 100000, () => TimerManager.Update(0, 0), true));
         TimerHandle last = default;
         for (int i = 0; i < TimerManager.MaximumTimers; i++)
         {
-            last = timers.Schedule(10000, callback);
+            last = TimerManager.Schedule(10000, callback);
         }
-        results.Add(Measure("TimerManager.Update/65536-future-timers", 100000, () => timers.Update(0, 0), true));
+        results.Add(Measure("TimerManager.Update/65536-future-timers", 100000, () => TimerManager.Update(0, 0), true));
         Assert(last.Cancel(), "One capacity slot must be available for the heap exercise.");
-        results.Add(Measure("TimerManager.Schedule+Cancel/65535-future-timers", 100000, () => timers.Schedule(1, callback).Cancel(), true));
-        timers.Dispose();
+        results.Add(Measure("TimerManager.Schedule+Cancel/65535-future-timers", 100000, () => TimerManager.Schedule(1, callback).Cancel(), true));
+        TimerManager.Instance.Dispose();
         Console.WriteLine("FOUNDATION_PERFORMANCE_JSON " + JsonSerializer.Serialize(new
         {
             runtime = RuntimeInformation.FrameworkDescription,

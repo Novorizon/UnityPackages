@@ -14,6 +14,76 @@ namespace UI
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, "UI", "Game.Framework.UI", "UIRoot")]
     public sealed partial class UIManager : MonoSingleton<UIManager>
     {
+        /// <summary>设置设置。</summary>
+        public static void SetSettings(UISettings uiSettings) =>
+            Instance.SetSettingsInternal(uiSettings);
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static void SetEventSystem(EventSystem? eventSystem) =>
+            Instance.SetEventSystemInternal(eventSystem);
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static void SetCamera(Camera? camera) =>
+            Instance.SetCameraInternal(camera);
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static void RefreshPlatform() =>
+            Instance.RefreshPlatformInternal();
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static void SetAssetLoader(IUIAssetLoader assetLoader) =>
+            Instance.SetAssetLoaderInternal(assetLoader);
+
+        /// <summary>清理当前缓存项。</summary>
+        public static void ClearCache()
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.ClearCacheInternal();
+            }
+        }
+
+        /// <summary>重置全部。</summary>
+        public static void ResetAll()
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.ResetAllInternal();
+            }
+        }
+
+        /// <summary>关闭已存在的 UI 组件。重复请求等待同一个关闭任务。</summary>
+        public static Task ShutdownAsync() =>
+            TryGetInstance(out var current) ? current.ShutdownAsyncInternal() : Task.CompletedTask;
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static bool HandleBack() =>
+            Instance.HandleBackInternal();
+
+        /// <summary>在当前组件上执行操作。</summary>
+        public static Task<bool> HandleBackAsync(CancellationToken cancellationToken = default) =>
+            Instance.HandleBackAsyncInternal(cancellationToken);
+
+        public static UIMessageBus Bus => Instance.bus;
+
+        public static PageNavigator Pages => Instance.pages;
+
+        public static PopupManager Popups => Instance.popups;
+
+        public static PanelManager Panels => Instance.panels;
+
+        public static OverlayManager Overlays => Instance.overlays;
+
+        public static ToastManager Toasts => Instance.toasts;
+
+        public static DialogManager Dialogs => Instance.dialogs;
+
+        public static bool IsInitialized => TryGetInstance(out var current) ? current.IsReady : false;
+
+        public static int ActiveViewCount => TryGetInstance(out var current) ? current.activeViewCount : 0;
+
+        public static int CachedViewCount => TryGetInstance(out var current) ? current.cachedViewCount : 0;
+
         static bool quitting;
         internal static bool IsQuitting => quitting;
 
@@ -32,13 +102,13 @@ namespace UI
 
         [SerializeField]
         UISettings? settings = null;
-        public UIMessageBus Bus { get; } = new UIMessageBus();
-        public PageNavigator Pages { get; private set; } = null !;
-        public PopupManager Popups { get; private set; } = null !;
-        public PanelManager Panels { get; private set; } = null !;
-        public OverlayManager Overlays { get; private set; } = null !;
-        public ToastManager Toasts { get; private set; } = null !;
-        public DialogManager Dialogs { get; private set; } = null !;
+        private UIMessageBus bus { get; } = new UIMessageBus();
+        private PageNavigator pages { get; set; } = null !;
+        private PopupManager popups { get; set; } = null !;
+        private PanelManager panels { get; set; } = null !;
+        private OverlayManager overlays { get; set; } = null !;
+        private ToastManager toasts { get; set; } = null !;
+        private DialogManager dialogs { get; set; } = null !;
 
         BackRequest? pendingBack;
         CancellationTokenSource? backLifetime;
@@ -174,9 +244,9 @@ namespace UI
         bool destroyed, rebuilding, initialized, initializing, platformSubscribed, shuttingDown, warnedMissingInput;
         Task shutdownCompletion = Task.CompletedTask;
         readonly List<Task> retiredFactories = new();
-        public bool IsInitialized => initialized && !destroyed && !shuttingDown;
-        public int ActiveViewCount => factory?.ActiveCount ?? 0;
-        public int CachedViewCount => factory?.CachedCount ?? 0;
+        private bool IsReady => initialized && !destroyed && !shuttingDown;
+        private int activeViewCount => factory?.ActiveCount ?? 0;
+        private int cachedViewCount => factory?.CachedCount ?? 0;
 
         protected override void Awake()
         {
@@ -235,7 +305,7 @@ namespace UI
                 CreateManagers(factory?.NextId ?? 1);
                 SubscribePlatform();
                 initialized = true;
-                RefreshPlatform();
+                RefreshPlatformInternal();
             }
             catch
             {
@@ -266,34 +336,38 @@ namespace UI
             }
         }
 
-        public void SetSettings(UISettings uiSettings)
+        /// <summary>设置设置。</summary>
+        private void SetSettingsInternal(UISettings uiSettings)
         {
             ThrowIfUnavailable();
             settings = uiSettings != null ? uiSettings : throw new ArgumentNullException(nameof(uiSettings));
             Initialize();
             EnsureCanvasHierarchy();
             factory?.SetCacheLimits(Math.Max(0, settings.maxCachedInstances), Math.Max(0, settings.maxCachedPerPath));
-            RefreshPlatform();
+            RefreshPlatformInternal();
         }
 
         /// <summary>Use a project-owned system without taking ownership. Null restores automatic discovery.</summary>
-        public void SetEventSystem(EventSystem? eventSystem)
+        /// <remarks>设置事件系统。</remarks>
+        private void SetEventSystemInternal(EventSystem? eventSystem)
         {
             ThrowIfUnavailable();
             preferredEventSystem = eventSystem;
-            RefreshPlatform();
+            RefreshPlatformInternal();
         }
 
         /// <summary>Use an explicit UI camera. Null restores configured Overlay/MainCamera mode.</summary>
-        public void SetCamera(Camera? camera)
+        /// <remarks>设置摄像机。</remarks>
+        private void SetCameraInternal(Camera? camera)
         {
             ThrowIfUnavailable();
             explicitCamera = camera;
-            RefreshPlatform();
+            RefreshPlatformInternal();
         }
 
         /// <summary>Refresh scene dependencies after a runtime camera or input-system change.</summary>
-        public void RefreshPlatform()
+        /// <remarks>刷新平台。</remarks>
+        private void RefreshPlatformInternal()
         {
             ThrowIfUnavailable();
             if (!initialized && !initializing)
@@ -337,7 +411,7 @@ namespace UI
         {
             if (!quitting && initialized)
             {
-                RefreshPlatform();
+                RefreshPlatformInternal();
             }
         }
 
@@ -345,7 +419,7 @@ namespace UI
         {
             if (!quitting && initialized)
             {
-                RefreshPlatform();
+                RefreshPlatformInternal();
             }
         }
 
@@ -353,7 +427,7 @@ namespace UI
         {
             if (!quitting && initialized)
             {
-                RefreshPlatform();
+                RefreshPlatformInternal();
             }
         }
 
@@ -384,7 +458,8 @@ namespace UI
         }
 
         /// <summary>Close all views and release the old loader's leases before switching.</summary>
-        public void SetAssetLoader(IUIAssetLoader assetLoader)
+        /// <remarks>为页面和弹窗等视图提供资源加载器。</remarks>
+        private void SetAssetLoaderInternal(IUIAssetLoader assetLoader)
         {
             ThrowIfUnavailable();
             if (assetLoader == null)
@@ -395,8 +470,10 @@ namespace UI
             RecreateManagers(assetLoader, clearBus: false);
         }
 
-        public void ClearCache() => factory?.ClearCache();
-        public void ResetAll()
+        /// <summary>清理当前缓存项。</summary>
+        private void ClearCacheInternal() => factory?.ClearCache();
+        /// <summary>重置全部。</summary>
+        private void ResetAllInternal()
         {
             if (destroyed || quitting)
             {
@@ -426,7 +503,7 @@ namespace UI
 
                 if (clearBus)
                 {
-                    Bus.Clear();
+                    bus.Clear();
                 }
 
                 loader = assetLoader;
@@ -441,12 +518,12 @@ namespace UI
         void CreateManagers(int startId)
         {
             factory = new UIInstanceFactory(loader, layerRoots, startId, settings != null ? Math.Max(0, settings.maxCachedInstances) : 32, settings != null ? Math.Max(0, settings.maxCachedPerPath) : 2);
-            Pages = new PageNavigator(factory);
-            Popups = new PopupManager(factory);
-            Panels = new PanelManager(factory);
-            Overlays = new OverlayManager(factory);
-            Toasts = new ToastManager(factory);
-            Dialogs = new DialogManager(Popups);
+            pages = new PageNavigator(factory);
+            popups = new PopupManager(factory);
+            panels = new PanelManager(factory);
+            overlays = new OverlayManager(factory);
+            toasts = new ToastManager(factory);
+            dialogs = new DialogManager(popups);
             StopBackRequests();
             backLifetime = new CancellationTokenSource();
         }
@@ -496,7 +573,7 @@ namespace UI
 
                 shutdownCompletion = Task.WhenAll(retiredFactories);
                 retiredFactories.Clear();
-                Bus.Clear();
+                bus.Clear();
                 initialized = false;
                 currentEventSystem = preferredEventSystem = null;
                 if (ownedEventSystem != null)
@@ -527,7 +604,8 @@ namespace UI
         }
 
         /// <summary>关闭所有窗口，等待未完成加载及原生对象销毁后释放的 prefab 租约。</summary>
-        public Task ShutdownAsync()
+        /// <remarks>关闭 UI，并返回可等待的资源清理任务。</remarks>
+        private Task ShutdownAsyncInternal()
         {
             Shutdown();
             return shutdownCompletion;
@@ -540,7 +618,8 @@ namespace UI
         }
 
         /// <summary>Consumes Back at the highest eligible layer, including a veto or active input gate.</summary>
-        public bool HandleBack()
+        /// <remarks>处理返回。</remarks>
+        private bool HandleBackInternal()
         {
             if (destroyed || quitting || shuttingDown || rebuilding || !initialized)
             {
@@ -552,12 +631,12 @@ namespace UI
                 return true;
             }
 
-            if (Overlays.IsBlocking)
+            if (overlays.IsBlocking)
             {
                 return true;
             }
 
-            UIHandle? popup = Popups.Peek();
+            UIHandle? popup = popups.Peek();
             if (popup.HasValue)
             {
                 if (popup.Value.View!.CloseGuard != null)
@@ -566,13 +645,13 @@ namespace UI
                 }
                 else
                 {
-                    Popups.CloseTop(UICloseReason.Back);
+                    popups.CloseTop(UICloseReason.Back);
                 }
 
                 return true;
             }
 
-            UIHandle? panel = Panels.PeekBackClosablePanel();
+            UIHandle? panel = panels.PeekBackClosablePanel();
             if (panel.HasValue)
             {
                 if (panel.Value.View!.CloseGuard != null)
@@ -581,21 +660,21 @@ namespace UI
                 }
                 else
                 {
-                    Panels.HideAnyBackClosablePanel();
+                    panels.HideAnyBackClosablePanel();
                 }
 
                 return true;
             }
 
-            if (Pages.Count > 1)
+            if (pages.Count > 1)
             {
-                if (Pages.Peek()!.Value.View!.CloseGuard != null)
+                if (pages.Peek()!.Value.View!.CloseGuard != null)
                 {
                     StartBackConfirmation();
                 }
                 else
                 {
-                    Pages.Pop(UICloseReason.Back);
+                    pages.Pop(UICloseReason.Back);
                 }
 
                 return true;
@@ -604,7 +683,9 @@ namespace UI
             return false;
         }
 
-        void StartBackConfirmation() => _ = ObserveBackAsync(HandleBackAsync());
+        /// <summary>启动返回 Confirmation。</summary>
+        void StartBackConfirmation() => _ = ObserveBackAsync(HandleBackAsyncInternal());
+        /// <summary>异步观察返回。</summary>
         static async Task ObserveBackAsync(Task<bool> operation)
         {
             try
@@ -618,7 +699,8 @@ namespace UI
         }
 
         /// <summary>Repeated Back shares one attempt; cancellation only abandons that caller's wait.</summary>
-        public Task<bool> HandleBackAsync(CancellationToken cancellationToken = default)
+        /// <remarks>异步处理一次返回操作，并报告是否有 UI 消费了它。</remarks>
+        private Task<bool> HandleBackAsyncInternal(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (destroyed || quitting || shuttingDown || rebuilding || !initialized || backLifetime == null)
@@ -637,7 +719,7 @@ namespace UI
                 return RetryAfterBackCleanupAsync(request, backLifetime, cancellationToken);
             }
 
-            request = new BackRequest(backLifetime.Token, Dialogs);
+            request = new BackRequest(backLifetime.Token, dialogs);
             if (!request.TryJoin(out BackWaiter? waiter))
             {
                 request.Finish(false, null);
@@ -683,7 +765,7 @@ namespace UI
                 return false;
             }
 
-            return await HandleBackAsync(cancellationToken);
+            return await HandleBackAsyncInternal(cancellationToken);
         }
 
         async Task CompleteBackAsync(BackRequest request)
@@ -728,26 +810,26 @@ namespace UI
 
         async Task<bool> HandleBackCoreAsync(CancellationToken cancellationToken)
         {
-            if (Overlays.IsBlocking)
+            if (overlays.IsBlocking)
             {
                 return true;
             }
 
-            if (Popups.Peek().HasValue)
+            if (popups.Peek().HasValue)
             {
-                await Popups.CloseTopAsync(UICloseReason.Back, cancellationToken);
+                await popups.CloseTopAsync(UICloseReason.Back, cancellationToken);
                 return true;
             }
 
-            if (Panels.PeekBackClosablePanel().HasValue)
+            if (panels.PeekBackClosablePanel().HasValue)
             {
-                await Panels.HideAnyBackClosablePanelAsync(cancellationToken);
+                await panels.HideAnyBackClosablePanelAsync(cancellationToken);
                 return true;
             }
 
-            if (Pages.Count > 1)
+            if (pages.Count > 1)
             {
-                await Pages.PopAsync(UICloseReason.Back, cancellationToken);
+                await pages.PopAsync(UICloseReason.Back, cancellationToken);
                 return true;
             }
 

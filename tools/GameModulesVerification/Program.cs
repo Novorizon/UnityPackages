@@ -87,10 +87,8 @@ internal static partial class Program
 
         Run("parameterless initialization dispatches through singleton bases to actual services", () =>
         {
-            using var data = new DataManager();
-            Singleton<DataManager> commonData = data;
-            commonData.Initialize();
-            True(data.Initialized);
+            DataManager.Initialize();
+            True(DataManager.Initialized);
             using var scenes = new Scenes();
             Singleton<Scenes> commonScenes = scenes;
             commonScenes.Initialize();
@@ -104,13 +102,13 @@ internal static partial class Program
         Run("storage writes real files, retains a backup and recovers a missing main file", () =>
         {
             using var storage = new StorageFixture();
-            storage.Manager.SaveText("saves/profile.txt", "first");
-            storage.Manager.SaveText("saves/profile.txt", "第二次");
-            Equal("第二次", storage.Manager.LoadText("saves/profile.txt"));
+            LocalStorage.SaveText("saves/profile.txt", "first");
+            LocalStorage.SaveText("saves/profile.txt", "第二次");
+            Equal("第二次", LocalStorage.LoadText("saves/profile.txt"));
             File.Delete(Path.Combine(storage.Root, "saves/profile.txt"));
-            Equal("first", storage.Manager.LoadText("saves/profile.txt"));
-            storage.Manager.Delete("saves/profile.txt");
-            True(!storage.Manager.Exists("saves/profile.txt"));
+            Equal("first", LocalStorage.LoadText("saves/profile.txt"));
+            LocalStorage.Delete("saves/profile.txt");
+            True(!LocalStorage.Exists("saves/profile.txt"));
             Equal(0, Directory.GetFiles(storage.Root, "*.tmp-*", SearchOption.AllDirectories).Length);
         });
         Run("storage rejects traversal and transaction-file aliases", () =>
@@ -133,37 +131,37 @@ internal static partial class Program
 
             )
             {
-                Throws<ArgumentException>(() => storage.Manager.SaveText(key, "invalid"));
+                Throws<ArgumentException>(() => LocalStorage.SaveText(key, "invalid"));
             }
 
-            storage.Manager.SaveBytes("bytes.bin", new byte[] { 0, 1, 255 });
-            Equal("0,1,255", string.Join(",", storage.Manager.LoadBytes("bytes.bin")));
+            LocalStorage.SaveBytes("bytes.bin", new byte[] { 0, 1, 255 });
+            Equal("0,1,255", string.Join(",", LocalStorage.LoadBytes("bytes.bin")));
         });
         Run("storage JSON migration is explicit and never overwrites the original", () =>
         {
             using var storage = new StorageFixture();
-            storage.Manager.SaveJson("settings.json", new Row { id = 1 }, 1);
-            string original = storage.Manager.LoadText("settings.json");
-            var row = storage.Manager.LoadJson<Row>("settings.json", 2, (version, json) =>
+            LocalStorage.SaveJson("settings.json", new Row { id = 1 }, 1);
+            string original = LocalStorage.LoadText("settings.json");
+            var row = LocalStorage.LoadJson<Row>("settings.json", 2, (version, json) =>
             {
                 Equal(1, version);
                 return "{\"id\":2}";
             });
             Equal(2, row.id);
-            Equal(original, storage.Manager.LoadText("settings.json"));
-            Throws<InvalidDataException>(() => storage.Manager.LoadJson<Row>("settings.json", 2));
-            Throws<ArgumentNullException>(() => storage.Manager.SaveJson<Row>("settings.json", null));
-            Equal(original, storage.Manager.LoadText("settings.json"));
+            Equal(original, LocalStorage.LoadText("settings.json"));
+            Throws<InvalidDataException>(() => LocalStorage.LoadJson<Row>("settings.json", 2));
+            Throws<ArgumentNullException>(() => LocalStorage.SaveJson<Row>("settings.json", null));
+            Equal(original, LocalStorage.LoadText("settings.json"));
         });
         Run("storage detects invalid and future records and refuses root changes", () =>
         {
             using var storage = new StorageFixture();
-            storage.Manager.SaveText("bad.json", "{}");
-            Throws<InvalidDataException>(() => storage.Manager.LoadJson<Row>("bad.json"));
-            storage.Manager.SaveJson("future.json", new Row(), 3);
-            Throws<InvalidDataException>(() => storage.Manager.LoadJson<Row>("future.json", 2, (_, json) => json));
-            Throws<InvalidOperationException>(() => storage.Manager.Initialize(storage.Root + "other"));
-            storage.Manager.Initialize(storage.Root);
+            LocalStorage.SaveText("bad.json", "{}");
+            Throws<InvalidDataException>(() => LocalStorage.LoadJson<Row>("bad.json"));
+            LocalStorage.SaveJson("future.json", new Row(), 3);
+            Throws<InvalidDataException>(() => LocalStorage.LoadJson<Row>("future.json", 2, (_, json) => json));
+            Throws<InvalidOperationException>(() => LocalStorage.Initialize(storage.Root + "other"));
+            LocalStorage.Initialize(storage.Root);
         });
         Run("build scene loading, activation and external unload keep ownership synchronized", () =>
         {
@@ -253,11 +251,11 @@ internal static partial class Program
         Run("audio shares Framework singleton and old handles cannot stop reused sources", () =>
         {
             var manager = AudioManager.Instance;
-            var first = manager.Play(new AudioClip());
+            var first = AudioManager.Play(new AudioClip());
             var source = Sources()[0];
             first.Stop();
             True(!first.IsValid);
-            var next = manager.Play(new AudioClip());
+            var next = AudioManager.Play(new AudioClip());
             Same(source, Sources()[0]);
             first.Stop();
             True(next.IsValid && source.isPlaying);
@@ -265,24 +263,24 @@ internal static partial class Program
         Run("audio applies master, group and voice volume and honors capacity", () =>
         {
             var manager = AudioManager.Instance;
-            manager.MaxVoices = 1;
-            var handle = manager.Play(new AudioClip(), AudioGroup.Music, volume: .5f);
-            manager.MasterVolume = .5f;
-            manager.SetGroupVolume(AudioGroup.Music, .5f);
+            AudioManager.MaxVoices = 1;
+            var handle = AudioManager.Play(new AudioClip(), AudioGroup.Music, volume: .5f);
+            AudioManager.MasterVolume = .5f;
+            AudioManager.SetGroupVolume(AudioGroup.Music, .5f);
             Equal(.125f, Sources()[0].volume);
-            True(!manager.TryPlay(new AudioClip(), out _));
+            True(!AudioManager.TryPlay(new AudioClip(), out _));
             handle.SetVolume(1);
             Equal(.25f, Sources()[0].volume);
-            Throws<ArgumentOutOfRangeException>(() => manager.MasterVolume = float.NaN);
+            Throws<ArgumentOutOfRangeException>(() => AudioManager.MasterVolume = float.NaN);
         });
         Run("audio pauses survive ticks and global resume retains individually paused voices", () =>
         {
             var manager = AudioManager.Instance;
-            var first = manager.Play(new AudioClip());
-            var second = manager.Play(new AudioClip());
+            var first = AudioManager.Play(new AudioClip());
+            var second = AudioManager.Play(new AudioClip());
             first.Pause();
-            manager.PauseAll();
-            manager.ResumeAll();
+            AudioManager.PauseAll();
+            AudioManager.ResumeAll();
             Tick(manager);
             True(first.IsValid && second.IsValid);
             True(!Sources()[0].isPlaying && Sources()[1].isPlaying);
@@ -290,7 +288,7 @@ internal static partial class Program
             True(Sources()[0].isPlaying);
             AudioListener.pause = true;
             Tick(manager);
-            Equal(2, manager.PlayingCount);
+            Equal(2, AudioManager.PlayingCount);
             AudioListener.pause = false;
         });
         Run("audio completion recycles before callbacks and reentrant play remains valid", () =>
@@ -298,11 +296,11 @@ internal static partial class Program
             var manager = AudioManager.Instance;
             AudioHandle next = default;
             int calls = 0;
-            var first = manager.Play(new AudioClip(), completed: old =>
+            var first = AudioManager.Play(new AudioClip(), completed: old =>
             {
                 calls++;
                 True(!old.IsValid);
-                next = manager.Play(new AudioClip());
+                next = AudioManager.Play(new AudioClip());
             });
             Sources()[0].FinishForTest();
             Tick(manager);
@@ -314,24 +312,24 @@ internal static partial class Program
         Run("audio 3D reuse resets source mode and group stop preserves other voices", () =>
         {
             var manager = AudioManager.Instance;
-            manager.Play(new AudioClip(), AudioGroup.Music, loop: true, position: new Vector3(2, 3, 4));
+            AudioManager.Play(new AudioClip(), AudioGroup.Music, loop: true, position: new Vector3(2, 3, 4));
             Equal(1f, Sources()[0].spatialBlend);
-            manager.StopAll(AudioGroup.Music);
-            manager.Play(new AudioClip(), AudioGroup.Sound);
-            manager.Play(new AudioClip(), AudioGroup.Music);
+            AudioManager.StopAll(AudioGroup.Music);
+            AudioManager.Play(new AudioClip(), AudioGroup.Sound);
+            AudioManager.Play(new AudioClip(), AudioGroup.Music);
             Equal(0f, Sources()[0].spatialBlend);
             True(!Sources()[0].loop);
-            manager.StopAll(AudioGroup.Sound);
-            Equal(1, manager.PlayingCount);
+            AudioManager.StopAll(AudioGroup.Sound);
+            Equal(1, AudioManager.PlayingCount);
         });
         Run("audio destruction clears sources and cannot resurrect through an old handle", () =>
         {
             var manager = AudioManager.Instance;
-            var handle = manager.Play(new AudioClip());
+            var handle = AudioManager.Play(new AudioClip());
             AudioManager.DestroyInstance();
             True(!handle.IsValid);
             Equal(0, Sources().Length);
-            Equal(0, AudioManager.Instance.PlayingCount);
+            Equal(0, AudioManager.PlayingCount);
         });
         Run("resource shutdown continues past a failed scene unload and retains live assets for retry", () =>
         {
@@ -408,12 +406,17 @@ internal static partial class Program
             nextLoader.Pending[0].SetResult(NativeScenes.CreateForTest("new"));
             Complete(nextLoad);
         });
-        Run("storage reset invalidates old references without deleting files", () =>
+        Run("storage reset allows another directory without deleting files", () =>
         {
             using var storage = new StorageFixture();
-            storage.Manager.SaveText("kept.txt", "keep");
-            storage.Manager.Dispose();
-            Throws<ObjectDisposedException>(() => storage.Manager.LoadText("kept.txt"));
+            LocalStorage.SaveText("kept.txt", "keep");
+            LocalStorage.Reset();
+            Throws<InvalidOperationException>(() => LocalStorage.LoadText("kept.txt"));
+            LocalStorage.Initialize(Path.Combine(storage.Root, "other"));
+            True(!LocalStorage.Exists("kept.txt"));
+            LocalStorage.Reset();
+            LocalStorage.Initialize(storage.Root);
+            Equal("keep", LocalStorage.LoadText("kept.txt"));
             True(File.Exists(Path.Combine(storage.Root, "kept.txt")));
         });
         Run("disposing a loader during loading retains a successful scene until native unload", () =>
@@ -460,7 +463,7 @@ internal static partial class Program
         context.Until(() => operations.CurrentCount == 1);
         // This harness owns the services it creates, just as the game entry does.
         InputManager.Release();
-        DataManager.Release();
+        DataManager.Reset();
         Scenes.Release();
         Complete(ResourceManager.ShutdownAsync());
         ResourceManager.Dispose();
@@ -527,9 +530,12 @@ internal static partial class Program
     private sealed class StorageFixture : IDisposable
     {
         internal readonly string Root = Path.Combine(Path.GetTempPath(), "novorizon-storage-" + Guid.NewGuid().ToString("N"));
-        internal readonly LocalStorageManager Manager = new LocalStorageManager();
-        internal StorageFixture() => Manager.Initialize(Root);
-        public void Dispose() => Directory.Delete(Root, true);
+        internal StorageFixture() => LocalStorage.Initialize(Root);
+        public void Dispose()
+        {
+            LocalStorage.Reset();
+            Directory.Delete(Root, true);
+        }
     }
 
     private sealed class ControlledScenes : Game.Framework.Scenes.ISceneLoader, IDisposable

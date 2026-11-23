@@ -16,20 +16,20 @@ namespace UI
         void OnEnable() => ApplyConfiguration();
         void ApplyConfiguration()
         {
-            UIManager root = UIManager.Instance;
+            _ = UIManager.Instance;
             if (settings != null)
             {
-                root.SetSettings(settings);
+                UIManager.SetSettings(settings);
             }
 
             if (uiCamera != null)
             {
-                root.SetCamera(uiCamera);
+                UIManager.SetCamera(uiCamera);
             }
 
             if (eventSystem != null)
             {
-                root.SetEventSystem(eventSystem);
+                UIManager.SetEventSystem(eventSystem);
             }
         }
     }

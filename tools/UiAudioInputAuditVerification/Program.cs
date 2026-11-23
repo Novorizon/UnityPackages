@@ -130,7 +130,7 @@ internal static class Program
         Task<string> nested = null;
         bool invoked = false;
         bool overrideRejected = false;
-        using var subscription = input.Subscribe(
+        using var subscription = input.SubscribeInternal(
             "Move",
             null,
             _ =>
@@ -150,10 +150,10 @@ internal static class Program
                 }
                 else
                 {
-                    nested = input.RebindAsync("Move", 0);
+                    nested = input.RebindAsyncInternal("Move", 0);
                     try
                     {
-                        input.LoadBindingOverrides("{}");
+                        input.LoadBindingOverridesInternal("{}");
                     }
                     catch (InvalidOperationException)
                     {
@@ -162,7 +162,7 @@ internal static class Program
                 }
             });
         var previousOperation = InputActionRebindingExtensions.LastForTest;
-        var outer = input.RebindAsync("Move", 0, cancel.Token);
+        var outer = input.RebindAsyncInternal("Move", 0, cancel.Token);
         Require(invoked, "The model action must dispatch its canceled notification.");
         if (scenario == 0)
         {
@@ -172,7 +172,7 @@ internal static class Program
             InputActionRebindingExtensions.LastForTest.CompleteForTest();
             ((Pump)SynchronizationContext.Current).Wait(outer);
             outer.GetAwaiter().GetResult();
-            Require(input.FindAction("Move").enabled, "A completed rebind must restore the requested map state.");
+            Require(input.FindActionInternal("Move").enabled, "A completed rebind must restore the requested map state.");
         }
         else
         {
@@ -184,7 +184,7 @@ internal static class Program
             else
             {
                 Expect<OperationCanceledException>(() => outer.GetAwaiter().GetResult());
-                Require(input.FindAction("Move").enabled, "An early cancellation must restore map state.");
+                Require(input.FindActionInternal("Move").enabled, "An early cancellation must restore map state.");
             }
         }
     }
@@ -192,7 +192,7 @@ internal static class Program
     private static void AudioCurveValidation()
     {
         var audio = AudioManager.Instance;
-        var voice = audio.Play(new AudioClip(), loop: true);
+        var voice = AudioManager.Play(new AudioClip(), loop: true);
         foreach (var curve in new[] { AudioFadeCurve.Linear, AudioFadeCurve.SmoothStep, AudioFadeCurve.EqualPower })
         {
             Require(voice.FadeTo(.5f, 1, curve), "A declared curve must be supported.");
@@ -207,16 +207,16 @@ internal static class Program
     {
         var audio = AudioManager.Instance;
         var clip = new AudioClip();
-        var voice = audio.Play(clip, loop: true);
+        var voice = AudioManager.Play(clip, loop: true);
         NoAllocation("fade setup", () => voice.FadeTo(.5f, 100000, AudioFadeCurve.EqualPower));
         for (int i = 1; i < 32; i++)
         {
-            audio.Play(clip, loop: true).FadeTo(.5f, 100000);
+            AudioManager.Play(clip, loop: true).FadeTo(.5f, 100000);
         }
-        NoAllocation("32 fading voice ticks", () => audio.Tick(.001f));
-        Require(audio.PlayingCount == 32, "Measured ticks must actually process the full voice set.");
-        audio.StopAll();
-        NoAllocation("source reuse", () => audio.Play(clip).Stop());
+        NoAllocation("32 fading voice ticks", () => AudioManager.Tick(.001f));
+        Require(AudioManager.PlayingCount == 32, "Measured ticks must actually process the full voice set.");
+        AudioManager.StopAll();
+        NoAllocation("source reuse", () => AudioManager.Play(clip).Stop());
     }
 
     private static void NoAllocation(string name, Action operation)
