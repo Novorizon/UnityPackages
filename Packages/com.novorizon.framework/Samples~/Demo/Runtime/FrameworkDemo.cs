@@ -99,7 +99,7 @@ namespace Game.Framework.Samples.Demo
         public void SubscribeEvents()
         {
             RequireRunning();
-            eventSubscription ??= EventManager.Instance.Subscribe<DemoEvent, ScoreChanged>(DemoEvent.ScoreChanged, OnScoreChanged);
+            eventSubscription ??= EventManager.Subscribe<DemoEvent, ScoreChanged>(DemoEvent.ScoreChanged, OnScoreChanged);
             Status = "Subscribed to the demo's typed score event.";
         }
 
@@ -113,7 +113,7 @@ namespace Game.Framework.Samples.Demo
         public void PublishScore(int delta = 1)
         {
             RequireRunning();
-            EventManager.Instance.Notify(DemoEvent.ScoreChanged, new ScoreChanged(delta));
+            EventManager.Notify(DemoEvent.ScoreChanged, new ScoreChanged(delta));
         }
 
         void OnScoreChanged(ScoreChanged change)
@@ -127,8 +127,8 @@ namespace Game.Framework.Samples.Demo
             RequireRunning();
             StopTimers();
             ScaledTicks = UnscaledTicks = 0;
-            scaledTimer = TimerManager.Instance.Repeat(1, OnScaledTick);
-            unscaledTimer = TimerManager.Instance.Repeat(1, OnUnscaledTick, useUnscaledTime: true);
+            scaledTimer = TimerManager.Repeat(1, OnScaledTick);
+            unscaledTimer = TimerManager.Repeat(1, OnUnscaledTick, useUnscaledTime: true);
             Status = "Two one-second timers started: scaled and unscaled time.";
         }
 

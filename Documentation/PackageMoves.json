@@ -1,5 +1,7 @@
 {
   "pathMoves": {
+    "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs": "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorage.cs",
+    "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs.meta": "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorage.cs.meta",
     "Packages/com.novorizon.ability.editor.odin/LICENSE.md.meta": "Packages/com.novorizon.ability/Documentation~/Editor/LICENSE.md.meta",
     "Packages/com.novorizon.ability.editor.odin/Editor": "Packages/com.novorizon.ability/Editor",
     "Packages/com.novorizon.ability.editor.odin/README.md": "Packages/com.novorizon.ability/Documentation~/Editor/README.md",
@@ -168,6 +170,14 @@
     }
   },
   "sourceChanges": {
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/Messager.cs": {
+      "sha256": "8edbc314d03c3bb88fee56cc839c2b7c8412b24bd28fdc988c22b54b7f5d2879",
+      "reason": "Move consumer calls to the static manager API and preserve resource ownership."
+    },
+    "Packages/com.novorizon.framework/Runtime/Legacy/Message/Messager.Message.cs": {
+      "sha256": "5f3b93227a806903c8cce6912fc668c15b4f48db988699d844c7082f8c7c5c76",
+      "reason": "Move consumer calls to the static manager API and preserve resource ownership."
+    },
     "tools/NativeAcceptance/Editor/DiagnosticsTests/NativeDiagnosticsAcceptanceTests.cs": {
       "sha256": "12ca09da76e1f86e657f0c1e810b5f341386a8a020904dfe700160ca2d55b030",
       "reason": "Use static ResourceManager state and call signatures."
@@ -181,8 +191,8 @@
       "reason": "Use static ResourceManager state and call signatures."
     },
     "tools/GameModulesVerification/Program.cs": {
-      "sha256": "8cc2e9847e1907e22c51f358d46ba1d03f43cb18ccdf94c8cacf12624c8d8160",
-      "reason": "Use static ResourceManager state and call signatures."
+      "sha256": "b006ee5018fdac9d39b32d0bbb7dd8533a7275a60096dba94f163999ef2336c7",
+      "reason": "Use static ResourceManager state and call signatures. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/ResourceManager.Download.cs": {
       "sha256": "1bf2c94def77aeafaed08e52a22da1b3c7b01517b08c2f126d1fce7e579f1a7b",
@@ -209,16 +219,16 @@
       "reason": "Allow the network assembly to observe the framework application and Editor lifecycle guards without inheriting the singleton base."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIBootstrap.cs": {
-      "sha256": "8b509048451fcabc5822e07d2e9e3b9efced7f0069438a63f2223ffbaffe41f0",
-      "reason": "Rename UI entry to UIManager and apply braced control statements"
+      "sha256": "97ca28c4645924c80fa54039372d6de14b8ee81160cf00f4d6c80521bd24b201",
+      "reason": "Rename UI entry to UIManager and apply braced control statements Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UILayer.cs": {
       "sha256": "e58a63cf05702c5e7b27b4506f5e5574ec3c4117063b05843630deaef5059120",
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIManager.cs": {
-      "sha256": "d88115cfd66221377425427d2f17aa2f1c2c69c2107b503b56a6a2bc2ef7d317",
-      "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service."
+      "sha256": "f48d7dfecbfc7f368bae88b79b1795d6a8b5bfa55bdad755ea740184f8bcd585",
+      "reason": "Expose existing read-only factory counts for diagnostics without creating or starting a service. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UISettings.cs": {
       "sha256": "ae71cdeb60db744a1d64922932fbb5c042283f96a66a35f22e13889ad5d1c3ba",
@@ -233,8 +243,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "sha256": "69cff0a17a2fa12e65f659b5f82d915e0d029582d972af3cf25dc25b4919eb5f",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+      "sha256": "3ceb4b378e71eb59c7f366963b7ea5cb5b7f5a1b16791b8733b375d2e04bde91",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
       "sha256": "f0e1755fa4c28eaece224f3c244103e4de547ab0a0196b75d15b77fa432bfc27",
@@ -245,8 +255,8 @@
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimator.cs": {
-      "sha256": "fe8905f05db7ebcb856ca14ecf8a2ac615fccd78d26d227715ad3e43f0504e67",
-      "reason": "Add central GPU scheduling and playback notifications"
+      "sha256": "1e4ee684046ff649a44053529fa1d92c9aba3680786a10c9ca5cabb8aa903562",
+      "reason": "Add central GPU scheduling and playback notifications Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/UnityFrameworkBootstrap.cs": {
       "sha256": "3a1bd5b35e9b74fd7919cd68be83da5139d8777e25f1cc5af06bc1fbc4c9ae52",
@@ -289,8 +299,8 @@
       "reason": "Add handle-controlled volume fades and fade-out recycling."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.cs": {
-      "sha256": "ddac7999efb41b415f5f04758d0338dde5d67b7801e164008323e3ea1710f891",
-      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
+      "sha256": "76562278a6473b9e5d014199d321f6b4256594e77856c5b301f74b65a91862f5",
+      "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/SingletonBehaviour.cs": {
       "sha256": "7897d933732f55210de8a68b1a8f7260262d8ffad79af9780284d361faf3b51f",
@@ -301,8 +311,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.gpuanimator/Runtime/GpuAnimatorManager.cs": {
-      "sha256": "5dac6cb5be85d00b9fb75ccaae0089d19a325a44afcf9b760b42dc46a9a34719",
-      "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose."
+      "sha256": "2c1291c7bf00d3cb9a24520be88d12bb39f65a4989e7312c2bd0c62ea4e112bb",
+      "reason": "Bound scheduler removal cost, restrict legacy metadata types and transform Built-in normals with inverse transpose. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.hybridclr/Editor/GameBuild.cs": {
       "sha256": "495e56e45625c9fd9a3f723361de5089db72d1b60eed91b5c36e8eafde76d43c",
@@ -337,24 +347,24 @@
       "reason": "Add a common virtual Initialize entry, preserve typed/default overload dispatch, and require awaiting asynchronous services."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.cs": {
-      "sha256": "4744a9fa946aaa1e2e8c9fe584909f8d00291bdce78705194789855813e6a109",
-      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
+      "sha256": "dc0c6016f42c22fabc71bfcb8ec01a01f60e05d11892186f90450a4f049ff74f",
+      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Singleton.cs": {
       "sha256": "a43b8beabd9b4f8f3528ed6a16d7c47ccd8021b7882d888e39faab3f3c49a975",
       "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Timing/TimerManager.cs": {
-      "sha256": "f512bbf2ef5a4eae038d7985cba10be09876436ce48a1fa48d648fe6d3b2bf98",
-      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
+      "sha256": "e4aab9de57e8fc6c643288fcb6278525feccc3ccb8c42dbc50163b80676dccb7",
+      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Network.Unity/UnityNetworkDispatcher.cs": {
       "sha256": "b0bfd07a36a96f845bde97f9e7b2b6f68ab34ce6470e7cdb1ccd94d1a94d9c86",
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.input/Runtime/InputManager.cs": {
-      "sha256": "33a91155c3b089a17e1b2b59c370d7ecd7bc9ff40667920d025486b83bfad83f",
-      "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter. Simplify singleton release and remove per-service stopping from the base."
+      "sha256": "cccaafcaeb881ed53a7c6d91aabba48df7ae2fdb7c981161b725fd2e4368e702",
+      "reason": "Reserve rebinding ownership before action cancellation callbacks can reenter. Simplify singleton release and remove per-service stopping from the base. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.ecs/Runtime/Infrastructure/ReferencePool.cs": {
       "sha256": "abec211bf7367ef1cce0a25bd8345bc6d4a7c86733341e843aaef3505516ef5c",
@@ -368,9 +378,9 @@
       "sha256": "7fbc3e21e33a9bdfbaa9ac1b99b1e4fac8ec4c014ea93942be306c91266d4730",
       "reason": "Use the shared Singleton implementation and explicit service initialization. The network manages its own configured instance and lifetime."
     },
-    "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorageManager.cs": {
-      "sha256": "c24b2e32901c835e94c8f6b6d88494c9c27d868f6e651aef70b817d4f820ceb9",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base."
+    "Packages/com.novorizon.framework/Runtime/Unity/Storage/LocalStorage.cs": {
+      "sha256": "6eb363d8b4a7a6348d76488e559c04f94d9398e69fccc803149a11cffd0827df",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Contracts/IGameModule.cs": {
       "sha256": "714583159e4e20d592dc5cc206c2ef25c7b459c61aa31fba25a46d43a00cb3f4",
@@ -389,8 +399,8 @@
       "reason": "Bind signed code releases to exact resource versions before loading assemblies, support compiled-entry mode and application events, and permit generated hot assemblies without AOT auto references."
     },
     "Packages/com.novorizon.data/Runtime/DataManager.cs": {
-      "sha256": "a4735d6918499adb0dc8811098c419ca5da68ef8b39e93fab9ec34104414a440",
-      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base."
+      "sha256": "8690ad5765ac75539d4a083328f0330c15ec4eb3abe9c6069dd869abe7b5f184",
+      "reason": "Use the shared Singleton implementation and explicit service initialization. Simplify singleton release and remove per-service stopping from the base. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.hybridclr/Runtime/Release/ReleaseManifest.cs": {
       "sha256": "a7070b024e90ba52b31f0cbe07209a9af5187a0e6492d183df2906accf0ff5f7",
@@ -445,20 +455,20 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": {
-      "sha256": "d5195c4e2d1e0d4c48d9581f53d22627df7853758ba1c03055a3b7532f1d7671",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+      "sha256": "fc78d0c40ac376e4819d3739680c5f8f29d80b2f9883e1d3fcacc9527a326223",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": {
-      "sha256": "fea9ff8cab8025906ea5ac5c60b8165829f2b9733a81c7344b9cf87c22976736",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+      "sha256": "9b03f3ab188f7db5fe2c362c35b12b7b8540948ee0a342b09c9a00fb904a15f8",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": {
       "sha256": "c43b71d73cdb8dd220c026a23fd2cdd0801e990e9fc1fe3eb50f5d3ccb9686db",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": {
-      "sha256": "7fd143a041f00d718b961892da39a879a9285d88cc2b42b6cd02ac89df83fa60",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
+      "sha256": "9a664e8e018fd9fa78a6dbd1054d451a35d9df37c8a8497e7a224d37c019d3a3",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": {
       "sha256": "cf22eaed9ee140a927218a4fb0a1457b7f929e65a4e58d9354ece2f76d24a298",
@@ -497,8 +507,8 @@
       "sha256": "086a5edc49991abd5e6f076f70fe79a6ca95b0c43196d4e6cad1ff322fa1c3f3"
     },
     "Packages/com.novorizon.framework/Samples~/Demo/Runtime/FrameworkDemo.cs": {
-      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement.",
-      "sha256": "8e4b2deb656f6e371e7abbec9b091abc54883516afe62f2193465ae1ebef6dac"
+      "sha256": "54235f74a8da8944ca92411fe6b8efcf34f91b418a0c0fa65202d18ed4bada3b",
+      "reason": "Keep the current sample behavior and apply explicit Allman blocks; resource demo uses independent leases and the foundation demo excludes business settlement. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Threading/UnityThread.cs": {
       "sha256": "64f69d6f1bf74d479b3898f914f3f8246ad7138ab18f0adac8aca3a9299b46ae",
@@ -509,8 +519,8 @@
       "reason": "Remove the global singleton lifecycle callback registry. Owners release runtime services explicitly; editor reference cleanup uses EditorStaticReset, and modules use their own Unity hooks."
     },
     "Packages/com.novorizon.framework/Runtime/Unity/FrameworkUpdateDriver.cs": {
-      "sha256": "c052244876b7070dd39b4a56c74be1d80d2ae38e02a48b5a920b65be0a54e31c",
-      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created."
+      "sha256": "9a76270c5f2b86d090e3b77edabedfed27c92a821162cb54a14d279036a36c3c",
+      "reason": "Do not recreate released timer services from Unity Update. Bind missing clocks once using existing elapsed time, preserving queued delays and custom clock providers when a replacement service is explicitly created. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.gpuanimator/Editor/GpuSkinningTools.cs": {
       "sha256": "feedeb8532c71a5dc6558444073a30d65594c7ecda06e60082d1acfc7ad715ac",
@@ -573,12 +583,12 @@
       "reason": "Use stable double-precision geometry and bounded aggregate snapshot reuse; remove idle order allocations."
     },
     "Packages/com.novorizon.audio/Runtime/AudioManager.Fades.cs": {
-      "sha256": "70b05ecd6a39cb6690da4270353b8fed7af1516f61f28bbecc87de1c55bbc87e",
-      "reason": "Validate contiguous fade curves without enum boxing."
+      "sha256": "473e832ab67e9b0dcf6bba6278d7159016f53cc0397455c4f796f2a08ce69954",
+      "reason": "Validate contiguous fade curves without enum boxing. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.diagnostics/Editor/DiagnosticSnapshot.cs": {
-      "sha256": "cb1ae0998963515143ec2cd6ee5af0ccb9dee8ac4e9b433d61e93a9a8c9f1b45",
-      "reason": "Read public getters only and reuse row-type ownership accessors. Use result-based resource failures and remove the previous resource ownership APIs. Use static ResourceManager state and call signatures."
+      "sha256": "2ee1c114064b981038bd3ca1feac3d63f0d06c7894798c7afc2a2dc0769da0b3",
+      "reason": "Read public getters only and reuse row-type ownership accessors. Use result-based resource failures and remove the previous resource ownership APIs. Use static ResourceManager state and call signatures. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Collections/UIVirtualGrid.cs": {
       "sha256": "e213f381d80cc0c62582e12ca0bc20c1997786e908cad816ec5d40591f2ae382",
@@ -589,8 +599,8 @@
       "reason": "Fence pooled row binding generations across reentrant unbind callbacks."
     },
     "Packages/com.novorizon.framework/Runtime/Core/Events/EventManager.Message.cs": {
-      "sha256": "d20cfc432f8c5c87bd08dc1a1e45f13529d365b614dccd43189ceda54b8921f4",
-      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
+      "sha256": "ba8570a27990cc0af211617ebe9989db5daf068e8bf978a615b3a51587f559fb",
+      "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup. Move consumer calls to the static manager API and preserve resource ownership."
     },
     "Packages/com.novorizon.gpuanimator/Shaders/URP/GpuSkinningAnimationURP.shader": {
       "sha256": "e5fda2d94f02080133038964eee9e7e46678d9ee6be0240019374bcb51b5551c",

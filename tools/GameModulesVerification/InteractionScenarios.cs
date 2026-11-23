@@ -55,20 +55,20 @@ internal static partial class Program
         Run("retained audio component keeps configuration while releasing playback", () =>
         {
             var audio = AudioManager.Instance;
-            audio.MasterVolume = .25f;
-            audio.MaxVoices = 7;
-            audio.AutomaticUpdate = false;
-            audio.UseUnscaledTime = false;
+            AudioManager.MasterVolume = .25f;
+            AudioManager.MaxVoices = 7;
+            AudioManager.AutomaticUpdate = false;
+            AudioManager.UseUnscaledTime = false;
             var clip = new AudioClip();
-            audio.Play(clip);
-            True(audio.PlayingCount != 0);
+            AudioManager.Play(clip);
+            True(AudioManager.PlayingCount != 0);
             Object.ResetSingletonsForPlay();
             Game.Framework.UnityThread.Initialize();
             Same(audio, AudioManager.Instance);
-            Near(.25f, audio.MasterVolume);
-            Equal(7, audio.MaxVoices);
-            True(!audio.AutomaticUpdate && !audio.UseUnscaledTime);
-            Equal(0, audio.PlayingCount);
+            Near(.25f, AudioManager.MasterVolume);
+            Equal(7, AudioManager.MaxVoices);
+            True(!AudioManager.AutomaticUpdate && !AudioManager.UseUnscaledTime);
+            Equal(0, AudioManager.PlayingCount);
         });
 #endif
         Run("input supports the common default entry and its typed parameter overload", () =>
@@ -76,42 +76,42 @@ internal static partial class Program
             using var defaults = new InputManager();
             Game.Framework.Singleton<InputManager> common = defaults;
             common.Initialize();
-            True(defaults.Initialized);
+            True(defaults.IsConfigured);
             using var configured = new InputManager();
             configured.Initialize(InputAsset(), "Gameplay");
-            True(configured.FindAction("Move").enabled);
+            True(configured.FindActionInternal("Move").enabled);
         });
         Run("input clones assets and switches maps without changing project assets", () =>
         {
             using var input = new InputManager();
             var source = InputAsset();
             input.Initialize(source, "Gameplay");
-            True(input.FindAction("Move").enabled);
+            True(input.FindActionInternal("Move").enabled);
             True(!source.FindAction("Move").enabled);
-            input.EnableMap("UI");
-            True(input.FindAction("Submit").enabled && input.FindAction("Move").enabled);
-            input.SwitchMap("UI");
-            True(!input.FindAction("Move").enabled && input.FindAction("Submit").enabled);
-            Throws<ArgumentException>(() => input.SwitchMap("Missing"));
-            True(input.FindAction("Submit").enabled);
+            input.EnableMapInternal("UI");
+            True(input.FindActionInternal("Submit").enabled && input.FindActionInternal("Move").enabled);
+            input.SwitchMapInternal("UI");
+            True(!input.FindActionInternal("Move").enabled && input.FindActionInternal("Submit").enabled);
+            Throws<ArgumentException>(() => input.SwitchMapInternal("Missing"));
+            True(input.FindActionInternal("Submit").enabled);
         });
         Run("input nested global and map blocks restore the latest requested state", () =>
         {
             using var input = new InputManager();
             input.Initialize(InputAsset(), "Gameplay");
-            using var outer = input.Block();
-            using var inner = input.Block();
-            using var mapBlock = input.Block("Gameplay");
-            input.EnableMap("UI");
+            using var outer = input.BlockInternal();
+            using var inner = input.BlockInternal();
+            using var mapBlock = input.BlockInternal("Gameplay");
+            input.EnableMapInternal("UI");
             outer.Dispose();
-            True(!input.FindAction("Submit").enabled);
+            True(!input.FindActionInternal("Submit").enabled);
             inner.Dispose();
-            True(input.FindAction("Submit").enabled && !input.FindAction("Move").enabled);
-            input.DisableMap("Gameplay");
+            True(input.FindActionInternal("Submit").enabled && !input.FindActionInternal("Move").enabled);
+            input.DisableMapInternal("Gameplay");
             mapBlock.Dispose();
-            True(!input.FindAction("Move").enabled);
-            input.EnableMap("Gameplay");
-            True(input.FindAction("Move").enabled);
+            True(!input.FindActionInternal("Move").enabled);
+            input.EnableMapInternal("Gameplay");
+            True(input.FindActionInternal("Move").enabled);
         });
         Run("input subscriptions, control scheme and device filters are scoped to the clone", () =>
         {
@@ -119,160 +119,156 @@ internal static partial class Program
             var source = InputAsset();
             input.Initialize(source, "Gameplay");
             int calls = 0;
-            var sub = input.Subscribe("Move", _ => calls++);
-            input.FindAction("Move").PerformForTest();
+            var sub = input.SubscribeInternal("Move", _ => calls++);
+            input.FindActionInternal("Move").PerformForTest();
             sub.Dispose();
-            input.FindAction("Move").PerformForTest();
+            input.FindActionInternal("Move").PerformForTest();
             Equal(1, calls);
-            input.SetControlScheme("Keyboard");
-            Equal("kb", input.Actions.bindingMask.Value.groups);
+            input.SetControlSchemeInternal("Keyboard");
+            Equal("kb", input.ConfiguredActions.bindingMask.Value.groups);
             True(!source.bindingMask.HasValue);
-            input.SetControlScheme(null);
-            True(!input.Actions.bindingMask.HasValue);
+            input.SetControlSchemeInternal(null);
+            True(!input.ConfiguredActions.bindingMask.HasValue);
             var device = new InputDevice();
-            input.SetDevices(device);
-            Same(device, input.Actions.devices.Value[0]);
-            input.SetDevices(null);
-            True(!input.Actions.devices.HasValue);
-            input.LoadBindingOverrides("{\"test\":1}");
-            Equal("{\"test\":1}", input.SaveBindingOverrides());
+            input.SetDevicesInternal(device);
+            Same(device, input.ConfiguredActions.devices.Value[0]);
+            input.SetDevicesInternal(null);
+            True(!input.ConfiguredActions.devices.HasValue);
+            input.LoadBindingOverridesInternal("{\"test\":1}");
+            Equal("{\"test\":1}", input.SaveBindingOverridesInternal());
         });
         Run("input rebinding completes, cancels and retains blocks while restoring actions", () =>
         {
             using var input = new InputManager();
             input.Initialize(InputAsset(), "Gameplay");
-            var pending = input.RebindAsync("Move", 0);
-            True(!input.FindAction("Move").enabled);
-            Fails<InvalidOperationException>(input.RebindAsync("Move", 0));
-            Throws<InvalidOperationException>(() => input.LoadBindingOverrides("{}"));
+            var pending = input.RebindAsyncInternal("Move", 0);
+            True(!input.FindActionInternal("Move").enabled);
+            Fails<InvalidOperationException>(input.RebindAsyncInternal("Move", 0));
+            Throws<InvalidOperationException>(() => input.LoadBindingOverridesInternal("{}"));
             var operation = Rebinding.LastForTest;
-            using var block = input.Block();
+            using var block = input.BlockInternal();
             operation.CompleteForTest();
             Equal("{}", Complete(pending));
-            True(operation.DisposedForTest && !input.FindAction("Move").enabled);
+            True(operation.DisposedForTest && !input.FindActionInternal("Move").enabled);
             block.Dispose();
-            True(input.FindAction("Move").enabled);
+            True(input.FindActionInternal("Move").enabled);
             using var cancellation = new CancellationTokenSource();
-            pending = input.RebindAsync("Move", 0, cancellation.Token);
+            pending = input.RebindAsyncInternal("Move", 0, cancellation.Token);
             Complete(Task.Run(() => cancellation.Cancel()));
             Fails<OperationCanceledException>(pending);
-            True(Rebinding.LastForTest.DisposedForTest && input.FindAction("Move").enabled);
+            True(Rebinding.LastForTest.DisposedForTest && input.FindActionInternal("Move").enabled);
             Rebinding.FailCreationForTest = true;
             try
             {
-                Fails<InvalidOperationException>(input.RebindAsync("Move", 0));
-                True(input.FindAction("Move").enabled);
+                Fails<InvalidOperationException>(input.RebindAsyncInternal("Move", 0));
+                True(input.FindActionInternal("Move").enabled);
             }
             finally
             {
                 Rebinding.FailCreationForTest = false;
             }
         });
-        Run("input dispose cancels rebinds and leases cannot resurrect a replaced singleton", () =>
+        Run("input dispose cancels rebinds and leaves old leases inactive", () =>
         {
             InputManager.Reset();
             var input = InputManager.Instance;
             input.Initialize(InputAsset(), "Gameplay");
-            var lease = input.Block();
-            var pending = input.RebindAsync("Move", 0);
+            var lease = input.BlockInternal();
+            var pending = input.RebindAsyncInternal("Move", 0);
             InputManager.Reset();
             Fails<OperationCanceledException>(pending);
             lease.Dispose();
-            var next = InputManager.Instance;
-            True(!ReferenceEquals(input, next) && !next.Initialized);
-            next.Initialize();
-            InputManager.Reset();
-            True(!InputManager.IsCreated);
+            True(!InputManager.Initialized);
         });
         Run("audio fade uses unified time and respects every pause source", () =>
         {
             var audio = AudioManager.Instance;
-            var voice = audio.Play(new AudioClip(), loop: true);
+            var voice = AudioManager.Play(new AudioClip(), loop: true);
             voice.FadeTo(0, 1);
-            audio.Tick(.25f);
+            AudioManager.Tick(.25f);
             Near(.75f, Sources().Single().volume);
             voice.Pause();
-            audio.Tick(.25f);
+            AudioManager.Tick(.25f);
             Near(.75f, Sources().Single().volume);
             voice.Resume();
-            audio.PauseAll();
-            audio.Tick(.25f);
-            audio.ResumeAll();
+            AudioManager.PauseAll();
+            AudioManager.Tick(.25f);
+            AudioManager.ResumeAll();
             AudioListener.pause = true;
-            audio.Tick(.25f);
+            AudioManager.Tick(.25f);
             AudioListener.pause = false;
-            audio.Tick(.25f);
+            AudioManager.Tick(.25f);
             Near(.5f, Sources().Single().volume);
             voice.SetVolume(.8f);
-            audio.Tick(1);
+            AudioManager.Tick(1);
             Near(.8f, Sources().Single().volume);
             voice.FadeOut(.5f);
-            audio.Tick(.5f);
-            True(!voice.IsValid && audio.PooledCount == 1);
+            AudioManager.Tick(.5f);
+            True(!voice.IsValid && AudioManager.PooledCount == 1);
         });
         Run("audio music crossfade has equal power, capacity failure preserves current music", () =>
         {
             var audio = AudioManager.Instance;
-            var first = audio.PlayMusic(new AudioClip(), 0);
+            var first = AudioManager.PlayMusic(new AudioClip(), 0);
             var clip = new AudioClip();
-            var second = audio.PlayMusic(clip, 1);
-            audio.Tick(.5f);
+            var second = AudioManager.PlayMusic(clip, 1);
+            AudioManager.Tick(.5f);
             var active = Sources().Where(source => source.clip != null).ToArray();
             Near(1, active.Sum(source => source.volume * source.volume));
-            audio.MaxVoices = 2;
-            Throws<InvalidOperationException>(() => audio.PlayMusic(new AudioClip(), 1));
-            Equal(second, audio.CurrentMusic);
-            audio.Tick(.5f);
+            AudioManager.MaxVoices = 2;
+            Throws<InvalidOperationException>(() => AudioManager.PlayMusic(new AudioClip(), 1));
+            Equal(second, AudioManager.CurrentMusic);
+            AudioManager.Tick(.5f);
             True(!first.IsValid && second.IsValid);
-            Equal(second, audio.PlayMusic(clip, 1));
-            audio.StopMusic(.5f);
-            audio.Tick(.5f);
-            True(!second.IsValid && !audio.CurrentMusic.IsValid);
+            Equal(second, AudioManager.PlayMusic(clip, 1));
+            AudioManager.StopMusic(.5f);
+            AudioManager.Tick(.5f);
+            True(!second.IsValid && !AudioManager.CurrentMusic.IsValid);
         });
         Run("audio mixer routing updates playing voices and pool reuse resets fade and callback", () =>
         {
             var audio = AudioManager.Instance;
             var mixer = new UnityEngine.Audio.AudioMixerGroup();
             int completed = 0;
-            var handle = audio.Play(new AudioClip(), completed: _ => completed++);
-            audio.SetMixerGroup(AudioGroup.Sound, mixer);
+            var handle = AudioManager.Play(new AudioClip(), completed: _ => completed++);
+            AudioManager.SetMixerGroup(AudioGroup.Sound, mixer);
             Same(mixer, Sources().Single().outputAudioMixerGroup);
             handle.FadeOut(.1f);
-            audio.Tick(.1f);
+            AudioManager.Tick(.1f);
             Equal(0, completed);
-            handle = audio.Play(new AudioClip(), AudioGroup.UI, loop: true);
+            handle = AudioManager.Play(new AudioClip(), AudioGroup.UI, loop: true);
             True(Sources().Single().outputAudioMixerGroup == null);
-            audio.Tick(1);
+            AudioManager.Tick(1);
             True(handle.IsValid);
             Near(1, Sources().Single().volume);
-            Throws<ArgumentOutOfRangeException>(() => audio.Tick(float.NaN));
+            Throws<ArgumentOutOfRangeException>(() => AudioManager.Tick(float.NaN));
             Throws<ArgumentOutOfRangeException>(() => handle.FadeTo(1, -1));
         });
         Run("audio warmed steady tick, fade and voice reuse avoid managed allocations", () =>
         {
             var audio = AudioManager.Instance;
             var clip = new AudioClip();
-            var handle = audio.Play(clip, loop: true);
+            var handle = AudioManager.Play(clip, loop: true);
             handle.FadeTo(.3f, 10);
             for (int i = 0; i < 100; i++)
             {
-                audio.Tick(.001f);
+                AudioManager.Tick(.001f);
             }
 
             long before = GC.GetAllocatedBytesForCurrentThread();
             for (int i = 0; i < 100; i++)
             {
-                audio.Tick(.001f);
+                AudioManager.Tick(.001f);
             }
 
             Equal(0L, GC.GetAllocatedBytesForCurrentThread() - before);
             handle.Stop();
-            handle = audio.Play(clip);
+            handle = AudioManager.Play(clip);
             handle.Stop();
             before = GC.GetAllocatedBytesForCurrentThread();
             for (int i = 0; i < 100; i++)
             {
-                audio.Play(clip).Stop();
+                AudioManager.Play(clip).Stop();
             }
 
             Equal(0L, GC.GetAllocatedBytesForCurrentThread() - before);
@@ -284,42 +280,40 @@ internal static partial class Program
             {
                 loadState = AudioDataLoadState.Loading
             };
-            var handle = audio.Play(clip, volume: 0);
+            var handle = AudioManager.Play(clip, volume: 0);
             handle.FadeTo(1, 1);
             Sources().Single().Stop();
-            audio.Tick(1);
+            AudioManager.Tick(1);
             True(handle.IsValid);
             Near(0, Sources().Single().volume);
             clip.loadState = AudioDataLoadState.Loaded;
             Sources().Single().Play();
-            audio.Tick(.5f);
+            AudioManager.Tick(.5f);
             Near(.5f, Sources().Single().volume);
         });
         Run("real Luban Excel generated C# reads the official binary runtime", () =>
         {
-            using var config = LubanData();
-            var tables = Complete(config.LoadAsync(loader => new cfg.Tables(loader)));
+            InitializeLubanData();
+            var tables = Complete(DataManager.LoadAsync(loader => new cfg.Tables(loader)));
             Equal("示例配置", tables.TbExample[1].Name);
             Equal("Second entry", tables.TbExample[2].Name);
-            Same(tables, config.Get<cfg.Tables>());
-            Equal(1, config.Count);
+            Same(tables, DataManager.Get<cfg.Tables>());
+            Equal(1, DataManager.Count);
         });
         Run("Luban corrupt data and failed reload retain the previous complete snapshot", () =>
         {
-            using var config = new DataManager();
             bool fail = false;
-            config.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : fail ? Array.Empty<byte>() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
-            var previous = Complete(config.LoadAsync(loader => new cfg.Tables(loader)));
+            DataManager.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : fail ? Array.Empty<byte>() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
+            var previous = Complete(DataManager.LoadAsync(loader => new cfg.Tables(loader)));
             fail = true;
-            Throws<Exception>(() => Complete(config.LoadAsync(loader => new cfg.Tables(loader))));
-            Same(previous, config.Get<cfg.Tables>());
+            Throws<Exception>(() => Complete(DataManager.LoadAsync(loader => new cfg.Tables(loader))));
+            Same(previous, DataManager.Get<cfg.Tables>());
         });
         Run("Luban rejects invalid manifests and missing table mappings before publishing", () =>
         {
-            using var config = new DataManager();
             string manifest = "{}";
             int binaryCalls = 0;
-            config.Initialize((location, token) =>
+            DataManager.Initialize((location, token) =>
             {
                 if (IsManifest(location))
                 {
@@ -329,106 +323,107 @@ internal static partial class Program
                 binaryCalls++;
                 return Task.FromResult(Array.Empty<byte>());
             });
-            Fails<ArgumentException>(config.LoadAsync(loader => new cfg.Tables(loader)));
+            Fails<ArgumentException>(DataManager.LoadAsync(loader => new cfg.Tables(loader)));
             Equal(0, binaryCalls);
             manifest = "{\"version\":1,\"format\":\"bin\",\"files\":[{\"name\":\"x\",\"location\":\"a\"},{\"name\":\"x\",\"location\":\"b\"}]}";
-            Fails<ArgumentException>(config.LoadAsync(loader => new cfg.Tables(loader)));
+            Fails<ArgumentException>(DataManager.LoadAsync(loader => new cfg.Tables(loader)));
             Equal(0, binaryCalls);
             manifest = "{\"version\":1,\"format\":\"bin\",\"files\":[]}";
-            Fails<System.Collections.Generic.KeyNotFoundException>(config.LoadAsync(loader => new cfg.Tables(loader)));
-            Equal(0, config.Count);
+            Fails<System.Collections.Generic.KeyNotFoundException>(DataManager.LoadAsync(loader => new cfg.Tables(loader)));
+            Equal(0, DataManager.Count);
         });
         Run("Luban concurrent loads, clear and cancellation cannot publish stale snapshots", () =>
         {
-            using var config = new DataManager();
             var pendingBytes = Gate<byte[]>();
-            config.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pendingBytes.Task);
-            var stale = config.LoadAsync(loader => new cfg.Tables(loader));
-            var latest = config.LoadAsync(loader => new cfg.Tables(loader));
+            DataManager.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pendingBytes.Task);
+            var stale = DataManager.LoadAsync(loader => new cfg.Tables(loader));
+            var latest = DataManager.LoadAsync(loader => new cfg.Tables(loader));
             pendingBytes.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
             Fails<OperationCanceledException>(stale);
             var tables = Complete(latest);
-            Same(tables, config.Get<cfg.Tables>());
+            Same(tables, DataManager.Get<cfg.Tables>());
             pendingBytes = Gate<byte[]>();
-            stale = config.LoadAsync(loader => new cfg.Tables(loader));
-            config.Clear();
+            stale = DataManager.LoadAsync(loader => new cfg.Tables(loader));
+            DataManager.Clear();
             pendingBytes.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
             Fails<OperationCanceledException>(stale);
             using var canceled = new CancellationTokenSource();
             pendingBytes = Gate<byte[]>();
-            stale = config.LoadAsync(loader => new cfg.Tables(loader), token: canceled.Token);
+            stale = DataManager.LoadAsync(loader => new cfg.Tables(loader), token: canceled.Token);
             canceled.Cancel();
             Fails<OperationCanceledException>(stale);
             pendingBytes.SetResult(Array.Empty<byte>());
-            Equal(0, config.Count);
+            Equal(0, DataManager.Count);
         });
         Run("Luban load constructs the supplied Tables directly without registration", () =>
         {
-            using var data = LubanData();
+            InitializeLubanData();
             int constructions = 0;
-            True(!data.TryGet<cfg.Tables>(out _));
-            Throws<System.Collections.Generic.KeyNotFoundException>(() => data.Get<cfg.Tables>());
-            var first = Complete(data.LoadAsync(reader =>
+            True(!DataManager.TryGet<cfg.Tables>(out _));
+            Throws<System.Collections.Generic.KeyNotFoundException>(() => DataManager.Get<cfg.Tables>());
+            var first = Complete(DataManager.LoadAsync(reader =>
             {
                 constructions++;
                 return new cfg.Tables(reader);
             }));
             Equal(1, constructions);
-            data.Clear();
-            Equal(0, data.Count);
-            var next = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
+            DataManager.Clear();
+            Equal(0, DataManager.Count);
+            var next = Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
             True(!ReferenceEquals(first, next));
-            Same(next, data.Get<cfg.Tables>());
+            Same(next, DataManager.Get<cfg.Tables>());
         });
         Run("Luban default loader reads both manifest and table bytes from Resources", () =>
         {
-            using var data = new DataManager();
-            data.Initialize();
+            DataManager.Initialize();
             Resources.CompleteSynchronouslyForTest = true;
             Resources.RegisterAssetForTest("Config/Luban/manifest", new TextAsset { bytes = ManifestBytes() });
             Resources.RegisterAssetForTest("Config/Luban/tbexample", new TextAsset { bytes = File.ReadAllBytes(Fixture("data/tbexample.bytes")) });
-            var loaded = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
+            var loaded = Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
             Equal("示例配置", loaded.TbExample[1].Name);
-            Fails<InvalidOperationException>(data.LoadAsync(reader => new cfg.Tables(reader), "missing"));
-            Same(loaded, data.Get<cfg.Tables>());
+            Fails<InvalidOperationException>(DataManager.LoadAsync(reader => new cfg.Tables(reader), "missing"));
+            Same(loaded, DataManager.Get<cfg.Tables>());
         });
-        Run("Luban Dispose cancels a blocked loader and late bytes cannot publish", () =>
+        Run("Luban Reset cancels a blocked loader and late bytes cannot replace the new snapshot", () =>
         {
-            var data = new DataManager();
             var pending = Gate<byte[]>();
-            data.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pending.Task);
-            var loading = data.LoadAsync(reader => new cfg.Tables(reader));
-            data.Dispose();
+            DataManager.Initialize((location, token) => IsManifest(location) ? Task.FromResult(ManifestBytes()) : pending.Task);
+            var loading = DataManager.LoadAsync(reader => new cfg.Tables(reader));
+            DataManager.Reset();
             Fails<OperationCanceledException>(loading);
+            True(!DataManager.TryGet<cfg.Tables>(out _));
+            InitializeLubanData();
+            var fresh = Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
             pending.SetResult(File.ReadAllBytes(Fixture("data/tbexample.bytes")));
             context.Drain();
-            Throws<ObjectDisposedException>(() => data.Get<cfg.Tables>());
+            Same(fresh, DataManager.Get<cfg.Tables>());
         });
         Run("Luban rejects missing factories, bad locations and use before initialization", () =>
         {
-            using var data = new DataManager();
-            Fails<InvalidOperationException>(data.LoadAsync(reader => new cfg.Tables(reader)));
-            data.Initialize((location, token) => Task.FromResult(ManifestBytes()));
-            Fails<ArgumentNullException>(data.LoadAsync<cfg.Tables>(null));
-            Fails<ArgumentException>(data.LoadAsync(reader => new cfg.Tables(reader), " "));
+            Fails<InvalidOperationException>(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
+            DataManager.Initialize((location, token) => Task.FromResult(ManifestBytes()));
+            Fails<ArgumentNullException>(DataManager.LoadAsync<cfg.Tables>(null));
+            Fails<ArgumentException>(DataManager.LoadAsync(reader => new cfg.Tables(reader), " "));
         });
         Run("Luban null factories and failed construction retain the prior snapshot", () =>
         {
-            using var data = LubanData();
-            var previous = Complete(data.LoadAsync(reader => new cfg.Tables(reader)));
-            Fails<InvalidOperationException>(data.LoadAsync<cfg.Tables>(_ => null));
-            Same(previous, data.Get<cfg.Tables>());
-            Fails<InvalidOperationException>(data.LoadAsync<cfg.Tables>(_ => throw new InvalidOperationException("factory")));
-            Same(previous, data.Get<cfg.Tables>());
+            InitializeLubanData();
+            var previous = Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
+            Fails<InvalidOperationException>(DataManager.LoadAsync<cfg.Tables>(_ => null));
+            Same(previous, DataManager.Get<cfg.Tables>());
+            Fails<InvalidOperationException>(DataManager.LoadAsync<cfg.Tables>(_ => throw new InvalidOperationException("factory")));
+            Same(previous, DataManager.Get<cfg.Tables>());
         });
-        Run("Luban singleton reset clears the reference and allows a clean instance", () =>
+        Run("Luban reset clears tables and allows a new loader", () =>
         {
-            var previous = DataManager.Instance;
-            previous.Initialize();
+            InitializeLubanData();
+            Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader)));
             DataManager.Reset();
-            True(!DataManager.IsCreated);
-            True(!ReferenceEquals(previous, DataManager.Instance));
-            Equal(0, DataManager.Instance.Count);
+            True(!DataManager.Initialized);
+            Equal(0, DataManager.Count);
+            InitializeLubanData();
+            True(DataManager.Initialized);
+            True(Complete(DataManager.LoadAsync(reader => new cfg.Tables(reader))) != null);
         });
         Run("Luban exporter invokes real CLI in paths with spaces and retains last good outputs on failure", () =>
         {
@@ -482,11 +477,9 @@ internal static partial class Program
     private static bool IsManifest(string location) => location.EndsWith("manifest", StringComparison.Ordinal);
     private static byte[] ManifestBytes() => System.Text.Encoding.UTF8.GetBytes(Manifest());
     private static string Manifest() => "{\"version\":1,\"format\":\"bin\",\"files\":[{\"name\":\"tbexample\",\"location\":\"Config/Luban/tbexample\"}]}";
-    private static DataManager LubanData()
+    private static void InitializeLubanData()
     {
-        var config = new DataManager();
-        config.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
-        return config;
+        DataManager.Initialize((location, token) => Task.FromResult(IsManifest(location) ? ManifestBytes() : File.ReadAllBytes(Fixture("data/tbexample.bytes"))));
     }
 
     private static InputActionAsset InputAsset()

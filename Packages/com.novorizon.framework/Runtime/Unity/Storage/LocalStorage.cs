@@ -6,8 +6,9 @@ using UnityEngine;
 namespace Game.Framework.Storage
 {
     /// <summary>小型本地文件存储。JSON 使用 Unity JsonUtility 的字段序列化规则。</summary>
-    public sealed class LocalStorageManager : Singleton<LocalStorageManager>, IDisposable
+    public static class LocalStorage
     {
+        /// <summary>JSON对应的记录。记录一次操作及其相关数据。</summary>
         [Serializable]
         private sealed class JsonRecord
         {
@@ -15,26 +16,31 @@ namespace Game.Framework.Storage
             public string json;
         }
 
-        private readonly object gate = new object ();
-        private string root;
-        private bool disposed;
-        public string RootDirectory => root;
+#if UNITY_EDITOR
+        static LocalStorage()
+        {
+            EditorStaticReset.Register(Reset);
+        }
+#endif
 
+        private static readonly object gate = new object();
+        private static string root;
+        public static string RootDirectory => root;
+
+        /// <summary>解除当前目录配置，文件仍保存在原目录。下一次可初始化其他目录。</summary>
         public static void Reset()
-        {
-            Release();
-        }
-
-        public override void Initialize()
-        {
-            Initialize((string)null);
-        }
-
-        public void Initialize(string directory = null)
         {
             lock (gate)
             {
-                EnsureAvailable();
+                root = null;
+            }
+        }
+
+        /// <summary>配置本轮使用的存储目录。</summary>
+        public static void Initialize(string directory = null)
+        {
+            lock (gate)
+            {
                 string next = Path.GetFullPath(directory ?? Path.Combine(Application.persistentDataPath, "Storage"));
                 if (root != null && !string.Equals(root, next, StringComparison.Ordinal))
                 {
@@ -46,7 +52,8 @@ namespace Game.Framework.Storage
             }
         }
 
-        public void SaveBytes(string key, byte[] bytes)
+        /// <summary>保存字节数据。</summary>
+        public static void SaveBytes(string key, byte[] bytes)
         {
             if (bytes == null)
             {
@@ -96,7 +103,8 @@ namespace Game.Framework.Storage
             }
         }
 
-        public byte[] LoadBytes(string key)
+        /// <summary>加载字节数据。</summary>
+        public static byte[] LoadBytes(string key)
         {
             lock (gate)
             {
@@ -106,7 +114,8 @@ namespace Game.Framework.Storage
             }
         }
 
-        public bool Exists(string key)
+        /// <summary>返回Exists的判断结果。</summary>
+        public static bool Exists(string key)
         {
             lock (gate)
             {
@@ -115,7 +124,8 @@ namespace Game.Framework.Storage
             }
         }
 
-        public void Delete(string key)
+        /// <summary>删除本地 Storage 管理器。</summary>
+        public static void Delete(string key)
         {
             lock (gate)
             {
@@ -126,13 +136,16 @@ namespace Game.Framework.Storage
             }
         }
 
-        public void SaveText(string key, string text)
+        /// <summary>保存文本。</summary>
+        public static void SaveText(string key, string text)
         {
             SaveBytes(key, new UTF8Encoding(false, true).GetBytes(text ?? throw new ArgumentNullException(nameof(text))));
         }
 
-        public string LoadText(string key) => new UTF8Encoding(false, true).GetString(LoadBytes(key));
-        public void SaveJson<T>(string key, T value, int version = 1)
+        /// <summary>加载文本。</summary>
+        public static string LoadText(string key) => new UTF8Encoding(false, true).GetString(LoadBytes(key));
+        /// <summary>保存 JSON。</summary>
+        public static void SaveJson<T>(string key, T value, int version = 1)
             where T : class
         {
             if (value == null)
@@ -149,7 +162,7 @@ namespace Game.Framework.Storage
         }
 
         /// <summary>migrate 接收旧版本号与原始 JSON，返回当前版本 JSON；迁移结果不会自动覆盖原文件。</summary>
-        public T LoadJson<T>(string key, int version = 1, Func<int, string, string> migrate = null)
+        public static T LoadJson<T>(string key, int version = 1, Func<int, string, string> migrate = null)
             where T : class
         {
             if (version < 1)
@@ -182,12 +195,12 @@ namespace Game.Framework.Storage
             return JsonUtility.FromJson<T>(json) ?? throw new InvalidDataException("Invalid JSON payload: " + key);
         }
 
-        private string Resolve(string key)
+        /// <summary>解析本地 Storage 管理器。</summary>
+        private static string Resolve(string key)
         {
-            EnsureAvailable();
             if (root == null)
             {
-                throw new InvalidOperationException("Initialize LocalStorageManager first.");
+                throw new InvalidOperationException("Initialize LocalStorage first.");
             }
 
             if (string.IsNullOrWhiteSpace(key) || Path.IsPathRooted(key))
@@ -206,23 +219,6 @@ namespace Game.Framework.Storage
             }
 
             return Path.Combine(root, Path.Combine(parts));
-        }
-
-        private void EnsureAvailable()
-        {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(nameof(LocalStorageManager));
-            }
-        }
-
-        public void Dispose()
-        {
-            lock (gate)
-            {
-                disposed = true;
-                ClearInstanceIfCurrent(this);
-            }
         }
     }
 }

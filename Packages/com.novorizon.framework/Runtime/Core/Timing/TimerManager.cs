@@ -31,7 +31,50 @@ namespace Game.Framework.Timing
     // Two indexed min-heaps: scaled and unscaled clocks. All operations run on the host main thread.
     public sealed class TimerManager : Singleton<TimerManager>, IDisposable
     {
+        /// <summary>设置并使用时钟。</summary>
+        public static void UseClocks(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider) =>
+            Instance.UseClocksInternal(scaledTimeProvider, unscaledTimeProvider);
+
+        /// <summary>创建一次性计时器。返回的句柄只控制创建它的实例上的计时器。</summary>
+        public static TimerHandle Schedule(double seconds, Action callback, bool useUnscaledTime = false) =>
+            Instance.ScheduleInternal(seconds, callback, useUnscaledTime);
+
+        /// <summary>创建循环计时器。调用者可通过返回的句柄取消。</summary>
+        public static TimerHandle Repeat(
+            double intervalSeconds,
+            Action callback,
+            bool useUnscaledTime = false,
+            TimerRepeatMode mode = TimerRepeatMode.FixedRate) =>
+            Instance.RepeatInternal(intervalSeconds, callback, useUnscaledTime, mode);
+
+        /// <summary>推进该对象的一次更新。</summary>
+        public static int Update(double scaledDeltaSeconds, double unscaledDeltaSeconds) =>
+            TryGetInstance(out var current) ? current.UpdateInternal(scaledDeltaSeconds, unscaledDeltaSeconds) : 0;
+
+        /// <summary>推进该对象的一次更新。</summary>
+        public static int Update() =>
+            TryGetInstance(out var current) ? current.UpdateInternal() : 0;
+
+        /// <summary>清空计时器管理器。</summary>
+        public static void Clear(bool trimExcess = false)
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.ClearInternal(trimExcess);
+            }
+        }
+
+        public static int PendingCount => TryGetInstance(out var current) ? current.pendingCount : 0;
+
+        public static int CallbackBudget
+        {
+            get => Instance.CallbackLimit;
+            set => Instance.CallbackLimit = value;
+        }
+
+        /// <summary>结束计时器管理器对相关资源的持有，并执行该类型的清理流程。</summary>
         public void Dispose() => ResetForPlay();
+        /// <summary>表示计时器管理器中的条目。</summary>
         private sealed class Entry
         {
             internal long Id;
@@ -144,7 +187,7 @@ namespace Game.Framework.Timing
         private Func<double> scaledClock, unscaledClock;
         private bool updating, preferUnscaled;
         private int callbackBudget = 256;
-        public int PendingCount
+        private int pendingCount
         {
             get
             {
@@ -153,7 +196,7 @@ namespace Game.Framework.Timing
             }
         }
 
-        public int CallbackBudget
+        private int CallbackLimit
         {
             get => callbackBudget;
             set
@@ -185,7 +228,8 @@ namespace Game.Framework.Timing
         }
 
         // Advanced hosts bind clocks once, before scheduling. Unity installs its clocks automatically.
-        public void UseClocks(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider)
+        /// <summary>设置并使用时钟。</summary>
+        private void UseClocksInternal(Func<double> scaledTimeProvider, Func<double> unscaledTimeProvider)
         {
             MainThread();
             if (updating || active.Count != 0)
@@ -244,8 +288,10 @@ namespace Game.Framework.Timing
             lastUnscaledSample = unscaledTime;
         }
 
-        public TimerHandle Schedule(double seconds, Action callback, bool useUnscaledTime = false) => Add(seconds, 0, callback, useUnscaledTime, default);
-        public TimerHandle Repeat(double intervalSeconds, Action callback, bool useUnscaledTime = false, TimerRepeatMode mode = TimerRepeatMode.FixedRate)
+        /// <summary>安排一次回调，可选使用不受游戏时间缩放影响的时钟。</summary>
+        private TimerHandle ScheduleInternal(double seconds, Action callback, bool useUnscaledTime = false) => Add(seconds, 0, callback, useUnscaledTime, default);
+        /// <summary>安排重复回调，用重复模式决定下一次到期时间。</summary>
+        private TimerHandle RepeatInternal(double intervalSeconds, Action callback, bool useUnscaledTime = false, TimerRepeatMode mode = TimerRepeatMode.FixedRate)
         {
             if (intervalSeconds <= 0)
             {
@@ -339,14 +385,15 @@ namespace Game.Framework.Timing
             }
         }
 
-        public int Update(double scaledDeltaSeconds, double unscaledDeltaSeconds)
+        /// <summary>推进该对象的一次更新。</summary>
+        internal int UpdateInternal(double scaledDeltaSeconds, double unscaledDeltaSeconds)
         {
             MainThread();
             Duration(scaledDeltaSeconds, nameof(scaledDeltaSeconds));
             Duration(unscaledDeltaSeconds, nameof(unscaledDeltaSeconds));
             if (scaledClock != null)
             {
-                throw new InvalidOperationException("Bound clocks use Update() without delta arguments.");
+                throw new InvalidOperationException("Bound clocks use UpdateInternal() without delta arguments.");
             }
 
             if (updating)
@@ -362,12 +409,13 @@ namespace Game.Framework.Timing
             return Dispatch();
         }
 
-        public int Update()
+        /// <summary>推进该对象的一次更新。</summary>
+        internal int UpdateInternal()
         {
             MainThread();
             if (scaledClock == null)
             {
-                throw new InvalidOperationException("Bind clocks with UseClocks, or use Update(delta, delta) for a manual host.");
+                throw new InvalidOperationException("Bind clocks with UseClocks, or use UpdateInternal(delta, delta) for a manual host.");
             }
 
             if (updating)
@@ -547,7 +595,8 @@ namespace Game.Framework.Timing
             return entry != null && entry.Id <= cutoff && entry.Due <= (entry.Unscaled ? unscaledTime : scaledTime);
         }
 
-        public void Clear(bool trimExcess = false)
+        /// <summary>清空计时器管理器。</summary>
+        private void ClearInternal(bool trimExcess = false)
         {
             MainThread();
             ClearCore(trimExcess);

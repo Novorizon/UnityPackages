@@ -1,6 +1,6 @@
 # 定时器与周期结算
 
-命名空间 Game.Framework.Timing，入口 TimerManager.Instance。Unity 用一个共享 Update 驱动，不为每个计时器创建线程、Task 或协程，业务不调用 Update。
+命名空间 Game.Framework.Timing，入口 TimerManager。Unity 用一个共享 Update 驱动，不为每个计时器创建线程、Task 或协程，业务不调用 Update。
 
 ## 延迟、循环和取消
 
@@ -9,9 +9,9 @@
 ```csharp
 using Game.Framework.Timing;
 
-TimerHandle delay = TimerManager.Instance.Schedule(2, RefreshUi);
-TimerHandle countdown = TimerManager.Instance.Repeat(1, RefreshCountdown, useUnscaledTime: true);
-TimerHandle polling = TimerManager.Instance.Repeat(1, Poll, useUnscaledTime: true,
+TimerHandle delay = TimerManager.Schedule(2, RefreshUi);
+TimerHandle countdown = TimerManager.Repeat(1, RefreshCountdown, useUnscaledTime: true);
+TimerHandle polling = TimerManager.Repeat(1, Poll, useUnscaledTime: true,
     mode: TimerRepeatMode.FixedDelay);
 
 delay.Cancel();
@@ -65,7 +65,7 @@ public sealed class PeriodicProductionExample : MonoBehaviour
     {
         origin = Time.realtimeSinceStartupAsDouble;
         initialized = true;
-        wakeup = TimerManager.Instance.Repeat(0.5, Settle, useUnscaledTime: true);
+        wakeup = TimerManager.Repeat(0.5, Settle, useUnscaledTime: true);
     }
 
     public void Settle()
@@ -102,6 +102,6 @@ Clear 取消全局任务，Clear(trimExcess: true) 进一步收缩缓存。普�
 
 ## 独立 .NET 宿主
 
-先在宿主线程 UnityThread.InitializeManual，再周期调用 UnityThread.Update 与 TimerManager.Instance.Update(scaledDeltaSeconds, unscaledDeltaSeconds)。也可在无任务、非分发时 UseClocks(gameClock, realClock) 绑定有限、非负、单调秒数函数，再无参 Update；绑定后不混用 delta 重载。
+先在宿主线程 UnityThread.InitializeManual，再周期调用 UnityThread.Update 与 TimerManager.Update(scaledDeltaSeconds, unscaledDeltaSeconds)。也可在无任务、非分发时 UseClocks(gameClock, realClock) 绑定有限、非负、单调秒数函数，再调用 `TimerManager.Update()`；绑定后不混用 delta 重载。
 
 Unity 正常运行已自动绑定时钟，不重新 UseClocks，也不手动推进第二次。

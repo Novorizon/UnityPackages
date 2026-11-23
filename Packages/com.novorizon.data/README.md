@@ -9,10 +9,10 @@ Luban 不需要注册。生成的 `cfg.Tables` 已经知道有哪些表、如何
 ```csharp
 using Game.Framework.Data;
 
-DataManager.Instance.Initialize(); // GameStarter 已初始化时可省略
-var tables = await DataManager.Instance.LoadAsync(reader => new cfg.Tables(reader));
+DataManager.Initialize(); // GameStarter 已初始化时可省略
+var tables = await DataManager.LoadAsync(reader => new cfg.Tables(reader));
 var row = tables.TbExample[1];
-var current = DataManager.Instance.Get<cfg.Tables>();
+var current = DataManager.Get<cfg.Tables>();
 ```
 
 `LoadAsync` 异步读取清单中的所有二进制文件，再调用生成的同步 Tables 构造函数。不需要 Register，也无需逐张登记表。每种 Tables 类型保存一份当前快照；Get 在尚未加载时抛出异常，也可用 TryGet 查询。表名和行查询 API 由 Luban 生成，框架不重复包装成 Player、Item 等业务属性。
@@ -26,7 +26,7 @@ var current = DataManager.Instance.Get<cfg.Tables>();
 项目使用 YooAsset 时，可以在字节加载器中读取文本资源并归还这次引用。
 
 ```csharp
-DataManager.Instance.Initialize(async (location, token) =>
+DataManager.Initialize(async (location, token) =>
 {
     var asset = await ResourceManager.LoadAssetAsync<TextAsset>(location, token);
     if (asset == null)

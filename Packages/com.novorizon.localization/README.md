@@ -43,7 +43,7 @@ using Game.Framework.Data;
 using Game.Framework.Storage;
 using Game.Framework.Localization;
 
-var tables = await DataManager.Instance.LoadAsync(
+var tables = await DataManager.LoadAsync(
     reader => new localizationSample.Tables(reader),
     manifestLocation: "Localization/manifest");
 var catalog = LocalizationCatalog.FromRows(
@@ -70,7 +70,7 @@ await LocalizationManager.Instance.SetLanguageAsync("en", async (language, token
     await PrepareProjectFontsAndImagesAsync(language, token);
 }, token);
 // 成功后由项目持久化 locale；翻译正文不写入玩家存档。
-LocalStorageManager.Instance.SaveText("settings/language.txt", "en");
+LocalStorage.SaveText("settings/language.txt", "en");
 ```
 
 PrepareProjectFontsAndImagesAsync 是项目方法：准备所需资源、持有其租约，失败时归还未发布资源。prepare 只准备，不提前替换可见 UI。准备成功且该请求仍为最新请求后，服务提交语言并触发 LanguageChanged。取消、准备失败、后发请求或 Dispose 都不能发布过期语言；不支持取消的底层资源操作可能继续，由项目加载器清理其结果。

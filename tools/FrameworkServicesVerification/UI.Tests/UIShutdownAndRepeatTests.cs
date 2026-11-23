@@ -147,19 +147,19 @@ public sealed class UIShutdownAndRepeatTests : IDisposable
         prefab.AddComponent<Probe>();
         var previous = new Loader(prefab);
         var root = UIManager.Instance;
-        root.SetAssetLoader(previous);
-        var handle = await root.Popups.OpenAsync("old");
+        UIManager.SetAssetLoader(previous);
+        var handle = await UIManager.Popups.OpenAsync("old");
         Object.DeferGameObjectDestructionForTest = true;
-        root.SetAssetLoader(new Loader(prefab));
-        var first = root.ShutdownAsync();
-        var repeated = UIManager.Instance.ShutdownAsync();
+        UIManager.SetAssetLoader(new Loader(prefab));
+        var first = UIManager.ShutdownAsync();
+        var repeated = UIManager.ShutdownAsync();
         Assert.False(first.IsCompleted);
         Assert.False(repeated.IsCompleted);
         Assert.Equal(0, previous.Releases);
         Object.FlushDestroyQueueForTest();
         await Task.WhenAll(first, repeated).WaitAsync(TimeSpan.FromSeconds(2));
         Assert.Equal(1, previous.Releases);
-        Assert.False(root.IsInitialized);
+        Assert.False(UIManager.IsInitialized);
     }
 
     private sealed class Loader : IUIAssetLoader

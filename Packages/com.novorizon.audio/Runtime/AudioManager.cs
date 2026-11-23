@@ -1,12 +1,120 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Game.Framework.Audio
 {
     /// <summary>音源统一管理和回收。AudioClip 由调用者或资源系统持有，播放期间必须保持有效。</summary>
     public sealed partial class AudioManager : MonoSingleton<AudioManager>
     {
+        /// <summary>在当前音频组件上播放，返回的句柄只控制此次播放。</summary>
+        public static AudioHandle Play(
+            AudioClip clip,
+            AudioGroup group = AudioGroup.Sound,
+            bool loop = false,
+            float volume = 1,
+            float pitch = 1,
+            Vector3? position = null,
+            Action<AudioHandle> completed = null) =>
+            Instance.PlayInternal(clip, group, loop, volume, pitch, position, completed);
+
+        /// <summary>尝试在当前音频组件上播放，返回的句柄绑定该组件。</summary>
+        public static bool TryPlay(
+            AudioClip clip,
+            out AudioHandle handle,
+            AudioGroup group = AudioGroup.Sound,
+            bool loop = false,
+            float volume = 1,
+            float pitch = 1,
+            Vector3? position = null,
+            Action<AudioHandle> completed = null) =>
+            Instance.TryPlayInternal(clip, out handle, group, loop, volume, pitch, position, completed);
+
+        /// <summary>读取指定分组的音量系数，范围为 0 到 1。</summary>
+        public static float GetGroupVolume(AudioGroup group) =>
+            Instance.GetGroupVolumeInternal(group);
+
+        /// <summary>修改分组音量并立即应用到已有播放，之后的新播放也使用该音量。</summary>
+        public static void SetGroupVolume(AudioGroup group, float volume) =>
+            Instance.SetGroupVolumeInternal(group, volume);
+
+        /// <summary>暂停全部音源。全局暂停期间发起的新播放也会立即暂停。</summary>
+        public static void PauseAll() =>
+            Instance.PauseAllInternal();
+
+        /// <summary>解除全局暂停，单独暂停的播放继续保持暂停。</summary>
+        public static void ResumeAll() =>
+            Instance.ResumeAllInternal();
+
+        /// <summary>停止指定分组的播放，group 为 null 时停止所有分组。主动停止不触发自然播放完成回调。</summary>
+        public static void StopAll(AudioGroup? group = null)
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.StopAllInternal(group);
+            }
+        }
+
+        /// <summary>路由同时作用于当前播放和之后的新播放，null 恢复直接输出。</summary>
+        public static void SetMixerGroup(AudioGroup group, AudioMixerGroup mixerGroup) =>
+            Instance.SetMixerGroupInternal(group, mixerGroup);
+
+        /// <summary>在当前音频组件上切换音乐，返回的句柄绑定此次播放。</summary>
+        public static AudioHandle PlayMusic(
+            AudioClip clip,
+            float fadeSeconds = 0.3f,
+            float volume = 1,
+            bool loop = true,
+            AudioFadeCurve curve = AudioFadeCurve.EqualPower) =>
+            Instance.PlayMusicInternal(clip, fadeSeconds, volume, loop, curve);
+
+        /// <summary>停止 PlayMusic 创建的音乐，包括正在淡出的旧音乐；不影响普通 Music 分组播放。</summary>
+        public static void StopMusic(float fadeSeconds = 0, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
+        {
+            if (TryGetInstance(out var current))
+            {
+                current.StopMusicInternal(fadeSeconds, curve);
+            }
+        }
+
+        /// <summary>手动模式的统一时钟。暂停期间不推进渐变；完成回调中的重入 Tick 会被忽略。</summary>
+        public static void Tick(float deltaTime) =>
+            Instance.TickInternal(deltaTime);
+
+        public static int PlayingCount => TryGetInstance(out var current) ? current.playingCount : 0;
+
+        public static int PooledCount => TryGetInstance(out var current) ? current.pooledCount : 0;
+
+        public static bool IsPaused => TryGetInstance(out var current) ? current.paused : false;
+
+        public static int MaxVoices
+        {
+            get => Instance.VoiceLimit;
+            set => Instance.VoiceLimit = value;
+        }
+
+        public static float MasterVolume
+        {
+            get => Instance.Volume;
+            set => Instance.Volume = value;
+        }
+
+        public static bool AutomaticUpdate
+        {
+            get => Instance.automaticUpdate;
+            set => Instance.automaticUpdate = value;
+        }
+
+        public static bool UseUnscaledTime
+        {
+            get => Instance.useUnscaledTime;
+            set => Instance.useUnscaledTime = value;
+        }
+
+        public static AudioHandle CurrentMusic => TryGetInstance(out var current) ? current.music : default;
+
+        /// <summary>记录一次播放的音源、分组、状态和完成回调。对象回收入池后可供其他播放复用。</summary>
         private sealed class Voice
         {
             internal AudioSource Source;
@@ -34,11 +142,11 @@ namespace Game.Framework.Audio
         private bool paused;
         private float masterVolume = 1;
         private int maxVoices = 32;
-        public int PlayingCount => voices.Count;
-        public int PooledCount => pool.Count;
-        public bool IsPaused => paused;
+        private int playingCount => voices.Count;
+        private int pooledCount => pool.Count;
 
-        public int MaxVoices
+        /// <summary>同时播放的数量上限。降低上限时回收闲置对象，运行中的播放数量必须小于或等于新上限。</summary>
+        private int VoiceLimit
         {
             get => maxVoices;
             set
@@ -66,7 +174,8 @@ namespace Game.Framework.Audio
             }
         }
 
-        public float MasterVolume
+        /// <summary>总音量，取值为 0 到 1。修改时立即更新当前所有音源。</summary>
+        private float Volume
         {
             get => masterVolume;
             set
@@ -89,9 +198,10 @@ namespace Game.Framework.Audio
             initialized = true;
         }
 
-        public AudioHandle Play(AudioClip clip, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
+        /// <summary>创建一次播放并返回控制句柄。传入 position 时启用 3D 音频，达到并发数量上限时抛出异常。</summary>
+        private AudioHandle PlayInternal(AudioClip clip, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
         {
-            if (!TryPlay(clip, out var handle, group, loop, volume, pitch, position, completed))
+            if (!TryPlayInternal(clip, out var handle, group, loop, volume, pitch, position, completed))
             {
                 throw new InvalidOperationException("Maximum concurrent audio voices reached.");
             }
@@ -99,7 +209,8 @@ namespace Game.Framework.Audio
             return handle;
         }
 
-        public bool TryPlay(AudioClip clip, out AudioHandle handle, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
+        /// <summary>申请播放实例并返回句柄，达到同时播放数量上限时返回 false。</summary>
+        private bool TryPlayInternal(AudioClip clip, out AudioHandle handle, AudioGroup group = AudioGroup.Sound, bool loop = false, float volume = 1, float pitch = 1, Vector3? position = null, Action<AudioHandle> completed = null)
         {
             MainThread();
             if (!initialized)
@@ -166,13 +277,15 @@ namespace Game.Framework.Audio
             return true;
         }
 
-        public float GetGroupVolume(AudioGroup group)
+        /// <summary>读取指定分组的音量系数，范围为 0 到 1。</summary>
+        private float GetGroupVolumeInternal(AudioGroup group)
         {
             ValidateGroup(group);
             return groupVolumes[(int)group];
         }
 
-        public void SetGroupVolume(AudioGroup group, float volume)
+        /// <summary>修改分组音量并立即应用到已有播放，之后的新播放也使用该音量。</summary>
+        private void SetGroupVolumeInternal(AudioGroup group, float volume)
         {
             MainThread();
             ValidateGroup(group);
@@ -181,7 +294,8 @@ namespace Game.Framework.Audio
             ApplyVolumes();
         }
 
-        public void PauseAll()
+        /// <summary>暂停全部音源。全局暂停期间发起的新播放也会立即暂停。</summary>
+        private void PauseAllInternal()
         {
             MainThread();
             if (paused)
@@ -199,7 +313,8 @@ namespace Game.Framework.Audio
             }
         }
 
-        public void ResumeAll()
+        /// <summary>解除全局暂停，单独暂停的播放继续保持暂停。</summary>
+        private void ResumeAllInternal()
         {
             MainThread();
             if (!paused)
@@ -217,7 +332,8 @@ namespace Game.Framework.Audio
             }
         }
 
-        public void StopAll(AudioGroup? group = null)
+        /// <summary>停止指定分组的播放，group 为 null 时停止所有分组。主动停止不触发自然播放完成回调。</summary>
+        private void StopAllInternal(AudioGroup? group = null)
         {
             MainThread();
             if (group.HasValue)
@@ -295,9 +411,9 @@ namespace Game.Framework.Audio
 
         private void Update()
         {
-            if (AutomaticUpdate && !IsDestroying)
+            if (automaticUpdate && !IsDestroying)
             {
-                Tick(UseUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
+                TickInternal(useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime);
             }
         }
 

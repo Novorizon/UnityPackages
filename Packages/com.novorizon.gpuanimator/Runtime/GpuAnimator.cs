@@ -285,7 +285,7 @@ public sealed class GpuAnimator : MonoBehaviour
     {
         if (Application.isPlaying && automaticUpdate && IsPlaying && isActiveAndEnabled)
         {
-            GpuAnimatorManager.Instance?.Register(this);
+            GpuAnimatorManager.Register(this);
         }
         else
         {
@@ -295,10 +295,7 @@ public sealed class GpuAnimator : MonoBehaviour
 
     private void Unregister()
     {
-        if (GpuAnimatorManager.TryGetInstance(out var manager))
-        {
-            manager.Unregister(this);
-        }
+        GpuAnimatorManager.Unregister(this);
     }
 
     private void QueueNotification(NotificationKind kind, string clip)

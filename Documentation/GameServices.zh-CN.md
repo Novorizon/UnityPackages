@@ -1,6 +1,8 @@
 # 游戏基础服务
 
-Framework 内提供场景与本地存储；音频为 com.novorizon.audio，Luban 数据表为 com.novorizon.data。各自复用 Framework 单例，不依赖 ECS/Ability，不包含玩家、背包或关卡业务。输入为 com.novorizon.input；framework.all 的目录包含三个服务包、官方 Luban 运行时，以及 Unity Audio/Input System 模块。
+Framework 内提供场景与本地存储；音频为 com.novorizon.audio，Luban 数据表为 com.novorizon.data。存储与数据使用单层静态状态，场景和音频使用各自的生命周期。不依赖 ECS/Ability，不包含玩家、背包或关卡业务。输入为 com.novorizon.input；framework.all 的目录包含三个服务包、官方 Luban 运行时，以及 Unity Audio/Input System 模块。
+
+[Manager 静态 API 迁移表](ManagerApiMigration.zh-CN.md)
 
 ## 初始化
 
@@ -12,10 +14,10 @@ using Game.Framework.Data;
 using Game.Framework.Storage;
 using GameSceneManager = Game.Framework.Scenes.SceneManager;
 
-LocalStorageManager.Instance.Initialize();
+LocalStorage.Initialize();
 GameSceneManager.Instance.Initialize();
 AudioManager.Instance.Initialize();
-DataManager.Instance.Initialize();
+DataManager.Initialize();
 ```
 
 ## 场景
@@ -36,22 +38,22 @@ await GameSceneManager.Instance.UnloadAsync(world);
 DataManager 位于独立 com.novorizon.data 包中，只负责 Luban 生成的表。无需注册；加载时传入生成的 Tables 构造方式：
 
 ```csharp
-var tables = await DataManager.Instance.LoadAsync(reader => new cfg.Tables(reader));
+var tables = await DataManager.LoadAsync(reader => new cfg.Tables(reader));
 var row = tables.TbExample[1];
-var current = DataManager.Instance.Get<cfg.Tables>();
+var current = DataManager.Get<cfg.Tables>();
 ```
 
-生成的 Tables 负责具体表和引用解析。DataManager 负责异步读取与完整快照替换；加载失败保留上一次成功结果。DataManager 的通用默认实现可以从 Resources 读取；GameStarter 固定使用 YooAsset，清单和表文件共用一个字节加载器，每次读取使用独立 AcquireAsync<TextAsset> 租约并及时释放。生成和程序集引用详见 [Data 包说明](../Packages/com.novorizon.data/README.md)。
+生成的 Tables 负责具体表和引用解析。DataManager 负责异步读取与完整快照替换；加载失败保留上一次成功结果。DataManager 的通用默认实现可以从 Resources 读取；GameStarter 固定使用 YooAsset，清单和表文件共用一个字节加载器，每次读取通过 `ResourceManager.LoadAssetAsync<TextAsset>` 取得字节后归还引用。生成和程序集引用详见 [Data 包说明](../Packages/com.novorizon.data/README.md)。
 
-玩家属性、背包等动态数据由业务层维护，不登记到 DataManager。其他 JSON 文件也由业务按具体结构读取、反序列化；框架不再提供通用 JSON 表包装。版本化 JSON 存档仍由 LocalStorageManager 提供。
+玩家属性、背包等动态数据由业务层维护，不登记到 DataManager。其他 JSON 文件也由业务按具体结构读取、反序列化；框架不再提供通用 JSON 表包装。版本化 JSON 存档仍由 LocalStorage 提供。
 
 ## 本地存储
 
-默认目录为 Application.persistentDataPath/Storage。Initialize(directory) 可指定测试或项目目录；一个实例不能中途换目录。
+默认目录为 Application.persistentDataPath/Storage。Initialize(directory) 可指定测试或项目目录；切换目录前调用 `LocalStorage.Reset()`。
 
 ```csharp
-LocalStorageManager.Instance.SaveJson("settings.json", data, version: 1);
-var restored = LocalStorageManager.Instance.LoadJson<RuntimeData>("settings.json", version: 1);
+LocalStorage.SaveJson("settings.json", data, version: 1);
+var restored = LocalStorage.LoadJson<RuntimeData>("settings.json", version: 1);
 ```
 
 支持 Bytes/Text/Json、Exists、Delete。JSON 使用 JsonUtility 字段序列化，记录包含版本号；迁移回调只转换内存结果，项目明确 SaveJson 后才覆盖旧文件。未来版本、无迁移函数或坏数据会报错，不默认清空存档。

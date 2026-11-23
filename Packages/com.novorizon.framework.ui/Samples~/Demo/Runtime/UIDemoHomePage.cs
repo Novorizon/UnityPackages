@@ -50,7 +50,7 @@ namespace UI.Demo
             previousStatus = string.Empty;
             previousLeases = -1;
             received = 0;
-            Track(owner.Root.Bus.SubscribeScoped<UIDemoPulse>(OnPulse));
+            Track(owner.UIManager.Bus.SubscribeScoped<UIDemoPulse>(OnPulse));
             if (scopeLabel != null)
             {
                 scopeLabel.text = "OpenToken refresh pending for 1 second. Hide keeps the scope; Close cancels it.";

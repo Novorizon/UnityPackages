@@ -34,7 +34,7 @@ UI 包依赖 Framework 与 uGUI，以 IUIAssetLoader 对接任意资源系统；
 
 场景协调器为 `Game.Framework.Scenes.SceneManager`，支持 Build Settings 场景和可注入的 ISceneLoader；YooAsset 场景适配在独立 yooasset 包中。
 
-`Game.Framework.Storage.LocalStorageManager` 提供 persistentDataPath 下的版本化 JSON/Text/Bytes 读写、临时文件替换与备份。它们不定义玩家存档字段。
+`Game.Framework.Storage.LocalStorage` 提供 persistentDataPath 下的版本化 JSON/Text/Bytes 读写、临时文件替换与备份。它们不定义玩家存档字段。
 
 音频 `com.novorizon.audio` 和 Luban 数据表 `com.novorizon.data` 是依赖 Framework 的独立包，可通过 framework.all 一起安装。
 
@@ -47,16 +47,16 @@ MonoSingleton<T> 的 OnStart 在一次运行中只执行一次，OnExit 负责�
 ```csharp
 protected override void OnStart()
 {
-    LocalStorageManager.Instance.Initialize();
+    LocalStorage.Initialize();
 }
 
 protected override void OnExit()
 {
-    LocalStorageManager.Release();
+    LocalStorage.Reset();
 }
 ```
 
-上例的 LocalStorageManager 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。
+上例的 LocalStorage 位于 Game.Framework.Storage。释放已有单例时推荐 XxxManager.Release()，它不会通过 Instance 创建未使用的实例；已经取得实例也可调用 Dispose。
 
 初始化状态和重复释放由组件内部处理。GameStarter 在 OnStart 直接准备服务、在 OnExit 直接释放，不维护 Manager 所有权或跨服务初始化失败回滚。
 

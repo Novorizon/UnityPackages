@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Game.Framework.Data
 {
+    /// <summary>提供Luban 清单的实现。</summary>
     [Serializable]
     public sealed class LubanManifest
     {
@@ -16,6 +17,7 @@ namespace Game.Framework.Data
         public LubanFile[] files;
     }
 
+    /// <summary>提供Luban 文件的实现。</summary>
     [Serializable]
     public sealed class LubanFile
     {
@@ -24,37 +26,27 @@ namespace Game.Framework.Data
     }
 
     /// <summary>按 Luban Tables 构造函数加载完整快照；不需要预注册，不持有玩家动态数据。</summary>
-    public sealed class DataManager : Singleton<DataManager>, IDisposable
+    public static class DataManager
     {
-        private readonly Dictionary<Type, object> tables = new Dictionary<Type, object>();
-        private readonly Dictionary<Type, long> requests = new Dictionary<Type, long>();
-        private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
-        private readonly CancellationToken lifetimeToken;
-        private Func<string, CancellationToken, Task<byte[]>> loadBytes;
-        private long revision;
-        private bool disposed;
-        public int Count => tables.Count;
-        public bool Initialized => loadBytes != null && !disposed;
-
-        public DataManager()
+#if UNITY_EDITOR
+        static DataManager()
         {
-            lifetimeToken = lifetime.Token;
+            EditorStaticReset.Register(Reset);
         }
+#endif
 
-        public static void Reset()
-        {
-            Release();
-        }
+        private static readonly Dictionary<Type, object> tables = new Dictionary<Type, object>();
+        private static readonly Dictionary<Type, long> requests = new Dictionary<Type, long>();
+        private static CancellationTokenSource lifetime;
+        private static Func<string, CancellationToken, Task<byte[]>> loadBytes;
+        private static long revision;
 
-        public override void Initialize()
-        {
-            Initialize(null);
-        }
+        public static int Count => tables.Count;
+        public static bool Initialized => loadBytes != null;
 
         /// <summary>清单和表文件共用一个字节加载器；默认从 Resources 读取 TextAsset。</summary>
-        public void Initialize(Func<string, CancellationToken, Task<byte[]>> loader)
+        public static void Initialize(Func<string, CancellationToken, Task<byte[]>> loader = null)
         {
-            EnsureAvailable();
             if (loadBytes != null)
             {
                 if (loader != null && loadBytes != loader)
@@ -65,14 +57,15 @@ namespace Game.Framework.Data
                 return;
             }
 
+            lifetime = new CancellationTokenSource();
             loadBytes = loader ?? LoadResourcesBytesAsync;
         }
 
         /// <summary>直接传入生成的 Tables 构造函数；完整读取并校验成功后才替换同类型旧快照。</summary>
-        public async Task<TTables> LoadAsync<TTables>(Func<Func<string, ByteBuf>, TTables> createTables, string manifestLocation = "Config/Luban/manifest", CancellationToken token = default)
+        /// <remarks>加载清单及 Luban 表数据，全部成功后才发布新的表快照。</remarks>
+        public static async Task<TTables> LoadAsync<TTables>(Func<Func<string, ByteBuf>, TTables> createTables, string manifestLocation = "Config/Luban/manifest", CancellationToken token = default)
             where TTables : class
         {
-            EnsureAvailable();
             if (!Initialized)
             {
                 throw new InvalidOperationException("Initialize DataManager first.");
@@ -88,12 +81,14 @@ namespace Game.Framework.Data
                 throw new ArgumentException("A Luban manifest location is required.", nameof(manifestLocation));
             }
 
-            using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, lifetimeToken);
+            // 保存本轮加载器和令牌，Reset 之后旧请求不能借用新一轮的配置。
+            var loader = loadBytes;
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token);
             var active = linked.Token;
             active.ThrowIfCancellationRequested();
             long request = ++revision;
             requests[typeof(TTables)] = request;
-            byte[] manifestBytes = await TaskUtil.WaitAsync(loadBytes(manifestLocation, active), active);
+            byte[] manifestBytes = await TaskUtil.WaitAsync(loader(manifestLocation, active), active);
             CheckRequest(typeof(TTables), request, active);
             if (manifestBytes == null)
             {
@@ -120,7 +115,7 @@ namespace Game.Framework.Data
             foreach (var file in manifest.files)
             {
                 CheckRequest(typeof(TTables), request, active);
-                byte[] bytes = await TaskUtil.WaitAsync(loadBytes(file.location, active), active);
+                byte[] bytes = await TaskUtil.WaitAsync(loader(file.location, active), active);
                 if (bytes == null)
                 {
                     throw new InvalidOperationException("Luban data loader returned null: " + file.location);
@@ -143,7 +138,8 @@ namespace Game.Framework.Data
             return snapshot;
         }
 
-        public TTables Get<TTables>()
+        /// <summary>读取该类型最新发布的配置表，未加载时抛出异常。</summary>
+        public static TTables Get<TTables>()
             where TTables : class
         {
             if (!TryGet<TTables>(out var value))
@@ -154,63 +150,55 @@ namespace Game.Framework.Data
             return value;
         }
 
-        public bool TryGet<TTables>(out TTables value)
+        /// <summary>读取该表类型的当前快照，尚未加载时返回 false。</summary>
+        public static bool TryGet<TTables>(out TTables value)
             where TTables : class
         {
-            EnsureAvailable();
             value = tables.TryGetValue(typeof(TTables), out var snapshot) ? (TTables)snapshot : null;
             return value != null;
         }
 
         /// <summary>使未完成的加载失效并清空已加载快照；再次加载时直接传入构造函数。</summary>
-        public void Clear()
+        public static void Clear()
         {
-            EnsureAvailable();
             ++revision;
             requests.Clear();
             tables.Clear();
         }
 
-        private void CheckRequest(Type type, long request, CancellationToken token)
+        // 用请求序号阻止过期的异步加载覆盖后发请求的结果。
+        private static void CheckRequest(Type type, long request, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            EnsureAvailable();
             if (!requests.TryGetValue(type, out var current) || current != request)
             {
                 throw new OperationCanceledException("Luban load was superseded or cleared.");
             }
         }
 
-        private void EnsureAvailable()
+        /// <summary>取消旧请求并清空配置表。下一次 Initialize 会创建新的生命周期令牌。</summary>
+        public static void Reset()
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(nameof(DataManager));
-            }
-        }
-
-        public void Dispose()
-        {
-            if (disposed)
+            var previous = lifetime;
+            lifetime = null;
+            loadBytes = null;
+            Clear();
+            if (previous == null)
             {
                 return;
             }
 
-            disposed = true;
-            requests.Clear();
-            tables.Clear();
-            loadBytes = null;
             try
             {
-                lifetime.Cancel();
+                previous.Cancel();
             }
             finally
             {
-                lifetime.Dispose();
-                ClearInstanceIfCurrent(this);
+                previous.Dispose();
             }
         }
 
+        /// <summary>异步加载资源字节数据。</summary>
         private static async Task<byte[]> LoadResourcesBytesAsync(string location, CancellationToken token)
         {
             if (!UnityThread.IsMainThread)

@@ -32,11 +32,11 @@ public sealed class UIRootRegressionTests : IDisposable
         Assert.NotSame(typeof(UIManager).Assembly, typeof(Game.Framework.MonoSingleton<>).Assembly);
         Assert.NotSame(typeof(UIManager).Assembly, typeof(Game.Framework.Event.MessageBus).Assembly);
         int received = 0;
-        root.Bus.Subscribe<int>(value => received += value);
+        UIManager.Bus.Subscribe<int>(value => received += value);
         var otherScope = new Game.Framework.Event.MessageBus();
         otherScope.Publish(100);
         Assert.Equal(0, received);
-        root.Bus.Publish(2);
+        UIManager.Bus.Publish(2);
         Assert.Equal(2, received);
     }
 
@@ -49,7 +49,7 @@ public sealed class UIRootRegressionTests : IDisposable
         var root = UIManager.Instance;
         Assert.Empty(Object.FindObjectsOfType<EventSystem>(true));
         var project = new GameObject("Project Input").AddComponent<EventSystem>();
-        root.SetEventSystem(project);
+        UIManager.SetEventSystem(project);
         Assert.Same(project, EventSystem.current);
         Assert.True(project.isActiveAndEnabled);
         Object.Destroy(root.gameObject);
@@ -94,7 +94,7 @@ public sealed class UIRootRegressionTests : IDisposable
         var fallback = Assert.Single(ActiveSystems());
         var first = new GameObject("Player One Input").AddComponent<EventSystem>();
         var second = new GameObject("Player Two Input").AddComponent<EventSystem>();
-        root.SetEventSystem(second);
+        UIManager.SetEventSystem(second);
         Assert.Same(second, EventSystem.current);
         Assert.False(fallback.gameObject.activeSelf);
         Assert.True(first.isActiveAndEnabled);
@@ -115,19 +115,19 @@ public sealed class UIRootRegressionTests : IDisposable
         Assert.Null(canvas.worldCamera);
         var settings = ScriptableObject.CreateInstance<UISettings>();
         settings.useMainCamera = true;
-        root.SetSettings(settings);
+        UIManager.SetSettings(settings);
         Assert.Same(first, canvas.worldCamera);
         var second = new GameObject("Camera B").AddComponent<Camera>();
         Camera.main = second;
         SceneManager.LoadForTest();
         Assert.Same(second, canvas.worldCamera);
-        root.SetCamera(first);
+        UIManager.SetCamera(first);
         SceneManager.ChangeActiveForTest();
         Assert.Same(first, canvas.worldCamera);
         first.enabled = false;
         Object.AdvanceFrameForTest();
         Assert.Same(second, canvas.worldCamera);
-        root.SetCamera(null);
+        UIManager.SetCamera(null);
         Assert.Same(second, canvas.worldCamera);
         Object.Destroy(second.gameObject);
         Camera.main = null;
@@ -148,7 +148,7 @@ public sealed class UIRootRegressionTests : IDisposable
         settings.sortingOrderStep = int.MaxValue;
         settings.referenceWidth = 0;
         settings.referenceHeight = 0;
-        root.SetSettings(settings);
+        UIManager.SetSettings(settings);
         Assert.InRange(Layer(root, UILayer.Overlay).sortingOrder, 1, short.MaxValue);
         Assert.Equal(1, RootCanvas(root).GetComponent<CanvasScaler>().referenceResolution.x);
     }
@@ -189,13 +189,13 @@ public sealed class UIRootRegressionTests : IDisposable
     public void PlayResetReinitializesASurvivingRootAndClearsItsOldManagersAndBus()
     {
         var root = UIManager.Instance;
-        var oldPopups = root.Popups;
+        var oldPopups = UIManager.Popups;
         int received = 0;
-        root.Bus.Subscribe<int>(_ => received++);
+        UIManager.Bus.Subscribe<int>(_ => received++);
         Object.ResetSingletonsForPlay();
         Assert.Same(root, UIManager.Instance);
-        Assert.NotSame(oldPopups, root.Popups);
-        root.Bus.Publish(42);
+        Assert.NotSame(oldPopups, UIManager.Popups);
+        UIManager.Bus.Publish(42);
         Assert.Equal(0, received);
         Assert.Equal(1, SceneManager.SceneLoadedSubscriberCountForTest);
         Assert.Equal(1, Application.QuittingSubscriberCountForTest);
@@ -205,12 +205,12 @@ public sealed class UIRootRegressionTests : IDisposable
     public void RetainedRootCanStartAgainAfterItsQuitHook()
     {
         var root = UIManager.Instance;
-        var oldPopups = root.Popups;
+        var oldPopups = UIManager.Popups;
         typeof(UIManager).GetMethod("OnApplicationQuit", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(root, null);
         Object.ResetSingletonsForPlay();
         Assert.Same(root, UIManager.Instance);
-        Assert.True(root.IsInitialized);
-        Assert.NotSame(oldPopups, root.Popups);
+        Assert.True(UIManager.IsInitialized);
+        Assert.NotSame(oldPopups, UIManager.Popups);
         Assert.Equal(1, SceneManager.SceneLoadedSubscriberCountForTest);
     }
 

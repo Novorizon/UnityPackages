@@ -41,7 +41,7 @@ namespace Game.Framework
             if (TimerManager.TryGetInstance(out var timers))
             {
                 timers.EnsureClocks(scaledClock, unscaledClock);
-                timers.Update();
+                timers.UpdateInternal();
             }
         }
     }

@@ -13,12 +13,12 @@
 - await UIManager.ShutdownAsync() 等待未完成获取和实例原生销毁后的租约释放；更换过加载器的旧工厂也纳入等待。不能在尚未完成关闭时重新初始化。
 
 ```csharp
-await UIManager.Instance.Popups.OpenAsync("UI/Settings", options: new PopupOptions
+await UIManager.Popups.OpenAsync("UI/Settings", options: new PopupOptions
 {
     SingletonByPath = true,
     DuplicatePolicy = UIDuplicatePolicy.Focus
 });
-await UIManager.Instance.Pages.PushAsync("UI/Home", repeatPolicy: PageRepeatPolicy.ReuseTop);
+await UIManager.Pages.PushAsync("UI/Home", repeatPolicy: PageRepeatPolicy.ReuseTop);
 ```
 
 缓存窗口关闭时，其 OnOpen 作用域结束；prefab 租约继续保留到缓存淘汰或实例销毁。窗口重新打开需要重新取得属于本次打开的动态资源。

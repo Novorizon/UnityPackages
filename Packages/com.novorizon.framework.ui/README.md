@@ -19,10 +19,10 @@ Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<
 
 ## 分类与管理器（哪一类用哪些接口/入口）
 - **Page**：`UIPage : UIView` + `PageNavigator`
-  入口：`UIManager.Instance.Pages.PushAsync/ReplaceAsync/Pop/ResetToAsync`
+  入口：`UIManager.Pages.PushAsync/ReplaceAsync/Pop/ResetToAsync`
   原因：需要“返回路径”历史 → **栈**
 - **Popup**：`UIPopup : UIView` + `PopupManager`
-  入口：`UIManager.Instance.Popups.OpenAsync/CloseTop/Close`
+  入口：`UIManager.Popups.OpenAsync/CloseTop/Close`
   特性：`PopupOptions.Modal` 创建遮罩；返回键先关最上层
 - **Panel（侧边栏/非模态面板）**：`UIPanel : UIView` + `PanelManager`
   入口：`ShowAsync/Hide/ToggleAsync`（多数是开关状态，不进 page 栈）
@@ -35,7 +35,7 @@ Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<
   原因：短暂提示，不需要返回 → **队列**
 
 ## Back 优先级（标准建议）
-`UIManager.Instance.HandleBack()` / `HandleBackAsync()`：
+`UIManager.HandleBack()` / `HandleBackAsync()`：
 1) 有活动或正在加载的阻塞 Overlay 时消耗返回操作，不关闭下层
 2) 请求关闭最上层 Popup；顶层拒绝关闭时也不穿透下层
 3) 请求隐藏任意 HideOnBack 的 Panel
@@ -46,9 +46,9 @@ Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<
 
 ## 快速使用
 ```csharp
-await UI.UIManager.Instance.Pages.ResetToAsync("UI/Pages/MainMenuPage");
-await UI.UIManager.Instance.Popups.OpenAsync("UI/Popups/SettingsPopup");
-UI.UIManager.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
+await UI.UIManager.Pages.ResetToAsync("UI/Pages/MainMenuPage");
+await UI.UIManager.Popups.OpenAsync("UI/Popups/SettingsPopup");
+UI.UIManager.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
 ```
 
 
@@ -68,9 +68,9 @@ UI.UIManager.Instance.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
 
 ```csharp
 var root = UI.UIManager.Instance;
-root.ClearCache();       // 功能结束时释放失活缓存
-root.Toasts.Clear();     // 清空提示队列并结束当前提示，取消尚未完成的打开
-root.ResetAll();         // 场景/功能切换：关闭所有 UI、清空消息订阅，重建空管理器
+UI.UIManager.ClearCache();       // 功能结束时释放失活缓存
+UI.UIManager.Toasts.Clear();     // 清空提示队列并结束当前提示，取消尚未完成的打开
+UI.UIManager.ResetAll();         // 场景/功能切换：关闭所有 UI、清空消息订阅，重建空管理器
 ```
 
 根对象默认跨场景保留，因此场景或功能切换时由业务明确调用 `ResetAll`。`SetAssetLoader` 会关闭旧管理器与所有旧视图，再创建新管理器；旧管理器引用随之失效，业务应重新从根获取。根销毁也执行相同资源清理，并销毁由根创建的 EventSystem。不要在视图的清理回调中再次调用 `ResetAll/SetAssetLoader`；这种重入会抛出 `InvalidOperationException`，以免覆盖中间管理器。
@@ -102,10 +102,10 @@ YooAsset **2.3.18 为可选依赖**。项目通过 `IUIAssetLoader` 接入。每
 
 ```csharp
 var root = UI.UIManager.Instance;
-root.SetCamera(uiCamera);              // 项目专用 UI Camera
-root.SetEventSystem(projectInput);    // 可选：项目已有的 EventSystem
+UI.UIManager.SetCamera(uiCamera);              // 项目专用 UI Camera
+UI.UIManager.SetEventSystem(projectInput);    // 可选：项目已有的 EventSystem
 // 运行期切换相机/输入系统后，可显式刷新；场景加载/卸载会自动刷新。
-root.RefreshPlatform();
+UI.UIManager.RefreshPlatform();
 ```
 
 `SetCamera(null)` 恢复 UISettings 策略：`useMainCamera=true` 时使用当前主相机，否则 Overlay。旧版自动使用 Camera.main 的项目，应显式启用该选项或设置 UI Camera。`SetEventSystem(null)` 恢复自动发现。项目自有 EventSystem 的销毁和重复管理由项目负责，框架不会改动其激活状态或所有权；发现项目系统时仅停用自建备用系统，项目系统离开后可以恢复备用系统。
@@ -120,7 +120,7 @@ root.RefreshPlatform();
 
 保留原快照规则：回调中退订或 Clear 影响之后的发布，当前已取得的快照仍按原顺序执行；嵌套 Publish 使用更新后的订阅。单个回调抛异常会向发布者传播并中断本次发布，业务应处理自己的回调异常。页面关闭时应退订，缓存不会自动解除业务订阅。
 
-在页面中可用 `Track(root.Bus.SubscribeScoped<Message>(handler))` 自动拥有和退订。Scoped 注册各自独立，Dispose 后也会跳过当前快照中尚未执行的该回调；原 Subscribe 保留原有规则。实例长期订阅可用 TrackUntilDestroyed。
+在页面中可用 `Track(UI.UIManager.Bus.SubscribeScoped<Message>(handler))` 自动拥有和退订。Scoped 注册各自独立，Dispose 后也会跳过当前快照中尚未执行的该回调；原 Subscribe 保留原有规则。实例长期订阅可用 TrackUntilDestroyed。
 
 ## 验证范围
 

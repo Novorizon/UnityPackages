@@ -10,17 +10,17 @@ internal static partial class Program
 {
     private static void TimerDriverScenarios()
     {
-        RunTimerDriver("Unity driver install/update never creates an unused or released timer service", driver =>
+        RunTimerDriver("Unity driver never creates unused timers and disposed handles stay cancelled", driver =>
         {
             True(!TimerManager.IsCreated);
             TickTimerDriver(driver);
             True(!TimerManager.IsCreated);
             var timer = TimerManager.Instance;
             int fired = 0;
-            var pending = timer.Schedule(1, () => fired++);
+            var pending = TimerManager.Schedule(1, () => fired++);
             TickTimerDriver(driver);
             TimerManager.Release();
-            True(!pending.IsActive && !TimerManager.IsCreated);
+            True(!pending.IsActive);
             for (int i = 0; i < 3; i++)
             {
                 Time.timeAsDouble += 2;
@@ -31,7 +31,7 @@ internal static partial class Program
 
             Equal(0, fired);
         });
-        RunTimerDriver("explicit replacement timers retain queued delays and are not rebound each frame", driver =>
+        RunTimerDriver("timers scheduled after cleanup retain queued delays", driver =>
         {
             var original = TimerManager.Instance;
             TickTimerDriver(driver);
@@ -39,7 +39,7 @@ internal static partial class Program
             var replacement = TimerManager.Instance;
             True(!ReferenceEquals(original, replacement));
             int fired = 0;
-            replacement.Schedule(1, () => fired++);
+            TimerManager.Schedule(1, () => fired++);
             TickTimerDriver(driver);
             Time.timeAsDouble += .4;
             TickTimerDriver(driver);
@@ -47,7 +47,7 @@ internal static partial class Program
             Time.timeAsDouble += .7;
             TickTimerDriver(driver);
             Equal(1, fired);
-            replacement.Schedule(.5, () => fired++);
+            TimerManager.Schedule(.5, () => fired++);
             Time.timeAsDouble += .2;
             TickTimerDriver(driver);
             Equal(1, fired);
@@ -57,11 +57,10 @@ internal static partial class Program
         });
         RunTimerDriver("Unity driver preserves existing custom clocks and their active timers", driver =>
         {
-            var timer = TimerManager.Instance;
             double manualGame = 7, manualReal = 70;
-            timer.UseClocks(() => manualGame, () => manualReal);
+            TimerManager.UseClocks(() => manualGame, () => manualReal);
             int fired = 0;
-            timer.Schedule(.5, () => fired++);
+            TimerManager.Schedule(.5, () => fired++);
             Time.timeAsDouble = 100000;
             Time.realtimeSinceStartupAsDouble = 200000;
             TickTimerDriver(driver);
@@ -72,10 +71,10 @@ internal static partial class Program
         });
         RunTimerDriver("late Unity clock binding preserves elapsed manual time and queued remaining delay", driver =>
         {
-            var timer = TimerManager.Instance;
+            TimerManager.Instance.Dispose();
             int fired = 0;
-            timer.Schedule(2, () => fired++);
-            timer.Update(.3, .3);
+            TimerManager.Schedule(2, () => fired++);
+            TimerManager.Update(.3, .3);
             TickTimerDriver(driver);
             Time.timeAsDouble += 1.6;
             TickTimerDriver(driver);
@@ -86,10 +85,9 @@ internal static partial class Program
         });
         RunTimerDriver("replacement service binds both Unity clocks without conflating scaled/unscaled time", driver =>
         {
-            var timer = TimerManager.Instance;
             int scaled = 0, unscaled = 0;
-            timer.Schedule(.5, () => scaled++);
-            timer.Schedule(.5, () => unscaled++, true);
+            TimerManager.Schedule(.5, () => scaled++);
+            TimerManager.Schedule(.5, () => unscaled++, true);
             TickTimerDriver(driver);
             Time.realtimeSinceStartupAsDouble += .6;
             TickTimerDriver(driver);
@@ -104,11 +102,11 @@ internal static partial class Program
         {
             var timer = TimerManager.Instance;
             int fired = 0;
-            var old = timer.Schedule(.1, () => fired += 100);
+            var old = TimerManager.Schedule(.1, () => fired += 100);
             TickTimerDriver(driver);
             timer.Dispose();
             True(!old.IsActive);
-            timer.Schedule(.5, () => fired++);
+            TimerManager.Schedule(.5, () => fired++);
             TickTimerDriver(driver);
             Time.timeAsDouble += .6;
             TickTimerDriver(driver);

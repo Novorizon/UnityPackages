@@ -132,9 +132,14 @@ namespace Game.Framework.Diagnostics.Editor
                     bool isStatic = !singleton;
                     foreach (string part in path.Split('.'))
                     {
-                        var property = ReadableProperty(owner, part, isStatic ? PublicStatic : BindingFlags.Public | BindingFlags.Instance);
+                        var flags = isStatic ? PublicStatic : BindingFlags.Public | BindingFlags.Instance;
+                        if (singleton && ReferenceEquals(owner, type) && ReferenceEquals(value, instance))
+                        {
+                            flags |= PublicStatic;
+                        }
 
-                        value = property.GetValue(value);
+                        var property = ReadableProperty(owner, part, flags);
+                        value = property.GetValue(property.GetMethod.IsStatic ? null : value);
                         if (value == null)
                         {
                             break;

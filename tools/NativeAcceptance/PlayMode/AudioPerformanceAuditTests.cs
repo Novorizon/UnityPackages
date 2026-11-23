@@ -32,13 +32,13 @@ public sealed class AudioPerformanceAuditTests
         }
         bool ownService = !AudioManager.TryGetInstance(out var audio);
         audio = audio != null ? audio : AudioManager.Instance;
-        bool automatic = audio.AutomaticUpdate;
-        audio.AutomaticUpdate = false;
+        bool automatic = AudioManager.AutomaticUpdate;
+        AudioManager.AutomaticUpdate = false;
         var clip = AudioClip.Create("Audit silent loop", 256, 1, 22050, false);
         AudioHandle voice = default;
         try
         {
-            voice = audio.Play(clip, loop: true);
+            voice = AudioManager.Play(clip, loop: true);
             Assert.That(voice.FadeTo(.5f, 1, AudioFadeCurve.Linear), Is.True);
             Assert.That(voice.FadeTo(.5f, 1, AudioFadeCurve.SmoothStep), Is.True);
             Assert.That(voice.FadeTo(.5f, 1, AudioFadeCurve.EqualPower), Is.True);
@@ -80,7 +80,7 @@ public sealed class AudioPerformanceAuditTests
         finally
         {
             voice.Stop();
-            audio.AutomaticUpdate = automatic;
+            AudioManager.AutomaticUpdate = automatic;
             if (ownService)
             {
                 audio.Dispose();

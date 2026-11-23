@@ -23,12 +23,12 @@ namespace Game.Framework.Audio
         private readonly AudioMixerGroup[] mixerGroups = new AudioMixerGroup[4];
         private long musicId;
         private bool ticking;
-        public bool AutomaticUpdate { get; set; } = true;
-        public bool UseUnscaledTime { get; set; } = true;
-        public AudioHandle CurrentMusic => Contains(musicId) ? new AudioHandle(this, musicId) : default;
+        private bool automaticUpdate { get; set; } = true;
+        private bool useUnscaledTime { get; set; } = true;
+        private AudioHandle music => Contains(musicId) ? new AudioHandle(this, musicId) : default;
 
         /// <summary>路由同时作用于当前播放和之后的新播放，null 恢复直接输出。</summary>
-        public void SetMixerGroup(AudioGroup group, AudioMixerGroup mixerGroup)
+        private void SetMixerGroupInternal(AudioGroup group, AudioMixerGroup mixerGroup)
         {
             MainThread();
             ValidateGroup(group);
@@ -43,7 +43,8 @@ namespace Game.Framework.Audio
         }
 
         /// <summary>播放唯一的主音乐。渐变切换需要两个音源槽位，容量不足时保持原音乐。</summary>
-        public AudioHandle PlayMusic(AudioClip clip, float fadeSeconds = 0.3f, float volume = 1, bool loop = true, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
+        /// <remarks>播放音乐并按指定曲线淡入；已有背景音乐时可交叉淡化。</remarks>
+        private AudioHandle PlayMusicInternal(AudioClip clip, float fadeSeconds = 0.3f, float volume = 1, bool loop = true, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
         {
             MainThread();
             if (clip == null)
@@ -56,17 +57,17 @@ namespace Game.Framework.Audio
             if (voices.TryGetValue(musicId, out var current) && current.Source != null && current.Source.clip == clip && current.Source.loop == loop)
             {
                 FadeTo(musicId, volume, fadeSeconds, false, curve);
-                return CurrentMusic;
+                return music;
             }
 
             if (fadeSeconds == 0)
             {
-                StopMusic();
+                StopMusicInternal();
             }
 
             long previous = musicId;
             // 必须先成功获取新音源，再改变旧音乐的渐变。
-            var next = Play(clip, AudioGroup.Music, loop, fadeSeconds == 0 ? volume : 0);
+            var next = PlayInternal(clip, AudioGroup.Music, loop, fadeSeconds == 0 ? volume : 0);
             voices[next.Id].Music = true;
             musicId = next.Id;
             if (fadeSeconds != 0)
@@ -79,7 +80,7 @@ namespace Game.Framework.Audio
         }
 
         /// <summary>停止 PlayMusic 创建的音乐，包括正在淡出的旧音乐；不影响普通 Music 分组播放。</summary>
-        public void StopMusic(float fadeSeconds = 0, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
+        private void StopMusicInternal(float fadeSeconds = 0, AudioFadeCurve curve = AudioFadeCurve.EqualPower)
         {
             MainThread();
             ValidateFade(fadeSeconds, curve);
@@ -135,7 +136,7 @@ namespace Game.Framework.Audio
         }
 
         /// <summary>手动模式的统一时钟。暂停期间不推进渐变；完成回调中的重入 Tick 会被忽略。</summary>
-        public void Tick(float deltaTime)
+        private void TickInternal(float deltaTime)
         {
             MainThread();
             if (deltaTime < 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))

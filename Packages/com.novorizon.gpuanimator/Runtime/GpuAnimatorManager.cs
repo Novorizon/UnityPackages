@@ -6,6 +6,99 @@ using UnityEngine;
 /// <summary>统一推进处于自动模式的播放器，并汇总所有播放器的动画通知。</summary>
 public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManager>
 {
+    /// <summary>登记 GPU 动画播放器管理器。</summary>
+    public static bool Register(GpuAnimator player) =>
+        Instance?.RegisterInternal(player) ?? false;
+
+    /// <summary>从已存在的组件注销播放器。</summary>
+    public static bool Unregister(GpuAnimator player) =>
+        TryGetInstance(out var current) ? current.UnregisterInternal(player) : false;
+
+    /// <summary>在当前组件上执行操作。</summary>
+    public static void Tick(float deltaTime) =>
+        Instance.TickInternal(deltaTime);
+
+    public static int Count => TryGetInstance(out var current) ? current.registeredCount : 0;
+
+    public static bool IsPaused
+    {
+        get => TryGetInstance(out var current) ? current.isPaused : false;
+        set => Instance.isPaused = value;
+    }
+
+    public static bool AutomaticUpdate
+    {
+        get => Instance.automaticUpdate;
+        set => Instance.automaticUpdate = value;
+    }
+
+    public static float PlaybackSpeed
+    {
+        get => Instance.Speed;
+        set => Instance.Speed = value;
+    }
+
+    /// <summary>在当前调度组件上订阅动画切换通知。</summary>
+    public static void SubscribeAnimationChanged(Action<GpuAnimator, string, string> listener)
+    {
+        Instance.animationChanged += listener;
+    }
+
+    /// <summary>从已存在的调度组件移除订阅。</summary>
+    public static void UnsubscribeAnimationChanged(Action<GpuAnimator, string, string> listener)
+    {
+        if (TryGetInstance(out var current))
+        {
+            current.animationChanged -= listener;
+        }
+    }
+
+    /// <summary>在当前调度组件上订阅动画开始通知。</summary>
+    public static void SubscribeAnimationStarted(Action<GpuAnimator, string> listener)
+    {
+        Instance.animationStarted += listener;
+    }
+
+    /// <summary>从已存在的调度组件移除订阅。</summary>
+    public static void UnsubscribeAnimationStarted(Action<GpuAnimator, string> listener)
+    {
+        if (TryGetInstance(out var current))
+        {
+            current.animationStarted -= listener;
+        }
+    }
+
+    /// <summary>在当前调度组件上订阅动画完成通知。</summary>
+    public static void SubscribeAnimationCompleted(Action<GpuAnimator, string> listener)
+    {
+        Instance.animationCompleted += listener;
+    }
+
+    /// <summary>从已存在的调度组件移除订阅。</summary>
+    public static void UnsubscribeAnimationCompleted(Action<GpuAnimator, string> listener)
+    {
+        if (TryGetInstance(out var current))
+        {
+            current.animationCompleted -= listener;
+        }
+    }
+
+    /// <summary>在当前调度组件上订阅动画停止通知。</summary>
+    public static void SubscribeAnimationStopped(Action<GpuAnimator, string> listener)
+    {
+        Instance.animationStopped += listener;
+    }
+
+    /// <summary>从已存在的调度组件移除订阅。</summary>
+    public static void UnsubscribeAnimationStopped(Action<GpuAnimator, string> listener)
+    {
+        if (TryGetInstance(out var current))
+        {
+            current.animationStopped -= listener;
+        }
+    }
+
+    /// <summary>保存条目所需的数据与配套操作。</summary>
     private struct Entry
     {
         internal GpuAnimator Player;
@@ -25,11 +118,11 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
     private bool hasStaleEntries;
     private float playbackSpeed = 1;
     private bool initialized;
-    public int Count => registered.Count;
-    public bool IsPaused { get; set; }
-    public bool AutomaticUpdate { get; set; } = true;
+    private int registeredCount => registered.Count;
+    private bool isPaused { get; set; }
+    private bool automaticUpdate { get; set; } = true;
 
-    public float PlaybackSpeed
+    private float Speed
     {
         get => playbackSpeed;
         set
@@ -43,10 +136,10 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         }
     }
 
-    public event Action<GpuAnimator, string, string> AnimationChanged;
-    public event Action<GpuAnimator, string> AnimationStarted;
-    public event Action<GpuAnimator, string> AnimationCompleted;
-    public event Action<GpuAnimator, string> AnimationStopped;
+    private event Action<GpuAnimator, string, string> animationChanged;
+    private event Action<GpuAnimator, string> animationStarted;
+    private event Action<GpuAnimator, string> animationCompleted;
+    private event Action<GpuAnimator, string> animationStopped;
     /// <summary>取得单例即可使用；不清空已经注册的播放器。</summary>
     public override void Initialize()
     {
@@ -58,7 +151,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         initialized = true;
         foreach (var player in FindObjectsOfType<GpuAnimator>(true))
         {
-            Register(player);
+            RegisterInternal(player);
         }
     }
 
@@ -67,7 +160,8 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         Initialize();
     }
 
-    public bool Register(GpuAnimator player)
+    /// <summary>登记 GPU 动画播放器管理器。</summary>
+    private bool RegisterInternal(GpuAnimator player)
     {
         if (player == null || !player.AutomaticUpdate || !player.IsPlaying || !player.isActiveAndEnabled || IsDestroying)
         {
@@ -92,7 +186,8 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         return true;
     }
 
-    public bool Unregister(GpuAnimator player)
+    /// <summary>撤销登记 GPU 动画播放器管理器。</summary>
+    private bool UnregisterInternal(GpuAnimator player)
     {
         if (ReferenceEquals(player, null))
         {
@@ -118,10 +213,11 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
         return true;
     }
 
-    /// <summary>项目显式驱动时应关闭本 Manager 的 AutomaticUpdate。</summary>
-    public void Tick(float deltaTime)
+    /// <summary>项目显式驱动时应关闭本 Manager 的 automaticUpdate。</summary>
+    /// <remarks>推进已登记的自动播放器，回调中发生的注册和移除按本轮调度规则处理。</remarks>
+    private void TickInternal(float deltaTime)
     {
-        if (ticking || IsDestroying || IsPaused || playbackSpeed == 0 || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
+        if (ticking || IsDestroying || isPaused || playbackSpeed == 0 || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime))
         {
             return;
         }
@@ -141,7 +237,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
                 Entry entry = entries[i];
                 if (entry.Player == null)
                 {
-                    Unregister(entry.Player);
+                    UnregisterInternal(entry.Player);
                     continue;
                 }
                 if (!IsCurrent(entry))
@@ -151,7 +247,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
 
                 if (!entry.Player.isActiveAndEnabled || !entry.Player.AutomaticUpdate || !entry.Player.IsPlaying)
                 {
-                    Unregister(entry.Player);
+                    UnregisterInternal(entry.Player);
                     continue;
                 }
 
@@ -213,9 +309,9 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
 
     private void Update()
     {
-        if (AutomaticUpdate)
+        if (automaticUpdate)
         {
-            Tick(Time.deltaTime);
+            TickInternal(Time.deltaTime);
         }
     }
 
@@ -223,7 +319,7 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
     {
         try
         {
-            AnimationChanged?.Invoke(player, previous, current);
+            animationChanged?.Invoke(player, previous, current);
         }
         catch (Exception exception)
         {
@@ -233,17 +329,17 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
 
     internal void NotifyStarted(GpuAnimator player, string clip)
     {
-        Notify(AnimationStarted, player, clip);
+        Notify(animationStarted, player, clip);
     }
 
     internal void NotifyCompleted(GpuAnimator player, string clip)
     {
-        Notify(AnimationCompleted, player, clip);
+        Notify(animationCompleted, player, clip);
     }
 
     internal void NotifyStopped(GpuAnimator player, string clip)
     {
-        Notify(AnimationStopped, player, clip);
+        Notify(animationStopped, player, clip);
     }
 
     private static void Notify(Action<GpuAnimator, string> listeners, GpuAnimator player, string clip)
@@ -270,9 +366,9 @@ public sealed partial class GpuAnimatorManager : MonoSingleton<GpuAnimatorManage
             hasStaleEntries = false;
         }
 
-        AnimationChanged = null;
-        AnimationStarted = null;
-        AnimationCompleted = null;
-        AnimationStopped = null;
+        animationChanged = null;
+        animationStarted = null;
+        animationCompleted = null;
+        animationStopped = null;
     }
 }
