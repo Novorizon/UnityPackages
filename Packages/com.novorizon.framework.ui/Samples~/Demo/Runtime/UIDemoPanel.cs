@@ -28,7 +28,7 @@ namespace UI.Demo
             UIDemoLauncher? controller = owner;
             if (controller != null)
             {
-                controller.Run(() => controller.UIManager.Panels.HideAsync(UIDemoLauncher.Panel));
+                controller.Run(() => UIManager.Panels.HideAsync(UIDemoKeys.Panel));
             }
         }
     }

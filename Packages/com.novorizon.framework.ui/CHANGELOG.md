@@ -1,5 +1,11 @@
 # Changelog
 
+## 未发布
+
+- 界面资源入口统一使用业务程序集声明的 `UIKey<TView>`，页面、弹窗、面板返回 `UIHandle<TView>`。
+- 阻塞 Overlay 保留逐调用释放，Toast 队列和 Dialog 结果使用类型化 key。
+- 工厂校验 prefab 根组件类型，并归还失败的加载。升级时同批重建 Player、HybridCLR AOT 元数据与 MethodBridge、HotGame DLL。
+
 ## 0.5.1
 
 - 增加可运行 UI Demo：通过 Editor 菜单生成独立场景，运行时创建全部模板与按钮。

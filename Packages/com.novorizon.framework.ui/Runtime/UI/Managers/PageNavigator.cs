@@ -38,9 +38,13 @@ namespace UI
             return stack.Count > 0 ? stack.Peek() : (UIHandle? )null;
         }
 
-        public Task<UIHandle> PushAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow) => NavigateAsync(prefabPath, args, Navigation.Push, cancellationToken, repeatPolicy);
-        public Task<UIHandle> ReplaceAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default) => NavigateAsync(prefabPath, args, Navigation.Replace, cancellationToken);
-        public Task<UIHandle> ResetToAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default) => NavigateAsync(prefabPath, args, Navigation.Reset, cancellationToken);
+        /// <summary>异步压入页面导航器。</summary>
+        public Task<UIHandle<TView>> PushAsync<TView>(UIKey<TView> key, object? args = null, CancellationToken cancellationToken = default, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow) where TView : UIView => NavigateAsync(key, args, Navigation.Push, cancellationToken, repeatPolicy);
+        /// <summary>异步替换页面导航器。</summary>
+        public Task<UIHandle<TView>> ReplaceAsync<TView>(UIKey<TView> key, object? args = null, CancellationToken cancellationToken = default) where TView : UIView => NavigateAsync(key, args, Navigation.Replace, cancellationToken);
+        /// <summary>异步重置 To。</summary>
+        public Task<UIHandle<TView>> ResetToAsync<TView>(UIKey<TView> key, object? args = null, CancellationToken cancellationToken = default) where TView : UIView => NavigateAsync(key, args, Navigation.Reset, cancellationToken);
+        /// <summary>弹出页面导航器。</summary>
         public bool Pop(UICloseReason reason = UICloseReason.Back)
         {
             if (!CanStartPop(out UIHandle top) || !factory.CanClose(top, reason) || !IsTop(top))
@@ -113,8 +117,10 @@ namespace UI
             return true;
         }
 
-        async Task<UIHandle> NavigateAsync(string prefabPath, object? args, Navigation mode, CancellationToken cancellationToken, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow)
+        /// <summary>根据传入参数取得NavigateAsync。</summary>
+        async Task<UIHandle<TView>> NavigateAsync<TView>(UIKey<TView> key, object? args, Navigation mode, CancellationToken cancellationToken, PageRepeatPolicy repeatPolicy = PageRepeatPolicy.Allow) where TView : UIView
         {
+            string prefabPath = key.Path;
             if (!Enum.IsDefined(typeof(PageRepeatPolicy), repeatPolicy))
             {
                 throw new ArgumentOutOfRangeException(nameof(repeatPolicy));
@@ -143,6 +149,11 @@ namespace UI
                 UIHandle? expectedPrevious = Peek();
                 if (mode == Navigation.Push && expectedPrevious.HasValue && expectedPrevious.Value.PrefabPath == prefabPath && repeatPolicy != PageRepeatPolicy.Allow)
                 {
+                    if (!UIInstanceFactory.MatchesView(expectedPrevious.Value.View, prefabPath, UIKey<TView>.MatchesView))
+                    {
+                        return default;
+                    }
+
                     if (repeatPolicy == PageRepeatPolicy.RejectTop)
                     {
                         throw new InvalidOperationException("Page is already on top: " + prefabPath);
@@ -150,11 +161,11 @@ namespace UI
 
                     if (repeatPolicy == PageRepeatPolicy.RefreshTop)
                     {
-                        return factory.Refresh(expectedPrevious.Value, args);
+                        return new UIHandle<TView>(factory.Refresh(expectedPrevious.Value, args));
                     }
 
                     expectedPrevious.Value.View!.InternalSetVisible(true);
-                    return expectedPrevious.Value.IsValid ? expectedPrevious.Value : default;
+                    return expectedPrevious.Value.IsValid ? new UIHandle<TView>(expectedPrevious.Value) : default;
                 }
 
                 if (mode == Navigation.Replace && expectedPrevious.HasValue)
@@ -168,7 +179,7 @@ namespace UI
                 }
 
                 // The old page stays visible until the destination has loaded successfully.
-                UIHandle handle = await factory.OpenAsync(UIKind.Page, UILayer.Page, prefabPath, args, true, true, null, operationToken);
+                UIHandle handle = await factory.OpenAsync(UIKind.Page, UILayer.Page, prefabPath, args, true, true, null, operationToken, expectedView: UIKey<TView>.MatchesView);
                 if (cancellationToken.IsCancellationRequested)
                 {
                     if (handle.IsValid)
@@ -239,7 +250,7 @@ namespace UI
                     previous.Value.View!.InternalSetVisible(false);
                 }
 
-                return !factory.IsDisposed && handle.IsValid ? handle : default;
+                return !factory.IsDisposed && handle.IsValid ? new UIHandle<TView>(handle) : default;
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested && lifetime.IsCancellationRequested)
             {

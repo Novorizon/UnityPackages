@@ -71,10 +71,10 @@ public sealed class UIShutdownAndRepeatTests : IDisposable
             SingletonByPath = true,
             DuplicatePolicy = UIDuplicatePolicy.Focus
         };
-        var first = await popups.OpenAsync("first", options: options);
-        var second = await popups.OpenAsync("second", options: options);
+        var first = await popups.OpenAsync(new UIKey<Probe>("first"), options: options);
+        var second = await popups.OpenAsync(new UIKey<Probe>("second"), options: options);
         Assert.Equal(second.Id, popups.Peek()!.Value.Id);
-        await popups.OpenAsync("first", options: options);
+        await popups.OpenAsync(new UIKey<Probe>("first"), options: options);
         Assert.Equal(first.Id, popups.Peek()!.Value.Id);
         Assert.Equal(2, popups.Count);
         Assert.True(popups.CloseTop());
@@ -86,14 +86,14 @@ public sealed class UIShutdownAndRepeatTests : IDisposable
     {
         var(factory, loader) = Create();
         var pages = new PageNavigator(factory);
-        var first = await pages.PushAsync("page");
-        var focused = await pages.PushAsync("page", repeatPolicy: PageRepeatPolicy.ReuseTop);
+        var first = await pages.PushAsync(new UIKey<Probe>("page"));
+        var focused = await pages.PushAsync(new UIKey<Probe>("page"), repeatPolicy: PageRepeatPolicy.ReuseTop);
         Assert.Equal(first.Id, focused.Id);
         Assert.Equal(1, pages.Count);
         Assert.Equal(1, Assert.IsType<Probe>(focused.View).Opens);
-        await pages.PushAsync("page", repeatPolicy: PageRepeatPolicy.RefreshTop);
+        await pages.PushAsync(new UIKey<Probe>("page"), repeatPolicy: PageRepeatPolicy.RefreshTop);
         Assert.Equal(2, Assert.IsType<Probe>(focused.View).Opens);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => pages.PushAsync("page", repeatPolicy: PageRepeatPolicy.RejectTop));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => pages.PushAsync(new UIKey<Probe>("page"), repeatPolicy: PageRepeatPolicy.RejectTop));
         Assert.Equal(1, loader.Loads);
     }
 
@@ -148,7 +148,7 @@ public sealed class UIShutdownAndRepeatTests : IDisposable
         var previous = new Loader(prefab);
         var root = UIManager.Instance;
         UIManager.SetAssetLoader(previous);
-        var handle = await UIManager.Popups.OpenAsync("old");
+        var handle = await UIManager.Popups.OpenAsync(new UIKey<Probe>("old"));
         Object.DeferGameObjectDestructionForTest = true;
         UIManager.SetAssetLoader(new Loader(prefab));
         var first = UIManager.ShutdownAsync();

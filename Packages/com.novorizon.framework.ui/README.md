@@ -28,10 +28,10 @@ Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<
   入口：`ShowAsync/Hide/ToggleAsync`（多数是开关状态，不进 page 栈）
   可选：`GroupId` → `PushInGroupAsync/PopGroup` 做“面板内深入”栈
 - **Overlay（Loading/Blocker 等状态层）**：`UIOverlay : UIView` + `OverlayManager`
-  入口：`using var token = await Overlays.ShowBlockingAsync(path);`
+  入口：`using var token = await Overlays.ShowBlockingAsync(key);`
   原因：它是“状态”不是“路径” → **token/引用计数** 防止并发提前关闭
 - **Toast（短提示）**：`UIToast : UIView` + `ToastManager`
-  入口：`Toasts.Enqueue(path, args)`
+  入口：`Toasts.Enqueue(key, args)`
   原因：短暂提示，不需要返回 → **队列**
 
 ## Back 优先级（标准建议）
@@ -46,11 +46,30 @@ Git UPM 安装使用仓库 URL 加 `?path=/Packages/com.novorizon.framework.ui#<
 
 ## 快速使用
 ```csharp
-await UI.UIManager.Pages.ResetToAsync("UI/Pages/MainMenuPage");
-await UI.UIManager.Popups.OpenAsync("UI/Popups/SettingsPopup");
-UI.UIManager.Toasts.Enqueue("UI/Toasts/SimpleToast", "Saved!");
+// 在拥有这些视图类型的业务程序集声明。
+static class UiKeys
+{
+    internal static readonly UIKey<MainMenuPage> MainMenu = new("UI/Pages/MainMenuPage");
+    internal static readonly UIKey<SettingsPopup> Settings = new("UI/Popups/SettingsPopup");
+    internal static readonly UIKey<SimpleToast> Saved = new("UI/Toasts/SimpleToast");
+}
+
+// 在游戏主线程调用。
+await UIManager.Pages.ResetToAsync(UiKeys.MainMenu);
+UIHandle<SettingsPopup> settings = await UIManager.Popups.OpenAsync(UiKeys.Settings);
+if (settings.IsValid)
+{
+    await UIManager.Popups.CloseAsync(settings);
+}
+UIManager.Toasts.Enqueue(UiKeys.Saved, "Saved!");
 ```
 
+
+`UIHandle<TView>.View` 的静态类型为 `TView`。`Id`、`Path`、`Kind`、`Layer` 和 `IsValid` 表示这次打开。`Peek()` 可返回混合视图栈顶的 `UIHandle`，已有关闭接口也接收该身份。使用视图前检查 `IsValid`。
+
+主包和 HotGame 各自为自己编译的视图声明 key。UI 包把 `key.Path` 交给 `IUIAssetLoader`，在创建实例前核对 prefab 根组件。地址与视图不匹配时记录错误，归还本次获取的 prefab，且不会把错误视图放入缓存。普通打开返回无效句柄，Overlay 返回无效令牌，Toast 跳过该项，Dialog 沿用打开失败契约。
+
+接入该版时同批重建 Player、HybridCLR AOT 元数据与 MethodBridge、HotGame DLL。示例配置见 `UIDemoKeys`。
 
 ## 生命周期与资源所有权
 
@@ -90,7 +109,7 @@ YooAsset **2.3.18 为可选依赖**。项目通过 `IUIAssetLoader` 接入。每
 ## 管理器行为
 
 - `Pages.PushAsync/ReplaceAsync/ResetToAsync` 按调用顺序完成，加载失败保留旧页面。导航尚未完成时，同步 `Pop` 返回 false。
-- `Panels.Hide(handle)` 关闭指定实例，适用于 `AllowMultiple=true`；`Hide(path)` 关闭最近打开的同路径实例。组面板关闭顶层后恢复上一层。
+- `Panels.Hide(handle)` 关闭指定实例，适用于 `AllowMultiple=true`；`Hide(key)` 关闭最近打开且匹配 key 类型的实例。组面板关闭顶层后恢复上一层。
 - 相同路径的并发 `Overlays.ShowBlockingAsync` 共享一次加载、首次参数和引用计数；最后一个 token 释放后关闭。仍持有 token 时请求不同路径会抛出 `InvalidOperationException`。
 - Toast 在 `Complete`、关闭或外部销毁时推进队列，等待期间不逐帧轮询；`Dispose` 后不能继续入队。`ToastOptions.MergeKey` 保留兼容，目前不合并提示。
 - 缓存弹窗重新打开时会创建并绑定新的模态遮罩。未引入遮罩池，避免在没有 Profiler 数据的情况下增加额外状态。

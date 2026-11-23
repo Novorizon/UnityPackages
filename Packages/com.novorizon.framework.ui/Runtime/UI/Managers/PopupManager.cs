@@ -44,12 +44,13 @@ namespace UI
             return opened.Count == 0 ? (UIHandle? )null : opened[opened.Count - 1];
         }
 
-        public async Task<UIHandle> OpenAsync(string prefabPath, object? args = null, PopupOptions? options = null, CancellationToken cancellationToken = default)
+        /// <summary>异步打开弹窗管理器。</summary>
+        public async Task<UIHandle<TView>> OpenAsync<TView>(UIKey<TView> key, object? args = null, PopupOptions? options = null, CancellationToken cancellationToken = default) where TView : UIView
         {
             cancellationToken.ThrowIfCancellationRequested();
             PopupOptions opt = options ?? new PopupOptions();
             UIBlocker? blocker = null;
-            UIHandle handle = await factory.OpenAsync(UIKind.Popup, UILayer.Popup, prefabPath, args, allowMultiple: !opt.SingletonByPath, cacheOnClose: opt.CacheOnClose, blockerFactory: parent => blocker = opt.Modal ? UIBlocker.Create(parent) : null, cancellationToken: cancellationToken, duplicatePolicy: opt.DuplicatePolicy);
+            UIHandle handle = await factory.OpenAsync(UIKind.Popup, UILayer.Popup, key.Path, args, allowMultiple: !opt.SingletonByPath, cacheOnClose: opt.CacheOnClose, blockerFactory: parent => blocker = opt.Modal ? UIBlocker.Create(parent) : null, cancellationToken: cancellationToken, duplicatePolicy: opt.DuplicatePolicy, expectedView: UIKey<TView>.MatchesView);
             if (cancellationToken.IsCancellationRequested)
             {
                 // A singleton refresh may return a lease that was already owned by another call.
@@ -72,7 +73,7 @@ namespace UI
             {
                 opened.RemoveAt(previousIndex);
                 opened.Add(handle);
-                return handle;
+                return new UIHandle<TView>(handle);
             }
 
             if (handle.View is UIPopup popup && blocker != null)
@@ -88,7 +89,7 @@ namespace UI
 
             opened.Add(handle);
             handle.View!.Destroyed += OnPopupDestroyed;
-            return handle;
+            return new UIHandle<TView>(handle);
         }
 
         public bool CloseTop(UICloseReason reason = UICloseReason.Back)

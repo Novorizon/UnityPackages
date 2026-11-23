@@ -50,9 +50,11 @@ namespace UI
         /// Caller cancellation throws OperationCanceledException and closes only this dialog.
         /// Call on Unity's main thread; cancellation callbacks only signal a task.
         /// </summary>
-        public async Task<UIDialogResult<TResult>> ShowAsync<TResult>(string prefabPath, object? args = null,
-            PopupOptions? options = null, CancellationToken cancellationToken = default)
+        /// <remarks>异步显示对话框管理器。</remarks>
+        public async Task<UIDialogResult<TResult>> ShowAsync<TView, TResult>(UIKey<TView> key, object? args = null,
+            PopupOptions? options = null, CancellationToken cancellationToken = default) where TView : UIResultPopup<TResult>
         {
+            string prefabPath = key.Path;
             var request = new OpenRequest<TResult>(prefabPath, args, cancellationToken);
             requests.Add(request);
             try
@@ -68,7 +70,7 @@ namespace UI
                     CacheOnClose = options?.CacheOnClose ?? true,
                     SingletonByPath = false
                 };
-                UIHandle opened = await popups.OpenAsync(prefabPath, request, openingOptions, cancellationToken);
+                UIHandle opened = await popups.OpenAsync(key, request, openingOptions, cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
                 Task<UIDialogResult<TResult>>? resultTask = request.Result;
                 if (resultTask == null)
