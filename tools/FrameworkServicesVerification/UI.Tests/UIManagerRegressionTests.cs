@@ -46,14 +46,14 @@ public sealed class UIManagerRegressionTests : IDisposable
     {
         var(factory, _) = Create<ProbePage>();
         var pages = new PageNavigator(factory);
-        var first = await pages.PushAsync("first");
-        var second = await pages.PushAsync("second");
+        var first = await pages.PushAsync(new UIKey<ProbePage>("first"));
+        var second = await pages.PushAsync(new UIKey<ProbePage>("second"));
         var closing = Assert.IsType<ProbePage>(second.View);
         closing.FailClose = true;
-        Task<UIHandle>? replacement = null;
+        Task<UIHandle<ProbePage>>? replacement = null;
         if (reenter)
         {
-            closing.CloseAction = () => replacement = pages.PushAsync("replacement");
+            closing.CloseAction = () => replacement = pages.PushAsync(new UIKey<ProbePage>("replacement"));
         }
 
         Assert.Throws<InvalidOperationException>(() => pages.Pop());
@@ -81,14 +81,14 @@ public sealed class UIManagerRegressionTests : IDisposable
     {
         var(factory, _) = Create<ProbePanel>();
         var panels = new PanelManager(factory);
-        var first = await panels.PushInGroupAsync("group", "first");
-        var second = await panels.PushInGroupAsync("group", "second");
+        var first = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("first"));
+        var second = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("second"));
         var closing = Assert.IsType<ProbePanel>(second.View);
         closing.FailClose = true;
-        Task<UIHandle>? replacement = null;
+        Task<UIHandle<ProbePanel>>? replacement = null;
         if (reenter)
         {
-            closing.CloseAction = () => replacement = panels.PushInGroupAsync("group", "replacement");
+            closing.CloseAction = () => replacement = panels.PushInGroupAsync("group", new UIKey<ProbePanel>("replacement"));
         }
 
         Assert.Throws<InvalidOperationException>(() => panels.Hide(second));
@@ -96,14 +96,14 @@ public sealed class UIManagerRegressionTests : IDisposable
         if (reenter)
         {
             var current = await replacement!;
-            Assert.True(panels.IsShown("replacement"));
+            Assert.True(panels.IsShown(new UIKey<ProbePanel>("replacement")));
             Assert.False(first.View!.gameObject.activeSelf);
             Assert.True(panels.Hide(current));
         }
 
         Assert.True(first.IsValid);
         Assert.True(first.View!.gameObject.activeSelf);
-        Assert.True(panels.IsShown("first"));
+        Assert.True(panels.IsShown(new UIKey<ProbePanel>("first")));
     }
 
     [Fact]
@@ -111,8 +111,8 @@ public sealed class UIManagerRegressionTests : IDisposable
     {
         var(factory, root) = Create<ProbeToast>();
         using var toasts = new ToastManager(factory);
-        toasts.Enqueue("first");
-        toasts.Enqueue("second");
+        toasts.Enqueue(new UIKey<ProbeToast>("first"));
+        toasts.Enqueue(new UIKey<ProbeToast>("second"));
         var first = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeToast>(true));
         first.FailClose = true;
         first.Finish();
@@ -127,7 +127,7 @@ public sealed class UIManagerRegressionTests : IDisposable
         second.Finish();
         await UntilAsync(() => factory.ActiveCount == 0);
         Assert.Equal(0, factory.ActiveCount);
-        toasts.Enqueue("third");
+        toasts.Enqueue(new UIKey<ProbeToast>("third"));
         await UntilAsync(() => ProbeToast.Opened == 3);
         Assert.Equal(3, ProbeToast.Opened);
         toasts.Clear();
@@ -139,13 +139,13 @@ public sealed class UIManagerRegressionTests : IDisposable
     {
         var(factory, root) = Create<ProbeToast>();
         using var toasts = new ToastManager(factory);
-        toasts.Enqueue("first");
-        toasts.Enqueue("obsolete-queued");
+        toasts.Enqueue(new UIKey<ProbeToast>("first"));
+        toasts.Enqueue(new UIKey<ProbeToast>("obsolete-queued"));
         var first = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeToast>(true));
         first.CloseAction = () =>
         {
             toasts.Clear();
-            toasts.Enqueue("replacement");
+            toasts.Enqueue(new UIKey<ProbeToast>("replacement"));
         };
         first.Finish();
         await UntilAsync(() => ProbeToast.Opened == 2 && factory.ActiveCount == 1);
@@ -153,7 +153,7 @@ public sealed class UIManagerRegressionTests : IDisposable
         Assert.Equal(1, factory.ActiveCount);
         toasts.Clear(); // Requires the new runner's current handle to survive the old runner's finally.
         Assert.Equal(0, factory.ActiveCount);
-        toasts.Enqueue("later");
+        toasts.Enqueue(new UIKey<ProbeToast>("later"));
         Assert.Equal(3, ProbeToast.Opened);
     }
 
@@ -175,7 +175,7 @@ public sealed class UIManagerRegressionTests : IDisposable
         var registrations = Assert.IsAssignableFrom<ICollection>(typeof(PopupManager).GetField("opened", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(popups));
         for (int i = 0; i < 128; i++)
         {
-            var handle = await popups.OpenAsync("popup");
+            var handle = await popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             Object.Destroy(handle.View!.gameObject);
             Assert.Empty(registrations);
         }
@@ -192,9 +192,9 @@ public sealed class UIManagerRegressionTests : IDisposable
         {
             SingletonByPath = true
         };
-        var original = await popups.OpenAsync("popup", options: options);
-        Task<UIHandle>? replacement = null;
-        Assert.IsType<ProbePopup>(original.View).DisableAction = () => replacement = popups.OpenAsync("popup", options: options);
+        var original = await popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
+        Task<UIHandle<ProbePopup>>? replacement = null;
+        Assert.IsType<ProbePopup>(original.View).DisableAction = () => replacement = popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
         popups.Close(original);
         var fresh = await replacement!;
         Assert.Same(original.View, fresh.View);
@@ -217,14 +217,14 @@ public sealed class UIManagerRegressionTests : IDisposable
         {
             SingletonByPath = true
         };
-        var original = await popups.OpenAsync("popup", options: options);
-        Task<UIHandle>? inner = null;
+        var original = await popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
+        Task<UIHandle<ProbePopup>>? inner = null;
         Assert.IsType<ProbePopup>(original.View).OpenAction = () =>
         {
             popups.Close(original);
-            inner = popups.OpenAsync("popup", options: options);
+            inner = popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
         };
-        var outer = await popups.OpenAsync("popup", options: options);
+        var outer = await popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
         var fresh = await inner!;
         Assert.Same(original.View, fresh.View);
         Assert.NotEqual(original.Id, fresh.Id);

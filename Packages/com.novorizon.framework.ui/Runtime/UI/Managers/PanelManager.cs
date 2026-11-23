@@ -31,7 +31,8 @@ namespace UI
             }
         }
 
-        public bool IsShown(string prefabPath)
+        /// <summary>判断是否已显示。</summary>
+        public bool IsShown<TView>(UIKey<TView> key) where TView : UIView
         {
             if (factory.IsDisposed)
             {
@@ -41,7 +42,7 @@ namespace UI
             for (int i = opened.Count - 1; i >= 0; i--)
             {
                 UIHandle handle = opened[i].Handle;
-                if (handle.PrefabPath == prefabPath && handle.IsValid && handle.View != null && handle.View.gameObject.activeSelf)
+                if (handle.PrefabPath == key.Path && handle.IsValid && handle.View is TView view && view.gameObject.activeSelf)
                 {
                     return true;
                 }
@@ -50,17 +51,19 @@ namespace UI
             return false;
         }
 
-        public Task<UIHandle> ShowAsync(string prefabPath, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default)
+        /// <summary>异步显示面板管理器。</summary>
+        public Task<UIHandle<TView>> ShowAsync<TView>(UIKey<TView> key, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default) where TView : UIView
         {
             PanelOptions opt = options ?? new PanelOptions();
-            return ShowCoreAsync(prefabPath, args, opt.AllowMultiple, opt.CacheOnClose, opt.GroupId, false, cancellationToken, opt.DuplicatePolicy);
+            return ShowCoreAsync(key, args, opt.AllowMultiple, opt.CacheOnClose, opt.GroupId, false, cancellationToken, opt.DuplicatePolicy);
         }
 
-        public bool Hide(string prefabPath, UICloseReason reason = UICloseReason.Programmatic)
+        /// <summary>隐藏面板管理器。</summary>
+        public bool Hide<TView>(UIKey<TView> key, UICloseReason reason = UICloseReason.Programmatic) where TView : UIView
         {
             for (int i = opened.Count - 1; i >= 0; i--)
             {
-                if (opened[i].Handle.PrefabPath == prefabPath && opened[i].Handle.IsValid)
+                if (opened[i].Handle.PrefabPath == key.Path && opened[i].Handle.IsValid && opened[i].Handle.View is TView)
                 {
                     return Hide(opened[i].Handle, reason);
                 }
@@ -97,12 +100,13 @@ namespace UI
             return true;
         }
 
-        public Task<bool> HideAsync(string prefabPath, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default)
+        /// <summary>异步隐藏面板管理器。</summary>
+        public Task<bool> HideAsync<TView>(UIKey<TView> key, UICloseReason reason = UICloseReason.Programmatic, CancellationToken cancellationToken = default) where TView : UIView
         {
             cancellationToken.ThrowIfCancellationRequested();
             for (int i = opened.Count - 1; i >= 0; i--)
             {
-                if (opened[i].Handle.PrefabPath == prefabPath && opened[i].Handle.IsValid)
+                if (opened[i].Handle.PrefabPath == key.Path && opened[i].Handle.IsValid && opened[i].Handle.View is TView)
                 {
                     return HideAsync(opened[i].Handle, reason, cancellationToken);
                 }
@@ -198,12 +202,14 @@ namespace UI
             }
         }
 
-        public Task<UIHandle> ToggleAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default)
+        /// <summary>异步切换面板管理器。</summary>
+        public Task<UIHandle<TView>> ToggleAsync<TView>(UIKey<TView> key, object? args = null, CancellationToken cancellationToken = default) where TView : UIView
         {
-            return ShowCoreAsync(prefabPath, args, false, true, null, true, cancellationToken);
+            return ShowCoreAsync(key, args, false, true, null, true, cancellationToken);
         }
 
-        public Task<UIHandle> PushInGroupAsync(string groupId, string prefabPath, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default)
+        /// <summary>异步压入 In 分组。</summary>
+        public Task<UIHandle<TView>> PushInGroupAsync<TView>(string groupId, UIKey<TView> key, object? args = null, PanelOptions? options = null, CancellationToken cancellationToken = default) where TView : UIView
         {
             if (groupId == null)
             {
@@ -211,7 +217,7 @@ namespace UI
             }
 
             PanelOptions opt = options ?? new PanelOptions();
-            return ShowCoreAsync(prefabPath, args, true, opt.CacheOnClose, groupId, false, cancellationToken);
+            return ShowCoreAsync(key, args, true, opt.CacheOnClose, groupId, false, cancellationToken);
         }
 
         public bool PopGroup(string groupId, UICloseReason reason = UICloseReason.Back)
@@ -269,8 +275,10 @@ namespace UI
             return top.HasValue ? HideCoreAsync(top.Value, UICloseReason.Back, null, true, cancellationToken) : Task.FromResult(false);
         }
 
-        async Task<UIHandle> ShowCoreAsync(string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, string? groupId, bool toggle, CancellationToken cancellationToken, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh)
+        /// <summary>异步显示面板管理器。</summary>
+        async Task<UIHandle<TView>> ShowCoreAsync<TView>(UIKey<TView> key, object? args, bool allowMultiple, bool cacheOnClose, string? groupId, bool toggle, CancellationToken cancellationToken, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh) where TView : UIView
         {
+            string prefabPath = key.Path;
             cancellationToken.ThrowIfCancellationRequested();
             if (!System.Enum.IsDefined(typeof(UIDuplicatePolicy), duplicatePolicy))
             {
@@ -295,15 +303,20 @@ namespace UI
                     return default;
                 }
 
-                if (toggle && IsShown(prefabPath))
+                if (toggle && IsShown(key))
                 {
-                    await HideAsync(prefabPath, UICloseReason.Programmatic, operationToken);
+                    await HideAsync(key, UICloseReason.Programmatic, operationToken);
                     cancellationToken.ThrowIfCancellationRequested();
                     return default;
                 }
 
                 if (groupId == null && !allowMultiple && singletonPanelsByPath.TryGetValue(prefabPath, out UIHandle existing) && existing.IsValid && existing.View != null)
                 {
+                    if (!UIInstanceFactory.MatchesView(existing.View, prefabPath, UIKey<TView>.MatchesView))
+                    {
+                        return default;
+                    }
+
                     if (duplicatePolicy == UIDuplicatePolicy.Reject)
                     {
                         throw new System.InvalidOperationException("Panel is already open: " + prefabPath);
@@ -322,10 +335,10 @@ namespace UI
                     }
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    return !factory.IsDisposed && existing.IsValid ? existing : default;
+                    return !factory.IsDisposed && existing.IsValid ? new UIHandle<TView>(existing) : default;
                 }
 
-                UIHandle handle = await factory.OpenAsync(UIKind.Panel, UILayer.Panel, prefabPath, args, groupId != null || allowMultiple, cacheOnClose, null, operationToken);
+                UIHandle handle = await factory.OpenAsync(UIKind.Panel, UILayer.Panel, prefabPath, args, groupId != null || allowMultiple, cacheOnClose, null, operationToken, expectedView: UIKey<TView>.MatchesView);
                 if (cancellationToken.IsCancellationRequested)
                 {
                     if (handle.IsValid)
@@ -370,7 +383,7 @@ namespace UI
                     previous.Value.View.InternalSetVisible(false);
                 }
 
-                return !factory.IsDisposed && handle.IsValid ? handle : default;
+                return !factory.IsDisposed && handle.IsValid ? new UIHandle<TView>(handle) : default;
             }
             catch (System.OperationCanceledException) when (!cancellationToken.IsCancellationRequested && lifetime.IsCancellationRequested)
             {

@@ -144,7 +144,7 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, root) = CreateFactory();
         var manager = new PopupManager(factory);
-        var handle = await manager.OpenAsync("popup", options: new PopupOptions { CacheOnClose = false });
+        var handle = await manager.OpenAsync(new UIKey<UIView>("popup"), options: new PopupOptions { CacheOnClose = false });
         manager.Close(handle);
         Assert.False(handle.IsValid);
         Assert.Equal(0, factory.CachedCount);
@@ -157,12 +157,12 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, root) = CreateFactory();
         var manager = new PopupManager(factory);
-        var original = await manager.OpenAsync("popup");
+        var original = await manager.OpenAsync(new UIKey<UIView>("popup"));
         var oldBlocker = Assert.Single(root.gameObject.GetComponentsInChildren<UIBlocker>(true));
         manager.Close(original);
         Assert.True(oldBlocker.DestroyedForTest);
         Assert.Empty(root.gameObject.GetComponentsInChildren<UIBlocker>(true));
-        var reopened = await manager.OpenAsync("popup");
+        var reopened = await manager.OpenAsync(new UIKey<UIView>("popup"));
         Assert.Same(original.View, reopened.View);
         var blocker = Assert.Single(root.gameObject.GetComponentsInChildren<UIBlocker>(true));
         Assert.NotSame(oldBlocker, blocker);
@@ -244,8 +244,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, _) = CreateFactory(viewType: typeof(ImmediateToast));
         using var manager = new ToastManager(factory);
-        manager.Enqueue("toast", "first");
-        manager.Enqueue("toast", "second");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "first");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "second");
         Assert.Equal(2, ImmediateToast.Opened);
         Assert.Equal(2, ImmediateToast.CloseCount);
         Assert.Equal(0, factory.ActiveCount);
@@ -256,13 +256,13 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, _) = CreateFactory(viewType: typeof(ProbeToast));
         using var manager = new ToastManager(factory);
-        manager.Enqueue("toast", "first");
-        manager.Enqueue("toast", "queued");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "first");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "queued");
         Assert.Equal(1, ProbeToast.Opened);
         manager.Clear();
         Assert.Equal(0, factory.ActiveCount);
         Assert.Equal(1, ProbeToast.CloseCount);
-        manager.Enqueue("toast", "later");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "later");
         Assert.Equal(2, ProbeToast.Opened);
     }
 
@@ -272,13 +272,13 @@ public sealed class UILifecycleTests : IDisposable
         var(factory, loader, _) = CreateFactory(viewType: typeof(ProbeToast));
         using var manager = new ToastManager(factory);
         loader.Pending = new TaskCompletionSource<GameObject?>();
-        manager.Enqueue("toast");
+        manager.Enqueue(new UIKey<UIToast>("toast"));
         manager.Clear();
         loader.Pending.SetResult(loader.Prefab);
         await DrainAsync();
         Assert.Equal(0, factory.ActiveCount);
         Assert.Equal(0, ProbeToast.Opened);
-        manager.Enqueue("toast");
+        manager.Enqueue(new UIKey<UIToast>("toast"));
         Assert.Equal(1, factory.ActiveCount);
     }
 
@@ -287,8 +287,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, root) = CreateFactory(viewType: typeof(ProbeToast));
         using var manager = new ToastManager(factory);
-        manager.Enqueue("toast", "first");
-        manager.Enqueue("toast", "second");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "first");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "second");
         var current = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeToast>(true));
         Object.Destroy(current.gameObject);
         await DrainAsync();
@@ -302,8 +302,8 @@ public sealed class UILifecycleTests : IDisposable
         var(factory, loader, root) = CreateFactory(viewType: typeof(ProbeToast));
         var manager = new ToastManager(factory);
         loader.Pending = new TaskCompletionSource<GameObject?>();
-        manager.Enqueue("toast");
-        manager.Enqueue("toast");
+        manager.Enqueue(new UIKey<UIToast>("toast"));
+        manager.Enqueue(new UIKey<UIToast>("toast"));
         manager.Dispose();
         loader.Pending.SetResult(loader.Prefab);
         await DrainAsync();
@@ -350,15 +350,15 @@ public sealed class UILifecycleTests : IDisposable
         int received = 0;
         UIManager.Bus.Subscribe<int>(_ => received++);
         var oldManager = UIManager.Popups;
-        var handle = await oldManager.OpenAsync("popup");
+        var handle = await oldManager.OpenAsync(new UIKey<UIView>("popup"));
         UIManager.ResetAll();
         Assert.False(handle.IsValid);
         Assert.Equal(0, oldManager.Count);
         Assert.Equal(loader.LoadCount, loader.ReleaseCount);
-        Assert.False((await oldManager.OpenAsync("obsolete")).IsValid);
+        Assert.False((await oldManager.OpenAsync(new UIKey<UIView>("obsolete"))).IsValid);
         UIManager.Bus.Publish(42);
         Assert.Equal(0, received);
-        var fresh = await UIManager.Popups.OpenAsync("popup");
+        var fresh = await UIManager.Popups.OpenAsync(new UIKey<UIView>("popup"));
         Assert.True(fresh.IsValid);
         Assert.NotEqual(handle.Id, fresh.Id);
     }
@@ -371,7 +371,7 @@ public sealed class UILifecycleTests : IDisposable
         prefab.AddComponent<ProbePopup>();
         var loader = new RecordingLoader(prefab);
         UIManager.SetAssetLoader(loader);
-        var first = await UIManager.Popups.OpenAsync("first");
+        var first = await UIManager.Popups.OpenAsync(new UIKey<UIView>("first"));
         UIManager.Popups.Close(first);
         Assert.Equal(0, loader.ReleaseCount);
         var settings = ScriptableObject.CreateInstance<UISettings>();
@@ -379,7 +379,7 @@ public sealed class UILifecycleTests : IDisposable
         settings.maxCachedPerPath = 0;
         UIManager.SetSettings(settings);
         Assert.Equal(loader.LoadCount, loader.ReleaseCount);
-        var second = await UIManager.Popups.OpenAsync("second");
+        var second = await UIManager.Popups.OpenAsync(new UIKey<UIView>("second"));
         UIManager.Popups.Close(second);
         Assert.Equal(loader.LoadCount, loader.ReleaseCount);
     }
@@ -455,13 +455,13 @@ public sealed class UILifecycleTests : IDisposable
         prefab.AddComponent<ReentrantClose>();
         var originalLoader = new RecordingLoader(prefab);
         UIManager.SetAssetLoader(originalLoader);
-        var handle = await UIManager.Popups.OpenAsync("popup", (Action)(() => UIManager.ResetAll()));
+        var handle = await UIManager.Popups.OpenAsync(new UIKey<UIView>("popup"), (Action)(() => UIManager.ResetAll()));
         var replacement = new RecordingLoader(prefab);
         UIManager.SetAssetLoader(replacement);
         Assert.False(handle.IsValid);
         Assert.Equal(originalLoader.LoadCount, originalLoader.ReleaseCount);
         Assert.Contains(Debug.Exceptions, exception => exception is InvalidOperationException);
-        Assert.True((await UIManager.Popups.OpenAsync("popup")).IsValid);
+        Assert.True((await UIManager.Popups.OpenAsync(new UIKey<UIView>("popup"))).IsValid);
         Object.Destroy(root.gameObject);
         Assert.Equal(replacement.LoadCount, replacement.ReleaseCount);
     }
@@ -486,8 +486,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, root) = CreateFactory(viewType: typeof(ProbeToast));
         using var manager = new ToastManager(factory);
-        manager.Enqueue("toast", "first");
-        manager.Enqueue("toast", "second");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "first");
+        manager.Enqueue(new UIKey<UIToast>("toast"), "second");
         var dying = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeToast>(true));
         Object.DeferGameObjectDestructionForTest = true;
         Object.Destroy(dying.gameObject);
@@ -523,14 +523,14 @@ public sealed class UILifecycleTests : IDisposable
         prefab.AddComponent<ProbePopup>();
         var firstLoader = new RecordingLoader(prefab);
         UIManager.SetAssetLoader(firstLoader);
-        var handle = await UIManager.Popups.OpenAsync("popup");
+        var handle = await UIManager.Popups.OpenAsync(new UIKey<UIView>("popup"));
         var oldPopups = UIManager.Popups;
         var secondLoader = new RecordingLoader(prefab);
         UIManager.SetAssetLoader(secondLoader);
         Assert.False(handle.IsValid);
         Assert.Equal(firstLoader.LoadCount, firstLoader.ReleaseCount);
         Assert.Equal(0, oldPopups.Count);
-        var next = await UIManager.Popups.OpenAsync("popup");
+        var next = await UIManager.Popups.OpenAsync(new UIKey<UIView>("popup"));
         Assert.True(next.IsValid);
         Assert.NotEqual(handle.Id, next.Id);
         Object.Destroy(root.gameObject);
@@ -542,8 +542,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, _) = CreateFactory(viewType: typeof(ProbePage));
         var pages = new PageNavigator(factory);
-        var first = await pages.PushAsync("page");
-        var second = await pages.PushAsync("page");
+        var first = await pages.PushAsync(new UIKey<ProbePage>("page"));
+        var second = await pages.PushAsync(new UIKey<ProbePage>("page"));
         Assert.NotEqual(first.Id, second.Id);
         Assert.NotSame(first.View, second.View);
         Assert.Equal(2, pages.Count);
@@ -558,8 +558,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, root) = CreateFactory(viewType: typeof(ProbePage));
         var pages = new PageNavigator(factory);
-        var first = await pages.PushAsync("first");
-        var second = await pages.PushAsync("second");
+        var first = await pages.PushAsync(new UIKey<ProbePage>("first"));
+        var second = await pages.PushAsync(new UIKey<ProbePage>("second"));
         Assert.False(first.View!.gameObject.activeSelf);
         Object.Destroy(second.View!.gameObject);
         // Check before Count/Peek to prove the destruction event restores visibility.
@@ -577,12 +577,12 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, _) = CreateFactory(viewType: typeof(ProbePanel));
         var panels = new PanelManager(factory);
-        var first = await panels.PushInGroupAsync("group", "first");
-        var second = await panels.PushInGroupAsync("group", "second");
+        var first = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("first"));
+        var second = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("second"));
         Object.Destroy(second.View!.gameObject);
         Assert.True(first.View!.gameObject.activeSelf);
-        Assert.False(panels.IsShown("second"));
-        Assert.True(panels.IsShown("first"));
+        Assert.False(panels.IsShown(new UIKey<ProbePanel>("second")));
+        Assert.True(panels.IsShown(new UIKey<ProbePanel>("first")));
         Assert.False(panels.Hide(second));
         Assert.True(panels.HideAnyBackClosablePanel());
         Assert.False(first.IsValid);
@@ -595,10 +595,10 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, root) = CreateFactory(viewType: typeof(ProbeOverlay));
         var overlays = new OverlayManager(factory);
-        using var oldToken = await overlays.ShowBlockingAsync("first");
+        using var oldToken = await overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("first"));
         var oldView = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeOverlay>(true));
         Object.Destroy(oldView.gameObject);
-        using var newToken = await overlays.ShowBlockingAsync("replacement");
+        using var newToken = await overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("replacement"));
         var replacement = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeOverlay>(true));
         Assert.NotSame(oldView, replacement);
         oldToken.Dispose();
@@ -619,13 +619,13 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, _) = CreateFactory(viewType: typeof(ProbePage));
         var pages = new PageNavigator(factory);
-        var original = await pages.PushAsync("page");
+        var original = await pages.PushAsync(new UIKey<ProbePage>("page"));
         loader.LoadOverride = _ => Task.FromResult<GameObject?>(null);
         var failed = operation switch
         {
-            "Push" => await pages.PushAsync("missing"),
-            "Replace" => await pages.ReplaceAsync("missing"),
-            _ => await pages.ResetToAsync("missing")};
+            "Push" => await pages.PushAsync(new UIKey<ProbePage>("missing")),
+            "Replace" => await pages.ReplaceAsync(new UIKey<ProbePage>("missing")),
+            _ => await pages.ResetToAsync(new UIKey<ProbePage>("missing"))};
         Assert.False(failed.IsValid);
         Assert.Equal(1, pages.Count);
         Assert.Equal(original.Id, pages.Peek()!.Value.Id);
@@ -640,8 +640,8 @@ public sealed class UILifecycleTests : IDisposable
         var pages = new PageNavigator(factory);
         var gate = new TaskCompletionSource<GameObject?>();
         loader.LoadOverride = path => path == "first" ? gate.Task : Task.FromResult<GameObject?>(loader.Prefab);
-        var first = pages.PushAsync("first");
-        var second = pages.PushAsync("second");
+        var first = pages.PushAsync(new UIKey<ProbePage>("first"));
+        var second = pages.PushAsync(new UIKey<ProbePage>("second"));
         Assert.False(first.IsCompleted);
         Assert.False(second.IsCompleted);
         gate.SetResult(loader.Prefab);
@@ -657,7 +657,7 @@ public sealed class UILifecycleTests : IDisposable
         var(factory, loader, _) = CreateFactory(viewType: typeof(ProbePage));
         var pages = new PageNavigator(factory);
         loader.Pending = new TaskCompletionSource<GameObject?>();
-        var pending = pages.PushAsync("page");
+        var pending = pages.PushAsync(new UIKey<ProbePage>("page"));
         factory.Dispose();
         Assert.False((await pending.WaitAsync(TimeSpan.FromSeconds(2))).IsValid);
         Assert.Equal(0, pages.Count);
@@ -675,15 +675,15 @@ public sealed class UILifecycleTests : IDisposable
         {
             AllowMultiple = true
         };
-        var first = await panels.ShowAsync("panel", options: options);
-        var second = await panels.ShowAsync("panel", options: options);
-        Assert.True(panels.IsShown("panel"));
-        Assert.True(panels.Hide("panel"));
+        var first = await panels.ShowAsync(new UIKey<ProbePanel>("panel"), options: options);
+        var second = await panels.ShowAsync(new UIKey<ProbePanel>("panel"), options: options);
+        Assert.True(panels.IsShown(new UIKey<ProbePanel>("panel")));
+        Assert.True(panels.Hide(new UIKey<ProbePanel>("panel")));
         Assert.False(second.IsValid);
         Assert.True(first.IsValid);
-        Assert.True(panels.IsShown("panel"));
+        Assert.True(panels.IsShown(new UIKey<ProbePanel>("panel")));
         Assert.True(panels.Hide(first));
-        Assert.False(panels.IsShown("panel"));
+        Assert.False(panels.IsShown(new UIKey<ProbePanel>("panel")));
         Assert.False(panels.Hide(first));
     }
 
@@ -692,8 +692,8 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, _, _) = CreateFactory(viewType: typeof(ProbePanel));
         var panels = new PanelManager(factory);
-        var first = await panels.PushInGroupAsync("group", "first");
-        var second = await panels.PushInGroupAsync("group", "second");
+        var first = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("first"));
+        var second = await panels.PushInGroupAsync("group", new UIKey<ProbePanel>("second"));
         Assert.False(first.View!.gameObject.activeSelf);
         Assert.True(panels.Hide(second));
         Assert.True(first.View.gameObject.activeSelf);
@@ -708,8 +708,8 @@ public sealed class UILifecycleTests : IDisposable
         var panels = new PanelManager(factory);
         var gate = new TaskCompletionSource<GameObject?>();
         loader.LoadOverride = path => path == "first" ? gate.Task : Task.FromResult<GameObject?>(loader.Prefab);
-        var firstTask = panels.PushInGroupAsync("group", "first");
-        var secondTask = panels.PushInGroupAsync("group", "second");
+        var firstTask = panels.PushInGroupAsync("group", new UIKey<ProbePanel>("first"));
+        var secondTask = panels.PushInGroupAsync("group", new UIKey<ProbePanel>("second"));
         Assert.False(secondTask.IsCompleted);
         gate.SetResult(loader.Prefab);
         var handles = await Task.WhenAll(firstTask, secondTask).WaitAsync(TimeSpan.FromSeconds(2));
@@ -725,14 +725,22 @@ public sealed class UILifecycleTests : IDisposable
         var(factory, loader, root) = CreateFactory(viewType: typeof(ProbeOverlay));
         var overlays = new OverlayManager(factory);
         loader.Pending = new TaskCompletionSource<GameObject?>();
-        var first = overlays.ShowBlockingAsync("overlay");
-        var second = overlays.ShowBlockingAsync("overlay");
+        var key = new UIKey<ProbeOverlay>("overlay");
+        var first = overlays.ShowBlockingAsync(key);
+        var second = overlays.ShowBlockingAsync(key);
+        var wrong = overlays.ShowBlockingAsync(new UIKey<ProbePage>(key.Path));
         Assert.Equal(1, loader.LoadCount);
         loader.Pending.SetResult(loader.Prefab);
         var tokens = await Task.WhenAll(first, second).WaitAsync(TimeSpan.FromSeconds(2));
         Assert.Equal(1, factory.ActiveCount);
-        Assert.Single(root.gameObject.GetComponentsInChildren<ProbeOverlay>(true));
+        var overlay = Assert.Single(root.gameObject.GetComponentsInChildren<ProbeOverlay>(true));
+        Assert.Same(overlay, tokens[0].View);
+        Assert.Same(overlay, tokens[1].View);
+        using var rejected = await wrong.WaitAsync(TimeSpan.FromSeconds(2));
+        Assert.False(rejected.IsValid);
+        Assert.Null(rejected.View);
         tokens[0].Dispose();
+        Assert.False(tokens[0].IsValid);
         tokens[0].Dispose();
         Assert.Equal(1, factory.ActiveCount);
         tokens[1].Dispose();
@@ -744,20 +752,20 @@ public sealed class UILifecycleTests : IDisposable
     {
         var(factory, loader, _) = CreateFactory(viewType: typeof(ProbeOverlay));
         var overlays = new OverlayManager(factory);
-        using (await overlays.ShowBlockingAsync("first"))
+        using (await overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("first")))
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(() => overlays.ShowBlockingAsync("second"));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("second")));
         }
 
         factory.ClearCache();
         loader.LoadOverride = _ => Task.FromResult<GameObject?>(null);
-        using (await overlays.ShowBlockingAsync("missing"))
+        using (await overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("missing")))
         {
             Assert.Equal(0, factory.ActiveCount);
         }
 
         loader.LoadOverride = null;
-        using (await overlays.ShowBlockingAsync("recovered"))
+        using (await overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("recovered")))
         {
             Assert.Equal(1, factory.ActiveCount);
         }

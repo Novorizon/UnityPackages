@@ -25,10 +25,12 @@ namespace UI
         /// <summary>Includes callers still waiting for the shared overlay to load.</summary>
         public bool IsBlocking => !factory.IsDisposed && blockingCount > 0;
 
-        public async Task<IDisposable> ShowBlockingAsync(string prefabPath, object? args = null, CancellationToken cancellationToken = default)
+        /// <summary>异步显示阻塞。</summary>
+        public async Task<UIOverlayHandle<TView>> ShowBlockingAsync<TView>(UIKey<TView> key, object? args = null, CancellationToken cancellationToken = default) where TView : UIView
         {
+            string prefabPath = key.Path;
             cancellationToken.ThrowIfCancellationRequested();
-            if (factory.IsDisposed) return EmptyToken.Instance;
+            if (factory.IsDisposed) return UIOverlayHandle<TView>.Empty;
             if (blockingCount > 0 && blockingPath != prefabPath)
                 throw new InvalidOperationException("A blocking overlay already owns this manager. Release its tokens before opening a different prefab path.");
 
@@ -43,7 +45,7 @@ namespace UI
                 var cancellation = new CancellationTokenSource();
                 opening = source; openingCancellation = cancellation;
                 request = source.Task;
-                _ = CompleteOpeningAsync(source, requestGeneration, prefabPath, args, cancellation);
+                _ = CompleteOpeningAsync(source, requestGeneration, key, args, cancellation);
             }
             else
             {
@@ -56,18 +58,24 @@ namespace UI
             {
                 UIHandle handle = await UICancellation.WaitAsync(request, cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
-                if (factory.IsDisposed || requestGeneration != generation) return EmptyToken.Instance;
-                if (!handle.IsValid) { ReleaseBlocking(requestGeneration); return EmptyToken.Instance; }
-                return new Token(this, requestGeneration);
+                if (factory.IsDisposed || requestGeneration != generation) return UIOverlayHandle<TView>.Empty;
+                if (!handle.IsValid || !UIInstanceFactory.MatchesView(handle.View, prefabPath, UIKey<TView>.MatchesView))
+                {
+                    ReleaseBlocking(requestGeneration);
+                    return UIOverlayHandle<TView>.Empty;
+                }
+
+                return new UIOverlayHandle<TView>(this, requestGeneration, new UIHandle<TView>(handle));
             }
             catch { ReleaseBlocking(requestGeneration); throw; }
         }
 
-        async Task CompleteOpeningAsync(TaskCompletionSource<UIHandle> source, int requestGeneration, string prefabPath, object? args, CancellationTokenSource cancellation)
+        /// <summary>异步完成 Opening。</summary>
+        async Task CompleteOpeningAsync<TView>(TaskCompletionSource<UIHandle> source, int requestGeneration, UIKey<TView> key, object? args, CancellationTokenSource cancellation) where TView : UIView
         {
             try
             {
-                UIHandle handle = await factory.OpenAsync(UIKind.Overlay, UILayer.Overlay, prefabPath, args, false, true, null, cancellation.Token);
+                UIHandle handle = await factory.OpenAsync(UIKind.Overlay, UILayer.Overlay, key.Path, args, false, true, null, cancellation.Token, expectedView: UIKey<TView>.MatchesView);
                 if (factory.IsDisposed || requestGeneration != generation || cancellation.IsCancellationRequested)
                 {
                     if (handle.IsValid) factory.CloseApproved(handle, false, true, UICloseReason.Cancelled);
@@ -87,7 +95,8 @@ namespace UI
             }
         }
 
-        void ReleaseBlocking(int tokenGeneration)
+        /// <summary>释放阻塞。</summary>
+        internal void ReleaseBlocking(int tokenGeneration)
         {
             if (tokenGeneration != generation || blockingCount <= 0) return;
             if (--blockingCount != 0) return;
@@ -125,17 +134,32 @@ namespace UI
             view.Destroyed -= OnOverlayDestroyed;
             if (ReferenceEquals(blockingOverlay.View, view)) Invalidate();
         }
-        sealed class Token : IDisposable
+    }
+
+    /// <summary>一次阻塞请求。多个请求可共享视图，调用方释放自己的句柄后才解除这一份阻塞。</summary>
+    public sealed class UIOverlayHandle<TView> : IDisposable where TView : UIView
+    {
+        internal static readonly UIOverlayHandle<TView> Empty = new(null, 0, default);
+
+        OverlayManager? owner;
+        readonly int generation;
+
+        internal UIOverlayHandle(OverlayManager? owner, int generation, UIHandle<TView> handle)
         {
-            OverlayManager? owner;
-            readonly int generation;
-            public Token(OverlayManager owner, int generation) { this.owner = owner; this.generation = generation; }
-            public void Dispose() { OverlayManager? current = owner; owner = null; current?.ReleaseBlocking(generation); }
+            this.owner = owner;
+            this.generation = generation;
+            Handle = handle;
         }
-        sealed class EmptyToken : IDisposable
+
+        public UIHandle<TView> Handle { get; }
+        public bool IsValid => owner != null && Handle.IsValid;
+        public TView? View => IsValid ? Handle.View : null;
+
+        public void Dispose()
         {
-            public static readonly EmptyToken Instance = new();
-            public void Dispose() { }
+            OverlayManager? current = owner;
+            owner = null;
+            current?.ReleaseBlocking(generation);
         }
     }
 

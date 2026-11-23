@@ -170,6 +170,30 @@
     }
   },
   "sourceChanges": {
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/OverlayManager.cs": {
+      "sha256": "487058df5d133cdfb4b3a60b0940e547bc465dd013cac8202df47ca982adea97",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Dialogs/DialogManager.cs": {
+      "sha256": "ceaaa442fd86c448ee8ff72c68ba2dc4c6e67955b6348ce018e6c245bd31f767",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
+    "Packages/com.novorizon.framework.ui/Runtime/UI/Core/UIHandle.cs": {
+      "sha256": "9ee1378cf9a506ec664435ac707fb6d79f7c4049c9f5854ecb46bb2619c5a30e",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
+    "Packages/com.novorizon.framework.ui/README.md": {
+      "sha256": "fccd14d8cb2962dc295ebd264bd65a526b0b605a95628582534e15ebd5f4323e",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
+    "Packages/com.novorizon.framework.ui/Documentation~/Features.md": {
+      "sha256": "af785191465fdc020f33693476a64cc740ea93500d2f486e23e43dfbfebc2396",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
+    "Packages/com.novorizon.framework.ui/CHANGELOG.md": {
+      "sha256": "8fef42544ae7df3909a1a88ce8ac6b3c62fd3f09f1b394a4b5feade28c3b5c9c",
+      "reason": "Use typed UI keys and preserve existing prefab ownership."
+    },
     "Packages/com.novorizon.framework/Runtime/Legacy/Message/Messager.cs": {
       "sha256": "8edbc314d03c3bb88fee56cc839c2b7c8412b24bd28fdc988c22b54b7f5d2879",
       "reason": "Move consumer calls to the static manager API and preserve resource ownership."
@@ -243,8 +267,8 @@
       "reason": "Rename UI entry to UIManager and apply braced control statements"
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLauncher.cs": {
-      "sha256": "3ceb4b378e71eb59c7f366963b7ea5cb5b7f5a1b16791b8733b375d2e04bde91",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
+      "sha256": "1aad4505f23dd7879c64550db2561ad4f45643e589e758c020fb81b5abbbac88",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership. Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework/Runtime/Network/NetworkManager.Singleton.cs": {
       "sha256": "f0e1755fa4c28eaece224f3c244103e4de547ab0a0196b75d15b77fa432bfc27",
@@ -271,24 +295,24 @@
       "reason": "Preserve typed event payloads without boxing and complete network readiness across dispatcher failures and disconnect cleanup."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Internal/UIInstanceFactory.cs": {
-      "sha256": "130e2964a0397d6e750fee1a32180c491c82f54097273373d195453ebdcc43c5",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "53148eb6d3bf3b735fd58b4882924ead1b655f8872dc4d6824b7626b8637acf8",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PageNavigator.cs": {
-      "sha256": "993648295ff7224e164d9490ff70f73e92c5bd961cbb4806c88be764b3a2612e",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "ef6541e37460ae37e41205f00afa97112dabd17a8ec84c6517364941d7ffd3b8",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PanelManager.cs": {
-      "sha256": "f86de78ef76a478a9907f4629d5f31e923ca71a2b172e33efb828f3aab3bf221",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "d34c7624fac47acd725906578d7e66b37b9baeebeaf6d6c2b4dca5da9eb047ce",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/PopupManager.cs": {
-      "sha256": "c5649746cd5ac23588218be343a3adc16af15f31bdade8f57b6b0e5955ef56fd",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "03eadb59a20e60451c124f72da60643d13f6d29cc0eee1147a3406f3f0e8479f",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Runtime/UI/Managers/ToastManager.cs": {
-      "sha256": "6a59c49d2d1417d33a14acd6aa05348796d9b157a545cce23b7bbc9ce44b0eab",
-      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release"
+      "sha256": "6a741c3aa307b9e71c8ed28b133ace72571d98d8f2310dff66453bb9e44969b5",
+      "reason": "Complete UI lifecycle, duplicate-open policies, cancellation and asynchronous lease release Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.yooasset/Runtime/YooAssetSceneLoader.cs": {
       "sha256": "3e45155cf7127aa0bc366d664b4d8b49a1b84321f5285197cb1b571e81d61d6f",
@@ -455,20 +479,20 @@
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoHomePage.cs": {
-      "sha256": "fc78d0c40ac376e4819d3739680c5f8f29d80b2f9883e1d3fcacc9527a326223",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
+      "sha256": "e8c51b3f301e7ef3bb618252aa49a8e9c6d307d31ab35dbfed4ba76a6c649d5d",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership. Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoInventoryPage.cs": {
-      "sha256": "9b03f3ab188f7db5fe2c362c35b12b7b8540948ee0a342b09c9a00fb904a15f8",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
+      "sha256": "eae8a1df14a3ad16d57de763946128f81a42c92bb0bcfb46c39ef9845b35acbe",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership. Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoLoadingOverlay.cs": {
       "sha256": "c43b71d73cdb8dd220c026a23fd2cdd0801e990e9fc1fe3eb50f5d3ccb9686db",
       "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPanel.cs": {
-      "sha256": "9a664e8e018fd9fa78a6dbd1054d451a35d9df37c8a8497e7a224d37c019d3a3",
-      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership."
+      "sha256": "03424621dcfa40bd5a61dd58e4c01fb49a9f6a62aecd7f39cf7dba8b50a7a7dc",
+      "reason": "Use TextMeshPro labels/font assets in runtime UI samples, with explicit TMP assembly references and default-font validation. Move consumer calls to the static manager API and preserve resource ownership. Use typed UI keys and preserve existing prefab ownership."
     },
     "Packages/com.novorizon.framework.ui/Samples~/Demo/Runtime/UIDemoPopup.cs": {
       "sha256": "cf22eaed9ee140a927218a4fb0a1457b7f929e65a4e58d9354ece2f76d24a298",

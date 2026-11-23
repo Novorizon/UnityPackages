@@ -15,7 +15,7 @@ namespace UI
     public sealed class ToastManager : IDisposable
     {
         readonly UIInstanceFactory factory;
-        readonly Queue<(string path, object? args, ToastOptions? options)> queue = new();
+        readonly Queue<(string path, object? args, Predicate<UIView> expectedView)> queue = new();
         UIHandle current;
         bool isRunning;
         bool disposed;
@@ -27,14 +27,15 @@ namespace UI
             factory.Disposed += Dispose;
         }
 
-        public void Enqueue(string prefabPath, object? args = null, ToastOptions? options = null)
+        /// <summary>入队提示管理器。</summary>
+        public void Enqueue<TView>(UIKey<TView> key, object? args = null, ToastOptions? options = null) where TView : UIToast
         {
             if (disposed || factory.IsDisposed)
             {
                 return;
             }
 
-            queue.Enqueue((prefabPath, args, options));
+            queue.Enqueue((key.Path, args, UIKey<TView>.MatchesView));
             StartIfNeeded();
         }
 
@@ -61,7 +62,7 @@ namespace UI
                     UIHandle handle;
                     try
                     {
-                        handle = await factory.OpenAsync(UIKind.Toast, UILayer.Toast, item.path, item.args, true, true, null, cancellation.Token);
+                        handle = await factory.OpenAsync(UIKind.Toast, UILayer.Toast, item.path, item.args, true, true, null, cancellation.Token, expectedView: item.expectedView);
                     }
                     catch (Exception exception)
                     {

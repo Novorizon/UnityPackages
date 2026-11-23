@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using Game.Framework;
 using Game.Framework.Localization;
@@ -14,6 +16,81 @@ using Object = UnityEngine.Object;
 
 public sealed class NativeUiAcceptanceTests
 {
+    [UnityTest]
+    public IEnumerator TypedPopupRejectsWrongPrefabAndClosesTheMatchingInstance()
+    {
+        var root = new GameObject("Typed UI layer", typeof(RectTransform));
+        var prefab = new GameObject("Typed popup prefab", typeof(RectTransform), typeof(TypedPopup));
+        prefab.SetActive(false);
+        const string path = "UI/Test/TypedPopup";
+        var key = new UIKey<TypedPopup>(path);
+        var wrong = new UIKey<WrongPopup>(path);
+        int loads = 0, releases = 0;
+        var loader = new DelegateUIAssetLoader(address =>
+        {
+            Assert.That(address, Is.EqualTo(path));
+            loads++;
+            return Task.FromResult(prefab);
+        }, released =>
+        {
+            Assert.That(released, Is.SameAs(prefab));
+            releases++;
+        });
+        using var factory = new UIInstanceFactory(loader, new Dictionary<UILayer, Transform> { [UILayer.Popup] = root.transform }, 1);
+        var popups = new PopupManager(factory);
+        var options = new PopupOptions { Modal = false, CacheOnClose = false };
+        try
+        {
+            LogAssert.Expect(LogType.Error, "[UI] Prefab view does not match its UIKey: UI/Test/TypedPopup (TypedPopup)");
+            var rejected = popups.OpenAsync(wrong, options: options);
+            while (!rejected.IsCompleted)
+            {
+                yield return null;
+            }
+
+            Assert.That(rejected.GetAwaiter().GetResult().IsValid, Is.False);
+            Assert.That(root.transform.childCount, Is.Zero);
+            Assert.That(factory.CachedCount, Is.Zero);
+            Assert.That(releases, Is.EqualTo(1));
+
+            var opening = popups.OpenAsync(key, options: options);
+            while (!opening.IsCompleted)
+            {
+                yield return null;
+            }
+
+            UIHandle<TypedPopup> handle = opening.GetAwaiter().GetResult();
+            Assert.That(handle.IsValid, Is.True);
+            Assert.That(handle.View, Is.Not.Null);
+            Assert.That(handle.Path, Is.EqualTo(path));
+            Assert.That(popups.TryClose(handle), Is.True);
+            Assert.That(handle.IsValid, Is.False);
+            Assert.That(releases, Is.EqualTo(1));
+            var drained = factory.DisposeAsync();
+            while (!drained.IsCompleted)
+            {
+                yield return null;
+            }
+
+            drained.GetAwaiter().GetResult();
+            Assert.That(loads, Is.EqualTo(2));
+            Assert.That(releases, Is.EqualTo(2));
+        }
+        finally
+        {
+            Object.Destroy(root);
+            Object.Destroy(prefab);
+        }
+    }
+
+    sealed class TypedPopup : UIPopup
+    {
+    }
+
+    sealed class WrongPopup : UIPopup
+    {
+    }
+
     [UnityTest]
     public IEnumerator DynamicRowsSeekAndReleaseWithNativeScrollRectAndDeferredDestroy()
     {

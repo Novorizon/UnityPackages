@@ -12,7 +12,6 @@ namespace UI.Demo
     /// <summary>Only run in the dedicated sample scene. Builds all UI and retains its own resources.</summary>
     public sealed class UIDemoLauncher : MonoBehaviour
     {
-        public const string Home = "demo/home", Inventory = "demo/inventory", Popup = "demo/popup", Panel = "demo/panel", Confirm = "demo/confirm", Loading = "demo/loading", Toast = "demo/toast";
         readonly CancellationTokenSource lifetime = new();
         UIManager? root;
         UISettings? settings;
@@ -61,7 +60,7 @@ namespace UI.Demo
                 UIManager.SetEventSystem(input.GetComponent<EventSystem>());
                 loader = CreateLoader(false);
                 UIManager.SetAssetLoader(loader);
-                await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
+                await UIManager.Pages.ResetToAsync(UIDemoKeys.Home, this, lifetime.Token);
                 Note("Ready. Every window is created from runtime templates; no resource package is required.");
             }
             catch
@@ -103,13 +102,13 @@ namespace UI.Demo
             var value = new UIDemoAssetLoader(slow ? "Delayed UI Demo" : "Immediate UI Demo", slow ? 400 : 0);
             try
             {
-                value.Register(Home, UIDemoWidgets.Template<UIDemoHomePage>("Home", UIDemoWidgets.Background));
-                value.Register(Inventory, UIDemoWidgets.Template<UIDemoInventoryPage>("Inventory", UIDemoWidgets.Background));
-                value.Register(Popup, UIDemoWidgets.Template<UIDemoPopup>("Popup", new Color(0, 0, 0, 0)));
-                value.Register(Panel, UIDemoWidgets.Template<UIDemoPanel>("Panel", new Color(0, 0, 0, 0)));
-                value.Register(Confirm, UIDemoWidgets.Template<UIDemoConfirmPopup>("Confirm", new Color(0, 0, 0, 0)));
-                value.Register(Loading, UIDemoWidgets.Template<UIDemoLoadingOverlay>("Loading", new Color(0, 0, 0, .7f)));
-                value.Register(Toast, UIDemoWidgets.Template<UIDemoToast>("Toast", new Color(0, 0, 0, 0)));
+                value.Register(UIDemoKeys.Home.Path, UIDemoWidgets.Template<UIDemoHomePage>("Home", UIDemoWidgets.Background));
+                value.Register(UIDemoKeys.Inventory.Path, UIDemoWidgets.Template<UIDemoInventoryPage>("Inventory", UIDemoWidgets.Background));
+                value.Register(UIDemoKeys.Popup.Path, UIDemoWidgets.Template<UIDemoPopup>("Popup", new Color(0, 0, 0, 0)));
+                value.Register(UIDemoKeys.Panel.Path, UIDemoWidgets.Template<UIDemoPanel>("Panel", new Color(0, 0, 0, 0)));
+                value.Register(UIDemoKeys.Confirm.Path, UIDemoWidgets.Template<UIDemoConfirmPopup>("Confirm", new Color(0, 0, 0, 0)));
+                value.Register(UIDemoKeys.Loading.Path, UIDemoWidgets.Template<UIDemoLoadingOverlay>("Loading", new Color(0, 0, 0, .7f)));
+                value.Register(UIDemoKeys.Toast.Path, UIDemoWidgets.Template<UIDemoToast>("Toast", new Color(0, 0, 0, 0)));
                 return value;
             }
             catch
@@ -120,11 +119,11 @@ namespace UI.Demo
         }
 
         /// <summary>异步显示物品清单。</summary>
-        public async Task ShowInventoryAsync() => await UIManager.Pages.PushAsync(Inventory, this, lifetime.Token);
+        public async Task ShowInventoryAsync() => await UIManager.Pages.PushAsync(UIDemoKeys.Inventory, this, lifetime.Token);
         /// <summary>异步显示弹窗。</summary>
-        public async Task ShowPopupAsync() => await UIManager.Popups.OpenAsync(Popup, this, cancellationToken: lifetime.Token);
+        public async Task ShowPopupAsync() => await UIManager.Popups.OpenAsync(UIDemoKeys.Popup, this, cancellationToken: lifetime.Token);
         /// <summary>异步显示面板。</summary>
-        public async Task ShowPanelAsync() => await UIManager.Panels.ToggleAsync(Panel, this, lifetime.Token);
+        public async Task ShowPanelAsync() => await UIManager.Panels.ToggleAsync(UIDemoKeys.Panel, this, lifetime.Token);
         /// <summary>取得返回 Async。</summary>
         public async Task BackAsync()
         {
@@ -138,7 +137,7 @@ namespace UI.Demo
         }
 
         /// <summary>根据传入参数取得AskAsync。</summary>
-        internal Task<UIDialogResult<bool>> AskAsync(string question, CancellationToken token) => UIManager.Dialogs.ShowAsync<bool>(Confirm, new UIDemoQuestion(this, question), cancellationToken: token);
+        internal Task<UIDialogResult<bool>> AskAsync(string question, CancellationToken token) => UIManager.Dialogs.ShowAsync<UIDemoConfirmPopup, bool>(UIDemoKeys.Confirm, new UIDemoQuestion(this, question), cancellationToken: token);
         /// <summary>异步显示覆盖层。</summary>
         public async Task ShowOverlayAsync()
         {
@@ -152,7 +151,7 @@ namespace UI.Demo
             overlayCancellation = cancel;
             try
             {
-                using var owned = await UIManager.Overlays.ShowBlockingAsync(Loading, this, cancel.Token);
+                using var owned = await UIManager.Overlays.ShowBlockingAsync(UIDemoKeys.Loading, this, cancel.Token);
                 Note("Overlay owns an input gate for 4 seconds. Its own Cancel button remains available.");
                 await Task.Delay(4000, cancel.Token);
                 Note("Overlay token released; Back works again.");
@@ -174,7 +173,7 @@ namespace UI.Demo
 
         public void CancelOverlay() => overlayCancellation?.Cancel();
         /// <summary>显示提示。</summary>
-        public void ShowToast() => UIManager.Toasts.Enqueue(Toast, "Toast: cached view, completion-driven queue.");
+        public void ShowToast() => UIManager.Toasts.Enqueue(UIDemoKeys.Toast, "Toast: cached view, completion-driven queue.");
         /// <summary>发布时钟脉冲。</summary>
         public void PublishPulse()
         {
@@ -187,7 +186,7 @@ namespace UI.Demo
         {
             CancelOverlay();
             UIManager.ResetAll();
-            await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
+            await UIManager.Pages.ResetToAsync(UIDemoKeys.Home, this, lifetime.Token);
             Note("Reset created fresh managers; old scopes and UI handles ended.");
         }
 
@@ -209,7 +208,7 @@ namespace UI.Demo
             }
 
             previous?.Retire();
-            await UIManager.Pages.ResetToAsync(Home, this, lifetime.Token);
+            await UIManager.Pages.ResetToAsync(UIDemoKeys.Home, this, lifetime.Token);
             Note(delayed ? "Switched interface implementation: every load now waits 400 ms." : "Switched back to immediate in-memory loading.");
         }
 

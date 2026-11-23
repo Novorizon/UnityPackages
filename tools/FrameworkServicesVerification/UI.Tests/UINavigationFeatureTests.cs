@@ -63,9 +63,9 @@ public sealed class UINavigationFeatureTests : IDisposable
         var(factory, loader) = Create<ProbePage>();
         loader.Delayed.Add("slow");
         var pages = new PageNavigator(factory);
-        Task<UIHandle> first = pages.PushAsync("slow");
+        Task<UIHandle<ProbePage>> first = pages.PushAsync(new UIKey<ProbePage>("slow"));
         using var cancellation = new CancellationTokenSource();
-        Task<UIHandle> queued = pages.PushAsync("queued", cancellationToken: cancellation.Token);
+        Task<UIHandle<ProbePage>> queued = pages.PushAsync(new UIKey<ProbePage>("queued"), cancellationToken: cancellation.Token);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => queued.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.DoesNotContain(loader.Requests, request => request.Path == "queued");
@@ -81,7 +81,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         loader.Delayed.Add("popup");
         var popups = new PopupManager(factory);
         using var cancellation = new CancellationTokenSource();
-        Task<UIHandle> pending = popups.OpenAsync("popup", cancellationToken: cancellation.Token);
+        Task<UIHandle<ProbePopup>> pending = popups.OpenAsync(new UIKey<ProbePopup>("popup"), cancellationToken: cancellation.Token);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => pending.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.Equal(0, popups.Count);
@@ -101,9 +101,9 @@ public sealed class UINavigationFeatureTests : IDisposable
         {
             SingletonByPath = true
         };
-        var existing = await popups.OpenAsync("popup", options: options);
+        var existing = await popups.OpenAsync(new UIKey<ProbePopup>("popup"), options: options);
         using var cancellation = new CancellationTokenSource();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => popups.OpenAsync("popup", (Action)cancellation.Cancel, options, cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => popups.OpenAsync(new UIKey<ProbePopup>("popup"), (Action)cancellation.Cancel, options, cancellation.Token));
         Assert.True(existing.IsValid);
         Assert.Equal(1, popups.Count);
         Assert.Equal(1, factory.ActiveCount);
@@ -114,15 +114,15 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(factory, loader) = Create<ProbePanel>();
         var panels = new PanelManager(factory);
-        var previous = await panels.PushInGroupAsync("inventory", "first");
+        var previous = await panels.PushInGroupAsync("inventory", new UIKey<ProbePanel>("first"));
         loader.Delayed.Add("second");
         using var cancellation = new CancellationTokenSource();
-        Task<UIHandle> pending = panels.PushInGroupAsync("inventory", "second", cancellationToken: cancellation.Token);
+        Task<UIHandle<ProbePanel>> pending = panels.PushInGroupAsync("inventory", new UIKey<ProbePanel>("second"), cancellationToken: cancellation.Token);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => pending.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.True(previous.IsValid);
         Assert.True(previous.View!.IsVisible);
-        Assert.True(panels.IsShown("first"));
+        Assert.True(panels.IsShown(new UIKey<ProbePanel>("first")));
         loader.Complete(1);
         await DrainAsync();
         Assert.Equal(1, loader.Releases);
@@ -134,12 +134,12 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(factory, _) = Create<ProbePage>();
         var pages = new PageNavigator(factory);
-        var first = await pages.PushAsync("first");
+        var first = await pages.PushAsync(new UIKey<ProbePage>("first"));
         var firstView = Assert.IsType<ProbePage>(first.View);
         CancellationToken openToken = firstView.OpenToken;
         Assert.Equal(1, firstView.ShowCalls);
         Assert.True(firstView.IsVisible);
-        var second = await pages.PushAsync("second");
+        var second = await pages.PushAsync(new UIKey<ProbePage>("second"));
         Assert.True(first.IsValid);
         Assert.True(firstView.IsOpen);
         Assert.False(firstView.IsVisible);
@@ -159,12 +159,12 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, _) = CreateRoot();
-            await UIManager.Pages.PushAsync("page");
-            await UIManager.Pages.PushAsync("page");
-            var panel = await UIManager.Panels.ShowAsync("panel");
+            await UIManager.Pages.PushAsync(new UIKey<ProbePage>("page"));
+            await UIManager.Pages.PushAsync(new UIKey<ProbePage>("page"));
+            var panel = await UIManager.Panels.ShowAsync(new UIKey<ProbePanel>("panel"));
             var panelView = Assert.IsType<ProbePanel>(panel.View);
             panelView.AllowClose = false;
-            var popup = await UIManager.Popups.OpenAsync("popup");
+            var popup = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             var popupView = Assert.IsType<ProbePopup>(popup.View);
             popupView.AllowClose = false;
             Assert.True(UIManager.HandleBack());
@@ -191,9 +191,9 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, _) = CreateRoot();
-            await UIManager.Pages.PushAsync("page");
-            await UIManager.Pages.PushAsync("page");
-            var popup = await UIManager.Popups.OpenAsync("popup");
+            await UIManager.Pages.PushAsync(new UIKey<ProbePage>("page"));
+            await UIManager.Pages.PushAsync(new UIKey<ProbePage>("page"));
+            var popup = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             var view = Assert.IsType<ProbePopup>(popup.View);
             var confirmation = new TaskCompletionSource<bool>();
             int calls = 0;
@@ -226,7 +226,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, _) = CreateRoot();
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             int calls = 0;
             Task<bool>? reentrant = null;
             handle.View!.CloseGuard = (_, _) =>
@@ -249,7 +249,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, _) = CreateRoot();
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             var approval = new TaskCompletionSource<bool>();
             int calls = 0;
             CancellationToken guardToken = default;
@@ -278,7 +278,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         {
             var(root, loader) = CreateRoot();
             loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             CancellationToken guardToken = default;
             int calls = 0;
             Task<UIDialogResult<bool>>? confirmation = null;
@@ -286,7 +286,7 @@ public sealed class UINavigationFeatureTests : IDisposable
             {
                 guardToken = token;
                 calls++;
-                confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                confirmation = UIManager.Dialogs.ShowAsync<ConfirmationPopup, bool>(new UIKey<ConfirmationPopup>("confirmation"), cancellationToken: token);
                 UIDialogResult<bool> result = await confirmation;
                 return result.HasValue && result.Value;
             };
@@ -318,11 +318,11 @@ public sealed class UINavigationFeatureTests : IDisposable
         {
             var(root, loader) = CreateRoot();
             loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             Task<UIDialogResult<bool>>? confirmation = null;
             handle.View!.CloseGuard = async (_, token) =>
             {
-                confirmation = UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                confirmation = UIManager.Dialogs.ShowAsync<ConfirmationPopup, bool>(new UIKey<ConfirmationPopup>("confirmation"), cancellationToken: token);
                 UIDialogResult<bool> result = await confirmation;
                 return result.HasValue && result.Value;
             };
@@ -344,7 +344,7 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, _) = CreateRoot();
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             var ignoredCancellation = new TaskCompletionSource<bool>();
             handle.View!.CloseGuard = (_, _) => ignoredCancellation.Task;
             using var cancellation = new CancellationTokenSource();
@@ -365,10 +365,10 @@ public sealed class UINavigationFeatureTests : IDisposable
         {
             var(root, loader) = CreateRoot();
             loader.Assets.Add("confirmation", Prefab<ConfirmationPopup>());
-            var handle = await UIManager.Popups.OpenAsync("popup");
+            var handle = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             handle.View!.CloseGuard = async (_, token) =>
             {
-                UIDialogResult<bool> result = await UIManager.Dialogs.ShowAsync<bool>("confirmation", cancellationToken: token);
+                UIDialogResult<bool> result = await UIManager.Dialogs.ShowAsync<ConfirmationPopup, bool>(new UIKey<ConfirmationPopup>("confirmation"), cancellationToken: token);
                 return result.HasValue && result.Value;
             };
             Task<bool> pending = UIManager.HandleBackAsync();
@@ -377,7 +377,7 @@ public sealed class UINavigationFeatureTests : IDisposable
             Assert.False(await pending.WaitAsync(TimeSpan.FromSeconds(3)));
             Assert.Equal(0, UIManager.Popups.Count);
             Assert.False(handle.IsValid);
-            var fresh = await UIManager.Popups.OpenAsync("popup");
+            var fresh = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             Assert.True(await UIManager.HandleBackAsync());
             Assert.False(fresh.IsValid);
         });
@@ -387,11 +387,11 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(factory, _) = Create<ProbePopup>();
         var popups = new PopupManager(factory);
-        var first = await popups.OpenAsync("first");
+        var first = await popups.OpenAsync(new UIKey<ProbePopup>("first"));
         var confirmation = new TaskCompletionSource<bool>();
         first.View!.CloseGuard = (_, _) => confirmation.Task;
         Task<bool> close = popups.CloseTopAsync();
-        var second = await popups.OpenAsync("second");
+        var second = await popups.OpenAsync(new UIKey<ProbePopup>("second"));
         confirmation.SetResult(true);
         Assert.False(await close);
         Assert.True(first.IsValid);
@@ -404,7 +404,7 @@ public sealed class UINavigationFeatureTests : IDisposable
     {
         var(factory, _) = Create<ProbePopup>();
         var popups = new PopupManager(factory);
-        var handle = await popups.OpenAsync("popup");
+        var handle = await popups.OpenAsync(new UIKey<ProbePopup>("popup"));
         handle.View!.CloseGuard = async (_, ct) =>
         {
             await Task.Delay(Timeout.Infinite, ct);
@@ -423,10 +423,10 @@ public sealed class UINavigationFeatureTests : IDisposable
         UIDialogTests.QueuedContext.RunOnCurrentThread(async () =>
         {
             var(root, loader) = CreateRoot();
-            var popup = await UIManager.Popups.OpenAsync("popup");
+            var popup = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
             loader.Delayed.Add("overlay");
             using var cancellation = new CancellationTokenSource();
-            Task<IDisposable> showing = UIManager.Overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
+            Task<UIOverlayHandle<ProbeOverlay>> showing = UIManager.Overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("overlay"), cancellationToken: cancellation.Token);
             Assert.True(UIManager.Overlays.IsBlocking);
             Assert.True(UIManager.HandleBack());
             Assert.True(await UIManager.HandleBackAsync());
@@ -449,8 +449,8 @@ public sealed class UINavigationFeatureTests : IDisposable
         loader.Delayed.Add("overlay");
         var overlays = new OverlayManager(factory);
         using var cancellation = new CancellationTokenSource();
-        Task<IDisposable> first = overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
-        Task<IDisposable> second = overlays.ShowBlockingAsync("overlay");
+        Task<UIOverlayHandle<ProbeOverlay>> first = overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("overlay"), cancellationToken: cancellation.Token);
+        Task<UIOverlayHandle<ProbeOverlay>> second = overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("overlay"));
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => first.WaitAsync(TimeSpan.FromSeconds(3)));
         Assert.True(overlays.IsBlocking);
@@ -473,10 +473,10 @@ public sealed class UINavigationFeatureTests : IDisposable
         loader.Delayed.Add("overlay");
         var overlays = new OverlayManager(factory);
         using var cancellation = new CancellationTokenSource();
-        Task<IDisposable> obsolete = overlays.ShowBlockingAsync("overlay", cancellationToken: cancellation.Token);
+        Task<UIOverlayHandle<ProbeOverlay>> obsolete = overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("overlay"), cancellationToken: cancellation.Token);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => obsolete.WaitAsync(TimeSpan.FromSeconds(3)));
-        Task<IDisposable> replacement = overlays.ShowBlockingAsync("overlay");
+        Task<UIOverlayHandle<ProbeOverlay>> replacement = overlays.ShowBlockingAsync(new UIKey<ProbeOverlay>("overlay"));
         loader.Complete(0);
         await DrainAsync();
         Assert.Equal(1, loader.Releases);
@@ -492,7 +492,7 @@ public sealed class UINavigationFeatureTests : IDisposable
     public async Task ResetBypassesTheCloseGuardAndRecordsTheResetReason()
     {
         var(root, _) = CreateRoot();
-        var popup = await UIManager.Popups.OpenAsync("popup");
+        var popup = await UIManager.Popups.OpenAsync(new UIKey<ProbePopup>("popup"));
         var view = Assert.IsType<ProbePopup>(popup.View);
         view.AllowClose = false;
         view.CloseGuard = (_, _) => Task.FromResult(false);

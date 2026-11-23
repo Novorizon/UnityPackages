@@ -34,7 +34,7 @@ void ConfigureUi(
 }
 ```
 
-传入的 key 对 UI 是不透明字符串，可由项目解释为 Resources 路径、资源地址或其他标识。每次成功加载代表一份租约，即使多个调用返回同一个 Prefab 也要分别计数。UI 缓存期间保留租约，实例实际销毁后归还；适配器不能释放其他使用者仍依赖的共享资源。UI 不会 Dispose 项目共享的 loader。
+业务传入 `UIKey<TView>`，加载器接收其中的 `Path`。地址可由项目解释为 Resources 路径、资源地址或其他标识。每次成功加载代表一份租约，即使多个调用返回同一个 Prefab 也要分别计数。UI 缓存期间保留租约，实例实际销毁后归还；适配器不能释放其他使用者仍依赖的共享资源。UI 不会 Dispose 项目共享的 loader。
 
 切换 loader 会先关闭旧 UI、废弃旧管理器。迟到的加载仍归还给它原来的 loader，不会交给新 loader。取消只保证结束 UI 等待并清理该次所有权；不支持中断的底层读取仍可能继续，不会伪装成下载或磁盘操作已经被终止。
 
@@ -73,12 +73,24 @@ async Task RefreshAsync(CancellationToken token)
 
 缓存仍会保留自定义视图字段。大型业务模型、图片引用或在 OnOpen 中设置的闭包，应由业务在 OnClose 中清理；生命周期作用域管理的是已登记订阅与取消任务，不会自动擦除所有业务字段。
 
+## 声明 key 并打开视图
+
+```csharp
+static class UiKeys
+{
+    internal static readonly UIKey<InventoryPage> Inventory = new("UI/Pages/Inventory");
+    internal static readonly UIKey<ConfirmPopup> Confirm = new("UI/Popups/ConfirmPopup");
+    internal static readonly UIKey<LoadingOverlay> Loading = new("UI/Overlays/Loading");
+}
+```
+
+`Pages.PushAsync`、`Popups.OpenAsync` 和 `Panels.ShowAsync` 返回 `UIHandle<TView>`。使用视图前检查 `IsValid`，关闭时可直接把句柄传给 `CloseAsync` 或 `HideAsync`。缓存重开沿用原实例时，新旧句柄仍有不同的 `Id`。`using var overlay = await UIManager.Overlays.ShowBlockingAsync(UiKeys.Loading);` 持有一份独立阻塞，`overlay.View` 提供当前类型化视图。Dialog 返回选择结果，Toast 只将 key 入队。
+
 ## 取消一次打开
 
 ```csharp
 using var cancel = new CancellationTokenSource();
-var opening = UI.UIManager.Pages.PushAsync(
-    "UI/Pages/Inventory", cancellationToken: cancel.Token);
+var opening = UIManager.Pages.PushAsync(UiKeys.Inventory, cancellationToken: cancel.Token);
 // 离开该业务流程时 cancel.Cancel();
 var handle = await opening;
 ```
@@ -95,8 +107,8 @@ protected override void OnCreate() => CloseGuard = ConfirmCloseAsync;
 async Task<bool> ConfirmCloseAsync(UICloseReason reason, CancellationToken token)
 {
     if (!hasUnsavedChanges) return true;
-    var choice = await UI.UIManager.Dialogs.ShowAsync<bool>(
-        "UI/Popups/ConfirmPopup", "Discard changes?", cancellationToken: token);
+    var choice = await UIManager.Dialogs.ShowAsync<ConfirmPopup, bool>(
+        UiKeys.Confirm, "Discard changes?", cancellationToken: token);
     return choice.HasValue && choice.Value;
 }
 ```
@@ -112,8 +124,8 @@ CloseReason 包括 Programmatic、Back、Blocker、Replaced、Reset、Disposed�
 具体 Prefab 组件继承 `UIResultPopup<bool>` 等闭合类型，按钮调用 `Complete(true)` 或 `Complete(false)`：
 
 ```csharp
-var result = await UI.UIManager.Dialogs.ShowAsync<bool>(
-    "UI/Popups/ConfirmPopup", "Delete this item?", cancellationToken: token);
+var result = await UIManager.Dialogs.ShowAsync<ConfirmPopup, bool>(
+    UiKeys.Confirm, "Delete this item?", cancellationToken: token);
 if (result.HasValue && result.Value)
     DeleteItem();
 ```

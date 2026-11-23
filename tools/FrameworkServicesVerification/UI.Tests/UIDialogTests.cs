@@ -6,6 +6,9 @@ using Object = UnityEngine.Object;
 namespace Game.Framework.UI.Tests;
 public sealed class UIDialogTests : IDisposable
 {
+    static readonly UIKey<ChoicePopup> Choice = new("choice");
+    static readonly UIKey<ConfirmPopup> Confirm = new("confirm");
+
     readonly GameObject layer;
     readonly Loader loader = new();
     readonly UIInstanceFactory factory;
@@ -18,8 +21,8 @@ public sealed class UIDialogTests : IDisposable
         factory = new UIInstanceFactory(loader, Enum.GetValues<UILayer>().ToDictionary(value => value, _ => layer.transform), 1);
         popups = new PopupManager(factory);
         dialogs = new DialogManager(popups);
-        Register<ChoicePopup>("choice");
-        Register<ConfirmPopup>("confirm");
+        Register<ChoicePopup>(Choice.Path);
+        Register<ConfirmPopup>(Confirm.Path);
         Register<PlainPopup>("plain");
     }
 
@@ -43,7 +46,7 @@ public sealed class UIDialogTests : IDisposable
     [Fact]
     public async Task FalseIsACompletedValueAndSynchronousOnOpenCompletionIsNotLost()
     {
-        var result = await dialogs.ShowAsync<bool>("confirm", (Action<ConfirmPopup>)(popup => popup.Select(false)));
+        var result = await dialogs.ShowAsync<ConfirmPopup, bool>(Confirm, (Action<ConfirmPopup>)(popup => popup.Select(false)));
         Assert.True(result.HasValue);
         Assert.False(result.Value);
         Assert.True(result.TryGetValue(out bool value));
@@ -58,7 +61,7 @@ public sealed class UIDialogTests : IDisposable
     public async Task SelectionWaitsForThePopupAndClosesItBeforeReturningTheValue()
     {
         ChoicePopup? view = null;
-        var showing = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(popup => view = popup));
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(popup => view = popup));
         Assert.False(showing.IsCompleted);
         Assert.NotNull(view);
         Assert.True(view.Select("sword"));
@@ -77,7 +80,7 @@ public sealed class UIDialogTests : IDisposable
     [InlineData(UICloseReason.Programmatic)]
     public async Task DismissalHasNoValueAndPreservesTheCloseReason(UICloseReason reason)
     {
-        var showing = dialogs.ShowAsync<string>("choice");
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice);
         Assert.True(popups.TryClose(popups.Peek()!.Value, reason));
         var result = await showing;
         Assert.False(result.HasValue);
@@ -90,7 +93,7 @@ public sealed class UIDialogTests : IDisposable
     [Fact]
     public async Task ExternalNativeDestructionCompletesTheAwaiterWithDestroyedReason()
     {
-        var showing = dialogs.ShowAsync<string>("choice");
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice);
         var handle = popups.Peek()!.Value;
         Object.DeferGameObjectDestructionForTest = true;
         Object.Destroy(handle.View!.gameObject);
@@ -109,8 +112,8 @@ public sealed class UIDialogTests : IDisposable
     {
         ChoicePopup? first = null;
         using var cancellation = new CancellationTokenSource();
-        var firstTask = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => first = view));
-        var secondTask = dialogs.ShowAsync<string>("choice", cancellationToken: cancellation.Token);
+        var firstTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => first = view));
+        var secondTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, cancellationToken: cancellation.Token);
         Assert.Equal(2, popups.Count);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => secondTask);
@@ -127,7 +130,7 @@ public sealed class UIDialogTests : IDisposable
     {
         loader.Delay = new TaskCompletionSource<GameObject?>();
         using var cancellation = new CancellationTokenSource();
-        var showing = dialogs.ShowAsync<string>("choice", cancellationToken: cancellation.Token);
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, cancellationToken: cancellation.Token);
         Assert.False(showing.IsCompleted);
         cancellation.Cancel();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => showing);
@@ -148,13 +151,13 @@ public sealed class UIDialogTests : IDisposable
     public async Task CachedReuseHasANewSessionAndOldCapturedCallbacksCannotCompleteIt()
     {
         ChoicePopup? first = null;
-        var firstTask = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => first = view));
+        var firstTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => first = view));
         Assert.NotNull(first);
         Action<string> staleCompletion = first.Capture();
         first.Select("first");
         Assert.Equal("first", (await firstTask).Value);
         ChoicePopup? second = null;
-        var secondTask = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => second = view));
+        var secondTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => second = view));
         Assert.Same(first, second);
         staleCompletion("stale");
         Assert.False(secondTask.IsCompleted);
@@ -168,8 +171,8 @@ public sealed class UIDialogTests : IDisposable
     public async Task ConcurrentShowsOfTheSamePrefabOwnIndependentInstancesAndResults()
     {
         ChoicePopup? first = null, second = null;
-        var firstTask = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => first = view));
-        var secondTask = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => second = view));
+        var firstTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => first = view));
+        var secondTask = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => second = view));
         Assert.NotNull(first);
         Assert.NotNull(second);
         Assert.NotSame(first, second);
@@ -185,7 +188,7 @@ public sealed class UIDialogTests : IDisposable
     public async Task CompletedSelectionBypassesACloseGuardThatWouldLeaveAnUnownedPopup()
     {
         ChoicePopup? popup = null;
-        var showing = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => popup = view));
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => popup = view));
         Assert.NotNull(popup);
         int guardCalls = 0;
         popup.CloseGuard = (_, _) =>
@@ -203,14 +206,14 @@ public sealed class UIDialogTests : IDisposable
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task WrongResultTypeDestroysTheMisconfiguredInstanceAndReleasesItsLease(bool deferred)
+    public async Task WrongResultTypeReleasesItsPrefabWithoutCreatingAnInstance(bool deferred)
     {
         Object.DeferGameObjectDestructionForTest = deferred;
-        await Assert.ThrowsAsync<InvalidOperationException>(() => dialogs.ShowAsync<int>("choice"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => dialogs.ShowAsync<UIResultPopup<int>, int>(new UIKey<UIResultPopup<int>>(Choice.Path)));
         Assert.Equal(0, popups.Count);
         Assert.Equal(0, factory.ActiveCount);
         Assert.Equal(0, factory.CachedCount);
-        Assert.Equal(deferred ? 0 : 1, loader.Releases);
+        Assert.Equal(1, loader.Releases);
         Object.FlushDestroyQueueForTest();
         Object.AdvanceFrameForTest();
         Assert.Equal(1, loader.Loads);
@@ -221,9 +224,9 @@ public sealed class UIDialogTests : IDisposable
     [Fact]
     public async Task PlainPopupAndSingletonOptionsAreRejectedWithoutLeavingAnActiveView()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => dialogs.ShowAsync<string>("choice", options: new PopupOptions { SingletonByPath = true }));
+        await Assert.ThrowsAsync<ArgumentException>(() => dialogs.ShowAsync<ChoicePopup, string>(Choice, options: new PopupOptions { SingletonByPath = true }));
         Assert.Equal(0, loader.Loads);
-        await Assert.ThrowsAsync<InvalidOperationException>(() => dialogs.ShowAsync<string>("plain"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => dialogs.ShowAsync<ChoicePopup, string>(new UIKey<ChoicePopup>("plain")));
         Assert.Equal(0, popups.Count);
         Assert.Equal(1, loader.Releases);
     }
@@ -233,7 +236,7 @@ public sealed class UIDialogTests : IDisposable
     {
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => dialogs.ShowAsync<string>("choice", cancellationToken: cancellation.Token));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => dialogs.ShowAsync<ChoicePopup, string>(Choice, cancellationToken: cancellation.Token));
         Assert.Equal(0, loader.Loads);
         Assert.Equal(0, popups.Count);
     }
@@ -241,7 +244,7 @@ public sealed class UIDialogTests : IDisposable
     [Fact]
     public async Task OwnerDisposalCompletesPendingDialogWithoutASelection()
     {
-        var showing = dialogs.ShowAsync<string>("choice");
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice);
         factory.Dispose();
         var result = await showing;
         Assert.False(result.HasValue);
@@ -254,7 +257,7 @@ public sealed class UIDialogTests : IDisposable
     public async Task CompletionCleanupFailureFaultsTheOperationWithoutKeepingThePopupActive()
     {
         ChoicePopup? popup = null;
-        var showing = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => popup = view));
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => popup = view));
         Assert.NotNull(popup);
         popup.FailClose = true;
         popup.Select("selected");
@@ -269,7 +272,7 @@ public sealed class UIDialogTests : IDisposable
     {
         using var cancellation = new CancellationTokenSource();
         ChoicePopup? popup = null;
-        var showing = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => popup = view), cancellationToken: cancellation.Token);
+        var showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => popup = view), cancellationToken: cancellation.Token);
         Assert.NotNull(popup);
         popup.FailClose = true;
         cancellation.Cancel();
@@ -290,7 +293,7 @@ public sealed class UIDialogTests : IDisposable
         try
         {
             SynchronizationContext.SetSynchronizationContext(queue);
-            showing = dialogs.ShowAsync<string>("choice");
+            showing = dialogs.ShowAsync<ChoicePopup, string>(Choice);
         }
         finally
         {
@@ -322,7 +325,7 @@ public sealed class UIDialogTests : IDisposable
         try
         {
             SynchronizationContext.SetSynchronizationContext(queue);
-            showing = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => first = view));
+            showing = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => first = view));
         }
         finally
         {
@@ -337,7 +340,7 @@ public sealed class UIDialogTests : IDisposable
         Assert.NotNull(first);
         UIHandle oldHandle = popups.Peek()!.Value;
         Assert.True(popups.TryClose(oldHandle, UICloseReason.Back));
-        UIHandle replacement = await popups.OpenAsync("choice");
+        UIHandle replacement = await popups.OpenAsync(Choice);
         Assert.Same(first, replacement.View);
         Assert.NotEqual(oldHandle.Id, replacement.Id);
         queue.RunAll();
@@ -357,7 +360,7 @@ public sealed class UIDialogTests : IDisposable
         var queue = new QueuedContext();
         var cancelledShow = StartQueuedDialog(queue, cancellation.Token);
         ChoicePopup? remaining = null;
-        var remainingShow = dialogs.ShowAsync<string>("choice", (Action<ChoicePopup>)(view => remaining = view));
+        var remainingShow = dialogs.ShowAsync<ChoicePopup, string>(Choice, (Action<ChoicePopup>)(view => remaining = view));
         cancellation.Cancel();
         Task draining = dialogs.DrainCancelledAsync();
         Assert.False(draining.IsCompleted);
@@ -425,7 +428,7 @@ public sealed class UIDialogTests : IDisposable
         try
         {
             SynchronizationContext.SetSynchronizationContext(queue);
-            return dialogs.ShowAsync<string>("choice", cancellationToken: cancellationToken);
+            return dialogs.ShowAsync<ChoicePopup, string>(Choice, cancellationToken: cancellationToken);
         }
         finally
         {

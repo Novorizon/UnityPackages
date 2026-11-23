@@ -97,7 +97,8 @@ namespace UI
         public bool IsDisposed { get; private set; }
 
         public event Action? Disposed;
-        public async Task<UIHandle> OpenAsync(UIKind kind, UILayer layer, string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, Func<Transform, UIBlocker?>? blockerFactory, CancellationToken cancellationToken = default, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh)
+        /// <summary>异步打开界面实例工厂。</summary>
+        internal async Task<UIHandle> OpenAsync(UIKind kind, UILayer layer, string prefabPath, object? args, bool allowMultiple, bool cacheOnClose, Func<Transform, UIBlocker?>? blockerFactory, CancellationToken cancellationToken = default, UIDuplicatePolicy duplicatePolicy = UIDuplicatePolicy.Refresh, Predicate<UIView>? expectedView = null)
         {
             if (IsDisposed || cancellationToken.IsCancellationRequested)
             {
@@ -132,10 +133,10 @@ namespace UI
                 RequireActiveParent(parent, layer);
                 if (!allowMultiple && TryGetSingleton(kind, layer, prefabPath, out Entry? existing))
                 {
-                    return Reopen(existing!, args, duplicatePolicy);
+                    return MatchesView(existing!.View, prefabPath, expectedView) ? Reopen(existing, args, duplicatePolicy) : default;
                 }
 
-                Entry? entry = TakeCached(prefabPath);
+                Entry? entry = TakeCached(prefabPath, expectedView);
                 if (entry == null)
                 {
                     Task<GameObject?> loadTask = loader is ICancellableUIAssetLoader cancellable ? cancellable.LoadPrefabAsync(prefabPath, operationToken) : loader.LoadPrefabAsync(prefabPath);
@@ -188,9 +189,8 @@ namespace UI
                         throw;
                     }
 
-                    if (prefab.GetComponent<UIView>() == null)
+                    if (!MatchesView(prefab.GetComponent<UIView>(), prefabPath, expectedView))
                     {
-                        Debug.LogError($"[UI] Prefab must have a UIView-derived component: {prefabPath}");
                         loader.ReleasePrefab(prefab);
                         return default;
                     }
@@ -199,7 +199,7 @@ namespace UI
                     if (!allowMultiple && TryGetSingleton(kind, layer, prefabPath, out existing))
                     {
                         loader.ReleasePrefab(prefab);
-                        return Reopen(existing!, args, duplicatePolicy);
+                        return MatchesView(existing!.View, prefabPath, expectedView) ? Reopen(existing, args, duplicatePolicy) : default;
                     }
 
                     GameObject? go = null;
@@ -212,17 +212,16 @@ namespace UI
                         go.SetActive(false);
                         go.name = prefab.name;
                         UIView? view = go.GetComponent<UIView>();
-                        if (view == null)
+                        if (!MatchesView(view, prefabPath, expectedView))
                         {
-                            Debug.LogError($"[UI] Prefab must have a UIView-derived component: {prefabPath}");
                             unregisteredDestruction = true;
                             DestroyUnregistered(go, prefab);
                             return default;
                         }
 
-                        entry = new Entry(prefabPath, prefab, view);
-                        instances.Add(view, entry);
-                        view.Destroyed += OnViewDestroyed;
+                        entry = new Entry(prefabPath, prefab, view!);
+                        instances.Add(entry.View, entry);
+                        entry.View.Destroyed += OnViewDestroyed;
                         go.transform.SetParent(parent, false);
                         if (Unavailable(entry))
                         {
@@ -231,14 +230,14 @@ namespace UI
                         }
 
                         RequireActiveParent(parent, layer);
-                        view.InternalSetVisible(true);
+                        entry.View.InternalSetVisible(true);
                         if (Unavailable(entry))
                         {
                             DestroyEntry(entry);
                             return default;
                         }
 
-                        view.InternalOnCreate();
+                        entry.View.InternalOnCreate();
                     }
                     catch
                     {
@@ -426,17 +425,23 @@ namespace UI
             return false;
         }
 
-        Entry? TakeCached(string path)
+        /// <summary>取出已缓存。</summary>
+        Entry? TakeCached(string path, Predicate<UIView>? expectedView)
         {
             if (!cached.TryGetValue(path, out List<Entry>? list))
             {
                 return null;
             }
 
-            while (list.Count > 0)
+            for (int index = list.Count - 1; index >= 0; index--)
             {
-                int index = list.Count - 1;
                 Entry entry = list[index];
+                bool alive = !entry.Destroying && entry.View != null && !entry.View.IsDestroyed;
+                if (alive && expectedView != null && !expectedView(entry.View!))
+                {
+                    continue;
+                }
+
                 list.RemoveAt(index);
                 cachedCount--;
                 if (list.Count == 0)
@@ -444,7 +449,7 @@ namespace UI
                     cached.Remove(path);
                 }
 
-                if (!entry.Destroying && entry.View != null && !entry.View.IsDestroyed)
+                if (alive)
                 {
                     return entry;
                 }
@@ -453,6 +458,25 @@ namespace UI
             return null;
         }
 
+        /// <summary>在打开、刷新或与其他调用共享实例之前校验视图。</summary>
+        internal static bool MatchesView(UIView? view, string path, Predicate<UIView>? expectedView)
+        {
+            if (view == null)
+            {
+                Debug.LogError($"[UI] Prefab must have a UIView-derived component: {path}");
+                return false;
+            }
+
+            if (expectedView == null || expectedView(view))
+            {
+                return true;
+            }
+
+            Debug.LogError($"[UI] Prefab view does not match its UIKey: {path} ({view.GetType().Name})");
+            return false;
+        }
+
+        /// <summary>处理传入的 entry。</summary>
         static UIHandle Handle(Entry entry) => new UIHandle(entry.View.InstanceId, entry.Path, entry.Kind, entry.Layer, entry.View);
         public bool CanClose(UIHandle handle, UICloseReason reason = UICloseReason.Programmatic)
         {
